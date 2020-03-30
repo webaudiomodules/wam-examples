@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+
+# testing
+coverage
+
+# production
+build/
+dist/
+
+# ide
+.vscode
+
+# misc
+.DS_Store
+.env*.local
+*-debug.log*
