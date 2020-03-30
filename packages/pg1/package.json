@@ -1,0 +1,23 @@
+{
+  "name": "pg1",
+  "version": "0.0.0",
+  "private": true,
+  "author": "53JS",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "babel-loader": "^8.1.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "main": "dist",
+  "scripts": {
+    "build": "webpack --mode production"
+  }
+}

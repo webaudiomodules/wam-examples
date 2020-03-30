@@ -14,4 +14,5 @@ dist/
 # misc
 .DS_Store
 .env*.local
-*-debug.log*
+.log*
+.cache
