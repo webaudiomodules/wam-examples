@@ -15,17 +15,42 @@ const PluginRack = ({ pluginUrl, src }) => {
 	}, []);
 
 	useEffect(() => {
-		const plugin = new global.WasabiPingPongDelay(audioContext.current, pluginUrl);
-		plugin.load().then((node) => {
+		let cleanHtml;
+		let cleanAudio;
+
+		const clean = () => {
+			if (cleanHtml) cleanHtml();
+			if (cleanAudio) cleanAudio();
+		};
+
+		const loadPlugin = async () => {
+			console.log('loadPlugin');
+			const plugin = new global.WasabiPingPongDelay(audioContext.current, pluginUrl);
+
+			const node = await plugin.load();
 			console.log('node', node);
-			plugin.loadGui().then((elem) => {
-				console.log('elem', elem);
-				pluginContainer.current.innerHtml = '';
-				pluginContainer.current.appendChild(elem);
-			});
+
+			const elem = await plugin.loadGui();
+			console.log('elem', elem);
+
+			pluginContainer.current.appendChild(elem);
+			const previousPluginContainer = pluginContainer.current;
+			cleanHtml = () => { previousPluginContainer.innerHtml = ''; };
+
 			mediaSource.current.connect(node);
 			node.connect(audioContext.current.destination);
-		});
+
+			const previousMediaSource = mediaSource.current;
+			const previousAudioContext = audioContext.current;
+			cleanAudio = () => {
+				previousMediaSource.disconnect(node);
+				node.disconnect(previousAudioContext.destination);
+			};
+		};
+
+		loadPlugin();
+
+		return clean;
 	}, [pluginUrl]);
 
 	return (
