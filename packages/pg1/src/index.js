@@ -19,10 +19,11 @@ Pg1.propTypes = {
 };
 
 const render = (node) => {
-	console.log(ReactDOM.version);
+	console.info(`[Pg1] React version: ${ReactDOM.version}`);
 	ReactDOM.render(<Pg1 />, node);
 };
 
-export { render };
-
-export default render;
+export {
+	Pg1,
+	render,
+};
