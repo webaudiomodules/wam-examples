@@ -1,19 +1,27 @@
 import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-const Pg1 = () => {
-    const handleClick = useCallback(() => {
-        alert("Hello world")
-    }, []);
+const Pg1 = ({ name }) => {
+	const handleClick = useCallback(() => {
+		alert(`Hello ${name} from Pg1`);
+	}, [name]);
 
 	return (
 		<p>
-			Hello World, <button onClick={handleClick}>click !</button>
+			Pg1: <button type="button" onClick={handleClick}>click !</button>
 		</p>
 	);
-}
+};
 
-const render = (node) => ReactDOM.render(<Pg1 />, node);
+Pg1.propTypes = {
+	name: PropTypes.string.isRequired,
+};
+
+const render = (node) => {
+	console.log(ReactDOM.version);
+	ReactDOM.render(<Pg1 />, node);
+};
 
 export { render };
 

@@ -1,13 +1,13 @@
 {
-  "name": "pg1",
+  "name": "pg2",
   "version": "0.0.0",
   "private": true,
   "author": "53JS",
   "license": "UNLICENSED",
   "dependencies": {
     "prop-types": "^15.7.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^0.14",
+    "react-dom": "^0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

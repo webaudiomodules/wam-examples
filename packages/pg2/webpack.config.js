@@ -13,7 +13,7 @@ module.exports = {
 		],
 	},
 	output: {
-		filename: 'pg1.js',
-		library: 'pg1',
+		filename: 'pg2.js',
+		library: 'pg2',
 	},
 };
