@@ -4,7 +4,7 @@ import CompositeAudioNode from './CompositeAudioNode';
 export default class WebAudioPluginCompositeNode extends CompositeAudioNode {
 	constructor(context, options) {
 		super(context, options);
-		this.context = context || new AudioContext();
+		// this.context = context || new AudioContext();
 		this._descriptor = {};
 		this.params = {};
 		// Do stuffs below.

@@ -41,10 +41,11 @@
 			const audioContext = new AudioContext();
 			const mediaElementSource = audioContext.createMediaElementSource(player);
 
-
 			const connectPlugin = (audioNode) => {
-				mediaElementSource.connect(audioNode._input); // instead of patching AudioNode, use composite input and output
-				audioNode._output.connect(audioContext.destination);
+				// mediaElementSource.connect(audioNode._input); // instead of patching AudioNode, use composite input and output
+				// audioNode._output.connect(audioContext.destination);
+				mediaElementSource.connect(audioNode);
+				audioNode.connect(audioContext.destination);
 			};
 
 			const mountPlugin = (domNode) => {

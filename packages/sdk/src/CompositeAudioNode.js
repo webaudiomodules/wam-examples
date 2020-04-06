@@ -1,11 +1,12 @@
 /* eslint-disable no-underscore-dangle */
-export default class CompositeAudioNode {
+export default class CompositeAudioNode extends GainNode {
 	get _isCompositeAudioNode() {
 		return true;
 	}
 
 	constructor(context, URL, options) {
-		this.context = context;
+		super(context);
+		// this.context = context;
 		this.URL = URL;
 		this.options = options;
 		/**
@@ -32,24 +33,27 @@ export default class CompositeAudioNode {
 		 * Initial I/O structur and and I/O  of the composite node
 		 *
 		 */
-		this.inputs = [];
-		this.outputs = [];
-		this.inputsMidi = [];
-		this.outputsMidi = [];
+		// this.gain.value = 1;
+		// this.inputs = [];
+		// this.outputs = [];
+		// this.inputsMidi = [];
+		// this.outputsMidi = [];
 		this._input = this.context.createGain();
 		this._output = this.context.createGain();
-		this.inputs.push(this._input);
-		this.outputs.push(this._output);
+		//this.inputs.push(this._input);
+		//this.outputs.push(this._output);
+		super.connect(this._input);
 	}
 
-	connect() {
-		for (let i = 0; i < this.outputs.length; i++) {
-			this.outputs[i].connect.apply(this._output, arguments);
-		}
+	connect(...args) {
+		// for (let i = 0; i < this.outputs.length; i++) {
+		// 	this.outputs[i].connect.apply(this._output, arguments);
+		// }
+		this._output.connect(...args);
 	}
 
-	disconnect() {
-		this._output.disconnect.apply(this._output, arguments);
+	disconnect(...args) {
+		this._output.disconnect(...args);
 	}
 
 	connectMidi(dest, outindex, inindex) {
