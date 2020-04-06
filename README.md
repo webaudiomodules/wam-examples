@@ -1,4 +1,4 @@
-# wasabi-plugin-rack
+# webaudioplugin
 
 ## Installation
 
