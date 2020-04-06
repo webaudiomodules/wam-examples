@@ -23,9 +23,7 @@ export default class PingPongDelayGui extends HTMLElement {
 	//set dataId(_data) { this.params.dataId = _data };
 
 	connectedCallback() {
-		console.log(style);
-		this.root.innerHTML = `<style>${style}</style>
-${template}`;
+		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// listeners
 		this.setKnobs();
