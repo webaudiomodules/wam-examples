@@ -12,7 +12,8 @@ export default {
 	output: [
 		{
 			sourcemap: true,
-			file: './dist/index.js',
+			chunkFileNames: '[name].js',
+			dir: './dist/',
 			format: 'es',
 		},
 	],
