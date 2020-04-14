@@ -1,5 +1,45 @@
 # webaudioplugin
 
+## Structure
+
+This is a monorepo with multiple packages located under the directory `packages/`.  
+
+List of (relevant) packages   
+- `containerv2`: a very simple host
+- `sdk`: draft of the new sdk
+- `pingpongdelayv2`: a simple PingPonDelay plugin based on the previous version from Michel
+
+## Main dependencies
+
+The projet mainly uses the following packages for development :
+- [yarn](https://www.npmjs.com/package/yarn) : replacement of npm
+- [lerna](https://www.npmjs.com/package/lerna) : monorepo (multiple packages repository) manager
+- [babel](https://www.npmjs.com/package/@babel/core) : ES6 transpiler
+- [rollup](https://www.npmjs.com/package/rollup) : Module bundler (compatible es6 modules ouput)
+
+## Installation
+
+```sh
+yarn install
+```
+
+## Getting started
+
+### symlink  
+The package `containerv2` is really simple for the moment and makes use of a symlink to load the plugin compiled code from the `public/` directory. Thus, it won’t work on a system that does not support symlinks.
+
+### Commands
+
+- `yarn build`: builds sdk and pingpongdelayv2
+- `yarn start`: starts the host. Open [http://localhost:5000](http://localhost:5000)
+- `yarn clean`: deletes built code
+
+  
+  
+  
+---
+Previous Readme (FR)
+
 ## Installation
 
 ```sh
