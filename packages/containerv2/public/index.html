@@ -19,22 +19,6 @@
 			<div id="mount"></div>
 		</main>
 		<script>
-			/**
-			 * Patches global AudioNode for WebAudioPlugin sdk compatibility
-			 * Should be avoided in the next release
-			 **/
-			/*AudioNode.prototype._connect = AudioNode.prototype.connect;
-			var that = this;
-			AudioNode.prototype.connect = function (that) {
-				var args = Array.prototype.slice.call(arguments);
-				if (args[0]._isCompositeAudioNode && !args[2] && !args[1]) {
-					args[0] = args[0]._input;
-					args[1] = that._output;
-				}
-				else if (args[0]._isCompositeAudioNode) args[0] = args[2];
-				this._connect.apply(this, args);
-			};*/
-
 			const player = document.querySelector('#player');
 			const mount = document.querySelector('#mount');
 
@@ -42,8 +26,6 @@
 			const mediaElementSource = audioContext.createMediaElementSource(player);
 
 			const connectPlugin = (audioNode) => {
-				// mediaElementSource.connect(audioNode._input); // instead of patching AudioNode, use composite input and output
-				// audioNode._output.connect(audioContext.destination);
 				mediaElementSource.connect(audioNode);
 				audioNode.connect(audioContext.destination);
 			};
@@ -58,17 +40,18 @@
 			 * Very simple for the moment
 			 **/
 			const load = async (url) => {
-				const plugin = await import(url);
-				const pluginAudioNode = await plugin.getAudioNode(audioContext);
-				pluginAudioNode.setParam('status', 'disable');
+				const { default: WebAudioPlugin } = await import(url);
+				console.log('WebAudioPlugin', WebAudioPlugin);
+				const plugin = new WebAudioPlugin(audioContext);
+				const pluginAudioNode = await plugin.createAudioNode();
+				plugin.setState({ enabled: true });
 				connectPlugin(pluginAudioNode);
-				const pluginDomNode = await plugin.getDomNode(pluginAudioNode);
+				const pluginDomNode = await plugin.createElement();
 				mountPlugin(pluginDomNode);
 			}
 
 			(async () => {
-				await load('./pingpongdelay/index.js');
-				//await load('./pingpongdelay/index.js'); // should be loaded once !
+				await load('./pingpongdelayv2/index.js');
 			})()
 
 		</script>

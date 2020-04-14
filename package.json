@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "lerna run clean --stream",
     "build:v1": "lerna run build --stream",
-    "build": "lerna run build --stream --scope pingpongdelay",
+    "build": "lerna run build --stream --scope sdk && lerna run build --stream --scope pingpongdelayv2",
     "start:v1": "lerna run start --stream --scope container",
     "start": "lerna run start --stream --scope containerv2"
   },
