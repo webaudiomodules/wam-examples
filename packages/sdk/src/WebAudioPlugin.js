@@ -1,3 +1,8 @@
+
+//THIS IS WHERE THE PLUGIN API IS PROVIDED
+//
+// TODO : complete with the API we had in WAM/WAPs...
+// setPatch,getPatch, setParam/getParam, saveState/loadState etc.
 export default class WebAudioPlugin extends EventTarget {
 	static pluginName = 'WebAudioPlugin';
 

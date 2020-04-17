@@ -1,12 +1,23 @@
 /* eslint-disable no-underscore-dangle */
 import { CompositeAudioNode } from 'sdk';
 
+// name is not so important here, the file Node.js is imported
+// Normally the class does no need to be exported as
+// an async mehod createNode is expored at the end of this
+// file.
 export default class PingPongDelayNode extends CompositeAudioNode {
+	// plugin is an instance of he class that exends WebAudioPlugin
+	// this instance is he plugin as an Observable
+	// options is an extra container that could be ussed to indicate
+	// the number of inputs and outputs...
 	constructor(plugin, options) {
 		super(plugin, options);
 		super.setup();
 	}
 
+	// MANDATORY if you have params...
+	// Called automatically by CompositeAudioNode each time the state
+	// is updated...
 	updateState = () => {
 		const {
 			enabled,
@@ -119,6 +130,9 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 	}
 }
 
+// MANDATORY !!! Here a dev could make some async stuff
+// i.e if the node is an AudioWorklet, call async
+// importScripts() before doing the new ...
 export async function createNode(plugin, options) {
 	return new PingPongDelayNode(plugin, options);
 }

@@ -36,7 +36,7 @@ export default class CompositeAudioNode extends GainNode {
 	}
 
 	connectNodes() {
-		super.connect(this._input);
+		super.connect(this._input); // ?
 	}
 
 	setup() {

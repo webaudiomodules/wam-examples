@@ -1,12 +1,22 @@
+// This works when youuse a bundler such as rollup
+// If you do no wan to use a bundler, then  look at other examples
+// that build in pure JS the syles and html template directly
+// in the code...
 import style from './Gui.css';
 import template from './Gui.template.html';
 
+// The GUI is a WebComponent. Not mandatory but useful.
+// MANDORY : the GUI should be a DOM node. WebComponents are 
+// practical as they encapsulate everyhing in a shadow dom
 export default class PingPongDelayHTMLElement extends HTMLElement {
+	// plugin = the same that is passed in the DSP part. It's the instance
+	// of the class that extends WebAudioPlugin. It's an Observable plugin
 	constructor(plugin) {
 		super();
 
 		this.root = this.attachShadow({ mode: 'open' });
 
+		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
 		this.plugin.addEventListener('change', this.updateState);
 	}
@@ -25,6 +35,8 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#knob3').value = mix * 100;
 	}
 
+	// Provided by the WebComponent API, called when the plugin is
+	// connected to the DOM
 	connectedCallback() {
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
@@ -59,6 +71,9 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 			});
 	}
 
+	// name of the custom HTML element associated
+	// with the plugin. Will appear in the DOM if
+	// the plugin is visible
 	static is() {
 		return 'wasabi-pingpongdelay';
 	}

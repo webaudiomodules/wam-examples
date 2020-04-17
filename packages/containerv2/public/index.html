@@ -53,8 +53,10 @@
 			const {
 				default: WebAudioPlugin
 			} = await import(url);
+
 			console.log('WebAudioPlugin', WebAudioPlugin);
 			const plugin = new WebAudioPlugin(audioContext);
+			
 			const pluginAudioNode = await plugin.createAudioNode();
 			plugin.setState({
 				enabled: true
