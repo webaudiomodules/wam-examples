@@ -1,59 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Wasabi Container v2</title>
-		<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
-	</head>
-	<body>
-		<main className="ContainerV2">
-			<audio
-				id="player"
-				src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3"
-				controls
-				loop
-				crossOrigin="anonymous"
-			>
-			</audio>
-			<div id="mount"></div>
-		</main>
-		<script>
-			const player = document.querySelector('#player');
-			const mount = document.querySelector('#mount');
 
-			const audioContext = new AudioContext();
-			const mediaElementSource = audioContext.createMediaElementSource(player);
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Wasabi Container v2</title>
+	<script
+		src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js">
+	</script>
+</head>
 
-			const connectPlugin = (audioNode) => {
-				mediaElementSource.connect(audioNode);
-				audioNode.connect(audioContext.destination);
-			};
+<body>
+	<main className="ContainerV2">
+		<audio id="player" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3" controls
+			loop crossOrigin="anonymous">
+		</audio>
+		<div id="mount"></div>
+	</main>
+	<script>
+		const player = document.querySelector('#player');
+		player.onplay = () => {
+			audioContext.resume();
+		}
+		const mount = document.querySelector('#mount');
 
-			const mountPlugin = (domNode) => {
-				mount.innerHtml = '';
-				mount.appendChild(domNode);
-			};
+		const audioContext = new AudioContext();
+		const mediaElementSource = audioContext.createMediaElementSource(player);
 
-			/**
-			 * webaudioplugin loader sdk
-			 * Very simple for the moment
-			 **/
-			const load = async (url) => {
-				const { default: WebAudioPlugin } = await import(url);
-				console.log('WebAudioPlugin', WebAudioPlugin);
-				const plugin = new WebAudioPlugin(audioContext);
-				const pluginAudioNode = await plugin.createAudioNode();
-				plugin.setState({ enabled: true });
-				connectPlugin(pluginAudioNode);
-				const pluginDomNode = await plugin.createElement();
-				mountPlugin(pluginDomNode);
-			}
+		const connectPlugin = (audioNode) => {
+			mediaElementSource.connect(audioNode);
+			audioNode.connect(audioContext.destination);
+		};
 
-			(async () => {
-				await load('./pingpongdelayv2/index.js');
-			})()
+		const mountPlugin = (domNode) => {
+			mount.innerHtml = '';
+			mount.appendChild(domNode);
+		};
 
-		</script>
-	</body>
+		/**
+		 * webaudioplugin loader sdk
+		 * Very simple for the moment
+		 **/
+		const load = async (url) => {
+			const {
+				default: WebAudioPlugin
+			} = await import(url);
+			console.log('WebAudioPlugin', WebAudioPlugin);
+			const plugin = new WebAudioPlugin(audioContext);
+			const pluginAudioNode = await plugin.createAudioNode();
+			plugin.setState({
+				enabled: true
+			});
+			connectPlugin(pluginAudioNode);
+			const pluginDomNode = await plugin.createElement();
+			mountPlugin(pluginDomNode);
+		}
+
+		(async () => {
+			await load('./pingpongdelayv2/index.js');
+		})()
+
+	</script>
+</body>
+
 </html>
