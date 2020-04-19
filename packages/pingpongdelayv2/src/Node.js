@@ -7,8 +7,8 @@ import { CompositeAudioNode } from 'sdk';
 // file.
 export default class PingPongDelayNode extends CompositeAudioNode {
 	// plugin is an instance of he class that exends WebAudioPlugin
-	// this instance is he plugin as an Observable
-	// options is an extra container that could be ussed to indicate
+	// this instance is the plugin as an Observable
+	// options is an extra container that could be used to indicate
 	// the number of inputs and outputs...
 	constructor(plugin, options) {
 		super(plugin, options);
