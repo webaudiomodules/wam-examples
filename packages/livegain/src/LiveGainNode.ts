@@ -1,6 +1,6 @@
 /* eslint-disable import/no-duplicates */
+import { CompositeAudioNode } from "sdk";
 import { TemporalAnalyserRegister, TemporalAnalyserNode } from "./TemporalAnalyser";
-import CompositeAudioNode from "./CompositeAudioNode";
 import type { LiveGainPlugin, State, Events } from "./LiveGainPlugin";
 import { atodb, dbtoa } from "./math";
 

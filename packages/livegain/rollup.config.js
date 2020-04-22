@@ -27,10 +27,12 @@ export default {
             extensions: [".js", ".jsx", ".ts", ".tsx"]
         }),
         commonjs({
-            include: "node_modules/**",
+            include: /node_modules/,
             namedExports: {
                 "node_modules/react/index.js": ["Component", "PureComponent", "Fragment", "Children", "createElement", "createRef"],
-                "node_modules/react-dom/index.js": ["render"]
+                "node_modules/react-dom/index.js": ["render"],
+                "../../node_modules/react/index.js": ["Component", "PureComponent", "Fragment", "Children", "createElement", "createRef"],
+                "../../node_modules/react-dom/index.js": ["render"]
             }
         }),
         replace({

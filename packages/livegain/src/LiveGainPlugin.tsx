@@ -1,10 +1,10 @@
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { WebAudioPlugin } from "../../sdk/esm/index";
+import type { WebAudioPluginParametersDescriptor } from "sdk";
+import { WebAudioPlugin } from "sdk";
 import LiveGainUI from "./LiveGainUI";
 import LiveGainNode from "./LiveGainNode";
-import type { WebAudioPluginParametersDescriptor } from "../../sdk/esm/index";
 
 export type Parameters = "gain";
 export type State = {
