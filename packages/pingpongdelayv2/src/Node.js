@@ -11,8 +11,10 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 	// options is an extra container that could be used to indicate
 	// the number of inputs and outputs...
 	constructor(plugin, options) {
-		super(plugin, options);
-		super.setup();
+		super(plugin.audioContext, options);
+		this.plugin = plugin;
+		this.options = options;
+		this.setup();
 	}
 
 	// MANDATORY if you have params...
@@ -65,6 +67,12 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 		// wet out
 		this.channelMerger.connect(this.wetGainNode);
 		this.wetGainNode.connect(this._output);
+	}
+
+	async setup() {
+		await super.setup();
+		this.updateState();
+		this.plugin.addEventListener('change', this.updateState);
 	}
 
 	// Setter part, it is here that you define the link between the params and the nodes values.

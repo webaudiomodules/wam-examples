@@ -1,13 +1,15 @@
 {
 	"presets": [
-		"@babel/preset-env"
-	],
-	"plugins": [
 		[
-			"@babel/plugin-proposal-class-properties",
+			"@babel/preset-env",
 			{
-				"loose": true
+				"targets": {
+					"browsers": "Chrome >= 55, Firefox >= 53, Edge >= 15, Safari >= 11, iOS >= 11, Android >= 79"
+				}
 			}
 		]
+	],
+	"plugins": [
+		"@babel/plugin-proposal-class-properties"
 	]
 }

@@ -19,7 +19,6 @@
   },
   "module": "esm",
   "scripts": {
-    "clean": "rm -rf esm",
     "build": "rollup -c"
   }
 }
