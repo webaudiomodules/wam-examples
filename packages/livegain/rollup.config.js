@@ -3,6 +3,7 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
 import omt from "@surma/rollup-plugin-off-main-thread";
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: "./src/index.ts",
@@ -18,7 +19,7 @@ export default {
 
     plugins: [
         babel({
-            exclude: "node_modules/**",
+            exclude: /node_modules/,
             runtimeHelpers: true,
             extensions: [".js", ".jsx", ".ts", ".tsx"]
         }),
@@ -38,6 +39,7 @@ export default {
         replace({
             "process.env.NODE_ENV": JSON.stringify("production")
         }),
-        omt()
+        omt(),
+        terser()
     ]
 };
