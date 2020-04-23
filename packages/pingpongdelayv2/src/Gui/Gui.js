@@ -1,12 +1,12 @@
-// This works when youuse a bundler such as rollup
-// If you do no wan to use a bundler, then  look at other examples
-// that build in pure JS the syles and html template directly
+// This works when you use a bundler such as rollup
+// If you do no want to use a bundler, then look at other examples
+// that build in pure JS the styles and html template directly
 // in the code...
 import style from './Gui.css';
 import template from './Gui.template.html';
 
 // The GUI is a WebComponent. Not mandatory but useful.
-// MANDORY : the GUI should be a DOM node. WebComponents are 
+// MANDORY: the GUI should be a DOM node. WebComponents are 
 // practical as they encapsulate everyhing in a shadow dom
 export default class PingPongDelayHTMLElement extends HTMLElement {
 	// plugin = the same that is passed in the DSP part. It's the instance

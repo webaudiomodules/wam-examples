@@ -36,7 +36,7 @@ export default class WebAudioPlugin extends EventTarget {
 
 	setState(state) {
 		this.state = { ...this.state, ...state };
-		this.dispatchEvent(new Event('change', this.state));
+		this.dispatchEvent(new CustomEvent('change', { detail: state }));
 	}
 
 	createAudioNode = async (options = {}) => {

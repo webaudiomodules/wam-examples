@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Wasabi Container v2</title>
+	<script
+		src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js">
+	</script>
+</head>
+
+<body>
+	<main className="ContainerV2">
+		<audio id="player" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3" controls
+			loop crossOrigin="anonymous">
+		</audio>
+		<div id="mount"></div>
+	</main>
+
+	<script>
+		const player = document.querySelector('#player');
+		player.onplay = () => {
+			audioContext.resume();
+		}
+		const mount = document.querySelector('#mount');
+
+		// Safari...
+		var AudioContext = window.AudioContext // Default
+			||
+			window.webkitAudioContext // Safari and old versions of Chrome
+			||
+			false;
+
+		const audioContext = new AudioContext();
+		const mediaElementSource = audioContext.createMediaElementSource(player);
+
+		const connectPlugin = (audioNode) => {
+			mediaElementSource.connect(audioNode);
+			audioNode.connect(audioContext.destination);
+		};
+
+		const mountPlugin = (domNode) => {
+			mount.innerHtml = '';
+			mount.appendChild(domNode);
+		};
+
+		/**
+		 * webaudioplugin loader sdk
+		 * Very simple for the moment
+		 **/
+		const load = async (url) => {
+			const {
+				default: WebAudioPlugin
+			} = await import(url);
+
+			console.log('WebAudioPlugin', WebAudioPlugin);
+			const plugin = new WebAudioPlugin(audioContext);
+			
+			const pluginAudioNode = await plugin.createAudioNode();
+			plugin.setState({
+				enabled: true
+			});
+			connectPlugin(pluginAudioNode);
+			const pluginDomNode = await plugin.createElement();
+			mountPlugin(pluginDomNode);
+		}
+
+		(async () => {
+			// does not work with Safari !
+			await load('./livegain/index.js');
+		})()
+
+	</script>
+</body>
+
+</html>
