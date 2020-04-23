@@ -1,3 +1,5 @@
+import WebAudioPlugin from "./WebAudioPlugin";
+
 interface CompositeAudioNode extends GainNode {
     _input: GainNode;
     _output: GainNode;
