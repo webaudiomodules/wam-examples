@@ -39,7 +39,7 @@ export async function loadPluginFromDescriptor(descriptor, opts) {
 
 	return {
 		Plugin: PluginWrapper,
-		createPlugin: async (audioContext, pluginOptions = {}) => {
+		createInstance: async (audioContext, pluginOptions = {}) => {
 			const plugin = new PluginWrapper(audioContext, pluginOptions);
 			await plugin.initialize(pluginOptions.initialState);
 			return plugin;

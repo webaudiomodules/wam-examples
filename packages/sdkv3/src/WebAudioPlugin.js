@@ -74,7 +74,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	/**
-	 * When the state is updated a change event is emitted when the new state as param
+	 * When the state is updated a change event is emitted with the new state as param
 	 * Also event for each substate is emitted if changed.
 	 *
 	 * Plugin audionode and gui should listen to this change event in order
@@ -86,6 +86,7 @@ export default class WebAudioPlugin extends EventEmitter {
 		if (state.patch !== undefined) this.emit('change:patch', this.state.patch);
 		if (state.params !== undefined) this.emit('change:params', this.state.params);
 		if (state.bank !== undefined) this.emit('change:bank', this.state.bank);
+		this.emit('change', this.state);
 		return this;
 	}
 
