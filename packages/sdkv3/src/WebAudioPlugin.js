@@ -8,6 +8,8 @@ import EventEmitter from 'events';
  * They must redefine the async method createAudionode()
  */
 export default class WebAudioPlugin extends EventEmitter {
+	static isWebAudioPlugin = true;
+
 	initialized = false;
 
 	// The audionde of the plugin
@@ -41,7 +43,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * While initializing, the audionode is created by calling the redefined method createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
 	 */
-	initialize = async (state = {}) => {
+	async initialize(state = {}) {
 		// initialize state with params defaultValues
 		const defaultStateParams = Object.entries(this.constructor.descriptor.params)
 			.reduce((acc, [name, { defaultValue }]) => ({
@@ -144,7 +146,10 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * will connected to the host.
 	 * It can be any object that extends AudioNode
 	 */
-	createAudionode = async () => Promise.reject(new TypeError('createAudionode() not provided'));
+	// eslint-disable-next-line class-methods-use-this
+	async createAudionode() {
+		throw new TypeError('createAudionode() not provided');
+	}
 
 	getAudionode() {
 		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
@@ -154,12 +159,12 @@ export default class WebAudioPlugin extends EventEmitter {
 	/**
 	 * Loads the gui thanks to the es dynamic imports
 	 */
-	loadGui = async () => {
+	async loadGui() {
 		if (!this.constructor.guiModuleUrl) return Promise.reject(new TypeError('Gui module not found'));
 		return import(this.constructor.guiModuleUrl);
 	}
 
-	createGui = async (...args) => {
+	async createGui(...args) {
 		if (!this.initialized) console.warn('plugin should be initialized before getting the gui');
 		// Do not fail if no gui is present, just return undefined
 		if (!this.constructor.guiModuleUrl) return Promise.resolve();

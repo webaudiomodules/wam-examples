@@ -13,7 +13,7 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
-	createAudionode = async (options) => {
+	async createAudionode(options) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
 
 		pingPongDelayNode.status = this.state.status;
