@@ -19,7 +19,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
 		this.plugin.on('change:params', this.updateParams);
-		this.plugin.on('change:status', this.updateStatus);
+		this.plugin.on('change:enabled', this.updateStatus);
 	}
 
 	updateStatus = (status) => {

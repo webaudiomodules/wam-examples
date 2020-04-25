@@ -1,5 +1,7 @@
 import EventEmitter from 'events';
 
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
 
@@ -9,27 +11,16 @@ import EventEmitter from 'events';
  */
 export default class WebAudioPlugin extends EventEmitter {
 	static isWebAudioPlugin = true;
-
-	initialized = false;
-
-	// The audionde of the plugin
-	// The host must connect to this input
-	audionode = undefined;
-
-	// Initial state of the plugin
-	state = {
-		bank: undefined,
-		enabled: false,
+	static descriptor = {
+		name: 'WebAudioPlugin',
+		entry: undefined,
+		gui: 'none',
+		url: undefined,
 		params: {},
-		patch: undefined,
-	};
-
-	// The constructor is waiting for an audioContext
-	constructor(audioContext, options) {
-		super();
-		this.audioContext = audioContext;
-		this.options = options;
+		banks: {},
+		patches: {},
 	}
+	static guiModuleUrl = undefined;
 
 	// Accessors for values inherited from descriptor.json
 	get descriptor() { return this.constructor.descriptor; }
@@ -38,36 +29,70 @@ export default class WebAudioPlugin extends EventEmitter {
 	get params() { return this.descriptor.params || {}; }
 	get patches() { return this.descriptor.patches || {}; }
 
+	initialized = false;
+
+	// The audioNode of the plugin
+	// The host must connect to this input
+	_audioNode = undefined;
+	get audioNode() {
+		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
+		return this._audioNode;
+	}
+	set audioNode(node) {
+		this._audioNode = node;
+	}
+
+	// Initial state of the plugin
+	state = {
+		enabled: false,
+		params: {},
+		patch: undefined,
+		bank: undefined,
+	};
+
+	// The constructor is waiting for an audioContext
+	constructor(audioContext, options = {}) {
+		super();
+		this.audioContext = audioContext;
+		this.options = options;
+	}
+
 	/**
 	 * Calling initialize([state]) will initialize the plugin with an initial state.
 	 * While initializing, the audionode is created by calling the redefined method createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
 	 */
-	async initialize(state = {}) {
+	get ready() {
+		const { state } = this.options;
 		// initialize state with params defaultValues
-		const defaultStateParams = Object.entries(this.constructor.descriptor.params)
-			.reduce((acc, [name, { defaultValue }]) => ({
-				...acc,
-				[name]: defaultValue,
-			}), this.state.params);
+		const params = Object.entries(this.params)
+			.reduce((currentParams, [name, { defaultValue }]) => {
+				currentParams[name] = defaultValue;
+				return currentParams;
+			}, this.state.params);
+		if (state) {
+			if (state.params) Object.assign(params, state.params);
+			// merge default state with initial state passed to constructor
+			Object.assign(this.state, state);
+		}
+		this.state.params = params;
 
-		// merge default state with initial state passed to constructor
-		this.state = {
-			...this.state,
-			...state,
-			params: {
-				...defaultStateParams,
-				...(state.params || {}),
-			},
+		const initAudioNode = async () => {
+			if (!this._audioNode) this.audioNode = await this.createAudioNode();
+			this.initialized = true;
+			console.log('initialize plugin with state', this.state);
+			return this;
 		};
-
-		this.audionode = this.audionode || await this.createAudionode();
-
-		this.initialized = true;
-
-		console.log('initialize plugin with state', this.state);
-
-		return this;
+		return initAudioNode();
+	}
+	/**
+	 * This async method must be redefined to get audionode that
+	 * will connected to the host.
+	 * It can be any object that extends AudioNode
+	 */
+	// eslint-disable-next-line class-methods-use-this
+	async createAudioNode() {
+		throw new TypeError('createAudioNode() not provided');
 	}
 
 	/* Getters / Setters for states of the plugin */
@@ -84,10 +109,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	 */
 	setState(state) {
 		this.state = { ...this.state, ...state };
-		if (state.enabled !== undefined) this.emit('change:status', this.state.enabled);
-		if (state.patch !== undefined) this.emit('change:patch', this.state.patch);
-		if (state.params !== undefined) this.emit('change:params', this.state.params);
-		if (state.bank !== undefined) this.emit('change:bank', this.state.bank);
+		Object.keys(state).forEach((k) => this.emit(`change:${k}`, this.state[k]));
 		this.emit('change', this.state);
 		return this;
 	}
@@ -111,19 +133,15 @@ export default class WebAudioPlugin extends EventEmitter {
 
 	setParams(params) {
 		const newParams = Object.entries(params)
-			.reduce((acc, [name, value]) => {
+			.reduce((currentParams, [name, value]) => {
 				const param = this.params[name];
 				// ensure that param has been listed in descriptor.json
 				if (!param) throw new Error(`unknow param (${name})`);
+				const { minValue, maxValue } = this.params[name];
 				// params value are bounded
-				value = Math.max(param.minValue, value);
-				value = Math.min(param.maxValue, value);
-				return {
-					...acc,
-					[name]: value,
-				};
+				currentParams[name] = Math.max(minValue, Math.min(maxValue, value));
+				return currentParams;
 			}, this.state.params);
-
 		this.setState({ params: newParams });
 		return this;
 	}
@@ -141,34 +159,20 @@ export default class WebAudioPlugin extends EventEmitter {
 		return this;
 	}
 
-	/**
-	 * This async method must be redefined to get audionode that
-	 * will connected to the host.
-	 * It can be any object that extends AudioNode
-	 */
-	// eslint-disable-next-line class-methods-use-this
-	async createAudionode() {
-		throw new TypeError('createAudionode() not provided');
-	}
-
-	getAudionode() {
-		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
-		return this.audionode;
-	}
 
 	/**
 	 * Loads the gui thanks to the es dynamic imports
 	 */
 	async loadGui() {
-		if (!this.constructor.guiModuleUrl) return Promise.reject(new TypeError('Gui module not found'));
+		if (!this.constructor.guiModuleUrl) throw new TypeError('Gui module not found');
 		return import(this.constructor.guiModuleUrl);
 	}
 
-	async createGui(...args) {
+	async createGui(options) {
 		if (!this.initialized) console.warn('plugin should be initialized before getting the gui');
 		// Do not fail if no gui is present, just return undefined
-		if (!this.constructor.guiModuleUrl) return Promise.resolve();
+		if (!this.constructor.guiModuleUrl) return undefined;
 		const { createElement } = await this.loadGui();
-		return createElement(this, ...args);
+		return createElement(this, options);
 	}
 }

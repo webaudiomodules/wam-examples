@@ -20,7 +20,7 @@
 
 	<script type="module">
 		// Load the sdk with an es import (script type="module" necessary)
-		import { loadPlugin } from './sdkv3/index.js';
+		import { Loader } from './sdkv3/index.js';
 
 		const player = document.querySelector('#player');
 		const mount = document.querySelector('#mount');
@@ -48,20 +48,18 @@
 		(async () => {
 			// Load plugin from the url of its json descriptor
 			// Pass the option { noGui: true } to not load the GUI by default
-			const pingpongdelayv3 = await loadPlugin('./pingpongdelayv3/descriptor.json');
+			const Pingpongdelayv3 = await Loader.loadPluginFromUrl('./pingpongdelayv3/descriptor.json');
 
 			// Create a new instance of the plugin
 			// You can can optionnally give more options such as the initial state of the plugin
-			const instance = await pingpongdelayv3.createInstance(
-				audioContext,
+			const instance = await new Pingpongdelayv3(audioContext,
 				{
 					initialState: { params: { feedback: .7 } }
-				},
-			);
+				}).ready;
 			instance.setState({ enabled: true });
 
 			// Connect the audionode to the host
-			connectPlugin(instance.getAudionode());
+			connectPlugin(instance.audioNode);
 
 			// Load the GUI if need (ie. if the option noGui was set to true)
 			// And calls the method createElement of the Gui module

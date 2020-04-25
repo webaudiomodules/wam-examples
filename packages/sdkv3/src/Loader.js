@@ -22,7 +22,7 @@ export default class Loader {
 		} = descriptor;
 		const entryModuleUrl = new URL(entry, url);
 		const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
-		const { default: Plugin } = await import(entryModuleUrl);
+		const { default: PluginClass } = await import(entryModuleUrl);
 
 		const options = { ...this.defaultOptions, ...optionsIn };
 		// if gui wanted, we load it right now
@@ -32,19 +32,10 @@ export default class Loader {
 		/**
 		 * Extends Plugin with actual descriptor and gui module url
 		 */
-		class PluginClass extends Plugin {
-			static descriptor = descriptor;
-			static guiModuleUrl = guiModuleUrl;
-		}
+		PluginClass.descriptor = descriptor;
+		PluginClass.guiModuleUrl = guiModuleUrl;
 
-		return {
-			PluginClass,
-			async createInstance(audioContext, pluginOptions = {}) {
-				const plugin = new PluginClass(audioContext, pluginOptions);
-				await plugin.initialize(pluginOptions.initialState);
-				return plugin;
-			},
-		};
+		return PluginClass;
 	}
 
 	static async loadPluginFromUrl(url) {

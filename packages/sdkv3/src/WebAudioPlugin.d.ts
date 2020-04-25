@@ -27,8 +27,8 @@ export type BanksDescriptor<Banks extends string = never, Patches extends string
 export interface PluginDescriptor {
     name: string;
     entry: string;
-    gui: string;
-    url: string | "none";
+    gui: string | "none";
+    url: string;
     params?: ParametersDescriptor;
     banks?: BanksDescriptor;
     patches?: PatchesDescriptor;
