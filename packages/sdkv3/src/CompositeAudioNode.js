@@ -1,8 +1,44 @@
+/* eslint-disable no-empty-function */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 export default class CompositeAudioNode extends GainNode {
 	constructor(audioContext, options) {
 		super(audioContext);
 		this.options = options;
+	}
+
+
+	set channelCount(count) {
+	}
+
+	get channelCount() {
+		return undefined;
+	}
+
+	set channelCountMode(mode) {
+	}
+
+	get channelCountMode() {
+		return undefined;
+	}
+
+	set channelInterpretation(interpretation) {
+	}
+
+	get channelInterpretation() {
+		return undefined;
+	}
+
+	get numberOfInputs() {
+		return super.numberOfInputs;
+	}
+
+	get numberOfOutputs() {
+		return this._output.numberOfOutputs;
+	}
+
+	get gain() {
+		return undefined;
 	}
 
 	connect(...args) {
@@ -35,7 +71,7 @@ export default class CompositeAudioNode extends GainNode {
 	}
 
 	connectNodes() {
-		super.connect(this._input); // ?
+		super.connect(this._input);
 	}
 
 	setup() {

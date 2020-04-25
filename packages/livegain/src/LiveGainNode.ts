@@ -1,5 +1,5 @@
 /* eslint-disable import/no-duplicates */
-import { CompositeAudioNode } from "sdk";
+import { CompositeAudioNode } from "sdkv3";
 import { TemporalAnalyserRegister, TemporalAnalyserNode } from "./TemporalAnalyser";
 import type { LiveGainPlugin, State, Events } from "./LiveGainPlugin";
 import { atodb, dbtoa } from "./math";
@@ -59,7 +59,7 @@ export default class LiveGainNode extends CompositeAudioNode {
         request();
     };
     async createNodes() {
-        await super.createNodes();
+        super.createNodes();
         await TemporalAnalyserRegister.register(this.context.audioWorklet);
         this.temporalAnalyserNode = new TemporalAnalyserNode(this.context);
     }

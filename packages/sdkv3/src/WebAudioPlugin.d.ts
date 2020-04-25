@@ -1,9 +1,18 @@
-export interface TypedEventTarget<M extends Record<string, any> = {}> extends EventTarget {
-    addEventListener<K extends keyof M>(type: K, listener: (e: CustomEvent<M[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof M>(type: K, listener: (e: CustomEvent<M[K]>) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-    dispatchEvent<K extends keyof M>(event: CustomEvent<M[K]>): boolean;
+import { EventEmitter } from "events";
+export interface TypedEventEmitter<M extends Record<string | symbol, any> = {}> extends EventEmitter {
+    addListener<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    on<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    once<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    removeListener<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    off<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    removeAllListeners<K extends keyof M>(type?: K): this;
+    listeners<K extends keyof M>(type: K): Function[];
+    rawListeners<K extends keyof M>(type: K): Function[];
+    emit<K extends keyof M>(type: K, e?: M[K]): boolean;
+    listenerCount<K extends keyof M>(type: K): number;
+    prependListener<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    prependOnceListener<K extends keyof M>(type: K, listener: (e: M[K]) => any): this;
+    eventNames<K extends keyof M>(): Array<K>;
 }
 export interface CreateOptions<S extends Record<string, any> = {}> {
     initialState?: Partial<S>;
@@ -24,41 +33,71 @@ export interface BankDescriptor<Patches extends string = never> {
     patches: Patches[];
 }
 export type BanksDescriptor<Banks extends string = never, Patches extends string = never> = Record<Banks, BankDescriptor<Patches>>;
-export interface PluginDescriptor {
+export interface PluginDescriptor<Params extends string = "enabled", Patches extends string = never, Banks extends string = never> {
     name: string;
     entry: string;
     gui: string | "none";
     url: string;
-    params?: ParametersDescriptor;
-    banks?: BanksDescriptor;
-    patches?: PatchesDescriptor;
+    params?: ParametersDescriptor<Params>;
+    patches?: PatchesDescriptor<Patches, Params>;
+    banks?: BanksDescriptor<Banks, Patches>;
+}
+export interface DefaultState<Params extends string = "enabled", Patches extends string = never, Banks extends string = never> {
+    enabled: boolean;
+    params: Partial<Record<Params, number>>;
+    patch: Patches;
+    bank: Banks;
 }
 /**
  * `WebAudioPlugin` main interface
  *
  * @interface WebAudioPlugin
- * @extends {TypedEventTarget<E>}
- * @template P Param names, e.g. `"gain" | "feedback" | "ratio"`
- * @template S State type, e.g. `{ id: string, color: string }`
- * @template E Event map, e.g. `{ midiMessage: { data: Uint8Array } }`
+ * @extends {TypedEventTarget<Events>}
+ * @template Params Param names, e.g. `"gain" | "feedback" | "ratio"`
+ * @template State State type, e.g. `{ id: string, color: string }`
+ * @template Events Event map, e.g. `{ midiMessage: { data: Uint8Array } }`
  */
-interface WebAudioPlugin<P extends string = "enabled", S extends Record<string, any> = {}, E extends Record<string, any> = {}> extends TypedEventTarget<E> {
+interface WebAudioPlugin<
+        Params extends string = "enabled",
+        Patches extends string = never,
+        Banks extends string = never,
+        State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
+        Events extends Record<string, any> = {}
+> extends TypedEventEmitter<Events> {
+    readonly descriptor: PluginDescriptor<Params, Patches, Banks>;
+    readonly name: string;
+    readonly params: ParametersDescriptor<Params>;
+    readonly patches: PatchesDescriptor<Patches, Params>;
+    readonly banks: BanksDescriptor<Banks, Patches>;
+    readonly state: State;
     audioContext: BaseAudioContext;
+    _audioNode: AudioNode;
+    audioNode: AudioNode;
     initialized: boolean;
-    state: Readonly<S>;
-    params: ParametersDescriptor<P>;
-    initialize(state?: Partial<S>): any;
-    setState(state: Partial<S>): void;
-    // getState(): S;
-    // getParam(key: P): AudioParam;
-    // setParam(key: P, value: number): void;
-    createAudioNode: (options?: CreateOptions<S>) => Promise<AudioNode>;
-    createElement: (options?: CreateOptions<S>) => Promise<Element>;
+    readonly ready: this;
+    getState(): State;
+    setState(state: Partial<State>): this;
+    getParams(): Record<Params, number>;
+    setParams(params: Partial<Record<Params, number>>): this;
+    getPatch(): Patches;
+    setPatch(patch: Patches): this;
+    getBank(): Banks;
+    setBank(bank: Banks): this;
+    createAudioNode(options?: any): AudioNode;
+    createGui(options?: any): Promise<Element>;
 }
 declare const WebAudioPlugin: {
+    isWebAudioPlugin: true;
     prototype: WebAudioPlugin;
-    pluginName: string;
-    new <P extends string = never, S extends Record<string, any> = {}, E extends Record<string, any> = {}>(audioContext: AudioContext): WebAudioPlugin<P, S, E>;
+    descriptor: PluginDescriptor;
+    guiModuleUrl: string;
+    new <
+        Params extends string = "enabled",
+        Patches extends string = never,
+        Banks extends string = never,
+        State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
+        Events extends Record<string, any> = {}
+    >(audioContext: AudioContext, options?: CreateOptions<State>): WebAudioPlugin<Params, Patches, Banks, State, Events>;
 };
 
 export default WebAudioPlugin;

@@ -10,7 +10,7 @@
     "build": "rollup -c"
   },
   "dependencies": {
-    "sdk": "^0.0.0"
+    "sdkv3": "^0.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

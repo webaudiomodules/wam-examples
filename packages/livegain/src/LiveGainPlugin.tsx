@@ -1,13 +1,13 @@
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import type { WebAudioPluginParametersDescriptor } from "sdk";
-import { WebAudioPlugin } from "sdk";
+import type { ParametersDescriptor, DefaultState } from "sdkv3";
+import { WebAudioPlugin } from "sdkv3";
 import LiveGainUI from "./LiveGainUI";
 import LiveGainNode from "./LiveGainNode";
 
 export type Parameters = "gain";
-export type State = {
+export interface State extends DefaultState {
     metering: "preFader" | "postFader";
     frameRate: number;
     speedLim: number;
@@ -19,9 +19,10 @@ export type State = {
     orientation: "vertical" | "horizontal";
 };
 export type Events = { stateChanged: Partial<State>; destroy: never };
-export class LiveGainPlugin extends WebAudioPlugin<Parameters, State, Events> {
+export class LiveGainPlugin extends WebAudioPlugin<Parameters, never, never, State, Events> {
     static pluginName = "LiveGain";
-    readonly state: Readonly<State> = {
+    readonly state = {
+        ...this.state,
         metering: "postFader",
         frameRate: 60,
         speedLim: 16,
@@ -31,8 +32,8 @@ export class LiveGainPlugin extends WebAudioPlugin<Parameters, State, Events> {
         step: 0.01,
         value: 0,
         orientation: "horizontal"
-    };
-    params: WebAudioPluginParametersDescriptor<Parameters> = {
+    } as State;
+    params: ParametersDescriptor<Parameters> = {
         enabled: {
             defaultValue: 1,
             minValue: 0,
@@ -47,9 +48,10 @@ export class LiveGainPlugin extends WebAudioPlugin<Parameters, State, Events> {
     initialize(state?: Partial<State>) {
         if (state) Object.assign(this.state, state);
     }
-    setState(state: Partial<State>): void {
+    setState(state: Partial<State>) {
         Object.assign(this.state, state);
-        this.dispatchEvent(new CustomEvent<Events["stateChanged"]>("stateChanged", { detail: state }));
+        this.emit("stateChanged", state);
+        return this;
     }
     createAudioNode = async () => {
         const node = new LiveGainNode(this.audioContext, { plugin: this });
@@ -62,7 +64,7 @@ export class LiveGainPlugin extends WebAudioPlugin<Parameters, State, Events> {
         return div;
     };
     destroy() {
-        this.dispatchEvent(new CustomEvent("destroy"));
+        this.emit("destroy");
     }
 }
 export default LiveGainPlugin;
