@@ -1,54 +1,55 @@
 /* eslint-disable lines-between-class-members */
-
-/**
- * Loads the json plugin descriptor from url
- */
-export async function loadPluginDescriptor(url) {
-	url = new URL(url, window.location.href);
-	const descriptor = await fetch(url).then((res) => res.json());
-	descriptor.url = url;
-	return descriptor;
-}
-
-const defaultOptions = {
-	noGui: false,
-};
-
-export async function loadPluginFromDescriptor(descriptor, opts) {
-	const {
-		entry = './index.js',
-		gui = './gui.js',
-		url,
-	} = descriptor;
-	const entryModulePath = new URL(entry, url);
-	const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
-	const { default: Plugin } = await import(entryModulePath);
-
-	const options = { ...defaultOptions, ...opts };
-	// if gui wanted, we load it right now
-	// if not wanted, the gui will be loaded when calling plugin.createGui()
-	if (!options.noGui && guiModuleUrl) { await import(guiModuleUrl); }
-
+// eslint-disable-next-line max-classes-per-file
+export default class Loader {
+	static defaultLoadOptions = {
+		noGui: false,
+	}
 	/**
-	 * Extends Plugin with actual descriptor and gui module url
+	 * Loads the json plugin descriptor from url
 	 */
-	class PluginWrapper extends Plugin {
-		static descriptor = descriptor;
-		static guiModuleUrl = guiModuleUrl;
+	static async getDescriptorFromUrl(url) {
+		url = new URL(url, window.location.href);
+		const descriptor = await fetch(url).then((res) => res.json());
+		descriptor.url = url;
+		return descriptor;
 	}
 
-	return {
-		Plugin: PluginWrapper,
-		async createInstance(audioContext, pluginOptions = {}) {
-			const plugin = new PluginWrapper(audioContext, pluginOptions);
-			await plugin.initialize(pluginOptions.initialState);
-			return plugin;
-		},
-	};
-}
+	static async loadPluginFromDescriptor(descriptor, optionsIn) {
+		const {
+			entry = './index.js',
+			gui = './gui.js',
+			url,
+		} = descriptor;
+		const entryModuleUrl = new URL(entry, url);
+		const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
+		const { default: Plugin } = await import(entryModuleUrl);
 
-export async function loadPlugin(url) {
-	const descriptor = await loadPluginDescriptor(url);
-	const plugin = await loadPluginFromDescriptor(descriptor);
-	return plugin;
+		const options = { ...this.defaultOptions, ...optionsIn };
+		// if gui wanted, we load it right now
+		// if not wanted, the gui will be loaded when calling plugin.createGui()
+		if (!options.noGui && guiModuleUrl) { await import(guiModuleUrl); }
+
+		/**
+		 * Extends Plugin with actual descriptor and gui module url
+		 */
+		class PluginClass extends Plugin {
+			static descriptor = descriptor;
+			static guiModuleUrl = guiModuleUrl;
+		}
+
+		return {
+			PluginClass,
+			async createInstance(audioContext, pluginOptions = {}) {
+				const plugin = new PluginClass(audioContext, pluginOptions);
+				await plugin.initialize(pluginOptions.initialState);
+				return plugin;
+			},
+		};
+	}
+
+	static async loadPluginFromUrl(url) {
+		const descriptor = await this.getDescriptorFromUrl(url);
+		const plugin = await this.loadPluginFromDescriptor(descriptor);
+		return plugin;
+	}
 }
