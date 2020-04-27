@@ -1,46 +1,44 @@
 /* eslint-disable lines-between-class-members */
-// eslint-disable-next-line max-classes-per-file
-export default class Loader {
-	static defaultLoadOptions = {
-		noGui: false,
-	}
+
+const defaultLoadOptions = {
+	noGui: false,
+};
+/**
+ * Loads the json plugin descriptor from url
+ */
+export const getDescriptorFromUrl = async (url) => {
+	url = new URL(url, window.location.href);
+	const descriptor = await fetch(url).then((res) => res.json());
+	descriptor.url = url;
+	return descriptor;
+};
+
+export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
+	const {
+		entry = './index.js',
+		gui = './gui.js',
+		url,
+	} = descriptor;
+	const entryModuleUrl = new URL(entry, url);
+	const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
+	const { default: PluginClass } = await import(entryModuleUrl);
+
+	const options = { ...defaultLoadOptions, ...optionsIn };
+	// if gui wanted, we load it right now
+	// if not wanted, the gui will be loaded when calling plugin.createGui()
+	if (!options.noGui && guiModuleUrl) { await import(guiModuleUrl); }
+
 	/**
-	 * Loads the json plugin descriptor from url
+	 * Extends Plugin with actual descriptor and gui module url
 	 */
-	static async getDescriptorFromUrl(url) {
-		url = new URL(url, window.location.href);
-		const descriptor = await fetch(url).then((res) => res.json());
-		descriptor.url = url;
-		return descriptor;
-	}
+	PluginClass.descriptor = descriptor;
+	PluginClass.guiModuleUrl = guiModuleUrl;
 
-	static async loadPluginFromDescriptor(descriptor, optionsIn) {
-		const {
-			entry = './index.js',
-			gui = './gui.js',
-			url,
-		} = descriptor;
-		const entryModuleUrl = new URL(entry, url);
-		const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
-		const { default: PluginClass } = await import(entryModuleUrl);
+	return PluginClass;
+};
 
-		const options = { ...this.defaultOptions, ...optionsIn };
-		// if gui wanted, we load it right now
-		// if not wanted, the gui will be loaded when calling plugin.createGui()
-		if (!options.noGui && guiModuleUrl) { await import(guiModuleUrl); }
-
-		/**
-		 * Extends Plugin with actual descriptor and gui module url
-		 */
-		PluginClass.descriptor = descriptor;
-		PluginClass.guiModuleUrl = guiModuleUrl;
-
-		return PluginClass;
-	}
-
-	static async loadPluginFromUrl(url) {
-		const descriptor = await this.getDescriptorFromUrl(url);
-		const plugin = await this.loadPluginFromDescriptor(descriptor);
-		return plugin;
-	}
-}
+export const loadPluginFromUrl = async (url) => {
+	const descriptor = await getDescriptorFromUrl(url);
+	const plugin = await loadPluginFromDescriptor(descriptor);
+	return plugin;
+};

@@ -4,9 +4,6 @@ export interface LoadPluginOptions {
     noGui: boolean;
 }
 
-declare class Loader {
-    static getDescriptorFromUrl(url: string): Promise<PluginDescriptor>
-    static loadPluginFromDescriptor(descriptor: PluginDescriptor, optionsIn: Partial<LoadPluginOptions>): Promise<typeof WebAudioPlugin>;
-    static loadPluginFromUrl(url: string): Promise<typeof WebAudioPlugin>;
-}
-export default Loader;
+export const getDescriptorFromUrl: (url: string) => Promise<PluginDescriptor>;
+export const loadPluginFromDescriptor: (descriptor: PluginDescriptor, optionsIn: Partial<LoadPluginOptions>) => Promise<typeof WebAudioPlugin>;
+export const loadPluginFromUrl: (url: string) => Promise<typeof WebAudioPlugin>;
