@@ -11,8 +11,8 @@ import EventEmitter from 'events';
  */
 export default class WebAudioPlugin extends EventEmitter {
 	static isWebAudioPlugin = true;
-	static createInstance() {
-		return new this().initialize();
+	static createInstance(audioContext, pluginOptions = {}) {
+		return new this(audioContext, pluginOptions).initialize();
 	}
 	static descriptor = {
 		name: 'WebAudioPlugin',
@@ -66,17 +66,17 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * Plugins that redefine initialize() must call super.initialize();
 	 */
 	async initialize() {
-		const { state } = this.options;
+		const { initialState } = this.options;
 		// initialize state with params defaultValues
 		const params = Object.entries(this.params)
 			.reduce((currentParams, [name, { defaultValue }]) => {
 				currentParams[name] = defaultValue;
 				return currentParams;
 			}, this.state.params);
-		if (state) {
-			if (state.params) Object.assign(params, state.params);
+		if (initialState) {
+			if (initialState.params) Object.assign(params, initialState.params);
 			// merge default state with initial state passed to constructor
-			Object.assign(this.state, state);
+			Object.assign(this.state, initialState);
 		}
 		this.state.params = params;
 

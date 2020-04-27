@@ -97,7 +97,7 @@ declare const WebAudioPlugin: {
     prototype: WebAudioPlugin;
     descriptor: PluginDescriptor;
     guiModuleUrl: string;
-    createInstance(): Promise<WebAudioPlugin>;
+    createInstance(audioContext: AudioContext, options?: CreateOptions): Promise<WebAudioPlugin>;
     new <
         Params extends string = "enabled",
         Patches extends string = never,
