@@ -13,12 +13,12 @@ export default class LiveGainNode extends CompositeAudioNode {
         super(audioContext);
         const { plugin, state } = options;
         this._plugin = plugin;
-        this._plugin.addEventListener("stateChanged", this.handleStateChanged);
-        this._plugin.addEventListener("destroy", this.handleStateChanged);
+        this._plugin.on("change", this.handleStateChanged);
+        this._plugin.on("destroy", this.handleStateChanged);
         if (state && state.metering) this._metering = state.metering;
     }
-    handleStateChanged = (e: CustomEvent<Events["stateChanged"]>) => {
-        if (e.detail.metering && e.detail.metering !== this._metering) {
+    handleStateChanged = (e: Events["change"]) => {
+        if (e.metering && e.metering !== this._metering) {
             if (this._metering === "preFader") {
                 this._output.disconnect(this.temporalAnalyserNode);
                 this._input.connect(this.temporalAnalyserNode);
@@ -27,16 +27,16 @@ export default class LiveGainNode extends CompositeAudioNode {
                 this._output.connect(this.temporalAnalyserNode);
             }
         }
-        if (typeof e.detail.value === "number") {
+        if (typeof e.value === "number") {
             this.gain.cancelScheduledValues(this.context.currentTime);
             this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
-            this.gain.linearRampToValueAtTime(dbtoa(e.detail.value), this.context.currentTime + 0.01);
+            this.gain.linearRampToValueAtTime(dbtoa(e.value), this.context.currentTime + 0.01);
         }
     };
     handleDestroy = () => {
         window.clearTimeout(this._requestTimer);
-        this._plugin.removeEventListener("stateChanged", this.handleStateChanged);
-        this._plugin.removeEventListener("destroy", this.handleStateChanged);
+        this._plugin.off("change", this.handleStateChanged);
+        this._plugin.off("destroy", this.handleStateChanged);
         if (this.temporalAnalyserNode) this.temporalAnalyserNode.destroy();
     };
     startRequest = () => {
@@ -70,7 +70,8 @@ export default class LiveGainNode extends CompositeAudioNode {
         else this._output.connect(this.temporalAnalyserNode);
     }
     async setup() {
-        super.setup();
+        await this.createNodes();
+        this.connectNodes();
         this.startRequest();
     }
     get gain() {

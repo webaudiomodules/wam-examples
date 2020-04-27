@@ -178,4 +178,8 @@ export default class WebAudioPlugin extends EventEmitter {
 		const { createElement } = await this.loadGui();
 		return createElement(this, options);
 	}
+
+	destroy() {
+		this.emit('destroy');
+	}
 }

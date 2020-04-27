@@ -75,18 +75,18 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         this.paintScheduled = true;
     };
     componentDidMount() {
-        this.props.plugin.addEventListener("stateChanged", this.handleStateChanged);
+        this.props.plugin.on("change", this.handleStateChanged);
         this.schedulePaint();
     }
     componentDidUpdate() {
         this.schedulePaint();
     }
     componentWillUnmount() {
-        this.props.plugin.removeEventListener("stateChanged", this.handleStateChanged);
+        this.props.plugin.on("change", this.handleStateChanged);
         if (this.paintScheduled) cancelAnimationFrame(this.$paintRaf);
     }
-    handleStateChanged = (e: CustomEvent<Events["stateChanged"]>) => {
-        this.setState(e.detail as any);
+    handleStateChanged = (e: Events["change"]) => {
+        this.setState(e as any);
     };
     get distance() {
         const { max, min, value } = this.state;

@@ -1,0 +1,28 @@
+{
+	"name": "LiveGain",
+	"params": {
+		"gain": {
+			"defaultValue": 1,
+			"minValue": 0,
+			"maxValue": 1
+		}
+	},
+	"banks": {
+		"bank1": {
+			"label": "Bank 1",
+			"patches": [
+				"patch1"
+			]
+		}
+	},
+	"patches" : {
+		"patch1": {
+			"label": "Patch 1",
+			"params": {
+				"gain": 0.6
+			}
+		}
+	},
+	"entry": "./index.js",
+	"gui": "./gui.js"
+}
