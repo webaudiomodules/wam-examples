@@ -11,6 +11,9 @@ import EventEmitter from 'events';
  */
 export default class WebAudioPlugin extends EventEmitter {
 	static isWebAudioPlugin = true;
+	static createInstance() {
+		return new this().initialize();
+	}
 	static descriptor = {
 		name: 'WebAudioPlugin',
 		entry: undefined,
@@ -62,7 +65,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * While initializing, the audionode is created by calling the redefined method createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
 	 */
-	get ready() {
+	async initialize() {
 		const { state } = this.options;
 		// initialize state with params defaultValues
 		const params = Object.entries(this.params)
@@ -77,13 +80,13 @@ export default class WebAudioPlugin extends EventEmitter {
 		}
 		this.state.params = params;
 
-		const initAudioNode = async () => {
-			if (!this._audioNode) this.audioNode = await this.createAudioNode();
-			this.initialized = true;
-			console.log('initialize plugin with state', this.state);
-			return this;
-		};
-		return initAudioNode();
+		if (!this._audioNode) this.audioNode = await this.createAudioNode();
+		this.initialized = true;
+		console.log('initialize plugin with state', this.state);
+		return this;
+	}
+	get ready() {
+		return this.initialize();
 	}
 	/**
 	 * This async method must be redefined to get audionode that

@@ -35,12 +35,16 @@ export interface BankDescriptor<Patches extends string = never> {
 export type BanksDescriptor<Banks extends string = never, Patches extends string = never> = Record<Banks, BankDescriptor<Patches>>;
 export interface PluginDescriptor<Params extends string = "enabled", Patches extends string = never, Banks extends string = never> {
     name: string;
+    author: string;
+    vendor: string;
+    version: string;
     entry: string;
     gui: string | "none";
     url: string;
     params?: ParametersDescriptor<Params>;
     patches?: PatchesDescriptor<Patches, Params>;
     banks?: BanksDescriptor<Banks, Patches>;
+    [key: string]: any;
 }
 export interface DefaultState<Params extends string = "enabled", Patches extends string = never, Banks extends string = never> {
     enabled: boolean;
@@ -52,8 +56,10 @@ export interface DefaultState<Params extends string = "enabled", Patches extends
  * `WebAudioPlugin` main interface
  *
  * @interface WebAudioPlugin
- * @extends {TypedEventTarget<Events>}
+ * @extends {TypedEventEmitter<Events>}
  * @template Params Param names, e.g. `"gain" | "feedback" | "ratio"`
+ * @template Patches Patch names, e.g. `"patch1" | "patch2"`
+ * @template Banks Bank names, e.g. `"bank1" | "bank2"`
  * @template State State type, e.g. `{ id: string, color: string }`
  * @template Events Event map, e.g. `{ midiMessage: { data: Uint8Array } }`
  */
@@ -91,6 +97,7 @@ declare const WebAudioPlugin: {
     prototype: WebAudioPlugin;
     descriptor: PluginDescriptor;
     guiModuleUrl: string;
+    createInstance(): Promise<WebAudioPlugin>;
     new <
         Params extends string = "enabled",
         Patches extends string = never,
