@@ -1,6 +1,6 @@
 
-import type { DefaultState } from "sdkv3";
-import { WebAudioPlugin } from "sdkv3";
+import type { DefaultState } from "sdk";
+import { WebAudioPlugin } from "sdk";
 import LiveGainNode from "./LiveGainNode";
 
 export type Parameters = "gain";

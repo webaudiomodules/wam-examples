@@ -1,12 +1,13 @@
 import WebAudioPlugin from "./WebAudioPlugin";
+import { LoadPluginOptions } from "./Loader";
 
 interface CompositeAudioNode extends GainNode {
     _input: GainNode;
     _output: GainNode;
-    gain: any;
-    createNodes(): Promise<void>;
+    gain: AudioParam;
+    createNodes(): void;
     connectNodes(): void;
-    setup(): Promise<void>;
+    setup(): void;
 }
 declare const CompositeAudioNode: {
     prototype: CompositeAudioNode;

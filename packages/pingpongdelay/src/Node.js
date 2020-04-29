@@ -1,59 +1,23 @@
 /* eslint-disable no-underscore-dangle */
-import { WebAudioPluginCompositeNode } from 'sdk';
+import { CompositeAudioNode } from 'sdk';
 
-export default class PingPongDelayNode extends WebAudioPluginCompositeNode {
-	constructor(ctx, URL, options) {
-		/*    ################     API PROPERTIES    ###############   */
-		super(ctx, URL, options);
-
-		this.addParam({
-			name: 'feedback',
-			defaultValue: 0.5,
-			minValue: 0,
-			maxValue: 1,
-		});
-		this.addParam({
-			name: 'time',
-			defaultValue: 0.5,
-			minValue: 0,
-			maxValue: 1,
-		});
-		this.addParam({
-			name: 'mix',
-			defaultValue: 0.5,
-			minValue: 0,
-			maxValue: 1,
-		});
-
-		// Bypass feature. Useful for swithing the plugin on and off
-		({ status: 'disable', ...this.params });
+// name is not so important here, the file Node.js is imported
+// Normally the class does no need to be exported as
+// an async mehod createNode is expored at the end of this
+// file.
+export default class PingPongDelayNode extends CompositeAudioNode {
+	// plugin is an instance of he class that exends WebAudioPlugin
+	// this instance is he plugin as an Observable
+	// options is an extra container that could be ussed to indicate
+	// the number of inputs and outputs...
+	constructor(audioContext, options) {
+		super(audioContext, options);
 		super.setup();
-	}
-
-	/*    ################     API METHODS Overriding    ###############   */
-	getPatch(index) {
-		console.warn(
-			'this module does not implements patches use getState / setState to get an array of current params values ',
-		);
-	}
-
-	setPatch(data, index) {
-		console.warn(
-			'this module does not implements patches use getState / setState to get an array of current params values ',
-		);
-	}
-
-	setParam(key, value) {
-		//console.log(key, value);
-		try {
-			this[key] = value;
-		} catch (error) {
-			console.warn('this plugin does not implement this param');
-		}
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
 	createNodes() {
+		super.createNodes();
 		this.delayNodeLeft = this.context.createDelay();
 		this.delayNodeRight = this.context.createDelay();
 		this.dryGainNode = this.context.createGain();
@@ -63,6 +27,7 @@ export default class PingPongDelayNode extends WebAudioPluginCompositeNode {
 	}
 
 	connectNodes() {
+		super.connectNodes();
 		// dry mix
 		this._input.connect(this.dryGainNode);
 		// dry mix out
@@ -87,10 +52,6 @@ export default class PingPongDelayNode extends WebAudioPluginCompositeNode {
 
 	// Setter part, it is here that you define the link between the params and the nodes values.
 	set time(_time) {
-		if (
-			_time < this._descriptor.time.maxValue
-			&& _time > this._descriptor.time.minValue
-		) this.params.time = _time;
 		this.delayNodeLeft.delayTime.setValueAtTime(
 			_time,
 			this.context.currentTime,
@@ -102,10 +63,6 @@ export default class PingPongDelayNode extends WebAudioPluginCompositeNode {
 	}
 
 	set feedback(_feedback) {
-		if (
-			_feedback < this._descriptor.feedback.maxValue
-			&& _feedback > this._descriptor.feedback.minValue
-		) this.params.feedback = _feedback;
 		this.feedbackGainNode.gain.setValueAtTime(
 			parseFloat(_feedback, 10),
 			this.context.currentTime,
@@ -113,28 +70,26 @@ export default class PingPongDelayNode extends WebAudioPluginCompositeNode {
 	}
 
 	set mix(_mix) {
-		if (
-			_mix < this._descriptor.mix.maxValue
-			&& _mix > this._descriptor.mix.minValue
-		) this.params.mix = _mix;
 		this.dryGainNode.gain.setValueAtTime(
-			this.getDryLevel(this.params.mix),
+			this.getDryLevel(_mix),
 			this.context.currentTime,
 		);
 		this.wetGainNode.gain.setValueAtTime(
-			this.getWetLevel(this.params.mix),
+			this.getWetLevel(_mix),
 			this.context.currentTime,
 		);
 	}
 
+	isEnabled = true;
+
 	set status(_sig) {
-		if (_sig === 'enable') {
-			this.params.status = 'enable';
+		if (this.isEnabled === _sig) return;
+		this.isEnabled = _sig;
+		if (_sig) {
 			this._input.disconnect(this._output);
 			this._input.connect(this.feedbackGainNode);
 			this._input.connect(this.dryGainNode);
-		} else if (_sig === 'disable') {
-			this.params.status = 'disable';
+		} else {
 			this._input.disconnect(this.feedbackGainNode);
 			this._input.disconnect(this.dryGainNode);
 			this._input.connect(this._output);

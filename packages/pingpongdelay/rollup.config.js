@@ -4,11 +4,10 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
 import html from 'rollup-plugin-html';
+import copy from 'rollup-plugin-copy';
 import { terser } from 'rollup-plugin-terser';
 
-export default {
-	input: './src/index.js',
-
+const common = {
 	output: [
 		{
 			sourcemap: true,
@@ -17,8 +16,12 @@ export default {
 			format: 'es',
 		},
 	],
-
 	plugins: [
+		copy({
+			targets: [
+				{ src: 'src/descriptor.json', dest: 'dist/' },
+			]
+		}),
 		postcss({
 			extract: false,
 			use: ['sass'],
@@ -27,9 +30,30 @@ export default {
 			exclude: 'node_modules/**',
 			runtimeHelpers: true,
 		}),
-		resolve(),
+		resolve({
+			browser: true,
+		}),
 		commonjs(),
 		html(),
 		terser(),
 	],
 };
+
+const plugin = {
+	...common,
+	input: './src',
+};
+
+const gui = {
+	...common,
+	input: './src/Gui',
+	output: [{
+		...common.output[0],
+		dir: './dist/Gui',
+	}],
+};
+
+export default [
+	plugin,
+	gui,
+];

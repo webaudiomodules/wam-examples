@@ -6,10 +6,11 @@
   },
   "scripts": {
     "clean": "lerna run clean --stream",
-    "build:v1": "lerna run build --stream",
-    "build": "lerna run build --stream --scope sdkv3 && lerna run build --stream --scope pingpongdelayv3",
-    "start:v1": "lerna run start --stream --scope container",
-    "start": "lerna run start --stream --scope containerv3"
+    "build:livegain": "lerna run build --stream --scope livegain",
+    "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
+    "build:sdk": "lerna run build --stream --scope sdk",
+    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:livegain",
+    "start": "lerna run start --stream --scope host"
   },
   "workspaces": [
     "packages/*"

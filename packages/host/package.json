@@ -1,0 +1,26 @@
+{
+  "name": "host",
+  "version": "0.0.0",
+  "private": true,
+  "author": "53JS",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "parcel-bundler": "^1.12.4",
+    "pingpongdelay": "^0.0.0",
+    "sdk": "^0.0.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "not dead"
+  ],
+  "webaudioplugins": {
+    "livegain": "dist",
+    "pingpongdelay": "dist"
+  }
+}
