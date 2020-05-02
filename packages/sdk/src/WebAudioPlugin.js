@@ -12,7 +12,7 @@ import EventEmitter from 'events';
 export default class WebAudioPlugin extends EventEmitter {
 	static isWebAudioPlugin = true;
 	static createInstance(audioContext, pluginOptions = {}) {
-		return new this(audioContext, pluginOptions).initialize();
+		return new this(audioContext).initialize(pluginOptions);
 	}
 	static descriptor = {
 		name: 'WebAudioPlugin',
