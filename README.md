@@ -39,7 +39,7 @@ yarn lerna bootstrap
 Available scripts : 
 
 - `yarn build`: builds sdk and plugins (you may also use scripts `build:sdk`, `build:pingpongdelay` etc..)
-- `yarn start`: starts the host example (for development only)
+- `yarn start`: starts the host example (for development only). Open [http://localhost:1234](http://localhost:1234)
 - `yarn clean`: deletes built code
 
 (other scripts can be found in /package.json)
@@ -82,7 +82,7 @@ __sdk plugin loader__
 The plugin loader uses es6 dynamic imports to load the plugins through HTTP.
 Thus every plugin code (descriptor.json, audio module, gui) must be available through a Web server.
 
-The host package provide a simple utility that make a plugin avaiable through a web server.
+The host package provides a simple utility that make a plugin avaiable through a web server.
 In order to make your plugin available, it must be listed in the `webaudioplugins` field
 of the `package.json` of the host.  
 
@@ -115,11 +115,11 @@ Example:
 # descriptor.json
 {
 	"name": "SimpleGain", 
-	"params: {
+	"params": {
 		"gain": {
-			defaultValue: 1,
-			maxValue: 1,
-			minValue: 0
+			"defaultValue": 1,
+			"maxValue": 1,
+			"minValue": 0
 		}
 	}
 }
@@ -128,7 +128,7 @@ See [descriptor.json](#descriptorjson) in the following for more details.
 
 __index.js__  
 Then create the WebAudioPlugin **ES module**.
-This module must exports as default a class that extends the sdk WebAudioPlugin class.
+This module must export as default a class that extends the sdk WebAudioPlugin class.
 The only method that must be implemented is `async createAudioNode(options)`.  
 Example:  
 ```js
@@ -146,7 +146,7 @@ export default class SimpleGainPlugin extends WebAudioPlugin {
 
 __gui.js__  
 If you want your plugin to export a gui. Create a es module file named gui.js.  
-The module must exports a named export createElement: `async function createElement(plugin)`. 
+The module must export a named export createElement: `async function createElement(plugin)`. 
 
 The plugin parameter is the instance of the WebAudioPlugin that can be used by the GUI for example
 to get a reference to the AudioNode etc..
@@ -199,7 +199,7 @@ In other hosts, `descriptorUrl` can be any url (assuming that CORS headers are c
 
 __WebAudioPlugin.createInstance()__
 
-Now that your plugin is avaiable. You can create an instance of it using `WebAudioPlugin.createInstance(audioContext)`.
+Now that your plugin is available, you can create an instance of it using `WebAudioPlugin.createInstance(audioContext)`.
 
 Example: 
 ```js
