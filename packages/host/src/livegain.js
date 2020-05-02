@@ -39,7 +39,7 @@ const mountPlugin = (domNode) => {
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await new LiveGain(audioContext).ready;
+	const instance = await LiveGain.createInstance(audioContext);
 	instance.setState({ enabled: true });
 
 	// Connect the audionode to the host

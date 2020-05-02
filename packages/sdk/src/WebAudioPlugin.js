@@ -54,10 +54,9 @@ export default class WebAudioPlugin extends EventEmitter {
 	};
 
 	// The constructor is waiting for an audioContext
-	constructor(audioContext, options = {}) {
+	constructor(audioContext) {
 		super();
 		this.audioContext = audioContext;
-		this.options = options;
 	}
 
 	/**
@@ -65,29 +64,27 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * While initializing, the audionode is created by calling the redefined method createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
 	 */
-	async initialize() {
-		const { initialState } = this.options;
+	async initialize(options = {}) {
+		const { initialState = {} } = options;
 		// initialize state with params defaultValues
 		const params = Object.entries(this.params)
 			.reduce((currentParams, [name, { defaultValue }]) => {
 				currentParams[name] = defaultValue;
 				return currentParams;
 			}, this.state.params);
-		if (initialState) {
-			if (initialState.params) Object.assign(params, initialState.params);
-			// merge default state with initial state passed to constructor
-			Object.assign(this.state, initialState);
-		}
-		this.state.params = params;
+
+		this.state = {
+			...this.state,
+			...initialState,
+			params: { ...params, ...(initialState.params || {}) },
+		};
 
 		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 		this.initialized = true;
 		console.log('initialize plugin with state', this.state);
 		return this;
 	}
-	get ready() {
-		return this.initialize();
-	}
+
 	/**
 	 * This async method must be redefined to get audionode that
 	 * will connected to the host.
