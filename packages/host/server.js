@@ -22,3 +22,5 @@ const bundler = new Bundler('src/*.html');
 app.use(bundler.middleware());
 
 app.listen(1234);
+
+console.info('Host server started on http://localhost:1234');
