@@ -7,7 +7,7 @@ This is a monorepo with multiple packages located under the directory `packages/
 List of (relevant) packages   
 - `host`: a very simple host built with parceljs
 - `sdk`: draft of the new sdk
-- `pingpongdelay`: a simple PingPonDelay plugin based on the previous version from Michel
+- `pingpongdelay`: a simple PingPongDelay plugin based on the previous version from Michel
 - `livegain`: LiveGain plugin from Shihong
 
 ## Main dependencies
