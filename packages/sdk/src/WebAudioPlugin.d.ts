@@ -64,6 +64,7 @@ export interface DefaultEventMap<
     "change:bank": Banks;
     "change": Partial<State>;
     "destroy": never;
+    string: number;
 }
 /**
  * `WebAudioPlugin` main interface
@@ -87,20 +88,29 @@ interface WebAudioPlugin<
 > extends TypedEventEmitter<Events> {
     readonly descriptor: PluginDescriptor<Params, Patches, Banks>;
     readonly name: string;
-    readonly params: ParametersDescriptor<Params>;
+    readonly paramsConfig: ParametersDescriptor<Params>;
+    readonly params: Record<Params, number>;
     readonly patches: PatchesDescriptor<Patches, Params>;
+    readonly patch: Patches;
     readonly banks: BanksDescriptor<Banks, Patches>;
+    readonly bank: Banks;
     readonly state: State;
     audioContext: BaseAudioContext;
-    _audioNode: Node;
+    private _audioNode: Node;
     audioNode: Node;
     initialized: boolean;
-    readonly ready: this;
-    initialize(): Promise<this>;
+    initialize(options?: CreateOptions): Promise<this>;
+	onBankChange(cb: (e: Banks) => any): this;
+	onBankChange(cb: (e: boolean) => any): this;
+	onParamChange(paramName: Params, cb: (e: number) => any): this;
+	onParamsChange(cb: (e: Record<Params, number>) => any): this;
+	onPatchChange(cb: (e: Patches) => any): this;
     getState(): State;
     setState(state: Partial<State>): this;
     getParams(): Record<Params, number>;
     setParams(params: Partial<Record<Params, number>>): this;
+    getParam(paramName: Params): number;
+    setParam(paramName: Params, paramValue: number): this;
     getPatch(): Patches;
     setPatch(patch: Patches): this;
     getBank(): Banks;
@@ -121,7 +131,7 @@ declare const WebAudioPlugin: {
         Banks extends string = never,
         State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
         Events extends Partial<DefaultEventMap<Params, Patches, Banks, State>> & Record<string, any> = DefaultEventMap<Params, Patches, Banks, State>
-    >(audioContext: AudioContext, options?: CreateOptions<State>): WebAudioPlugin<Node, Params, Patches, Banks, State, Events>;
+    >(audioContext: AudioContext): WebAudioPlugin<Node, Params, Patches, Banks, State, Events>;
 };
 
 export default WebAudioPlugin;
