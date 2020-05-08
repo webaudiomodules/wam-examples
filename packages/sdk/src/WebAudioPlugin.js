@@ -82,10 +82,10 @@ export default class WebAudioPlugin extends EventEmitter {
 				return currentParams;
 			}, this.params);
 
-		this.params = { ...defaultParams, ...(params || {}) };
-		this.bank = bank ?? this.bank;
+		this.bank = bank ?? Object.keys(this.banks)[0];
 		this.enabled = enabled ?? this.enabled;
-		this.patch = patch ?? this.patch;
+		this.params = { ...defaultParams, ...(params || {}) };
+		this.patch = patch ?? this.banks[this.bank].patches[0];
 
 		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 		this.initialized = true;
@@ -103,34 +103,44 @@ export default class WebAudioPlugin extends EventEmitter {
 		throw new TypeError('createAudioNode() not provided');
 	}
 
+	_setEnabled(enabled) {
+		this.enabled = enabled;
+		return enabled;
+	}
+
 	disable() {
 		const previousEnabled = this.enabled;
-		this.enabled = false;
-		this.emit('change:enabled', this.enabled, previousEnabled);
+		const enabled = this._setEnabled(false);
+		this.emit('change:enabled', enabled, previousEnabled);
 	}
 
 	enable() {
 		const previousEnabled = this.enabled;
-		this.enabled = true;
-		this.emit('change:enabled', this.enabled, previousEnabled);
+		const enabled = this._setEnabled(true);
+		this.emit('change:enabled', enabled, previousEnabled);
 	}
 
 	getBank() { return this.bank; }
 
-	setBank(bankName) {
+	_setBank(bankName) {
 		const bank = this.banks[bankName];
 		if (!bank) throw new Error('Bank not found');
-		const previousBank = this.bank;
 		this.bank = bankName;
+		return bank;
+	}
+
+	setBank(bankName, patchName) {
+		const previousBank = this.bank;
+		const bank = this._setBank(bankName);
 		// Apply first patch of the bank
-		this.setPatch(bank.patches[0]);
+		this.setPatch(patchName || bank.patches[0]);
 		this.emit('change:bank', this.bank, previousBank);
 		return this;
 	}
 
 	getParams() { return this.params; }
 
-	setParams(params) {
+	_setParams(params) {
 		const newParams = Object.entries(params)
 			.reduce((currentParams, [paramName, paramValue]) => {
 				const paramConfig = this.paramsConfig[paramName];
@@ -141,8 +151,13 @@ export default class WebAudioPlugin extends EventEmitter {
 				currentParams[paramName] = Math.max(minValue, Math.min(maxValue, paramValue));
 				return currentParams;
 			}, this.params);
-		const previousParams = { ...this.params };
 		this.params = { ...this.params, ...newParams };
+		return newParams;
+	}
+
+	setParams(params) {
+		const previousParams = { ...this.params };
+		const newParams = this._setParams(params);
 		Object.entries(newParams).forEach(([paramName, paramValue]) => {
 			this.emit(`change:param:${paramName}`, paramValue, previousParams[paramName]);
 		});
@@ -158,14 +173,56 @@ export default class WebAudioPlugin extends EventEmitter {
 
 	getPatch() { return this.patch; }
 
-	setPatch(patchName) {
+	_setPatch(patchName) {
+		const bank = this.banks[this.bank];
+		const bankHasPatch = bank.patches.includes(patchName);
+		if (!bankHasPatch) throw new Error('Patch not found in current bank');
 		const patch = this.patches[patchName];
 		if (!patch) throw new Error('Patch not found');
-		const previousPatch = this.patch;
 		this.patch = patchName;
+		return patch;
+	}
+
+	setPatch(patchName) {
+		const previousPatch = this.patch;
+		const patch = this._setPatch(patchName);
 		// Apply first patch of the bank
 		this.setParams(patch.patches[0]);
-		this.emit('change:bank', this.patch, previousPatch);
+		this.emit('change:patch', this.patch, previousPatch);
+	}
+
+	getState() {
+		const {
+			bank,
+			enabled,
+			params: { ...params },
+			patch,
+		} = this;
+		return {
+			bank,
+			enabled,
+			params,
+			patch,
+		};
+	}
+
+	setState(state) {
+		const {
+			bank: bankName,
+			enabled,
+			params,
+			patch: patchName,
+		} = state;
+		this._setEnabled(enabled);
+		const previousBank = this.bank;
+		const bank = this._setBank(bankName ?? Object.keys(this.banks)[0]);
+		const previousPatch = this.patch;
+		const patch = this._setPatch(patchName ?? bank.patches[0]);
+		// trigger events in order param -> params -> patch -> bank
+		this.setParams(params); // using setParam (without _) here to trigger events
+		this.emit('change:patch', patch, previousPatch);
+		this.emit('change:bank', bank, previousBank);
+		return this;
 	}
 
 	/**
