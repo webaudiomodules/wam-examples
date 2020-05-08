@@ -16,7 +16,7 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
 
-		pingPongDelayNode.status = this.status;
+		pingPongDelayNode.status = this.enabled;
 		pingPongDelayNode.feedback = this.params.feedback;
 		pingPongDelayNode.mix = this.params.mix;
 		pingPongDelayNode.time = this.params.time;

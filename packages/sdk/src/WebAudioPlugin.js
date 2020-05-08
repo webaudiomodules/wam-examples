@@ -52,7 +52,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	// Initial state of the plugin
-	enabled = false;
+	enabled = true;
 	params = {};
 	patch = undefined;
 	bank = undefined;

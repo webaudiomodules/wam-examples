@@ -43,7 +43,7 @@ const mountPlugin = (domNode) => {
 		{
 			params: { feedback: 0.7 },
 		});
-	instance.enable();
+	// instance.enable();
 
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
