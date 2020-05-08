@@ -41,9 +41,9 @@ const mountPlugin = (domNode) => {
 	// You can can optionnally give more options such as the initial state of the plugin
 	const instance = await Pingpongdelay.createInstance(audioContext,
 		{
-			initialState: { params: { feedback: .7 } }
+			params: { feedback: 0.7 },
 		});
-	instance.setState({ enabled: true });
+	instance.enable();
 
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
@@ -70,7 +70,7 @@ const mountPlugin = (domNode) => {
 		}, 5000);
 		setTimeout(() => {
 			console.log('timeout setParams');
-			instance.setParams({ feedback: .5 });
+			instance.setParams({ feedback: 0.5 });
 		}, 10000);
 	};
 })();

@@ -16,22 +16,27 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
 
-		pingPongDelayNode.status = this.state.status;
-		pingPongDelayNode.feedback = this.state.params.feedback;
-		pingPongDelayNode.mix = this.state.params.mix;
-		pingPongDelayNode.time = this.state.params.time;
+		pingPongDelayNode.status = this.status;
+		pingPongDelayNode.feedback = this.params.feedback;
+		pingPongDelayNode.mix = this.params.mix;
+		pingPongDelayNode.time = this.params.time;
 
-		this.on('change:enabled', (status) => {
-			pingPongDelayNode.status = status;
+		// Listen to status change
+		// eslint-disable-next-line no-unused-vars
+		this.onEnabledChange((newEnabled, previousEnabled) => {
+			pingPongDelayNode.status = newEnabled;
 		});
 
-		this.on('change:params', (params) => {
-			const {
-				feedback,
-				mix,
-				time,
-			} = params;
-			pingPongDelayNode.feedback = feedback;
+		// Listen to a single param change
+		// eslint-disable-next-line no-unused-vars
+		this.onParamChange('feedback', (newFeedback, previousFeedback) => {
+			pingPongDelayNode.feedback = newFeedback;
+		});
+
+		// Listen to any param change
+		// eslint-disable-next-line no-unused-vars
+		this.onParamsChange((newParams, previousParams, changedParams) => {
+			const { mix, time } = newParams;
 			pingPongDelayNode.mix = mix;
 			pingPongDelayNode.time = time;
 		});
