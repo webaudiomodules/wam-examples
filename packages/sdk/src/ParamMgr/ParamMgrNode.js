@@ -60,7 +60,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 				Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
 					if (config instanceof AudioParam) {
 						config.value = 0;
-						this.connect(config, i);
+						this.connect(config, i + 1);
 					} else {
 						this.requestDispatchIParamChange(name);
 					}

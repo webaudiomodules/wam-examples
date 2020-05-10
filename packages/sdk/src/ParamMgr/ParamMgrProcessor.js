@@ -110,7 +110,7 @@ const processor = (processorId, paramsConfig) => {
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;
 			this.lock();
-			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue, exponent }]) => {
+			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }]) => {
 				if (!this.mapping[name]) return;
 				const raw = parameters[name];
 				Object.entries(this.mapping[name]).forEach(([targetName, targetMapping]) => {
@@ -121,10 +121,10 @@ const processor = (processorId, paramsConfig) => {
 					const [tMin, tMax] = targetRange;
 					let out;
 					if (minValue !== tMin || maxValue !== tMax
-							|| minValue !== sMin || maxValue !== sMax || exponent !== 0) {
+							|| minValue !== sMin || maxValue !== sMax) {
 						out = new Float32Array(raw.length);
 						for (let j = 0; j < raw.length; j++) {
-							out[j] = mapValue(raw[j], minValue, maxValue, exponent, sMin, sMax, tMin, tMax);
+							out[j] = mapValue(raw[j], minValue, maxValue, sMin, sMax, tMin, tMax);
 						}
 					} else {
 						out = raw;
