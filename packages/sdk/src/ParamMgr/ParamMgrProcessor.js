@@ -81,7 +81,9 @@ const processor = (processorId, paramsConfig) => {
 				internalParams,
 				lock: this.$lock,
 				paramsBuffer: this.$paramsBuffer,
+				outputs: [],
 			};
+			this.exposed = WebAudioPluginParams[processorId];
 			this.port.onmessage = (e) => {
 				if (e.data.destroy) this.destroy();
 				else if (e.data.mapping) this.mapping = e.data.mapping;
@@ -131,6 +133,7 @@ const processor = (processorId, paramsConfig) => {
 					}
 					if (out.length === 1) outputs[i][0].fill(out[0]);
 					else outputs[i][0].set(out);
+					this.exposed.outputs[i - 1] = outputs[i][0];
 					this.$paramsBuffer[i - 1] = out[0]; // eslint-disable-line no-undef, prefer-destructuring
 				});
 			});
