@@ -50,36 +50,6 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 		this.wetGainNode.connect(this._output);
 	}
 
-	// Setter part, it is here that you define the link between the params and the nodes values.
-	set time(_time) {
-		this.delayNodeLeft.delayTime.setValueAtTime(
-			_time,
-			this.context.currentTime,
-		);
-		this.delayNodeRight.delayTime.setValueAtTime(
-			_time,
-			this.context.currentTime,
-		);
-	}
-
-	set feedback(_feedback) {
-		this.feedbackGainNode.gain.setValueAtTime(
-			parseFloat(_feedback, 10),
-			this.context.currentTime,
-		);
-	}
-
-	set mix(_mix) {
-		this.dryGainNode.gain.setValueAtTime(
-			this.getDryLevel(_mix),
-			this.context.currentTime,
-		);
-		this.wetGainNode.gain.setValueAtTime(
-			this.getWetLevel(_mix),
-			this.context.currentTime,
-		);
-	}
-
 	isEnabled = true;
 
 	set status(_sig) {
@@ -94,23 +64,5 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 			this._input.disconnect(this.dryGainNode);
 			this._input.connect(this._output);
 		}
-	}
-
-	// delay tools
-	// Tools to build sounds
-	isNumber(arg) {
-		return toString.call(arg) === '[object Number]' && arg === +arg;
-	}
-
-	getDryLevel(mix) {
-		if (!this.isNumber(mix) || mix > 1 || mix < 0) return 0;
-		if (mix <= 0.5) return 1;
-		return 1 - (mix - 0.5) * 2;
-	}
-
-	getWetLevel(mix) {
-		if (!this.isNumber(mix) || mix > 1 || mix < 0) return 0;
-		if (mix >= 0.5) return 1;
-		return 1 - (0.5 - mix) * 2;
 	}
 }

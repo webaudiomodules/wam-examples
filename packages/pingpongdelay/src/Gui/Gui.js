@@ -9,8 +9,12 @@ import template from './Gui.template.html';
 // MANDORY : the GUI should be a DOM node. WebComponents are
 // practical as they encapsulate everyhing in a shadow dom
 export default class PingPongDelayHTMLElement extends HTMLElement {
-	// plugin = the same that is passed in the DSP part. It's the instance
-	// of the class that extends WebAudioPlugin. It's an Observable plugin
+	/**
+	 * plugin = the same that is passed in the DSP part. It's the instance
+	 * of the class that extends WebAudioPlugin. It's an Observable plugin
+	 * @param {import("sdk").WebAudioPlugin<AudioNode, "feedback" | "time" | "mix">} plugin
+	 * @memberof PingPongDelayHTMLElement
+	 */
 	constructor(plugin) {
 		super();
 
@@ -18,23 +22,20 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
-		this.plugin.on('change:params', this.updateParams);
-		this.plugin.on('change:enabled', this.updateEnabled);
 	}
 
-	updateEnabled = (enabled) => {
-		this.shadowRoot.querySelector('#switch1').value = enabled;
-	}
-
-	updateParams = (params) => {
+	handleAnimationFrame = () => {
 		const {
 			feedback,
 			mix,
 			time,
-		} = params;
+			enabled,
+		} = this.plugin.params;
 		this.shadowRoot.querySelector('#knob1').value = feedback * 100;
 		this.shadowRoot.querySelector('#knob2').value = time * 100;
 		this.shadowRoot.querySelector('#knob3').value = mix * 100;
+		this.shadowRoot.querySelector('#switch1').value = enabled;
+		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	// Provided by the WebComponent API, called when the plugin is
@@ -44,8 +45,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 
 		this.setKnobs();
 		this.setSwitchListener();
-		this.updateEnabled(this.plugin.enabled);
-		this.updateParams(this.plugin.params);
+		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	setKnobs() {

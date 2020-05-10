@@ -1,4 +1,6 @@
+/// <reference path="types.d.ts" />
 import { EventEmitter } from "events";
+import ParamMgrNode from "./ParamMgr/ParamMgrNode";
 
 export interface TypedEventEmitter<M extends Record<string | symbol, any[]> = {}> extends EventEmitter {
     addListener<K extends keyof M>(type: K, listener: (...e: M[K]) => any): this;
@@ -15,63 +17,16 @@ export interface TypedEventEmitter<M extends Record<string | symbol, any[]> = {}
     prependOnceListener<K extends keyof M>(type: K, listener: (...e: M[K]) => any): this;
     eventNames<K extends keyof M>(): Array<K>;
 }
-export interface CreateOptions<S extends Record<string, any> = {}> {
-    initialState?: Partial<S>;
-}
-export interface ParameterDescriptor {
-    defaultValue: number;
-    minValue: number;
-    maxValue: number;
-}
-export type ParametersDescriptor<Params extends string = never> = Record<Params, ParameterDescriptor>;
-export interface PatchDescriptor<Params extends string = never> {
-    label: string;
-    params: Partial<Record<Params, number>>;
-}
-export type PatchesDescriptor<Patches extends string = never, Params extends string = never> = Record<Patches, PatchDescriptor<Params>>;
-export interface BankDescriptor<Patches extends string = never> {
-    label: string;
-    patches: Patches[];
-}
-export type BanksDescriptor<Banks extends string = never, Patches extends string = never> = Record<Banks, BankDescriptor<Patches>>;
-export interface PluginDescriptor<Params extends string = never, Patches extends string = never, Banks extends string = never> {
-    name: string;
-    author: string;
-    vendor: string;
-    version: string;
-    entry: string;
-    gui: string | "none";
-    url: string;
-    params?: ParametersDescriptor<Params>;
-    patches?: PatchesDescriptor<Patches, Params>;
-    banks?: BanksDescriptor<Banks, Patches>;
-    [key: string]: any;
-}
-export interface DefaultState<Params extends string = never, Patches extends string = never, Banks extends string = never> {
-    enabled: boolean;
-    params: Partial<Record<Params, number>>;
-    patch: Patches;
-    bank: Banks;
-}
-export interface DefaultEventMap<
-        Params extends string = never,
-        Patches extends string = never,
-        Banks extends string = never,
-> {
-    "change:enabled": [boolean, boolean];
-    "change:params": [Partial<Record<Params, number>>, Partial<Record<Params, number>>, Partial<Record<Params, number>>];
-    "change:patch": [Patches, Patches];
-    "change:bank": [Banks, Banks];
-    "destroy": [];
-    string: [number, number];
-}
 /**
  * `WebAudioPlugin` main interface
+ * Plugin should extend this interface
+ * and must redefine the async method `createAudioNode()`
  *
  * @interface WebAudioPlugin
- * @extends {TypedEventEmitter<Events>}
+ * @extends {(TypedEventEmitter<Events & DefaultEventMap<Params, Patches, Banks>>)}
  * @template Node Custom AudioNode type
  * @template Params Param names, e.g. `"gain" | "feedback" | "ratio"`
+ * @template InternalParams Param names, e.g. `"gain" | "feedback" | "ratio"`
  * @template Patches Patch names, e.g. `"patch1" | "patch2"`
  * @template Banks Bank names, e.g. `"bank1" | "bank2"`
  * @template State State type, e.g. `{ id: string, color: string }`
@@ -79,38 +34,49 @@ export interface DefaultEventMap<
  */
 interface WebAudioPlugin<
         Node extends AudioNode = AudioNode,
-        Params extends string = never,
-        Patches extends string = never,
-        Banks extends string = never,
+        Params extends string = string,
+        InternalParams extends string = string,
+        Patches extends string = string,
+        Banks extends string = string,
         State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
         Events extends Partial<DefaultEventMap<Params, Patches, Banks>> & Record<string, any> = DefaultEventMap<Params, Patches, Banks>
-> extends TypedEventEmitter<Events & DefaultEventMap<Params, Patches, Banks>> {
+> extends TypedEventEmitter<Events & DefaultEventMap<Params | "enabled", Patches, Banks>> {
+    /**
+     * The descriptor will expose the values from `descriptor.json`
+     *
+     * @type {PluginDescriptor<Params, Patches, Banks>}
+     * @memberof WebAudioPlugin
+     */
     readonly descriptor: PluginDescriptor<Params, Patches, Banks>;
     readonly name: string;
-    readonly paramsConfig: ParametersDescriptor<Params>;
-    readonly params: Record<Params, number>;
-    readonly patches: PatchesDescriptor<Patches, Params>;
+    readonly vendor: string;
+    readonly paramsConfig: ParametersDescriptor<Params | "enabled">;
+    readonly internalParamsConfig: InternalParametersDescriptor<InternalParams>;
+    readonly params: Record<Params | "enabled", number>;
+    readonly patches: PatchesDescriptor<Patches, Params | "enabled">;
     readonly patch: Patches;
     readonly banks: BanksDescriptor<Banks, Patches>;
     readonly bank: Banks;
     readonly state: State;
     audioContext: BaseAudioContext;
     audioNode: Node;
+    paramMapping: ParametersMapping<Params | "enabled", InternalParams>;
+    paramMgr: ParamMgrNode<Params | "enabled", InternalParams>;
     initialized: boolean;
-    initialize(options?: CreateOptions): Promise<this>;
+    initialize(options?: Partial<State>): Promise<this>;
     disable(): void;
     enable(): void;
     onBankChange(cb: (e: Banks) => any): this;
     onBankChange(cb: (e: boolean) => any): this;
-    onParamChange(paramName: Params, cb: (e: number) => any): this;
-    onParamsChange(cb: (e: Record<Params, number>) => any): this;
+    onParamChange(paramName: Params | "enabled", cb: (e: number) => any): this;
+    onParamsChange(cb: (e: Record<Params | "enabled", number>) => any): this;
     onPatchChange(cb: (e: Patches) => any): this;
     getState(): State;
     setState(state: Partial<State>): this;
-    getParams(): Record<Params, number>;
-    setParams(params: Partial<Record<Params, number>>): this;
-    getParam(paramName: Params): number;
-    setParam(paramName: Params, paramValue: number): this;
+    getParams(): Record<Params | "enabled", number>;
+    setParams(params: Partial<Record<Params | "enabled", number>>): this;
+    getParam(paramName: Params | "enabled"): number;
+    setParam(paramName: Params | "enabled", paramValue: number): this;
     getPatch(): Patches;
     setPatch(patch: Patches): this;
     getBank(): Banks;
@@ -123,15 +89,16 @@ declare const WebAudioPlugin: {
     prototype: WebAudioPlugin;
     descriptor: PluginDescriptor;
     guiModuleUrl: string;
-    createInstance(audioContext: AudioContext, options?: CreateOptions): Promise<WebAudioPlugin>;
+    createInstance(audioContext: AudioContext, options?: Partail<State>): Promise<WebAudioPlugin>;
     new <
         Node extends AudioNode = AudioNode,
-        Params extends string = never,
-        Patches extends string = never,
-        Banks extends string = never,
+        Params extends string = string,
+        InternalParams extends string = string,
+        Patches extends string = string,
+        Banks extends string = string,
         State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
         Events extends Partial<DefaultEventMap<Params, Patches, Banks>> & Record<string, any> = DefaultEventMap<Params, Patches, Banks>
-    >(audioContext: AudioContext): WebAudioPlugin<Node, Params, Patches, Banks, State, Events>;
+    >(audioContext: AudioContext): WebAudioPlugin<Node, Params, InternalParams, Patches, Banks, State, Events>;
 };
 
 export default WebAudioPlugin;

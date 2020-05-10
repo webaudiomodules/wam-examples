@@ -9,7 +9,7 @@
     "build:livegain": "lerna run build --stream --scope livegain",
     "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
     "build:sdk": "lerna run build --stream --scope sdk",
-    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:livegain",
+    "build": "yarn build:sdk && yarn build:pingpongdelay",
     "start": "lerna run start --stream --scope host"
   },
   "workspaces": [
