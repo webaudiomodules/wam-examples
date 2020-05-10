@@ -53,18 +53,18 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
 				// Using setParams
-				this.plugin.setParams({ feedback: e.target.value / 100 });
+				this.plugin.paramMgr.setParamTargetAtTime('feedback', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 		this.shadowRoot
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {
 				// Using setParam
-				this.plugin.setParam('time', e.target.value / 100);
+				this.plugin.paramMgr.setParamTargetAtTime('time', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 		this.shadowRoot
 			.querySelector('#knob3')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ mix: e.target.value / 100 });
+				this.plugin.paramMgr.setParamTargetAtTime('mix', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 	}
 

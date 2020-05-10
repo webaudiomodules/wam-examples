@@ -2,29 +2,19 @@
 /**
  * Main function to stringify as a worklet.
  *
- * @param {string} processorID processor identifier
+ * @param {string} processorId processor identifier
  * @param {ParametersDescriptor} paramsConfig parameterDescriptors
  */
-const processor = (processorID, paramsConfig) => {
-	const normExp = (x, e) => (e === 0 ? x : x ** (1.5 ** -e));
-	const denormExp = (x, e) => (e === 0 ? x : x ** (1.5 ** e));
-	const normalize = (x, min, max, e = 0) => (
-		min === 0 && max === 1
-			? normExp(x, e)
-			: normExp((x - min) / (max - min) || 0, e));
-	const denormalize = (x, min, max, e = 0) => (
-		min === 0 && max === 1
-			? denormExp(x, e)
-			: denormExp(x, e) * (max - min) + min
-	);
-	const mapValue = (x, eMin, eMax, eExp, sMin, sMax, tMin, tMax) => (
+const processor = (processorId, paramsConfig) => {
+	const normalize = (x, min, max) => (min === 0 && max === 1 ? x : (x - min) / (max - min) || 0);
+	const denormalize = (x, min, max) => (min === 0 && max === 1 ? x : x * (max - min) + min);
+	const mapValue = (x, eMin, eMax, sMin, sMax, tMin, tMax) => (
 		denormalize(
 			normalize(
 				normalize(
 					Math.min(sMax, Math.max(sMin, x)),
 					eMin,
 					eMax,
-					eExp,
 				),
 				normalize(sMin, eMin, eMax),
 				normalize(sMax, eMin, eMax),
@@ -40,7 +30,7 @@ const processor = (processorID, paramsConfig) => {
 	 * @typedef {{
 	 * 		paramsConfig: ParametersDescriptor;
 	 * 		mapping: ParametersMapping;
-	 * 		internalParamsConfig: InternalParametersDescriptor
+	 * 		internalParams: string[];
 	 * }} O
 	 */
 	/**
@@ -73,16 +63,25 @@ const processor = (processorID, paramsConfig) => {
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
-			const { mapping, internalParamsConfig } = options.processorOptions;
+			const { mapping, internalParams } = options.processorOptions;
+			this.processorId = processorId;
 			this.paramsConfig = paramsConfig;
 			this.mapping = mapping;
-			this.internalParamsConfig = internalParamsConfig;
-			this.internalParamsCount = Object.keys(this.internalParamsConfig).length;
+			this.internalParams = internalParams;
+			this.internalParamsCount = this.internalParams.length;
 			this.buffer = new SharedArrayBuffer( // eslint-disable-line no-undef
 				(this.internalParamsCount + 1) * Float32Array.BYTES_PER_ELEMENT,
 			);
 			this.$lock = new Int32Array(this.buffer, 0, 1);
 			this.$paramsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
+			// eslint-disable-next-line no-undef
+			if (!globalThis.WebAudioPluginParams) globalThis.WebAudioPluginParams = {};
+			const { WebAudioPluginParams } = globalThis; // eslint-disable-line no-undef
+			WebAudioPluginParams[processorId] = {
+				internalParams,
+				lock: this.$lock,
+				paramsBuffer: this.$paramsBuffer,
+			};
 			this.port.onmessage = (e) => {
 				if (e.data.destroy) this.destroy();
 				else if (e.data.mapping) this.mapping = e.data.mapping;
@@ -115,7 +114,7 @@ const processor = (processorID, paramsConfig) => {
 				if (!this.mapping[name]) return;
 				const raw = parameters[name];
 				Object.entries(this.mapping[name]).forEach(([targetName, targetMapping]) => {
-					const i = Object.keys(this.internalParamsConfig).indexOf(targetName) + 1;
+					const i = this.internalParams.indexOf(targetName) + 1;
 					if (!i) return;
 					const { sourceRange, targetRange } = targetMapping;
 					const [sMin, sMax] = sourceRange;
@@ -143,6 +142,6 @@ const processor = (processorID, paramsConfig) => {
 			this.destroyed = true;
 		}
 	}
-	registerProcessor(processorID, ParamMgrProcessor);
+	registerProcessor(processorId, ParamMgrProcessor);
 };
 export default processor;

@@ -39,14 +39,28 @@ interface ParameterDescriptor {
 type ParametersDescriptor<Params extends string = string> = Record<Params, ParameterDescriptor>;
 interface InternalParameterDescriptor {
     /**
-     * `true` by default
+     * `0` by default
      *
-     * @type {boolean}
+     * @type {number}
      * @memberof InternalParameterDescriptor
      */
-    isAudioParam?: boolean;
+    minValue?: number;
+    /**
+     * `1` by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    maxValue?: number;
+    /**
+     * `30` (1/30s for each change check) by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    automationRate?: number;
 }
-type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, InternalParameterDescriptor>;
+type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, AudioParam | InternalParameterDescriptor>;
 interface ParameterMappingTarget {
     /**
      * Source param's `[minValue, maxValue]` by default
@@ -99,5 +113,6 @@ interface DefaultEventMap<Params extends string = string, Patches extends string
     "change:patch": [Patches, Patches];
     "change:bank": [Banks, Banks];
     "destroy": [];
+    "change:paramsMapping": [ParametersMapping, ParametersMapping]
     string: [number, number];
 }

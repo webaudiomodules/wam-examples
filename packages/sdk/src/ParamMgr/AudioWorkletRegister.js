@@ -2,15 +2,6 @@ export const registeredProcessors = new Set();
 export const registeringProcessors = new Set();
 
 export default class AudioWorkletRegister {
-	/*
-	static processorID;
-
-	static processorURL;
-
-	static processor;
-
-	static Node;
-	*/
 	static registeredProcessors = registeredProcessors;
 
 	static registeringProcessors = registeringProcessors;
@@ -34,16 +25,6 @@ export default class AudioWorkletRegister {
 		this.resolves[processorId] = [];
 	}
 
-	/**
-	 * Register a processor with unique identifier
-	 *
-	 * @static
-	 * @param {string} processorId if duplicated, the processor will not be readded.
-	 * @param {AudioWorklet} audioWorklet AudioWorklet instance
-	 * @param {any[]} injection will be injected to the processor if possible
-	 * @returns {Promise<void>} a Promise<void>
-	 * @memberof AudioWorkletRegister
-	 */
 	static async register(processorId, processor, audioWorklet, ...injection) {
 		if (!this.resolves[processorId]) this.resolves[processorId] = [];
 		if (!this.rejects[processorId]) this.rejects[processorId] = [];

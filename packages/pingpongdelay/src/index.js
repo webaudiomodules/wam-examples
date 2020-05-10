@@ -22,14 +22,17 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
-	constructor(context) {
-		super(context);
+
+	async createAudioNode(options) {
+		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
+
 		this.internalParamsConfig = {
-			delayLeftTime: {},
-			delayRightTime: {},
-			dryGain: {},
-			wetGain: {},
-			feedback: {},
+			delayLeftTime: pingPongDelayNode.delayNodeLeft.delayTime,
+			delayRightTime: pingPongDelayNode.delayNodeRight.delayTime,
+			dryGain: pingPongDelayNode.dryGainNode.gain,
+			wetGain: pingPongDelayNode.wetGainNode.gain,
+			feedback: pingPongDelayNode.feedbackGainNode.gain,
+			enabled: {},
 		};
 		this.paramsMapping = {
 			time: {
@@ -47,21 +50,6 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 				},
 			},
 		};
-	}
-
-	async createAudioNode(options) {
-		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
-
-		pingPongDelayNode.feedbackGainNode.gain.value = 0;
-		pingPongDelayNode.delayNodeLeft.delayTime.value = 0;
-		pingPongDelayNode.delayNodeRight.delayTime.value = 0;
-		pingPongDelayNode.dryGainNode.gain.value = 0;
-		pingPongDelayNode.wetGainNode.gain.value = 0;
-		this.paramMgr.connectParam('feedback', pingPongDelayNode.feedbackGainNode.gain);
-		this.paramMgr.connectParam('delayLeftTime', pingPongDelayNode.delayNodeLeft.delayTime);
-		this.paramMgr.connectParam('delayRightTime', pingPongDelayNode.delayNodeRight.delayTime);
-		this.paramMgr.connectParam('dryGain', pingPongDelayNode.dryGainNode.gain);
-		this.paramMgr.connectParam('wetGain', pingPongDelayNode.wetGainNode.gain);
 
 		pingPongDelayNode.status = this.enabled;
 		// Listen to status change
