@@ -46,11 +46,11 @@ declare interface ParamMgrNode<
 }
 declare const ParamMgrNode: {
     prototype: AudioWorkletNode;
-    new <InternalParams extends string = string>(
+    new <Params extends string = string, InternalParams extends string = string>(
         context: BaseAudioContext,
         processorId: string,
         parameterData: Record<Params, number>,
         processorOptions: { paramsConfig: ParametersDescriptor; mapping: ParametersMapping; internalParamsConfig: InternalParametersDescriptor }
-    ): ParamMgrNode<InternalParams>;
+    ): ParamMgrNode<Params, InternalParams>;
 }
 export default ParamMgrNode;

@@ -14,6 +14,6 @@ declare class ParamMgrRegister extends AudioWorkletRegister {
 	 * @returns {Promise<ParamMgrNode>} `ParamMgrNode` instance
 	 * @memberof ParamMgrRegister
 	 */
-	static async getNode<P extends string = string, I extends string = string>(plugin: WebAudioPlugin<any, P, I>, initialParamsValue: Record<P, number>): Promise<ParamMgrNode<P, I>>
+	static getNode<P extends string = string, I extends string = string>(plugin: WebAudioPlugin<any, P, I>, initialParamsValue: Record<P, number>): Promise<ParamMgrNode<P, I>>
 }
 export default ParamMgrRegister;

@@ -34,7 +34,7 @@ export interface TypedEventEmitter<M extends Record<string | symbol, any[]> = {}
  */
 interface WebAudioPlugin<
         Node extends AudioNode = AudioNode,
-        Params extends "enabled" = string,
+        Params extends string = string,
         InternalParams extends string = Params,
         Patches extends string = string,
         Banks extends string = string,
@@ -89,7 +89,7 @@ declare const WebAudioPlugin: {
     prototype: WebAudioPlugin;
     descriptor: PluginDescriptor;
     guiModuleUrl: string;
-    createInstance(audioContext: AudioContext, options?: Partail<State>): Promise<WebAudioPlugin>;
+    createInstance(audioContext: AudioContext, options?: Partial<DefaultState> & Record<string, any>): Promise<WebAudioPlugin>;
     new <
         Node extends AudioNode = AudioNode,
         Params extends string = string,

@@ -1,4 +1,4 @@
-import WebAudioPlugin, { PluginDescriptor } from "./WebAudioPlugin";
+import WebAudioPlugin from "./WebAudioPlugin";
 
 export interface LoadPluginOptions {
     noGui: boolean;
