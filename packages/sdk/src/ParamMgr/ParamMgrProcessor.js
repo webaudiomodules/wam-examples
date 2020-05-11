@@ -25,12 +25,13 @@ const processor = (processorId, paramsConfig) => {
 	);
 
 	/**
-	 * @typedef {{ destroy: true, mapping: ParametersMapping, buffer: true }} T
+	 * @typedef {{ destroy: true, paramsMapping: ParametersMapping, buffer: true }} T
 	 * @typedef {{ buffer: { lock: Int32Array, paramsBuffer: Float32Array } }} F
 	 * @typedef {{
 	 * 		paramsConfig: ParametersDescriptor;
-	 * 		mapping: ParametersMapping;
+	 * 		paramsMapping: ParametersMapping;
 	 * 		internalParams: string[];
+	 * 		instanceId: string;
 	 * }} O
 	 */
 	/**
@@ -63,10 +64,10 @@ const processor = (processorId, paramsConfig) => {
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
-			const { mapping, internalParams } = options.processorOptions;
+			const { paramsMapping, internalParams, instanceId } = options.processorOptions;
 			this.processorId = processorId;
 			this.paramsConfig = paramsConfig;
-			this.mapping = mapping;
+			this.paramsMapping = paramsMapping;
 			this.internalParams = internalParams;
 			this.internalParamsCount = this.internalParams.length;
 			this.buffer = new SharedArrayBuffer( // eslint-disable-line no-undef
@@ -77,16 +78,17 @@ const processor = (processorId, paramsConfig) => {
 			// eslint-disable-next-line no-undef
 			if (!globalThis.WebAudioPluginParams) globalThis.WebAudioPluginParams = {};
 			const { WebAudioPluginParams } = globalThis; // eslint-disable-line no-undef
-			WebAudioPluginParams[processorId] = {
+			WebAudioPluginParams[instanceId] = {
 				internalParams,
 				lock: this.$lock,
 				paramsBuffer: this.$paramsBuffer,
 				outputs: [],
+				frame: currentFrame, // eslint-disable-line no-undef
 			};
-			this.exposed = WebAudioPluginParams[processorId];
+			this.exposed = WebAudioPluginParams[instanceId];
 			this.port.onmessage = (e) => {
 				if (e.data.destroy) this.destroy();
-				else if (e.data.mapping) this.mapping = e.data.mapping;
+				else if (e.data.paramsMapping) this.paramsMapping = e.data.paramsMapping;
 				else if (e.data.buffer) {
 					this.port.postMessage({ buffer: { lock: this.$lock, paramsBuffer: this.$paramsBuffer } });
 				}
@@ -113,9 +115,9 @@ const processor = (processorId, paramsConfig) => {
 			if (this.destroyed) return false;
 			this.lock();
 			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }]) => {
-				if (!this.mapping[name]) return;
+				if (!this.paramsMapping[name]) return;
 				const raw = parameters[name];
-				Object.entries(this.mapping[name]).forEach(([targetName, targetMapping]) => {
+				Object.entries(this.paramsMapping[name]).forEach(([targetName, targetMapping]) => {
 					const i = this.internalParams.indexOf(targetName) + 1;
 					if (!i) return;
 					const { sourceRange, targetRange } = targetMapping;
@@ -133,11 +135,12 @@ const processor = (processorId, paramsConfig) => {
 					}
 					if (out.length === 1) outputs[i][0].fill(out[0]);
 					else outputs[i][0].set(out);
-					this.exposed.outputs[i - 1] = outputs[i][0];
-					this.$paramsBuffer[i - 1] = out[0]; // eslint-disable-line no-undef, prefer-destructuring
+					this.exposed.outputs[i - 1] = outputs[i][0]; // eslint-disable-line prefer-destructuring
+					this.$paramsBuffer[i - 1] = out[0]; // eslint-disable-line prefer-destructuring
 				});
 			});
 			this.unlock();
+			this.exposed.frame = currentFrame; // eslint-disable-line no-undef
 			return true;
 		}
 

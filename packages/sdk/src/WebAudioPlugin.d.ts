@@ -57,6 +57,8 @@ interface WebAudioPlugin<
     readonly banks: BanksDescriptor<Banks, Patches>;
     readonly bank: Banks;
     readonly state: State;
+    readonly instanceId: string;
+    readonly pluginId: string;
     audioContext: BaseAudioContext;
     audioNode: Node;
     internalParamsConfig: InternalParametersDescriptor;

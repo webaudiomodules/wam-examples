@@ -13,12 +13,13 @@ const denormalize = (x, min, max, e = 0) => (
 );
 
 /**
- * @typedef {{ destroy: true, mapping: ParametersMapping, buffer: true }} T
+ * @typedef {{ destroy: true, paramsMapping: ParametersMapping, buffer: true }} T
  * @typedef {{ buffer: { lock: Int32Array, paramsBuffer: Float32Array } }} F
  * @typedef {{
  * 		paramsConfig: ParametersDescriptor;
- * 		mapping: ParametersMapping;
- * 		internalParams: string[]
+ * 		paramsMapping: ParametersMapping;
+ * 		internalParams: string[];
+ * 		instanceId: string;
  * }} O
  */
 /**
@@ -69,8 +70,8 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 				this.resolve = undefined;
 			}
 		};
-		this.plugin.on('change:paramsMapping', (mapping) => {
-			this.port.postMessage({ mapping });
+		this.plugin.on('change:paramsMapping', (paramsMapping) => {
+			this.port.postMessage({ paramsMapping });
 		});
 	}
 

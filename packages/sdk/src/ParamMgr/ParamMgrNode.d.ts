@@ -1,14 +1,17 @@
 import DisposableAudioWorkletNode from "./DisposableAudioWorkletNode";
+import WebAudioPlugin from "../WebAudioPlugin";
 
 declare interface ParamMgrNode<
         Params extends string = string,
         InternalParams extends string = Params
 > extends DisposableAudioWorkletNode<
         { buffer: { lock: Int32Array, paramsBuffer: Float32Array } },
-        { destroy: true, mapping: ParametersMapping, buffer: true },
+        { destroy: true, paramsMapping: ParametersMapping<Params, InternalParams>, buffer: true },
         Params,
-        { paramsConfig: ParametersDescriptor; mapping: ParametersMapping; internalParamsConfig: InternalParametersDescriptor }
+        { paramsConfig: ParametersDescriptor<Params>; paramsMapping: ParametersMapping<Params, InternalParams>; internalParams: InternalParams[]; instanceId: string; }
 > {
+    plugin: WebAudioPlugin<any, Params, InternalParams>;
+    internalParams: InternalParams[];
     internalParamsConfig: InternalParametersDescriptor<InternalParams>;
     $lock: Int32Array;
     $paramsBuffer: Float32Array;
@@ -50,7 +53,7 @@ declare const ParamMgrNode: {
         context: BaseAudioContext,
         processorId: string,
         parameterData: Record<Params, number>,
-        processorOptions: { paramsConfig: ParametersDescriptor; mapping: ParametersMapping; internalParamsConfig: InternalParametersDescriptor }
+        processorOptions: { paramsConfig: ParametersDescriptor; paramsMapping: ParametersMapping; internalParamsConfig: InternalParametersDescriptor }
     ): ParamMgrNode<Params, InternalParams>;
 }
 export default ParamMgrNode;

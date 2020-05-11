@@ -30,6 +30,8 @@ export default class WebAudioPlugin extends EventEmitter {
 	get vendor() { return this.descriptor.vendor; }
 	get banks() { return this.descriptor.banks || {}; }
 	get patches() { return this.descriptor.patches || {}; }
+	get pluginId() { return this.vendor + this.name; }
+	instanceId = this.pluginId + performance.now();
 	/**
 	 * @type {ParametersDescriptor}
 	 */
@@ -77,6 +79,7 @@ export default class WebAudioPlugin extends EventEmitter {
 			}, {});
 	}
 	set internalParamsConfig(config) {
+		if (this._internalParamsConfig) throw new Error('internalParamsConfig can be set only once.');
 		this._internalParamsConfig = config;
 	}
 
