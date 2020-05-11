@@ -83,37 +83,6 @@ export default class WebAudioPlugin extends EventEmitter {
 		this._internalParamsConfig = config;
 	}
 
-	initialized = false;
-
-	// EventEmitter is synchronous:
-	// https://nodejs.org/api/events.html#events_asynchronous_vs_synchronous
-	onBankChange(cb) { return this.on('change:bank', cb); }
-	onEnabledChange(cb) { return this.on('change:enabled', cb); }
-	onParamChange(paramName, cb) { return this.on(`change:param:${paramName}`, cb); }
-	onParamsChange(cb) { return this.on('change:params', cb); }
-	onPatchChange(cb) { return this.on('change:patch', cb); }
-
-	// The audioNode of the plugin
-	// The host must connect to this input
-	_audioNode = undefined;
-	get audioNode() {
-		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
-		return this._audioNode;
-	}
-	set audioNode(node) {
-		this._audioNode = node;
-	}
-
-	// Initial state of the plugin
-	get enabled() {
-		return this.paramMgr ? !!this.paramMgr.getParamValue('enabled') : true;
-	}
-	set enabled(enabled) {
-		this.setParam('enabled', +enabled);
-	}
-	get params() {
-		return this.paramMgr.getParamsValues();
-	}
 	_paramsMapping = {}
 	/**
 	 * @type {ParametersMapping}
@@ -145,6 +114,38 @@ export default class WebAudioPlugin extends EventEmitter {
 		const previousMapping = this.paramsMapping;
 		this._paramsMapping = mapping;
 		this.emit('change:paramsMapping', this.paramsMapping, previousMapping);
+	}
+
+	initialized = false;
+
+	// EventEmitter is synchronous:
+	// https://nodejs.org/api/events.html#events_asynchronous_vs_synchronous
+	onBankChange(cb) { return this.on('change:bank', cb); }
+	onEnabledChange(cb) { return this.on('change:enabled', cb); }
+	onParamChange(paramName, cb) { return this.on(`change:param:${paramName}`, cb); }
+	onParamsChange(cb) { return this.on('change:params', cb); }
+	onPatchChange(cb) { return this.on('change:patch', cb); }
+
+	// The audioNode of the plugin
+	// The host must connect to this input
+	_audioNode = undefined;
+	get audioNode() {
+		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
+		return this._audioNode;
+	}
+	set audioNode(node) {
+		this._audioNode = node;
+	}
+
+	// Initial state of the plugin
+	get enabled() {
+		return this.paramMgr ? !!this.paramMgr.getParamValue('enabled') : true;
+	}
+	set enabled(enabled) {
+		this.setParam('enabled', +enabled);
+	}
+	get params() {
+		return this.paramMgr.getParamsValues();
 	}
 	patch = undefined;
 	bank = undefined;

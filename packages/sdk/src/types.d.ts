@@ -60,7 +60,7 @@ interface InternalParameterDescriptor {
      */
     automationRate?: number;
 }
-type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, AudioParam | InternalParameterDescriptor>;
+type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, AudioParam | AudioNode | InternalParameterDescriptor>;
 interface ParameterMappingTarget {
     /**
      * Source param's `[minValue, maxValue]` by default

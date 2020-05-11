@@ -29,8 +29,6 @@ const denormalize = (x, min, max, e = 0) => (
  */
 export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	/**
-     * Creates an instance of ParamMgrNode.
-     *
      * @param {BaseAudioContext} context AudioContext
      * @param {string} processorId Processor identifier
 	 * @param {Record<string, number>} parameterData parameters initial values map
@@ -114,11 +112,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	/**
-	 * get the output index of an internal param
-	 *
-	 * @param {string} name param name
-	 * @returns {number} output index
-	 * @memberof ParamMgrNode
+	 * @param {string} name
 	 */
 	getIParamIndex(name) {
 		const i = this.internalParams.indexOf(name);
@@ -126,11 +120,9 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	/**
-	 * Connect an internal param stream to an AudioParam / AudioNode
-	 *
-	 * @param {string} name param name
-	 * @param {AudioParam | AudioNode} dest destination AudioParam / AudioNode
-	 * @param {number} index connection index
+	 * @param {string} name
+	 * @param {AudioParam | AudioNode} dest
+	 * @param {number} index
 	 * @memberof ParamMgrNode
 	 */
 	connectIParam(name, dest, index) {
@@ -142,12 +134,9 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	/**
-	 * Disonnect an internal param stream to an AudioParam / AudioNode
-	 *
-	 * @param {string} name param name
-	 * @param {AudioParam | AudioNode} dest destination AudioParam / AudioNode
-	 * @param {number} index connection index
-	 * @memberof ParamMgrNode
+	 * @param {string} name
+	 * @param {AudioParam | AudioNode} dest
+	 * @param {number} index
 	 */
 	disconnectIParam(name, dest, index) {
 		const i = this.getIParamIndex(name);
@@ -219,6 +208,20 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 		if (!param) return;
 		const { minValue, maxValue, exponent } = this.paramsConfig[name];
 		param.value = denormalize(value, minValue, maxValue, exponent);
+	}
+
+	getNormalizedParamsValues() {
+		const values = {};
+		this.parameters.forEach((v, k) => {
+			values[k] = this.getNormalizedParamValue(k);
+		});
+		return values;
+	}
+
+	setNormalizedParamsValues(values) {
+		Object.entries(values).forEach(([k, v]) => {
+			this.setNormalizedParamValue(k, v);
+		});
 	}
 
 	setParamValueAtTime(name, value, startTime) {

@@ -26,11 +26,11 @@ export interface TypedEventEmitter<M extends Record<string | symbol, any[]> = {}
  * @extends {(TypedEventEmitter<Events & DefaultEventMap<Params, Patches, Banks>>)}
  * @template Node Custom AudioNode type
  * @template Params Param names, e.g. `"enabled" | "gain" | "feedback" | "ratio"`
- * @template InternalParams Param names, e.g. `"gainLeft" | "gainRight"`
+ * @template InternalParams Internal param names, e.g. `"gainLeft" | "gainRight"`
  * @template Patches Patch names, e.g. `"patch1" | "patch2"`
  * @template Banks Bank names, e.g. `"bank1" | "bank2"`
- * @template State State type, e.g. `{ id: string, color: string }`
- * @template Events Event map, e.g. `{ midiMessage: { data: Uint8Array } }`
+ * @template State Additional state type, e.g. `{ id: string, color: string }`
+ * @template Events Additional event map, e.g. `{ midiMessage: { data: Uint8Array } }`
  */
 interface WebAudioPlugin<
         Node extends AudioNode = AudioNode,
@@ -48,23 +48,147 @@ interface WebAudioPlugin<
      * @memberof WebAudioPlugin
      */
     readonly descriptor: PluginDescriptor<Params, Patches, Banks>;
+    /**
+     * the plugin's name
+     *
+     * @type {string}
+     * @memberof WebAudioPlugin
+     */
     readonly name: string;
+    /**
+     * the plugin vendor's name
+     *
+     * @type {string}
+     * @memberof WebAudioPlugin
+     */
     readonly vendor: string;
+    /**
+     * retrieved from the descriptor, the exposed-params' descriptor with full information
+     * 
+     * There will be a `enabled` param in any case.
+     *
+     * @type {ParametersDescriptor<Params>}
+     * @memberof WebAudioPlugin
+     */
     readonly paramsConfig: ParametersDescriptor<Params>;
+    /**
+     * getter of the exposed-params' values
+     *
+     * @type {Record<Params, number>}
+     * @memberof WebAudioPlugin
+     */
     readonly params: Record<Params, number>;
+    /**
+     * retrived from the descriptor
+     *
+     * @type {PatchesDescriptor<Patches, Params>}
+     * @memberof WebAudioPlugin
+     */
     readonly patches: PatchesDescriptor<Patches, Params>;
+    /**
+     * current patch name
+     *
+     * @type {Patches}
+     * @memberof WebAudioPlugin
+     */
     readonly patch: Patches;
+    /**
+     * retrived from the descriptor
+     *
+     * @type {BanksDescriptor<Banks, Patches>}
+     * @memberof WebAudioPlugin
+     */
     readonly banks: BanksDescriptor<Banks, Patches>;
+    /**
+     * current bank name
+     *
+     * @type {Banks}
+     * @memberof WebAudioPlugin
+     */
     readonly bank: Banks;
+    /**
+     * current state with current params, patch, bank
+     *
+     * @type {State}
+     * @memberof WebAudioPlugin
+     */
     readonly state: State;
+    /**
+     * the unique identifier of the current plugin instance.
+     *
+     * @type {string}
+     * @memberof WebAudioPlugin
+     */
     readonly instanceId: string;
+    /**
+     * composed by vender + name
+     *
+     * @type {string}
+     * @memberof WebAudioPlugin
+     */
     readonly pluginId: string;
+    /**
+     * the `AudioContext` where the plugin's node lives in
+     *
+     * @type {BaseAudioContext}
+     * @memberof WebAudioPlugin
+     */
     audioContext: BaseAudioContext;
+    /**
+     * the `AudioNode` that handles audio in the plugin where the host can connect to/from
+     *
+     * @type {Node}
+     * @memberof WebAudioPlugin
+     */
     audioNode: Node;
-    internalParamsConfig: InternalParametersDescriptor;
+    /**
+     * the description of the plugin's internal parameters
+     * 
+     * is an `AudioParam` or not. if not, the update rate can be provided (`30` by default)
+     * 
+     * can be set only once
+     * 
+     * If not explicitly set, it will be derived from the exposed paramters `paramsConfig`
+     *
+     * @type {InternalParametersDescriptor<InternalParams>}
+     * @memberof WebAudioPlugin
+     */
+    internalParamsConfig: InternalParametersDescriptor<InternalParams>;
+    /**
+     * A mapping from the exposed params to the internal params
+     * 
+     * One exposed param can handle multiple internal params with different value mapping
+     * 
+     * If the mapping of a exposed parameter is not explicitly set,
+     * and if there is am internal parameter with the same name,
+     * the value will be sent directly to the internal parameter.
+     *
+     * @type {ParametersMapping<Params, InternalParams>}
+     * @memberof WebAudioPlugin
+     */
     paramsMapping: ParametersMapping<Params, InternalParams>;
+    /**
+     * The parameter manager that handles sample-accurate change and automation of exposed parameters,
+     * then send the values to the plugin's internal parameters.
+     *
+     * @type {ParamMgrNode<Params, InternalParams>}
+     * @memberof WebAudioPlugin
+     */
     paramMgr: ParamMgrNode<Params, InternalParams>;
+    /**
+     * This will returns true after calling `initialize()`.
+     *
+     * @type {boolean}
+     * @memberof WebAudioPlugin
+     */
     initialized: boolean;
+    /**
+     * This will be called automatically in the `createInstance()` static method.
+     *
+     * @param {Partial<State>} [options]
+     * @returns {Promise<this>}
+     * @memberof WebAudioPlugin
+     */
     initialize(options?: Partial<State>): Promise<this>;
     disable(): void;
     enable(): void;
@@ -83,7 +207,24 @@ interface WebAudioPlugin<
     setPatch(patch: Patches): this;
     getBank(): Banks;
     setBank(bank: Banks): this;
+    /**
+     * This need to be overridden to return an `AudioNode`.
+     * This will be called while initializing,
+     * but before creating the parameter manager.
+     * `internalParamsConfig` and `paramsMapping` can be set in the method.
+     *
+     * @param {*} [options]
+     * @returns {Promise<Node>}
+     * @memberof WebAudioPlugin
+     */
     createAudioNode(options?: any): Promise<Node>;
+    /**
+     * returns the Plugin's GUI as an `HTMLElement`.
+     *
+     * @param {*} [options]
+     * @returns {Promise<Element>}
+     * @memberof WebAudioPlugin
+     */
     createGui(options?: any): Promise<Element>;
 }
 declare const WebAudioPlugin: {
