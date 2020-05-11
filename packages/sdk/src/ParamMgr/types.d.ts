@@ -65,3 +65,17 @@ declare class AudioWorkletRegister {
      */
     static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>
 }
+interface AudioWorkletGlobalScope {
+    registerProcessor: <T extends AudioWorkletProcessor>(name: string, constructor: AudioWorkletProcessorConstructor<T>) => void;
+    currentFrame: number;
+    currentTime: number;
+    sampleRate: number;
+    AudioWorkletProcessor: AudioWorkletProcessor;
+    WebAudioPluginParams: Record<string, {
+        internalParams: string[];
+        lock: Int32Array;
+        paramsBuffer: Float32Array;
+        output: Float32Array[];
+        frame: number;
+    }>
+}

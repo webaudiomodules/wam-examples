@@ -83,7 +83,6 @@ const processor = (processorId, paramsConfig) => {
 				lock: this.$lock,
 				paramsBuffer: this.$paramsBuffer,
 				outputs: [],
-				frame: currentFrame, // eslint-disable-line no-undef
 			};
 			this.exposed = WebAudioPluginParams[instanceId];
 			this.port.onmessage = (e) => {
