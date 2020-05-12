@@ -92,6 +92,22 @@ declare interface ParamMgrNode<
      */
     initialize(): Promise<ParamMgrNode>;
     /**
+     * convert an WebAudio time stamp to frame index
+     *
+     * @param {number} time
+     * @returns {number}
+     * @memberof ParamMgrNode
+     */
+    convertTimeToFrame(time: number): number;
+    /**
+     * convert a frame index to WebAudio time stamp
+     *
+     * @param {number} frame
+     * @returns {number}
+     * @memberof ParamMgrNode
+     */
+    convertFrameToTime(frame: number): number;
+    /**
      * Force to check if an internal param is updated to dispatch immediately value change event if necessary.
      * Note that the event will also be throttled to the automation rate.
      *

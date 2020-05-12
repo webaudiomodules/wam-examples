@@ -44,6 +44,13 @@ interface InternalParameterDescriptor {
      * @type {number}
      * @memberof InternalParameterDescriptor
      */
+    defaultValue?: number;
+    /**
+     * `0` by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
     minValue?: number;
     /**
      * `1` by default
@@ -59,6 +66,13 @@ interface InternalParameterDescriptor {
      * @memberof InternalParameterDescriptor
      */
     automationRate?: number;
+    /**
+     * The default event listener,
+     * the event will be fired when the param get changed
+     *
+     * @memberof InternalParameterDescriptor
+     */
+    onChange?: (value: number, previousValue: number) => any;
 }
 type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, AudioParam | AudioNode | InternalParameterDescriptor>;
 interface ParameterMappingTarget {
@@ -107,12 +121,14 @@ interface DefaultState<Params extends string = string, Patches extends string = 
     patch: Patches;
     bank: Banks;
 }
+type AudioParamMethodNames = keyof Omit<AudioParam, "minValue" | "maxValue" | "automationRate" | "defaultValue" | "value">;
 interface DefaultEventMap<Params extends string = string, Patches extends string = string, Banks extends string = string> {
     "change:enabled": [boolean, boolean];
     "change:params": [Partial<Record<Params, number>>, Partial<Record<Params, number>>, Partial<Record<Params, number>>];
     "change:patch": [Patches, Patches];
     "change:bank": [Banks, Banks];
     "destroy": [];
-    "change:paramsMapping": [ParametersMapping, ParametersMapping]
+    "change:paramsMapping": [ParametersMapping, ParametersMapping];
+    "automation": [AudioParamMethodNames | "value", Params, ...any[]];
     string: [number, number];
 }

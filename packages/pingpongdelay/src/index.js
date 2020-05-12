@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 // Double role for WebAudioPlugin :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
@@ -32,7 +31,7 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 			dryGain: pingPongDelayNode.dryGainNode.gain,
 			wetGain: pingPongDelayNode.wetGainNode.gain,
 			feedback: pingPongDelayNode.feedbackGainNode.gain,
-			enabled: {},
+			enabled: { onChange: (value) => { pingPongDelayNode.status = !!value; } },
 		};
 		this.paramsMapping = {
 			time: {
@@ -50,13 +49,6 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 				},
 			},
 		};
-
-		pingPongDelayNode.status = this.enabled;
-		// Listen to status change
-		// eslint-disable-next-line no-unused-vars
-		this.onEnabledChange((newEnabled, previousEnabled) => {
-			pingPongDelayNode.status = newEnabled;
-		});
 
 		return pingPongDelayNode;
 	}

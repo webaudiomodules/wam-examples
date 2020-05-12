@@ -62,17 +62,29 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * @type {InternalParametersDescriptor}
 	 */
 	get internalParamsConfig() {
+		const { paramsConfig } = this;
 		if (!this._internalParamsConfig) {
-			return Object.entries(this.paramsConfig).reduce((configs, [name, { minValue, maxValue }]) => {
-				configs[name] = { minValue, maxValue, automationRate: 30 };
-				return configs;
-			}, {});
+			return Object.entries(paramsConfig)
+				.reduce((configs, [name, { minValue, maxValue, defaultValue }]) => {
+					configs[name] = {
+						minValue, maxValue, defaultValue, automationRate: 30,
+					};
+					return configs;
+				}, {});
 		}
 		return Object.entries(this._internalParamsConfig || {})
 			.reduce((configs, [name, config]) => {
 				if (config instanceof AudioParam) configs[name] = config;
 				else {
-					const defaultConfig = { minValue: 0, maxValue: 1, automationRate: 30 };
+					const minValue = paramsConfig[name] ? paramsConfig[name].minValue : 0;
+					const maxValue = paramsConfig[name] ? paramsConfig[name].maxValue : 1;
+					const defaultValue = paramsConfig[name] ? paramsConfig[name].defaultValue : 0;
+					const defaultConfig = {
+						minValue,
+						maxValue,
+						defaultValue,
+						automationRate: 30,
+					};
 					configs[name] = { ...defaultConfig, ...config };
 				}
 				return configs;
