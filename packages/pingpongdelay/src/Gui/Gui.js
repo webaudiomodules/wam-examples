@@ -19,11 +19,11 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
 		this.plugin.on('change:params', this.updateParams);
-		this.plugin.on('change:enabled', this.updateStatus);
+		this.plugin.on('change:enabled', this.updateEnabled);
 	}
 
-	updateStatus = (status) => {
-		this.shadowRoot.querySelector('#switch1').value = status;
+	updateEnabled = (enabled) => {
+		this.shadowRoot.querySelector('#switch1').value = enabled;
 	}
 
 	updateParams = (params) => {
@@ -44,20 +44,22 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 
 		this.setKnobs();
 		this.setSwitchListener();
-		this.updateStatus(this.plugin.state.enabled);
-		this.updateParams(this.plugin.state.params);
+		this.updateEnabled(this.plugin.enabled);
+		this.updateParams(this.plugin.params);
 	}
 
 	setKnobs() {
 		this.shadowRoot
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
+				// Using setParams
 				this.plugin.setParams({ feedback: e.target.value / 100 });
 			});
 		this.shadowRoot
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ time: e.target.value / 100 });
+				// Using setParam
+				this.plugin.setParam('time', e.target.value / 100);
 			});
 		this.shadowRoot
 			.querySelector('#knob3')
@@ -67,10 +69,12 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 	}
 
 	setSwitchListener() {
+		const { plugin } = this;
 		this.shadowRoot
 			.querySelector('#switch1')
-			.addEventListener('change', () => {
-				this.plugin.setState({ enabled: !this.plugin.state.enabled });
+			.addEventListener('change', function onChange() {
+				if (this.checked) plugin.enable();
+				else plugin.disable();
 			});
 	}
 
