@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-
+import ParamMgrReg from './ParamMgr/ParamMgrRegister';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
@@ -14,6 +14,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 	static descriptor = {
 		name: 'WebAudioPlugin',
+		vendor: 'PluginVendor',
 		entry: undefined,
 		gui: 'none',
 		url: undefined,
@@ -26,9 +27,106 @@ export default class WebAudioPlugin extends EventEmitter {
 	// Accessors for values inherited from descriptor.json
 	get descriptor() { return this.constructor.descriptor; }
 	get name() { return this.descriptor.name; }
+	get vendor() { return this.descriptor.vendor; }
 	get banks() { return this.descriptor.banks || {}; }
-	get paramsConfig() { return this.descriptor.params || {}; }
 	get patches() { return this.descriptor.patches || {}; }
+	get pluginId() { return this.vendor + this.name; }
+	instanceId = this.pluginId + performance.now();
+	/**
+	 * @type {ParametersDescriptor}
+	 */
+	get paramsConfig() {
+		return Object.entries(this.descriptor.params || {}).reduce((configs, [name, {
+			type,
+			defaultValue,
+			minValue,
+			maxValue,
+			exponent,
+		}]) => {
+			configs[name] = {
+				type: type ?? 'float',
+				defaultValue: defaultValue ?? 0,
+				minValue: minValue ?? 0,
+				maxValue: maxValue ?? 1,
+				exponent: exponent ?? 0,
+			};
+			return configs;
+		}, {
+			enabled: {
+				type: 'boolean', defaultValue: 1, minValue: 0, maxValue: 1, exponent: 0,
+			},
+		});
+	}
+	_internalParamsConfig = undefined;
+	/**
+	 * @type {InternalParametersDescriptor}
+	 */
+	get internalParamsConfig() {
+		const { paramsConfig } = this;
+		if (!this._internalParamsConfig) {
+			return Object.entries(paramsConfig)
+				.reduce((configs, [name, { minValue, maxValue, defaultValue }]) => {
+					configs[name] = {
+						minValue, maxValue, defaultValue, automationRate: 30,
+					};
+					return configs;
+				}, {});
+		}
+		return Object.entries(this._internalParamsConfig || {})
+			.reduce((configs, [name, config]) => {
+				if (config instanceof AudioParam) configs[name] = config;
+				else {
+					const minValue = paramsConfig[name] ? paramsConfig[name].minValue : 0;
+					const maxValue = paramsConfig[name] ? paramsConfig[name].maxValue : 1;
+					const defaultValue = paramsConfig[name] ? paramsConfig[name].defaultValue : 0;
+					const defaultConfig = {
+						minValue,
+						maxValue,
+						defaultValue,
+						automationRate: 30,
+					};
+					configs[name] = { ...defaultConfig, ...config };
+				}
+				return configs;
+			}, {});
+	}
+	set internalParamsConfig(config) {
+		if (this._internalParamsConfig) throw new Error('internalParamsConfig can be set only once.');
+		this._internalParamsConfig = config;
+	}
+
+	_paramsMapping = {}
+	/**
+	 * @type {ParametersMapping}
+	 */
+	get paramsMapping() {
+		const declared = this._paramsMapping || {};
+		const externalParams = this.paramsConfig;
+		const internalParams = this.internalParamsConfig;
+		return Object.entries(externalParams)
+			.reduce((mapping, [name, { minValue, maxValue }]) => {
+				const sourceRange = [minValue, maxValue];
+				const defaultMapping = { sourceRange, targetRange: [...sourceRange] };
+				if (declared[name]) {
+					const declaredTargets = Object.entries(declared[name])
+						.reduce((targets, [targetName, targetMapping]) => {
+							if (internalParams[targetName]) {
+								targets[targetName] = { ...defaultMapping, ...targetMapping };
+							}
+							return targets;
+						}, {});
+					mapping[name] = declaredTargets;
+				} else if (internalParams[name]) {
+					mapping[name] = { [name]: { ...defaultMapping } };
+				}
+				return mapping;
+			}, {});
+	}
+	set paramsMapping(mapping) {
+		const previousMapping = this.paramsMapping;
+		this._paramsMapping = mapping;
+		this.emit('change:paramsMapping', this.paramsMapping, previousMapping);
+	}
 
 	initialized = false;
 
@@ -52,12 +150,22 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	// Initial state of the plugin
-	enabled = true;
-	params = {};
+	get enabled() {
+		return this.paramMgr ? !!this.paramMgr.getParamValue('enabled') : true;
+	}
+	set enabled(enabled) {
+		this.setParam('enabled', +enabled);
+	}
+	get params() {
+		return this.paramMgr.getParamsValues();
+	}
 	patch = undefined;
 	bank = undefined;
 
-	// The constructor is waiting for an audioContext
+	/**
+	 * The constructor is waiting for an audioContext
+	 * @param {AudioContext} audioContext
+	 */
 	constructor(audioContext) {
 		super();
 		this.audioContext = audioContext;
@@ -67,11 +175,11 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * Calling initialize([state]) will initialize the plugin with an initial state.
 	 * While initializing, the audionode is created by calling the redefined method createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
+	 * @param {Partial<DefaultState<string, string, string>>} options
 	 */
 	async initialize(options = {}) {
 		const {
 			bank,
-			enabled,
 			params = {},
 			patch,
 		} = options;
@@ -80,14 +188,15 @@ export default class WebAudioPlugin extends EventEmitter {
 			.reduce((currentParams, [name, { defaultValue }]) => {
 				currentParams[name] = defaultValue;
 				return currentParams;
-			}, this.params);
+			}, {});
 
 		this.bank = bank ?? Object.keys(this.banks)[0];
-		this.enabled = enabled ?? this.enabled;
-		this.params = { ...defaultParams, ...(params || {}) };
+		const initialParams = { ...defaultParams, ...(params || {}) };
 		this.patch = patch ?? this.banks[this.bank].patches[0];
-
 		if (!this._audioNode) this.audioNode = await this.createAudioNode();
+
+		this.paramMgr = await ParamMgrReg.getNode(this, initialParams);
+
 		this.initialized = true;
 		console.log('initialize plugin with options', options);
 		return this;
@@ -97,6 +206,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	 * This async method must be redefined to get audionode that
 	 * will connected to the host.
 	 * It can be any object that extends AudioNode
+	 * @returns {Promise<AudioNode>}
 	 */
 	// eslint-disable-next-line class-methods-use-this
 	async createAudioNode() {
@@ -104,7 +214,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	_setEnabled(enabled) {
-		this.enabled = enabled;
+		this.setParam('enabled', +enabled);
 		return enabled;
 	}
 
@@ -141,18 +251,8 @@ export default class WebAudioPlugin extends EventEmitter {
 	getParams() { return this.params; }
 
 	_setParams(params) {
-		const newParams = Object.entries(params)
-			.reduce((currentParams, [paramName, paramValue]) => {
-				const paramConfig = this.paramsConfig[paramName];
-				// ensure that param has been listed in descriptor.json
-				if (!paramConfig) throw new Error(`Trying to set an unknow param (${paramName})`);
-				const { minValue, maxValue } = paramConfig;
-				// params value are bounded
-				currentParams[paramName] = Math.max(minValue, Math.min(maxValue, paramValue));
-				return currentParams;
-			}, this.params);
-		this.params = { ...this.params, ...newParams };
-		return newParams;
+		this.paramMgr.setParamsValues(params);
+		return this.params;
 	}
 
 	setParams(params) {
@@ -165,7 +265,7 @@ export default class WebAudioPlugin extends EventEmitter {
 		return this;
 	}
 
-	getParam(paramName) { return this.params[paramName]; }
+	getParam(paramName) { return this.paramMgr.getParamValue(paramName); }
 
 	setParam(paramName, paramValue) {
 		return this.setParams({ [paramName]: paramValue });
@@ -243,5 +343,6 @@ export default class WebAudioPlugin extends EventEmitter {
 
 	destroy() {
 		this.emit('destroy');
+		this.paramMgr.destroy();
 	}
 }

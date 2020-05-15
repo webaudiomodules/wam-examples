@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 // Double role for WebAudioPlugin :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
@@ -7,39 +6,49 @@
 import { WebAudioPlugin } from 'sdk';
 
 import PingPongDelayNode from './Node';
-
-// Definition of a new plugin
+/**
+ * @typedef {"feedback" | "time" | "mix"} Params
+ * @typedef {"feedback" | "delayLeftTime" | "delayRightTime"
+ * | "dryGain" | "wetGain" | "enabled"} InternalParams
+ */
+/**
+ * Definition of a new plugin
+ *
+ * @class PingPongDelayPlugin
+ * @extends {WebAudioPlugin<PingPongDelayNode, Params, InternalParams>}
+ */
 export default class PingPongDelayPlugin extends WebAudioPlugin {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
+
 	async createAudioNode(options) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
 
-		pingPongDelayNode.status = this.enabled;
-		pingPongDelayNode.feedback = this.params.feedback;
-		pingPongDelayNode.mix = this.params.mix;
-		pingPongDelayNode.time = this.params.time;
-
-		// Listen to status change
-		// eslint-disable-next-line no-unused-vars
-		this.onEnabledChange((newEnabled, previousEnabled) => {
-			pingPongDelayNode.status = newEnabled;
-		});
-
-		// Listen to a single param change
-		// eslint-disable-next-line no-unused-vars
-		this.onParamChange('feedback', (newFeedback, previousFeedback) => {
-			pingPongDelayNode.feedback = newFeedback;
-		});
-
-		// Listen to any param change
-		// eslint-disable-next-line no-unused-vars
-		this.onParamsChange((newParams, previousParams, changedParams) => {
-			const { mix, time } = newParams;
-			pingPongDelayNode.mix = mix;
-			pingPongDelayNode.time = time;
-		});
+		this.internalParamsConfig = {
+			delayLeftTime: pingPongDelayNode.delayNodeLeft.delayTime,
+			delayRightTime: pingPongDelayNode.delayNodeRight.delayTime,
+			dryGain: pingPongDelayNode.dryGainNode.gain,
+			wetGain: pingPongDelayNode.wetGainNode.gain,
+			feedback: pingPongDelayNode.feedbackGainNode.gain,
+			enabled: { onChange: (value) => { pingPongDelayNode.status = !!value; } },
+		};
+		this.paramsMapping = {
+			time: {
+				delayLeftTime: {},
+				delayRightTime: {},
+			},
+			mix: {
+				dryGain: {
+					sourceRange: [0.5, 1],
+					targetRange: [1, 0],
+				},
+				wetGain: {
+					sourceRange: [0, 0.5],
+					targetRange: [0, 1],
+				},
+			},
+		};
 
 		return pingPongDelayNode;
 	}
