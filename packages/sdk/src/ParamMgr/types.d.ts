@@ -75,7 +75,8 @@ interface AudioWorkletGlobalScope {
         internalParams: string[];
         lock: Int32Array;
         paramsBuffer: Float32Array;
-        output: Float32Array[];
+        inputs: Float32Array[];
+        outputs: Float32Array[];
         frame: number;
     }>
 }
