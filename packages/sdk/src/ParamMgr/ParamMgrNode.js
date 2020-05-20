@@ -200,6 +200,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	 * @param {Record<string, number>} values
 	 */
 	setParamsValues(values) {
+		if (!values) return;
 		Object.entries(values).forEach(([k, v]) => {
 			this.setParamValue(k, v);
 		});
@@ -230,6 +231,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	setNormalizedParamsValues(values) {
+		if (!values) return;
 		Object.entries(values).forEach(([k, v]) => {
 			this.setNormalizedParamValue(k, v);
 		});

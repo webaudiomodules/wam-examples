@@ -154,7 +154,7 @@ export default class WebAudioPlugin extends EventEmitter {
 		return this.paramMgr ? !!this.paramMgr.getParamValue('enabled') : true;
 	}
 	set enabled(enabled) {
-		this.setParam('enabled', +enabled);
+		this.setParam('enabled', +enabled || 0);
 	}
 	get params() {
 		return this.paramMgr.getParamsValues();
@@ -214,7 +214,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	_setEnabled(enabled) {
-		this.setParam('enabled', +enabled);
+		this.setParam('enabled', +enabled || 0);
 		return enabled;
 	}
 
@@ -319,7 +319,7 @@ export default class WebAudioPlugin extends EventEmitter {
 		const previousPatch = this.patch;
 		const patch = this._setPatch(patchName ?? bank.patches[0]);
 		// trigger events in order param -> params -> patch -> bank
-		this.setParams(params); // using setParam (without _) here to trigger events
+		if (params) this.setParams(params); // using setParam (without _) here to trigger events
 		this.emit('change:patch', patch, previousPatch);
 		this.emit('change:bank', bank, previousBank);
 		return this;
