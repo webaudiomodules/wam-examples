@@ -1,7 +1,7 @@
 /* eslint-disable import/no-duplicates */
 import { CompositeAudioNode } from "sdk";
 import { TemporalAnalyserRegister, TemporalAnalyserNode } from "./TemporalAnalyser";
-import type { LiveGainPlugin, State, Events } from "./LiveGainPlugin";
+import type { LiveGainPlugin } from "./LiveGainPlugin";
 import { atodb, dbtoa } from "./math";
 
 export default class LiveGainNode extends CompositeAudioNode {
@@ -9,16 +9,14 @@ export default class LiveGainNode extends CompositeAudioNode {
     private _plugin: LiveGainPlugin;
     private _metering: "preFader" | "postFader" = "postFader";
     private _requestTimer = -1;
-    constructor(audioContext: BaseAudioContext, options: { plugin: LiveGainPlugin; state?: State }) {
+    levels: number[] = [];
+    constructor(audioContext: BaseAudioContext, options: { plugin: LiveGainPlugin }) {
         super(audioContext);
-        const { plugin, state } = options;
+        const { plugin } = options;
         this._plugin = plugin;
-        this._plugin.on("change", this.handleStateChanged);
-        this._plugin.on("destroy", this.handleStateChanged);
-        if (state && state.metering) this._metering = state.metering;
     }
-    handleStateChanged = (e: Events["change"]) => {
-        if (e.metering && e.metering !== this._metering) {
+    handleMeteringChanged = (v: number) => {
+        if (["postFader", "preFader"][~~v] !== this._metering) {
             if (this._metering === "preFader") {
                 this._output.disconnect(this.temporalAnalyserNode);
                 this._input.connect(this.temporalAnalyserNode);
@@ -27,34 +25,32 @@ export default class LiveGainNode extends CompositeAudioNode {
                 this._output.connect(this.temporalAnalyserNode);
             }
         }
-        if (typeof e.value === "number") {
-            this.gain.cancelScheduledValues(this.context.currentTime);
-            this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
-            this.gain.linearRampToValueAtTime(dbtoa(e.value), this.context.currentTime + 0.01);
-        }
+    };
+    handleGainChanged = (v: number) => {
+        this.gain.cancelScheduledValues(this.context.currentTime);
+        this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
+        this.gain.linearRampToValueAtTime(dbtoa(v), this.context.currentTime + 0.01);
     };
     handleDestroy = () => {
         window.clearTimeout(this._requestTimer);
-        this._plugin.off("change", this.handleStateChanged);
-        this._plugin.off("destroy", this.handleStateChanged);
         if (this.temporalAnalyserNode) this.temporalAnalyserNode.destroy();
     };
     startRequest = () => {
         let lastResult: number[] = [];
         const request = async () => {
-            if (this.temporalAnalyserNode && !this.temporalAnalyserNode.destroyed) {
+            if (this._plugin.initialized && this.temporalAnalyserNode && !this.temporalAnalyserNode.destroyed) {
                 const { rms } = await this.temporalAnalyserNode.gets({ rms: true });
                 const thresh = 1;
                 const levels = rms.map(v => atodb(v));
                 if (!lastResult.every((v, i) => v === levels[i] || Math.abs(v - levels[i]) < thresh) || lastResult.length !== levels.length) {
-                    this._plugin.setState({ levels });
+                    this.levels = levels;
                     lastResult = levels;
                 }
             }
             scheduleRequest();
         };
         const scheduleRequest = () => {
-            this._requestTimer = window.setTimeout(request, this.state.speedLim);
+            this._requestTimer = window.setTimeout(request, this._plugin.initialized ? this._plugin.getParam("speedLim") : 16);
         };
         request();
     };

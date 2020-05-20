@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { LiveGainPlugin, State, Events } from "./LiveGainPlugin";
+import type { LiveGainPlugin } from "./LiveGainPlugin";
 
 interface PointerDownEvent {
     x: number;
@@ -24,12 +24,12 @@ interface PointerUpEvent {
     originalEvent: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent;
 }
 
-export default class LiveGainUI extends React.PureComponent<State & { plugin: LiveGainPlugin }, State & { inputBuffer: string }> {
+export default class LiveGainUI extends React.PureComponent<{ plugin: LiveGainPlugin }, { inputBuffer: string }> {
     static defaultSize: [number, number] = [210, 90];
     refCanvas = React.createRef<HTMLCanvasElement>();
     paintScheduled = false;
     $paintRaf = -1;
-    state: State & { inputBuffer: string } = { ...this.props, inputBuffer: "" };
+    state: { inputBuffer: string } = { inputBuffer: "" };
     interactionRect: number[] = [0, 0, 0, 0];
     inTouch = false;
     normLevels: number[] = [];
@@ -59,9 +59,10 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         return [w, h];
     }
     paintCallback = () => {
-        this.$paintRaf = (-1 * Math.round(Math.abs(60 / this.state.frameRate))) || -1;
+        this.$paintRaf = (-1 * Math.round(Math.abs(60 / this.props.plugin.getParam("frameRate")))) || -1;
         this.paintScheduled = false;
         this.paint();
+        this.schedulePaint();
     };
     noPaintCallback = () => {
         this.$paintRaf++;
@@ -75,39 +76,35 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         this.paintScheduled = true;
     };
     componentDidMount() {
-        this.props.plugin.on("change", this.handleStateChanged);
         this.schedulePaint();
     }
     componentDidUpdate() {
         this.schedulePaint();
     }
     componentWillUnmount() {
-        this.props.plugin.on("change", this.handleStateChanged);
         if (this.paintScheduled) cancelAnimationFrame(this.$paintRaf);
     }
-    handleStateChanged = (e: Events["change"]) => {
-        this.setState(e as any);
-    };
     get distance() {
-        const { max, min, value } = this.state;
-        const normalized = (value - min) / (max - min);
+        const { max, min, gain } = this.props.plugin.getParams();
+        const normalized = (gain - min) / (max - min);
         return normalized || 0;
     }
     get displayValue() {
-        return this.state.value.toFixed(2) + " dB";
+        return this.props.plugin.getParam("gain").toFixed(2) + " dB";
     }
     get stepsCount() {
-        const { max, min, step } = this.state;
+        const { max, min, step } = this.props.plugin.getParams();
         return Math.min(Number.MAX_SAFE_INTEGER, Math.floor((max - min) / step));
     }
     paint() {
         const {
             min,
             max,
-            levels,
-            inputBuffer,
-            orientation
-        } = this.state;
+            orientation: orientationIn
+        } = this.props.plugin.getParams();
+        const orientation = (["horizontal", "vertical"] as const)[~~orientationIn];
+        const { inputBuffer } = this.state;
+        const levels = this.props.plugin.audioNode.levels;
         const ctx = this.ctx;
         if (!ctx) return;
         const bgColor = "rgb(40, 40, 40)";
@@ -154,7 +151,6 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         const channels = this.normLevels.length;
         const meterThick = 8;
         const metersThick = meterThick * (1.5 * channels - 0.5);
-
         if (orientation === "vertical") {
             const $top = fontSize + padding;
             const $height = height - 2 * (fontSize + padding);
@@ -288,8 +284,9 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         }
     }
     getValueFromPos(e: PointerDownEvent) {
-        const { orientation, min } = this.state;
-        const step = this.state.step || 1;
+        const { orientation: orientationIn, min, step: stepIn } = this.props.plugin.getParams();
+        const orientation = (["horizontal", "vertical"] as const)[~orientationIn];
+        const step = stepIn || 1;
         const totalPixels = orientation === "vertical" ? this.interactionRect[3] : this.interactionRect[2];
         const stepsCount = this.stepsCount;
         const stepPixels = totalPixels / stepsCount;
@@ -306,13 +303,13 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
             || e.y > this.interactionRect[1] + this.interactionRect[3]
         ) return;
         const newValue = this.getValueFromPos(e);
-        if (newValue !== this.state.value) this.setValueToOutput(newValue);
+        if (newValue !== this.props.plugin.getParam("gain")) this.setValueToOutput(newValue);
         this.inTouch = true;
     };
     handlePointerDrag = (e: PointerDragEvent) => {
         if (!this.inTouch) return;
         const newValue = this.getValueFromPos(e);
-        if (newValue !== this.state.value) this.setValueToOutput(newValue);
+        if (newValue !== this.props.plugin.getParam("gain")) this.setValueToOutput(newValue);
     };
     handlePointerUp = (e: PointerUpEvent) => {
         this.inTouch = false;
@@ -323,8 +320,8 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
             if (e.key === "ArrowUp" || e.key === "ArrowRight") addStep = 1;
             if (e.key === "ArrowDown" || e.key === "ArrowLeft") addStep = -1;
             if (addStep !== 0) {
-                const newValue = this.toValidValue(this.state.value + this.state.step * addStep);
-                if (newValue !== this.state.value) this.setValueToOutput(newValue);
+                const newValue = this.toValidValue(this.props.plugin.getParam("gain") + this.props.plugin.getParam("step") * addStep);
+                if (newValue !== this.props.plugin.getParam("gain")) this.setValueToOutput(newValue);
             }
         }
         if (e.key.match(/[0-9.-]/)) {
@@ -338,14 +335,14 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         if (e.key === "Enter") {
             const newValue = this.toValidValue(+this.state.inputBuffer);
             this.setState({ inputBuffer: "" });
-            if (newValue !== this.state.value) this.setValueToOutput(newValue);
+            if (newValue !== this.props.plugin.getParam("gain")) this.setValueToOutput(newValue);
         }
     };
     handleFocusOut = () => {
         if (this.state.inputBuffer) {
             const newValue = this.toValidValue(+this.state.inputBuffer);
             this.setState({ inputBuffer: "" });
-            if (newValue !== this.state.value) this.setValueToOutput(newValue);
+            if (newValue !== this.props.plugin.getParam("gain")) this.setValueToOutput(newValue);
         }
     };
     handleKeyUp = (e: React.KeyboardEvent) => {};
@@ -356,7 +353,7 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         let prevY = e.touches[0].pageY;
         const fromX = prevX - rect.left;
         const fromY = prevY - rect.top;
-        const prevValue = this.state.value;
+        const prevValue = this.props.plugin.getParam("gain");
         this.handlePointerDown({ x: fromX, y: fromY, originalEvent: e });
         const handleTouchMove = (e: TouchEvent) => {
             e.preventDefault();
@@ -389,7 +386,7 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
         const rect = this.canvas.getBoundingClientRect();
         const fromX = e.pageX - rect.left;
         const fromY = e.pageY - rect.top;
-        const prevValue = this.state.value;
+        const prevValue = this.props.plugin.getParam("gain");
         this.handlePointerDown({ x: fromX, y: fromY, originalEvent: e });
         const handleMouseMove = (e: MouseEvent) => {
             e.preventDefault();
@@ -413,21 +410,20 @@ export default class LiveGainUI extends React.PureComponent<State & { plugin: Li
     handleContextMenu = (e: React.MouseEvent) => {};
     handleFocusIn = (e: React.FocusEvent) => {};
     toValidValue(value: number): number {
-        const { min, max, step } = this.state;
+        const { min, max, step } = this.props.plugin.getParams();
         const v = Math.min(max, Math.max(min, value));
         return min + Math.floor((v - min) / step) * step;
     }
     setValueToOutput(value: number) {
-        this.setState({ value });
-        this.props.plugin.setState({ value });
-        this.scheduleChangeHandler();
+        this.props.plugin.setParam("gain", value);
+        this.scheduleChangeHandler(value);
     }
-    changeCallback = () => {
-        this.props.plugin.setState({ value: this.state.value });
+    changeCallback = (value: number) => {
+        this.props.plugin.setParam("gain", value);
         this.$changeTimer = -1;
     };
-    scheduleChangeHandler() {
-        if (this.$changeTimer === -1) this.$changeTimer = window.setTimeout(this.changeCallback, this.state.speedLim);
+    scheduleChangeHandler(value: number) {
+        if (this.$changeTimer === -1) this.$changeTimer = window.setTimeout(this.changeCallback, this.props.plugin.getParam("speedLim"), value);
     }
     render() {
         const defaultCanvasStyle: React.CSSProperties = { position: "absolute", display: "inline-block" };
