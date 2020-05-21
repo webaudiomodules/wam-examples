@@ -123,6 +123,7 @@ interface DefaultState<Params extends string = string, Patches extends string = 
 }
 type AudioParamMethodNames = keyof Omit<AudioParam, "minValue" | "maxValue" | "automationRate" | "defaultValue" | "value">;
 interface DefaultEventMap<Params extends string = string, Patches extends string = string, Banks extends string = string> {
+    "initialized": [];
     "change:enabled": [boolean, boolean];
     "change:params": [Partial<Record<Params, number>>, Partial<Record<Params, number>>, Partial<Record<Params, number>>];
     "change:patch": [Patches, Patches];

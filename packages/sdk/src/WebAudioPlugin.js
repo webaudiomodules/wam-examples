@@ -198,6 +198,7 @@ export default class WebAudioPlugin extends EventEmitter {
 		this.paramMgr = await ParamMgrReg.getNode(this, initialParams);
 
 		this.initialized = true;
+		this.emit('initialized');
 		console.log('initialize plugin with options', options);
 		return this;
 	}
