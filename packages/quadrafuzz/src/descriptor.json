@@ -1,0 +1,43 @@
+{
+	"name": "PingPongDelay",
+	"params": {
+		"lowGain": {
+			"defaultValue": 0.6,
+			"minValue": 0,
+			"maxValue": 1
+		},
+		"midLowGain": {
+			"defaultValue": 0.8,
+			"minValue": 0,
+			"maxValue": 1
+		},
+		"midHighGain": {
+			"defaultValue": 0.5,
+			"minValue": 0,
+			"maxValue": 1
+		},
+		"highGain": {
+			"defaultValue": 0.5,
+			"minValue": 0,
+			"maxValue": 1
+		}
+	},
+	"banks": {
+		"bank1": {
+			"label": "Bank 1",
+			"patches": [
+				"patch1"
+			]
+		}
+	},
+	"patches" : {
+		"patch1": {
+			"label": "Patch 1",
+			"params": {
+				"lowGain": 0.6
+			}
+		}
+	},
+	"entry": "./index.js",
+	"gui": "./Gui/index.js"
+}

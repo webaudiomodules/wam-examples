@@ -1,0 +1,134 @@
+.pedal {
+	display: block;
+	background-color: #AB2E24;
+	width: 120px;
+	height: 180px;
+	border-radius: 10px;
+	position: relative;
+	/* bring your own prefixes */
+	box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+	inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+	inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+	1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+	0 2px 1px 0 rgba(0, 0, 0, 0.9),
+	1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+}
+
+
+#background-image {
+	width: 120px;
+	height: 180px;
+	opacity: 1;
+	z-index: -1;
+}
+
+.knob,
+.switch,
+.icon,
+.label {
+	position: absolute;
+	cursor: pointer;
+}
+
+.webaudioctrl-tooltip {
+	color: #000 !important;
+	font-size: 11px !important;
+}
+
+
+#switch1 {
+	bottom: 0px;
+	right: 28px;
+}
+
+#highgain {
+	left: 66px;
+	top: 70px;
+}
+
+#highgain div {
+	color: #ffffff;
+	font-family: "Verdana";
+	font-size: 8px;
+
+}
+
+#midhighgain {
+	left: 12px;
+	top: 71px;
+}
+
+#midhighgain div {
+	color: #ffffff;
+	font-family: "Verdana";
+	font-size: 8px;
+
+}
+
+#midlowgain {
+	left: 65px;
+	top: 12px;
+}
+
+#midlowgain div {
+	color: #ffffff;
+	font-family: "Verdana";
+	font-size: 8px;
+
+}
+
+#lowgain {
+	left: 12px;
+	top: 12px;
+}
+
+#lowgain div {
+	color: #ffffff;
+	font-family: "Verdana";
+	font-size: 8px;
+
+}
+
+#label_413 {
+	left: 16px;
+	top: 130px;
+	color: #ffffff;
+	font-family: "Arial Black";
+	font-size: 14px;
+}
+
+
+
+.pedalLabel {
+	position: absolute;
+	top: 225px;
+	font-size: 25px;
+	font-family: Sansita;
+	/*{font}*/
+	text-align: center;
+	line-height: 30px;
+	/*{pedalfontsize}*/
+	width: 150px;
+	color: #6B0000;
+	/*{fontcolor}*/
+}
+
+.knob-label {
+	position: absolute;
+	font-size: 12px;
+	/*{knobfontsize}*/
+	line-height: 12px;
+	width: 64px;
+	max-width: 64px;
+	overflow: hidden;
+	text-align: center;
+	font-family: Sansita;
+	/*{font}*/
+	color: #6B0000;
+	/*{fontcolor}*/
+}
+
+#knob1-label {
+	top: 84px;
+	left: 43px;
+}
