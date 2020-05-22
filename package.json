@@ -10,7 +10,7 @@
     "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
     "build:sdk": "lerna run build --stream --scope sdk",
     "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:livegain",
-    "start": "lerna run start --stream --scope host"
+    "start": "lerna run start --stream --scope host -- --color"
   },
   "workspaces": [
     "packages/*"
