@@ -5,6 +5,7 @@
   "author": "53JS",
   "license": "UNLICENSED",
   "scripts": {
+    "clean": "del dist .cache",
     "start": "node server.js"
   },
   "dependencies": {
@@ -23,5 +24,8 @@
   "webaudioplugins": {
     "livegain": "dist",
     "pingpongdelay": "dist"
+  },
+  "devDependencies": {
+    "del-cli": "^3.0.1"
   }
 }
