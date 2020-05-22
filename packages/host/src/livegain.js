@@ -40,7 +40,8 @@ const mountPlugin = (domNode) => {
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
 	const instance = await LiveGain.createInstance(audioContext);
-	instance.setState({ enabled: true });
+	// For debugging the plugin in the browser console, expose the instance to window.
+	window.instance = instance;
 
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
@@ -53,5 +54,7 @@ const mountPlugin = (domNode) => {
 
 	player.onplay = () => {
 		audioContext.resume(); // audio context must be resumed because browser restrictions
+		instance.paramMgr.setParamValueCurveAtTime('max', [6, 10, 1, 6], instance.audioContext.currentTime, 5);
+		instance.paramMgr.setParamValueCurveAtTime('gain', [0, -70, 0], instance.audioContext.currentTime, 10);
 	};
 })();
