@@ -4,7 +4,7 @@
 // 2 - This makes the instance of the current class an Observable
 //     (state in WebAudioPlugin, initialized with the default values of
 //      the params variable below...)
-import { WebAudioPlugin } from 'sdkv3';
+import { WebAudioPlugin } from 'sdk';
 
 import QuadrafuzzNode from './Node';
 
@@ -16,30 +16,24 @@ export default class QuadrafuzzPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const quadrafuzzNode = new QuadrafuzzNode(this.audioContext, options);
 
-		// ADJUST PARAMETERS
-		quadrafuzzNode.status = this.state.status;
-		quadrafuzzNode.lowGain = this.state.params.lowGain;
-		quadrafuzzNode.midLowGain = this.state.params.midLowGain;
-		quadrafuzzNode.midHighGain = this.state.params.midHighGain;
-		quadrafuzzNode.highGain = this.state.params.highGain;
 
-		this.on('change:enabled', (status) => {
-			quadrafuzzNode.status = status;
-		});
+		this.internalParamsConfig = {
+			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
+			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
+			// I guess this is the case of a developer who is gonna do custom automation
+			lowGain: quadrafuzzNode.overdrives[0].curve,
+			// and we do have other "params"
+			midLowGain: quadrafuzzNode.overdrives[1].curve,
+			midHighGain: quadrafuzzNode.overdrives[2].curve,
+			highGain: quadrafuzzNode.overdrives[3].curve,
 
-		this.on('change:params', (params) => {
-			const {
-				lowGain,
-				midLowGain,
-				midHighGain,
-				highGain
-			} = params;
-			quadrafuzzNode.lowGain = lowGain;
-			quadrafuzzNode.midLowGain = midLowGain;
-			quadrafuzzNode.midHighGain = midHighGain;
-			quadrafuzzNode.highGain = highGain;
-		});
+			enabled: { onChange: (value) => { quadrafuzzNode.status = !!value; } },
+		};
+		// hmmm no mapping...
+		this.paramsMapping = {
+		};
 
+		//----
 		return quadrafuzzNode;
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"name": "PingPongDelay",
+	"name": "Quadrafuzz",
 	"params": {
 		"lowGain": {
 			"defaultValue": 0.6,

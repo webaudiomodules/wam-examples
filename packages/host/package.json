@@ -13,6 +13,7 @@
     "express": "^4.17.1",
     "parcel-bundler": "^1.12.4",
     "pingpongdelay": "^0.0.0",
+    "quadrafuzz": "^0.0.0",
     "sdk": "^0.0.0"
   },
   "browserslist": [
@@ -23,7 +24,8 @@
   ],
   "webaudioplugins": {
     "livegain": "dist",
-    "pingpongdelay": "dist"
+    "pingpongdelay": "dist",
+    "quadrafuzz": "dist"
   },
   "devDependencies": {
     "del-cli": "^3.0.1"

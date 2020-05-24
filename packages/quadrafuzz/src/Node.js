@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { CompositeAudioNode } from 'sdkv3';
+import { CompositeAudioNode } from 'sdk';
 
 // name is not so important here, the file Node.js is imported
 // Normally the class does no need to be exported as

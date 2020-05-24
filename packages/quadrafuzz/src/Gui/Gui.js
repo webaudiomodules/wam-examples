@@ -18,15 +18,13 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
-		this.plugin.on('change:params', this.updateParams);
-		this.plugin.on('change:enabled', this.updateStatus);
 	}
 
 	updateStatus = (status) => {
 		this.shadowRoot.querySelector('#switch1').value = status;
 	}
 
-	updateParams = (params) => {
+	handleAnimationFrame = () => {
 		const {
 			lowGain,
 			midLowGain,
@@ -37,31 +35,37 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#knob2').value = midLowGain;
 		this.shadowRoot.querySelector('#knob3').value = midHighGain ;
 		this.shadowRoot.querySelector('#knob4').value = highGain ;
+		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	// Provided by the WebComponent API, called when the plugin is
 	// connected to the DOM
 	connectedCallback() {
 		this.root.innerHTML = `<style>${style}</style>${template}`;
-		//this.setResources();
+		this.setResources();
 		this.setKnobs();
 		this.setSwitchListener();
-		this.updateStatus(this.plugin.state.enabled);
-		this.updateParams(this.plugin.state.params);
+		//this.updateStatus(this.plugin.state.enabled);
+		//this.updateParams(this.plugin.state.params);
 	}
 
 	setResources() {
 		// Set up the background img & style
-		var background = this._root.querySelector("img");
+		var background = this.root.querySelector("img");
 		// MICHEL NOT POSSIBLE YET !
-		background.src = this._plug.URL + '/assets/background.png';
+		var url = this.plugin.descriptor.url.href;
+		var pluginURL = url.substring(0,url.lastIndexOf("/"));
+
+		console.log("### PLUGIN URL = ##### " + pluginURL);
+		background.src = pluginURL + '/assets/background.png';
+		//background.src = bgImage;
 		background.style = 'border-radius : 5px;'
 		// Setting up the knobs imgs, those are loaded from the assets
-		this._root.querySelectorAll(".knob").forEach((knob) => {
-			knob.querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/MiniMoog_Main.png');
+		this.root.querySelectorAll(".knob").forEach((knob) => {
+			knob.querySelector("webaudio-knob").setAttribute('src', pluginURL + '/assets/MiniMoog_Main.png');
 		});
 		// Setting up the switches imgs, those are loaded from the assets
-		this._root.querySelector("#switch1").querySelector("webaudio-switch").setAttribute('src', this._plug.URL + '/assets/switch_1.png');
+		this.root.querySelector("webaudio-switch").setAttribute('src', pluginURL + '/assets/switch_1.png');
 	}
 
 	setKnobs() {
