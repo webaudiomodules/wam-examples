@@ -6,6 +6,7 @@ import postcss from 'rollup-plugin-postcss';
 import html from 'rollup-plugin-html';
 import copy from 'rollup-plugin-copy';
 import { terser } from 'rollup-plugin-terser';
+import url from '@rollup/plugin-url';
 
 const common = {
 	output: [
@@ -17,10 +18,14 @@ const common = {
 		},
 	],
 	plugins: [
+		url({
+			fileName: '[dirname][name][extname]',
+			limit: 0,
+		}),
 		copy({
 			targets: [
 				{ src: 'src/descriptor.json', dest: 'dist/' },
-			]
+			],
 		}),
 		postcss({
 			extract: false,

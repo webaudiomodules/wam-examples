@@ -5,6 +5,15 @@
 import style from './Gui.css';
 import template from './Gui.template.html';
 
+import backgroundImg from './assets/background.png';
+import knobImg from './assets/MiniMoog_Main.png';
+import switchImg from './assets/switch_1.png';
+
+const getAssetUrl = (asset) => {
+	const base = new URL('.', import.meta.url);
+	return `${base}${asset}`;
+};
+
 // The GUI is a WebComponent. Not mandatory but useful.
 // MANDORY : the GUI should be a DOM node. WebComponents are
 // practical as they encapsulate everyhing in a shadow dom
@@ -15,9 +24,14 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		super();
 
 		this.root = this.attachShadow({ mode: 'open' });
+		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
+
+		this.setResources();
+		this.setKnobs();
+		this.setSwitchListener();
 	}
 
 	updateStatus = (status) => {
@@ -38,34 +52,18 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
-	// Provided by the WebComponent API, called when the plugin is
-	// connected to the DOM
-	connectedCallback() {
-		this.root.innerHTML = `<style>${style}</style>${template}`;
-		this.setResources();
-		this.setKnobs();
-		this.setSwitchListener();
-		//this.updateStatus(this.plugin.state.enabled);
-		//this.updateParams(this.plugin.state.params);
-	}
-
 	setResources() {
 		// Set up the background img & style
-		var background = this.root.querySelector("img");
-		// MICHEL NOT POSSIBLE YET !
-		var url = this.plugin.descriptor.url.href;
-		var pluginURL = url.substring(0,url.lastIndexOf("/"));
-
-		console.log("### PLUGIN URL = ##### " + pluginURL);
-		background.src = pluginURL + '/assets/background.png';
+		const background = this.root.querySelector("img");
+		background.src = getAssetUrl(backgroundImg);
 		//background.src = bgImage;
 		background.style = 'border-radius : 5px;'
 		// Setting up the knobs imgs, those are loaded from the assets
 		this.root.querySelectorAll(".knob").forEach((knob) => {
-			knob.querySelector("webaudio-knob").setAttribute('src', pluginURL + '/assets/MiniMoog_Main.png');
+			knob.querySelector("webaudio-knob").setAttribute('src', getAssetUrl(knobImg));
 		});
 		// Setting up the switches imgs, those are loaded from the assets
-		this.root.querySelector("webaudio-switch").setAttribute('src', pluginURL + '/assets/switch_1.png');
+		this.root.querySelector("webaudio-switch").setAttribute('src', getAssetUrl(switchImg));
 	}
 
 	setKnobs() {
@@ -93,11 +91,12 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 
 	setSwitchListener() {
 		console.log("Quadrafuzz : set switch listener");
+		const { plugin } = this;
 		this.shadowRoot
 			.querySelector('#switch1')
-			.addEventListener('change', () => {
-				console.log("Quadrafuzz : in switch listener");
-				this.plugin.setState({ enabled: !this.plugin.state.enabled });
+			.addEventListener('change', function onChange() {
+				if (this.checked) plugin.enable();
+				else plugin.disable();
 			});
 	}
 
