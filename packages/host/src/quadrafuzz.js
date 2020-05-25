@@ -55,14 +55,17 @@ const mountPlugin = (domNode) => {
 
 	player.onplay = () => {
 		let state;
+		audioContext.resume(); // audio context must be resumed because browser restrictions
+
 		setTimeout(() => {
+			console.log("After 2.5s, set lowGain to 0.1...")
 			// set param feedback after 5 seconds
 			instance.setParam('lowGain', 0.1);
 			// store current state
 			state = instance.getState();
 			console.log('instance state', state);
 		}, 2500);
-		audioContext.resume(); // audio context must be resumed because browser restrictions
+		/*
 		setTimeout(() => {
 			// Just for the example : updates the state of the plugin
 			// Audionode and Gui should be updated accordingly
@@ -80,5 +83,6 @@ const mountPlugin = (domNode) => {
 			instance.setState(state); // lowGain should go back to its initial value
 			console.log('instance state', instance.getState());
 		}, 10000);
+		*/
 	};
 })();

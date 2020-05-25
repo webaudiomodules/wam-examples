@@ -21,12 +21,11 @@ export default class QuadrafuzzPlugin extends WebAudioPlugin {
 			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
 			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
 			// I guess this is the case of a developer who is gonna do custom automation
-			lowGain: quadrafuzzNode.overdrives[0].curve,
+			lowGain: { onChange: (value) => { quadrafuzzNode.lowGain = value; } },
 			// and we do have other "params"
-			midLowGain: quadrafuzzNode.overdrives[1].curve,
-			midHighGain: quadrafuzzNode.overdrives[2].curve,
-			highGain: quadrafuzzNode.overdrives[3].curve,
-
+			midLowGain: { onChange: (value) => { quadrafuzzNode.midLowGain = value; } },
+			midHighGain: { onChange: (value) => { quadrafuzzNode.midHighGain = value; } },
+			highGain: { onChange: (value) => { quadrafuzzNode.highGain = value; } },
 			enabled: { onChange: (value) => { quadrafuzzNode.status = !!value; } },
 		};
 		// hmmm no mapping...

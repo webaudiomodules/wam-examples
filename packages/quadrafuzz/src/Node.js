@@ -114,6 +114,7 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 
 // Setter part, it is here that you define the link between the params and the nodes values.
 set lowGain(_lowGain) {
+	console.log("set lowGain : " + _lowGain)
     if (!this.isInRange(_lowGain, 0, 1))
       return;
     //this.params.lowgain = _lowGain;
@@ -121,6 +122,8 @@ set lowGain(_lowGain) {
   }
 
   set midLowGain(_midLowGain) {
+	//console.log("midLowGain")
+
     if (!this.isInRange(_midLowGain, 0, 1))
       return;
    // this.params.midlowgain = _midLowGain;
@@ -129,12 +132,16 @@ set lowGain(_lowGain) {
   }
 
   set midHighGain(_midHighGain) {
+	//console.log("midHighGain")
+
     if (!this.isInRange(_midHighGain, 0, 1))
       return;
    // this.params.midhighgain = _midHighGain;
     this.overdrives[2].curve = this.getDistortionCurve(this.normalize(_midHighGain, 0, 150));
   }
   set highGain(_highGain) {
+	//console.log("highGain")
+
     if (!this.isInRange(_highGain, 0, 1))
       return;
     //this.params.highgain = _highGain;

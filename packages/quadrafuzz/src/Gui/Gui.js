@@ -47,7 +47,7 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 			midLowGain,
 			midHighGain,
 			highGain
-		} = params;
+		} = this.plugin.params;
 		this.shadowRoot.querySelector('#knob1').value = lowGain ;
 		this.shadowRoot.querySelector('#knob2').value = midLowGain;
 		this.shadowRoot.querySelector('#knob3').value = midHighGain ;
@@ -55,6 +55,9 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
+	/**
+	 * Change relative URLS to absolute URLs for CSS assets, webaudio controls spritesheets etc.
+	 */
 	setResources() {
 		// Set up the background img & style
 		const background = this.root.querySelector("img");
@@ -95,6 +98,9 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 	setSwitchListener() {
 		console.log("Quadrafuzz : set switch listener");
 		const { plugin } = this;
+		// by default, plugin is disabled
+		plugin.disable();
+
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
