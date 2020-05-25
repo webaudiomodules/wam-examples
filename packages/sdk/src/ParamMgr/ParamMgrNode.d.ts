@@ -26,6 +26,13 @@ declare interface ParamMgrNode<
      */
     plugin: WebAudioPlugin<any, Params, InternalParams>;
     /**
+     * The state of the initialization.
+     *
+     * @type {boolean}
+     * @memberof ParamMgrNode
+     */
+    initialized: boolean;
+    /**
      * An array that contains ordered internal params names.
      * The order is important for the output connections and for the parameters' values buffer
      *

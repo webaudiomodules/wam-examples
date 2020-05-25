@@ -51,6 +51,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 			if (e.data.buffer) {
 				this.$lock = e.data.buffer.lock;
 				this.$paramsBuffer = e.data.buffer.paramsBuffer;
+				if (this.initialized) return;
 				Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
 					if (this.context.state === 'suspended') this.$paramsBuffer[i] = config.defaultValue;
 					if (config instanceof AudioParam || config instanceof AudioNode) {
@@ -63,6 +64,7 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 				});
 				if (this.resolve) this.resolve(this);
 				this.resolve = undefined;
+				this.initialized = true;
 			}
 		};
 		this.plugin.on('change:paramsMapping', (paramsMapping) => {
@@ -71,6 +73,8 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	resolve = undefined;
+
+	initialized = false;
 
 	async initialize() {
 		return new Promise((resolve) => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
 /**
  * Main function to stringify as a worklet.
@@ -6,6 +7,7 @@
  * @param {ParametersDescriptor} paramsConfig parameterDescriptors
  */
 const processor = (processorId, paramsConfig) => {
+	const SharedArrayBuffer = globalThis.SharedArrayBuffer || globalThis.ArrayBuffer;
 	const normalize = (x, min, max) => (min === 0 && max === 1 ? x : (x - min) / (max - min) || 0);
 	const denormalize = (x, min, max) => (min === 0 && max === 1 ? x : x * (max - min) + min);
 	const mapValue = (x, eMin, eMax, sMin, sMax, tMin, tMax) => (
@@ -64,6 +66,7 @@ const processor = (processorId, paramsConfig) => {
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
+			this.supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
 			const { paramsMapping, internalParams, instanceId } = options.processorOptions;
 			this.processorId = processorId;
 			this.paramsConfig = paramsConfig;
@@ -97,11 +100,11 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		lock() {
-			return Atomics.store(this.$lock, 0, 1); // eslint-disable-line no-undef
+			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 1); // eslint-disable-line no-undef
 		}
 
 		unlock() {
-			return Atomics.store(this.$lock, 0, 0); // eslint-disable-line no-undef
+			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 0); // eslint-disable-line no-undef
 		}
 
 		/**
@@ -142,6 +145,9 @@ const processor = (processorId, paramsConfig) => {
 				});
 			});
 			this.unlock();
+			if (!this.supportSharedArrayBuffer) {
+				this.port.postMessage({ buffer: { lock: this.$lock, paramsBuffer: this.$paramsBuffer } });
+			}
 			this.exposed.frame = currentFrame; // eslint-disable-line no-undef
 			return true;
 		}
