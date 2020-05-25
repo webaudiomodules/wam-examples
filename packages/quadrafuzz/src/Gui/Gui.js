@@ -5,6 +5,9 @@
 import style from './Gui.css';
 import template from './Gui.template.html';
 
+// https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
+import '../utils/webaudio-controls';
+
 import backgroundImg from './assets/background.png';
 import knobImg from './assets/MiniMoog_Main.png';
 import switchImg from './assets/switch_1.png';
