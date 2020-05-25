@@ -258,7 +258,7 @@ declare interface ParamMgrNode<
     destroy(): void;
 }
 declare const ParamMgrNode: {
-    prototype: AudioWorkletNode;
+    prototype: ParamMgrNode;
 	/**
      * Creates an instance of ParamMgrNode.
      *

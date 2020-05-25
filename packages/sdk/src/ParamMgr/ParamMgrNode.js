@@ -1,16 +1,5 @@
 import DisposableAudioWorkletNode from './DisposableAudioWorkletNode';
-
-const normExp = (x, e) => (e === 0 ? x : x ** (1.5 ** -e));
-const denormExp = (x, e) => (e === 0 ? x : x ** (1.5 ** e));
-const normalize = (x, min, max, e = 0) => (
-	min === 0 && max === 1
-		? normExp(x, e)
-		: normExp((x - min) / (max - min) || 0, e));
-const denormalize = (x, min, max, e = 0) => (
-	min === 0 && max === 1
-		? denormExp(x, e)
-		: denormExp(x, e) * (max - min) + min
-);
+import MgrAudioParam from './MgrAudioParam';
 
 /**
  * @typedef {{ destroy: true, paramsMapping: ParametersMapping, buffer: true }} T
@@ -51,6 +40,12 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 		this.$prevParamsBuffer = new Float32Array(this.internalParams.length);
 		this.paramsChangeCanDispatch = new Set(this.internalParams);
 		this.paramsUpdateCheckFnRef = [];
+		Object.entries(this.getParams()).forEach(([name, param]) => {
+			Object.setPrototypeOf(param, MgrAudioParam.prototype);
+			param.emitter = plugin;
+			param.name = name;
+			param.exponent = this.paramsConfig[name]?.exponent || 0;
+		});
 		this.connect(context.destination, 0, 0);
 		this.port.onmessage = (e) => {
 			if (e.data.buffer) {
@@ -184,7 +179,6 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	setParamValue(name, value) {
 		const param = this.parameters.get(name);
 		if (!param) return;
-		this.plugin.emit('automation', 'value', name, value);
 		param.value = value;
 	}
 
@@ -207,19 +201,15 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	}
 
 	getNormalizedParamValue(name) {
-		const v = this.getParamValue(name);
-		if (v === null) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		return normalize(v, minValue, maxValue, exponent);
+		const param = this.parameters.get(name);
+		if (!param) return null;
+		return param.normalizedValue;
 	}
 
-	setNormalizedParamValue(name, valueIn) {
+	setNormalizedParamValue(name, value) {
 		const param = this.parameters.get(name);
 		if (!param) return;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const value = denormalize(valueIn, minValue, maxValue, exponent);
-		this.plugin.emit('automation', 'value', name, value);
-		param.value = value;
+		param.normalizedValue = value;
 	}
 
 	getNormalizedParamsValues() {
@@ -240,94 +230,72 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 	setParamValueAtTime(name, value, startTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'setValueAtTime', name, value, startTime);
 		return param.setValueAtTime(value, startTime);
 	}
 
-	setNormalizedParamValueAtTime(name, valueIn, startTime) {
+	setNormalizedParamValueAtTime(name, value, startTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const value = denormalize(valueIn, minValue, maxValue, exponent);
-		this.plugin.emit('automation', 'setValueAtTime', name, value, startTime);
-		return param.setValueAtTime(value, startTime);
+		return param.setNormalizedValueAtTime(value, startTime);
 	}
 
 	linearRampToParamValueAtTime(name, value, endTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'linearRampToValueAtTime', name, value, endTime);
 		return param.linearRampToValueAtTime(value, endTime);
 	}
 
-	linearRampToNormalizedParamValueAtTime(name, valueIn, endTime) {
+	linearRampToNormalizedParamValueAtTime(name, value, endTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const value = denormalize(valueIn, minValue, maxValue, exponent);
-		this.plugin.emit('automation', 'linearRampToValueAtTime', name, value, endTime);
-		return param.linearRampToValueAtTime(value, endTime);
+		return param.linearRampToNormalizedValueAtTime(value, endTime);
 	}
 
 	exponentialRampToParamValueAtTime(name, value, endTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'exponentialRampToValueAtTime', name, value, endTime);
 		return param.exponentialRampToValueAtTime(value, endTime);
 	}
 
-	exponentialRampToNormalizedParamValueAtTime(name, valueIn, endTime) {
+	exponentialRampToNormalizedParamValueAtTime(name, value, endTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const value = denormalize(valueIn, minValue, maxValue, exponent);
-		this.plugin.emit('automation', 'exponentialRampToValueAtTime', name, value, endTime);
-		return param.exponentialRampToValueAtTime(value, endTime);
+		return param.exponentialRampToNormalizedValueAtTime(value, endTime);
 	}
 
 	setParamTargetAtTime(name, target, startTime, timeConstant) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'setTargetAtTime', name, target, startTime, timeConstant);
 		return param.setTargetAtTime(target, startTime, timeConstant);
 	}
 
-	setNormalizedParamTargetAtTime(name, targetIn, startTime, timeConstant) {
+	setNormalizedParamTargetAtTime(name, target, startTime, timeConstant) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const target = denormalize(targetIn, minValue, maxValue, exponent);
-		this.plugin.emit('automation', 'setTargetAtTime', name, target, startTime, timeConstant);
-		return param.setTargetAtTime(target, startTime, timeConstant);
+		return param.setNormalizedTargetAtTime(target, startTime, timeConstant);
 	}
 
 	setParamValueCurveAtTime(name, values, startTime, duration) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'setValueCurveAtTime', name, values, startTime, duration);
 		return param.setValueCurveAtTime(values, startTime, duration);
 	}
 
-	setNormalizedParamValueCurveAtTime(name, valuesIn, startTime, duration) {
+	setNormalizedParamValueCurveAtTime(name, values, startTime, duration) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		const { minValue, maxValue, exponent } = this.paramsConfig[name];
-		const values = Array.from(valuesIn).map((v) => denormalize(v, minValue, maxValue, exponent));
-		this.plugin.emit('automation', 'setValueCurveAtTime', name, values, startTime, duration);
-		return param.setValueCurveAtTime(values, startTime, duration);
+		return param.setNormalizedValueCurveAtTime(values, startTime, duration);
 	}
 
 	cancelScheduledParamValues(name, cancelTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'cancelScheduledValues', name, cancelTime);
 		return param.cancelScheduledValues(cancelTime);
 	}
 
 	cancelAndHoldParamAtTime(name, cancelTime) {
 		const param = this.parameters.get(name);
 		if (!param) return null;
-		this.plugin.emit('automation', 'cancelAndHoldAtTime', name, cancelTime);
 		return param.cancelAndHoldAtTime(cancelTime);
 	}
 
