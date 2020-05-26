@@ -32,6 +32,7 @@ const processor = (processorId, paramsConfig) => {
 	 * @typedef {{
 	 * 		paramsConfig: ParametersDescriptor;
 	 * 		paramsMapping: ParametersMapping;
+	 * 		internalParamsMinValues: number[];
 	 * 		internalParams: string[];
 	 * 		instanceId: string;
 	 * }} O
@@ -67,8 +68,14 @@ const processor = (processorId, paramsConfig) => {
 			super(options);
 			this.destroyed = false;
 			this.supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
-			const { paramsMapping, internalParams, instanceId } = options.processorOptions;
+			const {
+				paramsMapping,
+				internalParamsMinValues,
+				internalParams,
+				instanceId,
+			} = options.processorOptions;
 			this.processorId = processorId;
+			this.internalParamsMinValues = internalParamsMinValues;
 			this.paramsConfig = paramsConfig;
 			this.paramsMapping = paramsMapping;
 			this.internalParams = internalParams;
@@ -123,25 +130,28 @@ const processor = (processorId, paramsConfig) => {
 				this.exposed.inputs[i] = raw;
 				if (!this.paramsMapping[name]) return;
 				Object.entries(this.paramsMapping[name]).forEach(([targetName, targetMapping]) => {
-					const j = this.internalParams.indexOf(targetName) + 1;
-					if (!j) return;
+					const j = this.internalParams.indexOf(targetName);
+					if (j === -1) return;
+					const intrinsicValue = this.internalParamsMinValues[j];
 					const { sourceRange, targetRange } = targetMapping;
 					const [sMin, sMax] = sourceRange;
 					const [tMin, tMax] = targetRange;
 					let out;
 					if (minValue !== tMin || maxValue !== tMax
 							|| minValue !== sMin || maxValue !== sMax) {
-						out = new Float32Array(raw.length);
-						for (let k = 0; k < raw.length; k++) {
-							out[k] = mapValue(raw[k], minValue, maxValue, sMin, sMax, tMin, tMax);
-						}
+						out = raw.map((v) => {
+							const mappedValue = mapValue(v, minValue, maxValue, sMin, sMax, tMin, tMax);
+							return mappedValue - intrinsicValue;
+						});
+					} else if (intrinsicValue) {
+						out = raw.map((v) => v - intrinsicValue);
 					} else {
 						out = raw;
 					}
-					if (out.length === 1) outputs[j][0].fill(out[0]);
-					else outputs[j][0].set(out);
-					this.exposed.outputs[j - 1] = outputs[j][0]; // eslint-disable-line prefer-destructuring
-					this.$paramsBuffer[j - 1] = out[0]; // eslint-disable-line prefer-destructuring
+					if (out.length === 1) outputs[j + 1][0].fill(out[0]);
+					else outputs[j + 1][0].set(out);
+					this.exposed.outputs[j] = outputs[j + 1][0]; // eslint-disable-line prefer-destructuring
+					this.$paramsBuffer[j] = out[0]; // eslint-disable-line prefer-destructuring
 				});
 			});
 			this.unlock();

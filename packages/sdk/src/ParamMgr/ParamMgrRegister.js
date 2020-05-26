@@ -15,7 +15,12 @@ export default class ParamMgrRegister extends AudioWorkletRegister {
 		} = plugin;
 		await this.register(pluginId + processorId, processor, audioContext.audioWorklet, paramsConfig);
 		const options = {
-			paramsConfig, paramsMapping, internalParams: Object.keys(internalParamsConfig), instanceId,
+			paramsConfig,
+			paramsMapping,
+			internalParamsMinValues: Object.values(internalParamsConfig)
+				.map((config) => Math.max(0, config?.minValue || 0)),
+			internalParams: Object.keys(internalParamsConfig),
+			instanceId,
 		};
 		const node = new ParamMgrNode(
 			audioContext, pluginId + processorId, initialParamsValue, options,

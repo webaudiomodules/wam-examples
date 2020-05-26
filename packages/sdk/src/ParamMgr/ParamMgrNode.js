@@ -7,6 +7,7 @@ import MgrAudioParam from './MgrAudioParam';
  * @typedef {{
  * 		paramsConfig: ParametersDescriptor;
  * 		paramsMapping: ParametersMapping;
+ * 		internalParamsMinValues: number[];
  * 		internalParams: string[];
  * 		instanceId: string;
  * }} O
@@ -55,8 +56,12 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 				Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
 					if (this.context.state === 'suspended') this.$paramsBuffer[i] = config.defaultValue;
 					if (config instanceof AudioParam || config instanceof AudioNode) {
-						config.value = 0;
-						this.connect(config, i + 1);
+						try {
+							config.automationRate = 'a-rate';
+						} finally {
+							config.value = Math.max(0, config.minValue);
+							this.connect(config, i + 1);
+						}
 					} else {
 						if (config.onChange) this.plugin.on(`change:internalParam:${name}`, config.onChange);
 						this.requestDispatchIParamChange(name);
