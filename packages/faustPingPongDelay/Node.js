@@ -115,7 +115,7 @@ class PingPongDelayFaustNode extends AudioWorkletNode {
         // Set message handler
         this.port.onmessage = this.handleMessage.bind(this);
         try {
-            if (this.parameters) this.parameters.forEach(p => p.automationRate = "k-rate");
+            if (this.parameters) this.parameters.forEach(p => p.automationRate = "a-rate");
         } catch (e) {}
     }
 

@@ -416,7 +416,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.addEventListener('change', (e) =>
 				this._plug.setParam(
 					'enabled',
-					e.target.value
+					1 - e.target.value
 				)
 			);
 	}
