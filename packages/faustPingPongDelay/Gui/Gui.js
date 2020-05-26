@@ -392,33 +392,20 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.getElementById('/PingPongDelayFaust/feedback')
 			.addEventListener('input', (e) =>
 				this._plug.setParam(
-					'/PingPongDelayFaust/feedback',
+					'feedback',
 					e.target.value
 				)
 			);
 		this._root
 			.getElementById('/PingPongDelayFaust/mix')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('/PingPongDelayFaust/mix', e.target.value)
+				this._plug.setParam('mix', e.target.value)
 			);
 		this._root
 			.getElementById('/PingPongDelayFaust/time')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('/PingPongDelayFaust/time', e.target.value)
+				this._plug.setParam('time', e.target.value)
 			);
-	}
-
-	setSwitchListener() {
-		console.log('setswitch');
-		if (this._root.querySelector('#switch1')) {
-			this._root
-				.querySelector('#switch1')
-				.addEventListener('change', (e) => {
-					if (this.isOn) this.bypass();
-					else this.reactivate();
-					this.isOn = !this.isOn;
-				});
-		}
 	}
 
 	setSliders() {}
@@ -428,8 +415,8 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.getElementById('/PingPongDelayFaust/bypass')
 			.addEventListener('change', (e) =>
 				this._plug.setParam(
-					'/PingPongDelayFaust/bypass',
-					1 - e.target.value
+					'enabled',
+					e.target.value
 				)
 			);
 	}
