@@ -6,7 +6,7 @@
 //      the params variable below...)
 import { WebAudioPlugin } from 'sdk';
 
-import QuadrafuzzNode from './Node';
+import QuadrafuzzNode from './Node.js';
 
 // Definition of a new plugin
 export default class QuadrafuzzPlugin extends WebAudioPlugin {

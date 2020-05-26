@@ -60,7 +60,10 @@ const mountPlugin = (domNode) => {
 		setTimeout(() => {
 			console.log("After 2.5s, set lowGain to 0.1...")
 			// set param feedback after 5 seconds
-			instance.setParam('lowGain', 0.1);
+			instance.setParam('lowGain', 0);
+			instance.setParam('midLowGain', 0);
+			instance.setParam('midHighGain', 0);
+			instance.setParam('highGain', 0);
 			// store current state
 			state = instance.getState();
 			console.log('instance state', state);

@@ -1,7 +1,7 @@
 // This file is the factory for the GUI part..bundleRenderer.renderToStream
 // The imporant thing here is the createElement async method
 // This file must be an es module in order to be loaded with the SDK (with dynamic imports)
-import QuadrafuzzHTMLElement from './Gui';
+import QuadrafuzzHTMLElement from './Gui.js';
 
 export { QuadrafuzzHTMLElement };
 

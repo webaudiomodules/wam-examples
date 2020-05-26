@@ -6,7 +6,7 @@ import style from './Gui.css';
 import template from './Gui.template.html';
 
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
-import '../utils/webaudio-controls';
+import '../utils/webaudio-controls.js';
 
 import backgroundImg from './assets/background.png';
 import knobImg from './assets/MiniMoog_Main.png';
@@ -35,6 +35,8 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		this.setResources();
 		this.setKnobs();
 		this.setSwitchListener();
+
+		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	updateStatus = (status) => {
