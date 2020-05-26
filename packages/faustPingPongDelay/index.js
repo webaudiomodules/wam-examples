@@ -23,10 +23,10 @@ export default class FaustPingPongDelayPlugin extends WebAudioPlugin {
 		let pingPongDelayNode = await pingPongDelayFactory.load();
 
 		this.internalParamsConfig = {
-            mix: pingPongDelayNode.parameters.get('/faustPingPongDelay/mix'),
-            feedback: pingPongDelayNode.parameters.get('/faustPingPongDelay/feedback'),
-			time: pingPongDelayNode.parameters.get('/faustPingPongDelay/time'),
-			enabled: pingPongDelayNode.parameters.get('/faustPingPongDelay/bypass'),
+            mix: pingPongDelayNode.parameters.get('/PingPongDelayFaust/mix'),
+            feedback: pingPongDelayNode.parameters.get('/PingPongDelayFaust/feedback'),
+			time: pingPongDelayNode.parameters.get('/PingPongDelayFaust/time'),
+			enabled: pingPongDelayNode.parameters.get('/PingPongDelayFaust/bypass'),
 			
         };
 		
