@@ -1,0 +1,20 @@
+{
+	"name": "FaustPingPongDelay",
+	"params": {},
+	"banks": {
+		"bank1": {
+			"label": "Bank 1",
+			"patches": [
+				"patch1"
+			]
+		}
+	},
+	"patches" : {
+		"patch1": {
+			"label": "Patch 1",
+			"params": {}
+		}
+	},
+	"entry": "./index.js",
+	"gui": "./Gui/index.js"
+}

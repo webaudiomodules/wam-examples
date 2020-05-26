@@ -1,0 +1,28 @@
+import("stdfaust.lib");
+Main(Rec_14_0, In_1_0, In_28_0) = Rec_14, Out_16, Out_17 with {
+    Mul_29_0 = *(In_28_0, Max_26_0);
+    Mul_20_0 = *(de_delay_13_0, Max_25_0);
+    Sub_23_0 = -(1, HSlider_18_0);
+    Mul_22_0 = *(Sub_23_0, 2);
+    Min_27_0 = min(Mul_22_0, 1);
+    Max_26_0 = max(Min_27_0, 0);
+    Mul_30_0 = *(In_1_0, Max_26_0);
+    HSlider_18_0 = hslider("mix[style:knob]", 0.5, 0, 1, 0.01);
+    Mul_21_0 = *(HSlider_18_0, 2);
+    Min_24_0 = min(Mul_21_0, 1);
+    Max_25_0 = max(Min_24_0, 0);
+    HSlider_4_0 = hslider("feedback[style:knob]", 0.5, 0, 1, 0.01);
+    de_delay_13_0 = de.delay(ma_SR_7_0, Mul_8_0, de_delay_10_0);
+    Mul_5_0 = *((In_1_0, Rec_14_0, In_28_0 :> _), HSlider_4_0);
+    HSlider_9_0 = hslider("time[style:knob]", 0.5, 0.1, 1, 0.01);
+    Mul_8_0 = *(ma_SR_7_0, HSlider_9_0);
+    ma_SR_7_0 = ma.SR;
+    de_delay_10_0 = de.delay(ma_SR_7_0, Mul_8_0, Mul_5_0);
+    Mul_19_0 = *(de_delay_10_0, Max_25_0);
+    Rec_14 = de_delay_13_0;
+    Out_16 = (Mul_19_0, Mul_30_0 :> _);
+    Out_17 = (Mul_20_0, Mul_29_0 :> _);
+};
+Rec = _ : _;
+pingpongDelay = Main ~ Rec : !, _, _;
+process = ba.bypass_fade(ma.SR/10, checkbox("bypass"), pingpongDelay);

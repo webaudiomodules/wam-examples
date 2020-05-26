@@ -37,8 +37,8 @@ export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
 	return PluginClass;
 };
 
-export const loadPluginFromUrl = async (url) => {
+export const loadPluginFromUrl = async (url, options) => {
 	const descriptor = await getDescriptorFromUrl(url);
-	const plugin = await loadPluginFromDescriptor(descriptor);
+	const plugin = await loadPluginFromDescriptor(descriptor, options);
 	return plugin;
 };
