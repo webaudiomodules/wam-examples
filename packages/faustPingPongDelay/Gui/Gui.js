@@ -289,7 +289,10 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 
 		// optionnal : set image background using a relative URI (relative
 		// to this main.html file)
-		//this.setImageBackground("/img/BigMuffBackground.png");
+        //this.setImageBackground("/img/BigMuffBackground.png");
+        
+        // Monitor param changes in order to update the gui
+        window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	fixRelativeImagePathsInCSS(imageRelativeURI) {
@@ -350,6 +353,18 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		}
 	}
 
+    handleAnimationFrame = () => {
+		const {
+			feedback,
+			time,
+			mix
+        } = this._plug.params;
+        this._root.getElementById('/PingPongDelayFaust/feedback').value = feedback ;
+		this._root.getElementById('/PingPongDelayFaust/time').value = time ;
+		this._root.getElementById('/PingPongDelayFaust/mix').value = mix ;
+		window.requestAnimationFrame(this.handleAnimationFrame);
+    }
+    
 	get properties() {
 		this.boundingRect = {
 			dataWidth: {

@@ -2,17 +2,17 @@
 	"name": "FaustPingPongDelay",
 	"params": {
 		"time": {
-			"defaultValue": 0.6,
+			"defaultValue": 0.3,
 			"minValue": 0.1,
 			"maxValue": 1
 		},
 		"feedback": {
-			"defaultValue": 0.8,
+			"defaultValue": 0.3,
 			"minValue": 0,
 			"maxValue": 1
 		},
 		"mix": {
-			"defaultValue": 0.5,
+			"defaultValue": 0.6,
 			"minValue": 0,
 			"maxValue": 1
 		}
