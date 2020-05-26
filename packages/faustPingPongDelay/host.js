@@ -35,7 +35,7 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const FaustPingPongDelay = await Loader.loadPluginFromUrl('./descriptor.json', { noGui: true });
+	const FaustPingPongDelay = await Loader.loadPluginFromUrl('./descriptor.json'/*, { noGui: true }*/);
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
@@ -49,9 +49,9 @@ const mountPlugin = (domNode) => {
 
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
-	//const pluginDomNode = await instance.createGui();
+	const pluginDomNode = await instance.createGui();
 
-	//mountPlugin(pluginDomNode);
+	mountPlugin(pluginDomNode);
 
 	player.onplay = () => {
 		let state;
