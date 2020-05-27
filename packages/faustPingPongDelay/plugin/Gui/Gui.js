@@ -288,7 +288,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		this.fixRelativeImagePathsInCSS();
 
 		// optionnal : set image background using a relative URI (relative
-		// to this main.html file)
+		// to this file)
         //this.setImageBackground("/img/BigMuffBackground.png");
         
         // Monitor param changes in order to update the gui
@@ -383,25 +383,6 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		return ['state'];
 	}
 
-	setResources() {
-		// Sets the background image and style.
-		var background = this._root.querySelector('img');
-		background.src = this._plug.URL + '/assets/undefined';
-		background.style = 'border-radius : 10px;';
-		this._root.querySelectorAll('.knob').forEach((knob) => {
-			knob.querySelector('webaudio-knob').setAttribute(
-				'src',
-				this._plug.URL + '/assets/MiniMoog_Main.png'
-			);
-		});
-
-		this._root.querySelectorAll('.switch').forEach((s) => {
-			s.querySelector('webaudio-switch').setAttribute(
-				'src',
-				this._plug.URL + '/assets/switch_1.png'
-			);
-		});
-	}
 	setKnobs() {
 		this._root
 			.getElementById('/PingPongDelayFaust/feedback')

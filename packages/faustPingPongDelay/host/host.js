@@ -1,5 +1,5 @@
 // Load the sdk with an es import (script type="module" necessary)
-import { Loader } from '../sdk/esm/index.js';
+import { Loader } from '../../sdk/esm/index.js';
 
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
@@ -27,22 +27,13 @@ const mountPlugin = (domNode) => {
 (async () => {
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
-	// IMPORTANT NOTICE :
-	// In order to be able to load the plugin in this example host,
-	// you must add the plugin to the field webaudioplugins
-	// in the package.json. Example :
-	// "webaudioplugins": {
-	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
-	//     "yourplugin": "dist"
-	// }
-	const FaustPingPongDelay = await Loader.loadPluginFromUrl('./descriptor.json'/*, { noGui: true }*/);
+	const faustPluginFactory = await Loader.loadPluginFromUrl('../plugin/descriptor.json'/*, { noGui: true }*/);
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-    const instance = await FaustPingPongDelay.createInstance(audioContext,{});
+    const instance = await faustPluginFactory.createInstance(audioContext,{});
     
 	window.instance = instance;
-	// instance.enable();
 
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
