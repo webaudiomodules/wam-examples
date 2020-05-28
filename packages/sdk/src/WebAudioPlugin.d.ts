@@ -190,6 +190,7 @@ interface WebAudioPlugin<
      * @memberof WebAudioPlugin
      */
     initialize(options?: Partial<State>): Promise<this>;
+    destroy(): void;
     disable(): void;
     enable(): void;
     onBankChange(cb: (e: Banks) => any): this;

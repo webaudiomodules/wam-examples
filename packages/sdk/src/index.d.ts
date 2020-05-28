@@ -1,7 +1,7 @@
 /* eslint-disable */
-import WebAudioPlugin from "../src/WebAudioPlugin";
-import CompositeAudioNode from "../src/CompositeAudioNode";
-import Loader from "../src/Loader";
+import WebAudioPlugin from "./WebAudioPlugin";
+import CompositeAudioNode from "./CompositeAudioNode";
+import * as Loader from "./Loader";
 
-export * from "../src/WebAudioPlugin";
+export * from "./WebAudioPlugin";
 export { WebAudioPlugin, CompositeAudioNode, Loader };
