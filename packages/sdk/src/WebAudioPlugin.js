@@ -331,7 +331,7 @@ export default class WebAudioPlugin extends EventEmitter {
 	 */
 	async loadGui() {
 		if (!this.constructor.guiModuleUrl) throw new TypeError('Gui module not found');
-		return import(this.constructor.guiModuleUrl);
+		return import(/* webpackIgnore: true */this.constructor.guiModuleUrl);
 	}
 
 	async createGui(options) {
