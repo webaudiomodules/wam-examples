@@ -122,3 +122,52 @@ All `AudioParam` methods are exposed in the Parameter Manager with their normali
 
 ### Need to go deeper?
 Sample-accurate *internal parameters* and *exposed parameters* values, with a frame stamp, are accessible in the `AudioWorkletGlobalScope`. The developer can get them by getting `globalThis.WebAudioPluginParams[instanceId]`, the instance identifier `instanceId` is unique to each `WebAudioPlugin` instance. See [AudioWorkletGlobalScope](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/types.d.ts).
+
+### Use a Plugin from a Host
+
+A host usually deals with exposed parameters of a plugin, set or get the values instantly or schedule automations. These operations are available using the parameter manager.
+
+For example, to get the values / normalized values of all the exposed parameters:
+
+```JavaScript
+const values = plugin.paramMgr.getParamsValues();
+const normalizedValues = plugin.paramMgr.getNormalizedParamsValues();
+```
+
+It is possible to manipulate parameters with their AudioParam instance:
+
+```JavaScript
+let audioParam;
+const audioParamsMap = plugin.paramMgr.getParams();
+audioParam = audioParamsMap["mix"];
+// or
+audioParam = plugin.paramMgr.getParam("mix");
+// or
+audioParam = plugin.paramMgr.parameters.get("mix");
+```
+
+The AudioParam got is an extended version of native one, having all the normalized version of native methods, emitting the `automation` events.
+
+```JavaScript
+audioParam.value = 0.5;
+audioParam.normalizedValue = 0.5;
+```
+Methods:
+```TypeScript
+interface MgrAudioParam extends AudioParam {
+    normalize(value: number): number;
+    denormalize(value: number): number;
+    cancelAndHoldAtTime(cancelTime: number): MgrAudioParam;
+    cancelScheduledValues(cancelTime: number): MgrAudioParam;
+    exponentialRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
+    exponentialRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
+    linearRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
+    linearRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
+    setTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
+    setNormalizedTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
+    setValueAtTime(value: number, startTime: number): MgrAudioParam;
+    setNormalizedValueAtTime(valueIn: string, startTime: number): MgrAudioParam;
+    setValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
+    setNormalizedValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
+}
+```

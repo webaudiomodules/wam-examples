@@ -31,17 +31,19 @@ declare interface MgrAudioParam extends AudioParam {
     /**
      * normalize value following current max/max/exponent
      *
+     * @param {number} value
      * @returns {number}
      * @memberof MgrAudioParam
      */
-    normalize(): number;
+    normalize(value: number): number;
     /**
      * denormalize value following current max/max/exponent
      *
+     * @param {number} value
      * @returns {number}
      * @memberof MgrAudioParam
      */
-    denormalize(): number;
+    denormalize(value: number): number;
     /**
      * normalized current param value
      *
