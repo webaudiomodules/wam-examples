@@ -26,6 +26,13 @@ declare interface ParamMgrNode<
      */
     plugin: WebAudioPlugin<any, Params, InternalParams>;
     /**
+     * The state of the initialization.
+     *
+     * @type {boolean}
+     * @memberof ParamMgrNode
+     */
+    initialized: boolean;
+    /**
      * An array that contains ordered internal params names.
      * The order is important for the output connections and for the parameters' values buffer
      *
@@ -203,10 +210,10 @@ declare interface ParamMgrNode<
     /**
      * set the current value of every exposed parameters
      *
-     * @param {Record<Params, number>} values
+     * @param {Partial<Record<Params, number>>} values
      * @memberof ParamMgrNode
      */
-    setParamsValues(values: Record<Params, number>): void;
+    setParamsValues(values: Partial<Record<Params, number>>): void;
     /**
      * normalized value version of `getParamValue()`
      *
@@ -226,10 +233,10 @@ declare interface ParamMgrNode<
     /**
      * normalized value version of `getParamsValues()`
      *
-     * @returns {Record<Params, number>}
+     * @returns {Partial<Record<Params, number>>}
      * @memberof ParamMgrNode
      */
-    getNormalizedParamsValues(): Record<Params, number>;
+    getNormalizedParamsValues(): Partial<Record<Params, number>>;
     /**
      * normalized value version of `setParamsValues()`
      *
@@ -258,7 +265,7 @@ declare interface ParamMgrNode<
     destroy(): void;
 }
 declare const ParamMgrNode: {
-    prototype: AudioWorkletNode;
+    prototype: ParamMgrNode;
 	/**
      * Creates an instance of ParamMgrNode.
      *
