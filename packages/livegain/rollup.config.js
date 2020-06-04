@@ -6,6 +6,9 @@ import omt from "@surma/rollup-plugin-off-main-thread";
 import copy from "rollup-plugin-copy";
 import { terser } from "rollup-plugin-terser";
 
+const { NODE_ENV } = process.env;
+const isProduction = NODE_ENV === 'production';
+
 const common = {
 
     output: [
@@ -45,8 +48,8 @@ const common = {
             "process.env.NODE_ENV": JSON.stringify("production")
         }),
         omt(),
-        terser()
-    ]
+        isProduction && terser()
+    ].filter(Boolean)
 };
 const plugin = {
     ...common,
