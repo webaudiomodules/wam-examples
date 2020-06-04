@@ -7,6 +7,9 @@ import html from 'rollup-plugin-html';
 import copy from 'rollup-plugin-copy';
 import { terser } from 'rollup-plugin-terser';
 
+const { NODE_ENV } = process.env;
+const isProduction = NODE_ENV === 'production';
+
 const common = {
 	output: [
 		{
@@ -20,7 +23,7 @@ const common = {
 		copy({
 			targets: [
 				{ src: 'src/descriptor.json', dest: 'dist/' },
-			]
+			],
 		}),
 		postcss({
 			extract: false,
@@ -35,8 +38,8 @@ const common = {
 		}),
 		commonjs(),
 		html(),
-		terser(),
-	],
+		isProduction && terser(),
+	].filter(Boolean),
 };
 
 const plugin = {

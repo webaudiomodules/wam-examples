@@ -1,0 +1,16 @@
+{
+	"name": "dev-utils",
+	"version": "0.0.0",
+	"private": true,
+	"author": "53JS",
+  "license": "UNLICENSED",
+  "bin": {
+    "serve": "bin/serve.js"
+  },
+	"dependencies": {
+    "commander": "^5.1.0",
+    "express": "^4.17.1",
+    "lodash.debounce": "^4.0.8",
+    "parcel-bundler": "^1.12.4"
+	}
+}
