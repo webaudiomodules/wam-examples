@@ -8,6 +8,9 @@ import copy from 'rollup-plugin-copy';
 import { terser } from 'rollup-plugin-terser';
 import url from '@rollup/plugin-url';
 
+const { NODE_ENV } = process.env;
+const isProduction = NODE_ENV === 'production';
+
 const common = {
 	output: [
 		{
@@ -40,8 +43,8 @@ const common = {
 		}),
 		commonjs(),
 		html(),
-		terser(),
-	],
+		isProduction && terser(),
+	].filter(Boolean),
 };
 
 const plugin = {

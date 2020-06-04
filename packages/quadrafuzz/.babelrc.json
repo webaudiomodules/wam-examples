@@ -17,7 +17,6 @@
 				"loose": true
 			}
 		],
-		"@babel/plugin-transform-runtime",
 		"@babel/plugin-syntax-import-meta"
 	]
 }
