@@ -25,6 +25,20 @@ export default class PingPongDelayPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext, options);
 
+		this.paramsConfig = {
+			feedback: {
+				defaultValue: 0.5,
+			},
+			time: {
+				defaultValue: 0.5,
+			},
+			mix: {
+				defaultValue: 0.5,
+			},
+			enabled: {
+				defaultValue: 1,
+			},
+		};
 		this.internalParamsConfig = {
 			delayLeftTime: pingPongDelayNode.delayNodeLeft.delayTime,
 			delayRightTime: pingPongDelayNode.delayNodeRight.delayTime,

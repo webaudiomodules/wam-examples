@@ -1,16 +1,5 @@
 {
 	"name": "PingPongDelay",
-	"params": {
-		"feedback": {
-			"defaultValue": 0.5
-		},
-		"time": {
-			"defaultValue": 0.5
-		},
-		"mix": {
-			"defaultValue": 0.5
-		}
-	},
 	"banks": {
 		"bank1": {
 			"label": "Bank 1",

@@ -110,14 +110,12 @@ interface PluginDescriptor<Params extends string = string, Patches extends strin
     entry: string;
     gui: string | "none";
     url: string;
-    params?: ParametersDescriptor<Params>;
     patches?: PatchesDescriptor<Patches, Params>;
     banks?: BanksDescriptor<Banks, Patches>;
     [key: string]: any;
 }
 interface DefaultState<Params extends string = string, Patches extends string = string, Banks extends string = string> {
     enabled: boolean;
-    params: Partial<Record<Params, number>>;
     patch: Patches;
     bank: Banks;
 }
