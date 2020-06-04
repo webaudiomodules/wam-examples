@@ -8,8 +8,9 @@
     "clean": "lerna run clean --stream",
     "build:livegain": "lerna run build --stream --scope livegain",
     "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
+    "build:quadrafuzz": "lerna run build --stream --scope quadrafuzz",
     "build:sdk": "lerna run build --stream --scope sdk",
-    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:livegain",
+    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain",
     "start": "lerna run start --stream --scope host -- --color"
   },
   "workspaces": [
