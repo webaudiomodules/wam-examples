@@ -37,7 +37,7 @@ export default class MgrAudioParam extends AudioParam {
 	}
 
 	set normalizedValue(valueIn) {
-		this.value = this.normalize(valueIn);
+		this.value = this.denormalize(valueIn);
 	}
 
 	get normalizedValue() {
