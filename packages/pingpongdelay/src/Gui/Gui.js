@@ -74,8 +74,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				if (this.checked) plugin.enable();
-				else plugin.disable();
+				plugin.paramMgr.setParamValue('enabled', +!!this.checked);
 			});
 	}
 

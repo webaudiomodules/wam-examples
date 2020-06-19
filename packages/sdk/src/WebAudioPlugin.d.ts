@@ -63,15 +63,6 @@ interface WebAudioPlugin<
      */
     readonly vendor: string;
     /**
-     * retrieved from the descriptor, the exposed-params' descriptor with full information
-     * 
-     * There will be a `enabled` param in any case.
-     *
-     * @type {ParametersDescriptor<Params>}
-     * @memberof WebAudioPlugin
-     */
-    readonly paramsConfig: ParametersDescriptor<Params>;
-    /**
      * getter of the exposed-params' values
      *
      * @type {Record<Params, number>}
@@ -142,13 +133,22 @@ interface WebAudioPlugin<
      */
     audioNode: Node;
     /**
+     * the exposed-params' descriptor with full information
+     * 
+     * If not explicitly set, it will be derived from the internal paramters `internalParamsConfig`
+     * 
+     * can be set only once
+     *
+     * @type {ParametersDescriptor<Params>}
+     * @memberof WebAudioPlugin
+     */
+    paramsConfig: ParametersDescriptor<Params>;
+    /**
      * the description of the plugin's internal parameters
      * 
      * is an `AudioParam` or not. if not, the update rate can be provided (`30` by default)
      * 
      * can be set only once
-     * 
-     * If not explicitly set, it will be derived from the exposed paramters `paramsConfig`
      *
      * @type {InternalParametersDescriptor<InternalParams>}
      * @memberof WebAudioPlugin

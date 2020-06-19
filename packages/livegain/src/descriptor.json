@@ -1,47 +1,5 @@
 {
 	"name": "LiveGain",
-	"params": {
-		"gain": {
-			"defaultValue": 0,
-			"minValue": -70,
-			"maxValue": 6
-		},
-		"frameRate": {
-			"defaultValue": 60,
-			"minValue": 0,
-			"maxValue": 60
-		},
-		"speedLim": {
-			"defaultValue": 16,
-			"minValue": 0,
-			"maxValue": 60
-		},
-		"min": {
-			"defaultValue": -70,
-			"minValue": -70,
-			"maxValue": -6
-		},
-		"max": {
-			"defaultValue": 6,
-			"minValue": 0,
-			"maxValue": 15
-		},
-		"step": {
-			"defaultValue": 0.01,
-			"minValue": 0.01,
-			"maxValue": 6
-		},
-		"orientation": {
-			"defaultValue": 0,
-			"minValue": 0,
-			"maxValue": 1
-		},
-		"metering": {
-			"defaultValue": 0,
-			"minValue": 0,
-			"maxValue": 1
-		}
-	},
 	"banks": {
 		"bank1": {
 			"label": "Bank 1",

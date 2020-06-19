@@ -1,22 +1,5 @@
 {
 	"name": "FaustPingPongDelay",
-	"params": {
-		"time": {
-			"defaultValue": 0.3,
-			"minValue": 0.1,
-			"maxValue": 1
-		},
-		"feedback": {
-			"defaultValue": 0.3,
-			"minValue": 0,
-			"maxValue": 1
-		},
-		"mix": {
-			"defaultValue": 0.6,
-			"minValue": 0,
-			"maxValue": 1
-		}
-	},
 	"banks": {
 		"bank1": {
 			"label": "Bank 1",
