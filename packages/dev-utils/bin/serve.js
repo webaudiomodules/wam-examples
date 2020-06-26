@@ -27,6 +27,11 @@ app.use(
 	express.static(`${program.outDir}`),
 );
 
+app.use(
+	'/sdk',
+	express.static('../sdk'),
+);
+
 const bundler = new Bundler(program.entry);
 app.use(bundler.middleware());
 
