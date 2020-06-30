@@ -80,7 +80,8 @@ export class WamProcessor {
     
     getCompensationDelay(): number;
     onEvent(event: WamEvent): void;
-    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: { [x: string]: Float32Array }): boolean;
+    process(inputs: Float32Array[][], outputs: Float32Array[][], 
+        parameters: { [x: string]: Float32Array }): boolean;
     destroy(): void;
 }
 
@@ -137,14 +138,14 @@ export type WamParameterSet = { [id: string]: WamParameter }
 
 // EVENTS
 
-export type WamEventType = "midi" | "automation"; 
+export type WamEventType = "midi" | "automation"; // TODO 'sysex', 'mpe', 'osc'
 
 interface WamEventBase {
     type: WamEventType;
     time?: number;
 }
 
-export type WamEvent = WamAutomationEvent | WamMidiEvent // TODO 'sysex', 'mpe', 'osc'
+export type WamEvent = WamAutomationEvent | WamMidiEvent;
 
 export interface WamAutomationEvent extends WamEventBase {
     type: 'automation';

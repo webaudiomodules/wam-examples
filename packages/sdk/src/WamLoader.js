@@ -67,10 +67,11 @@ export default class WamLoader {
 	 * This async method must be redefined to get audionode that
 	 * will connected to the host.
 	 * It can be any object that extends AudioNode
+	 * @param {any} options
 	 * @returns {Promise<AudioNode>}
 	 */
 	async createAudioNode(options = {}) {
-		// should return a subclass of WamController
+		// should return a subclass of WamNode
 		throw new TypeError('createAudioNode() not provided');
 	}
 
@@ -78,8 +79,7 @@ export default class WamLoader {
 	 * Calling initialize([state]) will initialize the plugin with an initial state.
 	 * While initializing, the audionode is created by calling createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
-	 * TODO this param typing is confusing, too generic to be informative
-	 * param {Partial<DefaultState<string, string, string>>} options
+	 * @param {any} options
 	 * @returns {Promise<WamLoader>}
 	 */
 	async initialize(options = {}) { // maybe don't need this, only createAudioNode?
