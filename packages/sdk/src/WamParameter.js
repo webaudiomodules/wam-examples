@@ -47,6 +47,9 @@ export default class WamParameter {
 	/** @type {string} */
 	_id = '';
 
+	/** @type {string} */
+	_label = '';
+
 	/** @typedef {'float' | 'int' | 'boolean' | 'choice'} WamParameterType */
 
 	/** @type WamParameterType */
@@ -75,6 +78,7 @@ export default class WamParameter {
 
 	/**
 	 * @typedef {Object} WamParameterConfiguration
+	 * @property {string} [label]
 	 * @property {WamParameterType} [type]
 	 * @property {number} [defaultValue]
 	 * @property {number} [minValue]
@@ -130,9 +134,10 @@ export default class WamParameter {
 
 		this._id = id;
 		const {
-			type, defaultValue, minValue, maxValue, discreteStep, exponent, choices, units,
+			type, label, defaultValue, minValue, maxValue, discreteStep, exponent, choices, units,
 		} = config;
 		if (type) this._type = type;
+		if (label) this._label = label;
 		if (defaultValue) this._defaultValue = defaultValue;
 		if (this._type === 'boolean' || this._type === 'choice') {
 			this._discreteStep = 1;
@@ -163,6 +168,8 @@ export default class WamParameter {
 	}
 
 	get id() { return this._id; }
+
+	get label() { return this._label; }
 
 	get type() { return this._type; }
 

@@ -1,6 +1,7 @@
 export type WamParameterType = "boolean" | "float" | "int" | "choice";
 
 export type WamParameterConfiguration = {
+    label?: string;
     type?: WamParameterType;
     defaultValue?: number;
     minValue?: number;
@@ -14,6 +15,7 @@ export type WamParameterConfiguration = {
 export class WamParameter {
     constructor(id: string, config?: WamParameterConfiguration);
     _id: string;
+    _label: string;
     _type: WamParameterType;
     _value: number;
     _defaultValue: number;
@@ -27,6 +29,7 @@ export class WamParameter {
     set value(arg: number);
     get value(): number;
     get id(): string;
+    get label(): string;
     get type(): WamParameterType;
     get defaultValue(): number;
     get minValue(): number;
