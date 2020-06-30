@@ -1,14 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable lines-between-class-members */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable indent */
 /* eslint-disable no-console */
 
 export default class WamLoader {
 	static isWebAudioPlugin = true;
 
-	/** 
-	 * @param {AudioContext} audioContext 
+	/**
+	 * @param {AudioContext} audioContext
 	 * @param {any} [pluginOptions]
 	 * @returns {Promise<WamLoader>}
 	*/
@@ -46,9 +47,9 @@ export default class WamLoader {
 	// Accessors for values inherited from descriptor.json
 
 	/** @returns {WamDescriptor} */
-	get descriptor() { 
+	get descriptor() {
 		// @ts-ignore
-		return this.constructor.descriptor; 
+		return this.constructor.descriptor;
 	}
 
 	get name() { return this.descriptor.name; }
