@@ -12,8 +12,8 @@ export type WamParameterConfiguration = {
 }
 
 export class WamParameter {
-    constructor(name: string, config?: WamParameterConfiguration);
-    _name: string;
+    constructor(id: string, config?: WamParameterConfiguration);
+    _id: string;
     _type: WamParameterType;
     _value: number;
     _defaultValue: number;
@@ -26,7 +26,7 @@ export class WamParameter {
 
     set value(arg: number);
     get value(): number;
-    get name(): string;
+    get id(): string;
     get type(): WamParameterType;
     get defaultValue(): number;
     get minValue(): number;
@@ -42,4 +42,4 @@ export class WamParameter {
     valueString(value: number): string;
 }
 
-export type WamParameterSet = { [x: string]: WamParameter }
+export type WamParameterSet = { [id: string]: WamParameter }

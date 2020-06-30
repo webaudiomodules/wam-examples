@@ -45,7 +45,7 @@ const inRange = (x, min, max) => (x >= min && x <= max);
 
 export default class WamParameter {
 	/** @type {string} */
-	_name = '';
+	_id = '';
 
 	/** @typedef {'float' | 'int' | 'boolean' | 'choice'} WamParameterType */
 
@@ -86,10 +86,10 @@ export default class WamParameter {
 	 */
 
 	/**
-	 * @param {string} name
+	 * @param {string} id
 	 * @param {WamParameterConfiguration} [config]
 	 */
-	constructor(name, config = {}) {
+	constructor(id, config = {}) {
 		// does this class need to represent the current state or is it here to describe the param?
 		// I think one could argue that this class is really just meant for describing the meta
 		// data of a parameter, and wouldn't necessarily be the class used in any DSP code etc.
@@ -103,10 +103,10 @@ export default class WamParameter {
 		// 	this._lock = new Uint8Array(this._data, Float64Array.BYTES_PER_ELEMENT, 1);
 		//  ...
 		// 2) provide handler functions
-		// 	this._audioThreadGetter = () => audioThreadGetter(this._name);
-		// 	this._audioThreadSetter = (value) => audioThreadSetter(this._name, value);
-		// 	this._mainThreadGetter = () => mainThreadGetter(this._name);
-		// 	this._mainThreadSetter = (value) => mainThreadSetter(this._name, value);
+		// 	this._audioThreadGetter = () => audioThreadGetter(this._id);
+		// 	this._audioThreadSetter = (value) => audioThreadSetter(this._id, value);
+		// 	this._mainThreadGetter = () => mainThreadGetter(this._id);
+		// 	this._mainThreadSetter = (value) => mainThreadSetter(this._id, value);
 		//  ...
 		// 	initialize() {
 		// 		if (AudioWorkletGlobalScope) {
@@ -128,7 +128,7 @@ export default class WamParameter {
 		// leaving it in a single class for now, the checks below are not comprehensive and
 		// should maybe just be removed, placing burden on devs to make sure the specs are valid
 
-		this._name = name;
+		this._id = id;
 		const {
 			type, defaultValue, minValue, maxValue, discreteStep, exponent, choices, units,
 		} = config;
@@ -147,7 +147,7 @@ export default class WamParameter {
 			if (units) this._units = units;
 		}
 
-		const errBase = `Param config error | ${this._name}: `;
+		const errBase = `Param config error | ${this._id}: `;
 		if (this._minValue >= this._maxValue) throw Error(errBase.concat('minValue must be less than maxValue'));
 		if (!inRange(this._defaultValue, this._minValue, this._maxValue)) throw Error(errBase.concat('defaultValue out of range'));
 		if (this._discreteStep % 1 || this._discreteStep < 0) {
@@ -162,7 +162,7 @@ export default class WamParameter {
 		this.value = defaultValue;
 	}
 
-	get name() { return this._name; }
+	get id() { return this._id; }
 
 	get type() { return this._type; }
 
