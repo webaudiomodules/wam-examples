@@ -1,12 +1,14 @@
-import { WamParameterSet } from './WamParameter';
-import { WamLoader } from './WamLoader';
+/** @typedef { import('./WamTypes').WamLoader } WamLoader */
+/** @typedef { import('./WamTypes').WamParameterSet } WamParameterSet */
+/** @typedef { import('./WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
-	 
+
 // OC: IMO existing typings for DisposableAudioWorkletNode are too generic/uninformative
 export default class WamNode extends AudioWorkletNode {
 	/**
@@ -16,12 +18,12 @@ export default class WamNode extends AudioWorkletNode {
 		return {}; // override to fetch plugin's params via whatever means desired
 	}
 
-	 /** 
-	 * @param {AudioContext} audioContext 
-	 * @param {string} processorId 
-	 * @param {string} instanceId 
-	 * @param {WamLoader} loader 
-	 * @param {AudioWorkletNodeOptions} options 
+	/**
+	 * @param {AudioContext} audioContext
+	 * @param {string} processorId
+	 * @param {string} instanceId
+	 * @param {WamLoader} loader
+	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(audioContext, processorId, instanceId, loader, options) {
 		const params = WamNode.generateWamParameters();
@@ -42,43 +44,12 @@ export default class WamNode extends AudioWorkletNode {
 		/** @type {WamParameterSet} _params */
 		this._params = params;
 		/** @type {number} _compensationDelay */
-		this._compensationDelay = 0; 
-		/** @type {string | undefined} _patch */
-		this._patch = undefined;
-		/** @type {string | undefined} _bank */
-		this._bank = undefined;
-		/** @type {string[]} _banks */
-		this._banks = [];
+		this._compensationDelay = 0;
+		/** @type {{[subscriberId: string]: WamEventCallback}} */
+		this._eventCallbacks = {};
 		/** @type {boolean} _destroyed */
 		this._destroyed = false;
 	}
-
-	// TODO are these just for GUI or potentially for host as well? Not sure if they should be part of API
-	onBankChange(cb) {}
-	onEnabledChange(cb) {}
-	onParamChange(paramName, cb) {}
-	onPatchChange(cb) {}
-
-	/** @returns {string} */
-	getBank() { return this._bank; }
-
-	/**
-	 * @param {string} bankName 
-	 * @param {string} patchName 
-	 */
-	setBank(bankName, patchName) {}
-
-	/** @returns {string} */ 
-	getPatch() { return this._patch; }
-
-	/** @param {string} patchName */
-	setPatch(patchName) {}
-
-	/** @returns {WamParameterSet} */
-	getParams() { return this._params; }
-
-	/** @param {WamParameterSet} params */
-	setParams(params) {}
 
 	// TODO should get/set state be async? any type constraints?
 	/** @returns {any} */
@@ -91,25 +62,39 @@ export default class WamNode extends AudioWorkletNode {
 	getCompensationDelay() { return this._compensationDelay; }
 
 	/**
-	 * @param {string} paramName 
-	 * @param {number} paramValue 
-	 * @param {number} time 
+	 * @param {string} subscriberId
+	 * @param {WamEventCallback} callback
+	 * @returns {boolean}
 	 */
-	onAutomation(paramName, paramValue, time) {}
+	addEventCallback(subscriberId, callback) {
+		if (this._eventCallbacks[subscriberId]) return false;
+		this._eventCallbacks[subscriberId] = callback;
+		return true;
+	}
 
 	/**
-	 * @param {number} status 
-	 * @param {number} data1 
-	 * @param {number} data2 
-	 * @param {number} time 
+	 * @param {string} subscriberId
+	 * @returns {boolean}
 	 */
-	onMidi(status, data1, data2, time) {}
+	removeEventCallback(subscriberId) {
+		if (this._eventCallbacks[subscriberId]) {
+			delete this._eventCallbacks[subscriberId];
+			return true;
+		}
+		return false;
+	}
 
-	// onSysex() {} // TODO?
-
-	// onMpe() {} // TODO?
-
-	// onOsc() {} // TODO?
+	/**
+	 * @param {WamEvent} event
+	 */
+	onEvent(event) {
+		// trigger callbacks
+		Object.keys(this._eventCallbacks).forEach((subscriberId) => {
+			this._eventCallbacks[subscriberId](event);
+		});
+		// handle event
+		// ...
+	}
 
 	destroy() {
 		this.port.postMessage({ destroy: true });

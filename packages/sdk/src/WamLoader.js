@@ -1,3 +1,5 @@
+/** @typedef { import('./WamTypes').WamDescriptor } WamDescriptor */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable lines-between-class-members */
@@ -17,14 +19,7 @@ export default class WamLoader {
 		return new this(audioContext).initialize(pluginOptions);
 	}
 
-	/**
-	 * @typedef {Object} WamDescriptor
-	 * @property {string} name
-	 * @property {string} vendor
-	 * @property {string | undefined} entry
-	 * @property {string} gui
-	 * @property {string | undefined} url
-	 */
+	/** @type {WamDescriptor} */
 	static descriptor = {
 		name: 'WebAudioPlugin',
 		vendor: 'PluginVendor',

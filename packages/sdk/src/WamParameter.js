@@ -1,3 +1,6 @@
+/** @typedef { import('./WamTypes').WamParameterType } WamParameterType */
+/** @typedef { import('./WamTypes').WamParameterConfiguration } WamParameterConfiguration */
+
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 
@@ -50,8 +53,6 @@ export default class WamParameter {
 	/** @type {string} */
 	_label = '';
 
-	/** @typedef {'float' | 'int' | 'boolean' | 'choice'} WamParameterType */
-
 	/** @type WamParameterType */
 	_type = 'float'
 
@@ -75,19 +76,6 @@ export default class WamParameter {
 
 	/** @type string */
 	_units = '';
-
-	/**
-	 * @typedef {Object} WamParameterConfiguration
-	 * @property {string} [label]
-	 * @property {WamParameterType} [type]
-	 * @property {number} [defaultValue]
-	 * @property {number} [minValue]
-	 * @property {number} [maxValue]
-	 * @property {number} [discreteStep]
-	 * @property {number} [exponent]
-	 * @property {string[]} [choices]
-	 * @property {string} [units]
-	 */
 
 	/**
 	 * @param {string} id

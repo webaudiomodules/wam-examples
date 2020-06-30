@@ -1,4 +1,5 @@
-import { WamParameterSet } from './WamParameter';
+/** @typedef { import('./WamTypes').WamParameterSet } WamParameterSet */
+/** @typedef { import('./WamTypes').WamEvent } WamEvent */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */
@@ -8,11 +9,10 @@ import { WamParameterSet } from './WamParameter';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
-
 // OC: IMO existing typings for AudioWorkletProcessor are too generic/uninformative
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
-	 * @param {AudioWorkletNodeOptions} options 
+	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(options) {
 		super(options);
@@ -28,6 +28,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this.instanceId = instanceId;
 		/** @type {WamParameterSet} _params */
 		this._params = params;
+		/** @type {number} _compensationDelay */
+		this._compensationDelay = 0;
 		/** @type {boolean} _destroyed */
 		this._destroyed = false;
 
@@ -35,30 +37,22 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		else globalThis.WamProcessors = { instanceId: this };
 	}
 
-	/** 
-	 * @param {string} paramName 
-	 * @param {number} paramValue
-	 * @param {number} time
-	 */
-	onAutomation(paramName, paramValue, time) {}
+	/** @returns {number} processing delay time in seconds */
+	getCompensationDelay() { return this._compensationDelay; }
 
 	/**
-	 * @param {number} status 
-	 * @param {number} data1 
-	 * @param {number} data2 
-	 * @param {number} time 
+	 * @param {WamEvent} event
 	 */
-	onMidi(status, data1, data2, time) {}
-
-	// onSysex() {} // TODO?
-
-	// onMpe() {} // TODO?
-
-	// onOsc() {} // TODO?
+	onEvent(event) {
+		// trigger callbacks
+		// this.port.postMessage(event);
+		// handle event
+		// ...
+	}
 
 	/**
-	 * @param {Float32Array[][]} inputs 
-	 * @param {Float32Array[][]} outputs 
+	 * @param {Float32Array[][]} inputs
+	 * @param {Float32Array[][]} outputs
 	 * @param {{[x: string]: Float32Array}} parameters
 	 */
 	process(inputs, outputs, parameters) {
