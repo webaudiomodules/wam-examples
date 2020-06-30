@@ -65,6 +65,7 @@ export class WamNode extends AudioWorkletNode {
     addEventCallback(subscriberId: string, callback: WamEventCallback): boolean;
     removeEventCallback(subscriberId: string): boolean;
     onEvent(event: WamEvent): void;
+    onMessage(message: MessageEvent): void;
     destroy(): void;
 }
 
@@ -80,6 +81,7 @@ export class WamProcessor {
     
     getCompensationDelay(): number;
     onEvent(event: WamEvent): void;
+    onMessage(message: MessageEvent): void;
     process(inputs: Float32Array[][], outputs: Float32Array[][], 
         parameters: { [x: string]: Float32Array }): boolean;
     destroy(): void;

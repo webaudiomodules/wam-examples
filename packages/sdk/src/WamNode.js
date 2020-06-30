@@ -49,6 +49,8 @@ export default class WamNode extends AudioWorkletNode {
 		this._eventCallbacks = {};
 		/** @type {boolean} _destroyed */
 		this._destroyed = false;
+
+		this.port.onmessage = this.onMessage;
 	}
 
 	// TODO should get/set state be async? any type constraints?
@@ -94,6 +96,15 @@ export default class WamNode extends AudioWorkletNode {
 		});
 		// handle event
 		// ...
+	}
+
+	/**
+	 * Messages from audio thread
+	 * @param {MessageEvent} message
+	 * */
+	onMessage(message) {
+		// by default, assume mismatch in scheduling threads will be mitigated via message port
+		if (message.data.event) this.onEvent(message.data.event);
 	}
 
 	destroy() {

@@ -35,6 +35,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { instanceId: this };
+
+		this.port.onmessage = this.onMessage;
 	}
 
 	/** @returns {number} processing delay time in seconds */
@@ -48,6 +50,15 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// this.port.postMessage(event);
 		// handle event
 		// ...
+	}
+
+	/**
+	 * Messages from main thread
+	 * @param {MessageEvent} message
+	 * */
+	onMessage(message) {
+		// by default, assume mismatch in scheduling threads will be mitigated via message port
+		if (message.data.event) this.onEvent(message.data.event);
 	}
 
 	/**
