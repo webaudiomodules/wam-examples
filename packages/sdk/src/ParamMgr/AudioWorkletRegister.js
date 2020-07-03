@@ -1,5 +1,5 @@
-export const registeredProcessors = new Map();
-export const registeringProcessors = new Map();
+export const registeredProcessors = new WeakMap();
+export const registeringProcessors = new WeakMap();
 
 export default class AudioWorkletRegister {
 	static registeredProcessors = registeredProcessors;
