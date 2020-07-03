@@ -1,4 +1,4 @@
-/** @typedef { import('./WamTypes').WamLoader } WamLoader */
+/** @typedef { import('./WamTypes').WebAudioModule } WebAudioModule */
 /** @typedef { import('./WamTypes').WamParameterSet } WamParameterSet */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 /** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
@@ -22,10 +22,10 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {AudioContext} audioContext
 	 * @param {string} processorId
 	 * @param {string} instanceId
-	 * @param {WamLoader} loader
+	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
-	constructor(audioContext, processorId, instanceId, loader, options) {
+	constructor(audioContext, processorId, instanceId, module, options) {
 		const params = WamNode.generateWamParameters();
 		options.processorOptions = {
 			processorId,
@@ -39,8 +39,8 @@ export default class WamNode extends AudioWorkletNode {
 		this.processorId = processorId;
 		/** @type {string} instanceId */
 		this.instanceId = instanceId;
-		/** @type {WamLoader} loader */
-		this.loader = loader;
+		/** @type {WebAudioModule} loader */
+		this.module = module;
 		/** @type {WamParameterSet} _params */
 		this._params = params;
 		/** @type {number} _compensationDelay */

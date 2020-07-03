@@ -7,13 +7,13 @@
 /* eslint-disable indent */
 /* eslint-disable no-console */
 
-export default class WamLoader {
+export default class WebAudioModule {
 	static isWebAudioPlugin = true;
 
 	/**
 	 * @param {AudioContext} audioContext
 	 * @param {any} [pluginOptions]
-	 * @returns {Promise<WamLoader>}
+	 * @returns {Promise<WebAudioModule>}
 	*/
 	static createInstance(audioContext, pluginOptions = {}) {
 		return new this(audioContext).initialize(pluginOptions);
@@ -80,7 +80,7 @@ export default class WamLoader {
 	 * While initializing, the audionode is created by calling createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
 	 * @param {any} options
-	 * @returns {Promise<WamLoader>}
+	 * @returns {Promise<WebAudioModule>}
 	 */
 	async initialize(options = {}) { // maybe don't need this, only createAudioNode?
 		if (!this._audioNode) this.audioNode = await this.createAudioNode(options);

@@ -1,16 +1,6 @@
-// LOADER
-
-export type WamDescriptor = {
-    name: string;
-    vendor: string;
-    entry?: string;
-    gui: string;
-    url?: string;
-}
-
-export class WamLoader {
+export class WebAudioModule {
     static isWebAudioPlugin: boolean;
-    static createInstance(audioContext: AudioContext, pluginOptions?: any): Promise<WamLoader>;
+    static createInstance(audioContext: AudioContext, pluginOptions?: any): Promise<WebAudioModule>;
 
     static descriptor: WamDescriptor;
 
@@ -39,9 +29,17 @@ export class WamLoader {
      * While initializing, the audionode is created by calling createAudionode()
      * Plugins that redefine initialize() must call super.initialize();
      */
-    initialize(options?: {}): Promise<WamLoader>;
+    initialize(options?: {}): Promise<WebAudioModule>;
     loadGui(): Promise<any>;
     createGui(options?: {}): Promise<any>;
+}
+
+export type WamDescriptor = {
+    name: string;
+    vendor: string;
+    entry?: string;
+    gui: string;
+    url?: string;
 }
 
 // PLUGIN
@@ -49,11 +47,11 @@ export class WamLoader {
 export class WamNode extends AudioWorkletNode {
     static generateWamParameters(): WamParameterSet;
 
-    constructor(audioContext: AudioContext, processorId: string, instanceId: string, loader: WamLoader, options: AudioWorkletNodeOptions);
+    constructor(audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions);
     
     processorId: string;
     instanceId: string;
-    loader: WamLoader;
+    module: WebAudioModule;
     _params: WamParameterSet;
     _compensationDelay: number;
     _eventCallbacks: { [subscriberId: string]: WamEventCallback };
