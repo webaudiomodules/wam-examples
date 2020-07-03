@@ -1,0 +1,102 @@
+<!-- OBXD WAM gui
+Jari Kleimola 2017-20 (jari@webaudiomodules.org) -->
+
+<template id="wam-obxd-template">
+	<div id="synthpanel" class="front">
+		<img id="background" draggable="false">
+
+    <!-- master -->
+    <wam-knob pos=" 53,120" value="0.4" id="VOLUME"></wam-knob>
+    <wam-knob pos="114,120" value="0.5" id="TUNE"></wam-knob>
+    <wam-knob pos="176,120" value="0.5" id="OCTAVE"></wam-knob>
+
+    <!-- global -->
+    <wam-knob pos=" 53,241" value="0" id="UDET"></wam-knob>
+    <wam-knob pos="175,241" value="0" id="PORTAMENTO"></wam-knob>
+    <wam-toggle pos="125,251" id="UNISON"></wam-toggle>
+    <wam-toggle pos=" 65,321" id="LEGATOMODE" states="4"></wam-toggle>
+    <wam-toggle pos="172,321" id="VOICE_COUNT" states="8"></wam-toggle>
+    <wam-toggle pos=" 65,372" id="ASPLAYEDALLOCATION"></wam-toggle>
+    <wam-toggle pos="126,372" id="MIDILEARN"></wam-toggle>
+    <wam-toggle pos="185,372" id="UNLEARN"></wam-toggle>
+
+    <!-- oscillators -->
+    <wam-knob pos="271, 40" id="OSC1P"></wam-knob>
+    <wam-knob pos="334, 40" id="PW"></wam-knob>
+    <wam-knob pos="397, 40" id="OSC2P"></wam-knob>
+    <wam-knob pos="334,104" id="OSC2_DET"></wam-knob>
+    <wam-knob pos="334,168" id="XMOD"></wam-knob>
+    <wam-knob pos="291,232" id="BRIGHTNESS" value="1"></wam-knob>
+    <wam-knob pos="376,232" id="ENVPITCH"></wam-knob>
+    <wam-toggle pos="265,114" id="OSC1Saw"></wam-toggle>
+    <wam-toggle pos="296,114" id="OSC1Pul"></wam-toggle>
+    <wam-toggle pos="394,114" id="OSC2Saw"></wam-toggle>
+    <wam-toggle pos="425,114" id="OSC2Pul"></wam-toggle>
+    <wam-toggle pos="282,178" id="OSC2HS"></wam-toggle>
+    <wam-toggle pos="407,178" id="OSCQuantize"></wam-toggle>
+
+    <!-- mix -->
+    <wam-knob pos="490, 40" id="OSC1MIX" x="490" y="40" value="1"></wam-knob>
+    <wam-knob pos="490,132" id="OSC2MIX" x="490" y="132" value="1"></wam-knob>
+    <wam-knob pos="490,224" id="NOISEMIX" x="490" y="224"></wam-knob>
+
+    <!-- control -->
+    <wam-toggle pos="267,354" id="BENDRANGE"></wam-toggle>
+    <wam-toggle pos="321,354" id="BENDOSC2"></wam-toggle>
+    <wam-knob pos="364,345" id="BENDLFORATE"value="0.4"></wam-knob>
+    <wam-knob pos="428,345" id="VFLTENV"></wam-knob>
+    <wam-knob pos="486,345" id="VAMPENV"></wam-knob>
+
+    <!-- filter -->
+    <wam-knob pos="577, 40" id="CUTOFF" value="0.4"></wam-knob>
+    <wam-knob pos="638, 40" id="RESONANCE" value="0"></wam-knob>
+    <wam-knob pos="699, 40" id="ENVELOPE_AMT" ></wam-knob>
+    <wam-knob pos="643, 40" id="MULTIMODE" value="0.5" class="tiny"></wam-knob>
+    <wam-toggle pos="573,110" id="FLT_KF"></wam-toggle>
+    <wam-toggle pos="604,110" id="FILTER_WARM"></wam-toggle>
+    <wam-toggle pos="697,110" id="BANDPASS"></wam-toggle>
+    <wam-toggle pos="728,110" id="FOURPOLE"></wam-toggle>
+
+    <!-- modulation -->
+    <wam-knob pos="576,207" id="LFOFREQ"></wam-knob>
+    <wam-knob pos="640,207" id="LFO1AMT"></wam-knob>
+    <wam-knob pos="704,207" id="LFO2AMT"></wam-knob>
+    <wam-toggle pos="587,269" id="LFOSINWAVE"></wam-toggle>
+    <wam-toggle pos="651,269" id="LFOOSC1"></wam-toggle>
+    <wam-toggle pos="714,269" id="LFOPW1"></wam-toggle>
+    <wam-toggle pos="587,323" id="LFOSQUAREWAVE"></wam-toggle>
+    <wam-toggle pos="651,323" id="LFOOSC2"></wam-toggle>
+    <wam-toggle pos="714,323" id="LFOPW2"></wam-toggle>
+    <wam-toggle pos="587,378" id="LFOSHWAVE"></wam-toggle>
+    <wam-toggle pos="651,378" id="LFOFILTER"></wam-toggle>
+
+    <!-- envelopes -->
+    <wam-knob pos="791, 40" id="FATK"></wam-knob>
+    <wam-knob pos="853, 40" id="FDEC"></wam-knob>
+    <wam-knob pos="916, 40" id="FSUS"value="1"></wam-knob>
+    <wam-knob pos="980, 40" id="FREL"></wam-knob>
+    <wam-knob pos="791,132" id="LATK"></wam-knob>
+    <wam-knob pos="853,132" id="LDEC"></wam-knob>
+    <wam-knob pos="916,132" id="LSUS"value="1"></wam-knob>
+    <wam-knob pos="980,132" id="LREL"></wam-knob>
+
+    <!-- voice variation -->
+    <wam-knob pos="817,240" id="FILTERDER" x="817" y="240" value="0.2" class="tiny"></wam-knob>
+    <wam-knob pos="890,240" id="PORTADER" x="890" y="240" value="0.2" class="tiny"></wam-knob>
+    <wam-knob pos="963,240" id="ENVDER" x="963" y="240" value="0.2" class="tiny"></wam-knob>
+
+    <!-- voice pan -->
+    <wam-knob pos="796,318" id="PAN1" x="796" y="318" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="858,318" id="PAN2" x="858" y="318" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="921,318" id="PAN3" x="921" y="318" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="984,318" id="PAN4" x="984" y="318" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="796,371" id="PAN5" x="796" y="371" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="858,371" id="PAN6" x="858" y="371" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="921,371" id="PAN7" x="921" y="371" value="0.5" class="tiny"></wam-knob>
+    <wam-knob pos="984,371" id="PAN8" x="984" y="371" value="0.5" class="tiny"></wam-knob>
+	</div>
+<style>
+	#synthpanel { transform:scale(0.75); transform-origin:0 0; }
+  wam-knob,wam-toggle { cursor:pointer; }
+</style>
+</template>
