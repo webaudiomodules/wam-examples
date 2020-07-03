@@ -83,3 +83,5 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._destroyed = true;
 	}
 }
+
+AudioWorkletGlobalScope.WamProcessor = WamProcessor;
