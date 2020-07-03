@@ -36,7 +36,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { instanceId: this };
 
-		this.port.onmessage = this.onMessage;
+		this.port.onmessage = this.onMessage.bind(this);
 	}
 
 	/** @returns {number} processing delay time in seconds */
