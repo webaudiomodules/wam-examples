@@ -33,7 +33,7 @@ export default class WamNode extends AudioWorkletNode {
 			params,
 			...options.processorOptions,
 		};
-		super(audioContext, instanceId, options);
+		super(audioContext, processorId, options);
 
 		/** @type {string} processorId */
 		this.processorId = processorId;
