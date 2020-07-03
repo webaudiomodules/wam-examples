@@ -233,7 +233,7 @@ declare const WebAudioPlugin: {
     prototype: WebAudioPlugin;
     descriptor: PluginDescriptor;
     guiModuleUrl: string;
-    createInstance(audioContext: AudioContext, options?: Partial<DefaultState> & Record<string, any>): Promise<WebAudioPlugin>;
+    createInstance(audioContext: BaseAudioContext, options?: Partial<DefaultState> & Record<string, any>): Promise<WebAudioPlugin>;
     new <
         Node extends AudioNode = AudioNode,
         Params extends string = string,
@@ -242,7 +242,7 @@ declare const WebAudioPlugin: {
         Banks extends string = string,
         State extends Partial<DefaultState<Params, Patches, Banks>> & Record<string, any> = DefaultState<Params, Patches, Banks>,
         Events extends Partial<DefaultEventMap<Params, Patches, Banks>> & Record<string, any> = DefaultEventMap<Params, Patches, Banks>
-    >(audioContext: AudioContext): WebAudioPlugin<Node, Params, InternalParams, Patches, Banks, State, Events>;
+    >(audioContext: BaseAudioContext): WebAudioPlugin<Node, Params, InternalParams, Patches, Banks, State, Events>;
 };
 
 export default WebAudioPlugin;

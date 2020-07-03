@@ -1,5 +1,5 @@
-export const registeredProcessors = new Set();
-export const registeringProcessors = new Set();
+export const registeredProcessors = new Map();
+export const registeringProcessors = new Map();
 
 export default class AudioWorkletRegister {
 	static registeredProcessors = registeredProcessors;
@@ -11,13 +11,13 @@ export default class AudioWorkletRegister {
 	static rejects = {};
 
 	static async registerProcessor(processorId, processor, audioWorklet, ...injection) {
-		this.registeringProcessors.add(processorId);
+		this.registeringProcessors.get(audioWorklet).add(processorId);
 		try {
 			const url = window.URL.createObjectURL(new Blob([`(${processor.toString()})(${[processorId, ...injection].map(JSON.stringify).join(', ')});`], { type: 'text/javascript' }));
 			await audioWorklet.addModule(url);
 			this.resolves[processorId].forEach((f) => f());
 			this.registeringProcessors.delete(processorId);
-			this.registeredProcessors.add(processorId);
+			this.registeredProcessors.get(audioWorklet).add(processorId);
 		} catch (e) {
 			this.rejects[processorId].forEach((f) => f(e));
 		}
@@ -32,8 +32,14 @@ export default class AudioWorkletRegister {
 			this.resolves[processorId].push(resolve);
 			this.rejects[processorId].push(reject);
 		});
-		const registered = this.registeredProcessors.has(processorId);
-		const registering = this.registeringProcessors.has(processorId);
+		if (!this.registeringProcessors.has(audioWorklet)) {
+			this.registeringProcessors.set(audioWorklet, new Set());
+		}
+		if (!this.registeredProcessors.has(audioWorklet)) {
+			this.registeredProcessors.set(audioWorklet, new Set());
+		}
+		const registered = this.registeredProcessors.get(audioWorklet).has(processorId);
+		const registering = this.registeringProcessors.get(audioWorklet).has(processorId);
 		if (registered) return Promise.resolve();
 		if (registering) return promise;
 		if (!registered && audioWorklet) {
