@@ -74,7 +74,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
 				const info = this._parameterInfo[parameterId];
 				this._parameterIndices[parameterId] = index;
-				this._parameterState[parameterId] = new WamParameterSab(this._parameterValues, index, info);
+				this._parameterState[parameterId] = new WamParameterSab(info, this._parameterValues, index);
 			});
 			// pass the SAB to main thread
 			this.port.postMessage({

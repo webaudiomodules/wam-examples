@@ -28,11 +28,11 @@ class WamParameterNoSab {
 /** @extends {WamParameterNoSab} */
 class WamParameterSab extends WamParameterNoSab {
 	/**
+	 * @param {WamParameterInfo} info
 	 * @param {Float32Array} array
 	 * @param {number} index
-	 * @param {WamParameterInfo} info
 	 */
-	constructor(array, index, info) {
+	constructor(info, array, index) {
 		super(info);
 		/** @readonly @property {Float32Array} data */
 		this._array = array;
