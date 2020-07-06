@@ -1,3 +1,5 @@
+// TODO refactor to use interfaces instead of classes
+
 export class WebAudioModule {
     static isWebAudioPlugin: boolean;
     static createInstance(audioContext: AudioContext, pluginOptions?: any): Promise<WebAudioModule>;
@@ -9,7 +11,7 @@ export class WebAudioModule {
     constructor(audioContext: AudioContext);
     audioContext: AudioContext;
     instanceId: string;
-    _audioNode: AudioNode;
+    private _audioNode: AudioNode;
     initialized: boolean;
 
     get descriptor(): WamDescriptor;
@@ -45,20 +47,22 @@ export type WamDescriptor = {
 // PLUGIN
 
 export class WamNode extends AudioWorkletNode {
-    static generateWamParameters(): WamParameterSet;
-
     constructor(audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions);
     
-    processorId: string;
-    instanceId: string;
-    module: WebAudioModule;
-    _params: WamParameterSet;
-    _compensationDelay: number;
-    _eventCallbacks: { [subscriberId: string]: WamEventCallback };
-    _destroyed: boolean;
+    readonly processorId: string;
+    readonly instanceId: string;
+    readonly module: WebAudioModule;
 
-    getState(): any;
-    setState(state: any): void;
+    private _pendingResponses: { [key: string]: Promise<any> };
+
+    private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
+    private _destroyed: boolean;
+
+    getParameterInfo(parameterIdQuery?: string | string[]): Promise<WamParameterInfoMap>;
+    setParameterValues(parameterUpdates: WamParameterValueMap): Promise<void>;
+    getParameterValues(normalized: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterValueMap>;
+    getState(): Promise<any>;
+    setState(state: any): Promise<void>;
     getCompensationDelay(): number;
     addEventCallback(subscriberId: string, callback: WamEventCallback): boolean;
     removeEventCallback(subscriberId: string): boolean;
@@ -67,15 +71,18 @@ export class WamNode extends AudioWorkletNode {
     destroy(): void;
 }
 
-export class WamProcessor {
+export class WamProcessor extends AudioWorkletProcessor {
+    static generateWamParameterInfo(): WamParameterInfoMap;
+    
     constructor(options: AudioWorkletNodeOptions);
 
-    processorId: string;
-    instanceId: string;
-    _params: WamParameterSet;
-    _compensationDelay: number;
-    _eventCallbacks: { [subscriberId: string]: WamEventCallback };
-    _destroyed: boolean;
+    readonly processorId: string;
+    readonly instanceId: string;
+    private readonly _parameterInfo: WamParameterInfoMap;
+    private _parameterState: WamParameterMap;
+    private _compensationDelay: number;
+    private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
+    private _destroyed: boolean;
     
     getCompensationDelay(): number;
     onEvent(event: WamEvent): void;
@@ -101,40 +108,50 @@ export type WamParameterConfiguration = {
     units?: string;
 }
 
-export class WamParameter {
+export class WamParameterInfo {
     constructor(id: string, config?: WamParameterConfiguration);
-    _id: string;
-    _label: string;
-    _type: WamParameterType;
-    _value: number;
-    _defaultValue: number;
-    _minValue: number;
-    _maxValue: number;
-    _discreteStep: number;
-    _exponent: number;
-    _choices: string[];
-    _units: string;
 
-    get id(): string;
-    get label(): string;
-    get type(): WamParameterType;
-    get defaultValue(): number;
-    get minValue(): number;
-    get maxValue(): number;
-    get discreteStep(): number;
-    get exponent(): number;
-    get choices(): string[];
-    get units(): string;
-    set value(arg: number);
-    get value(): number;
-    set normalizedValue(arg: number);
-    get normalizedValue(): number;
+    readonly id: string;
+    readonly label: string;
+    readonly type: WamParameterType;
+    readonly value: number;
+    readonly defaultValue: number;
+    readonly minValue: number;
+    readonly maxValue: number;
+    readonly discreteStep: number;
+    readonly exponent: number;
+    readonly choices: string[];
+    readonly units: string;
+
     normalize(value: number): number;
     denormalize(value: number): number;
     valueString(value: number): string;
 }
 
-export type WamParameterSet = { [id: string]: WamParameter }
+export type WamParameterInfoMap = { [id: string]: WamParameterInfo }
+
+export class WamParameter {
+    constructor(info: WamParameterInfo);
+    readonly id: string;
+    readonly info: WamParameterInfo;
+    private _data: SharedArrayBuffer | ArrayBuffer;
+    private _value: Float64Array;
+
+    set value(newValue: number);
+    get value(): number;
+    set normalizedValue(newValueNorm: number);
+    get normalizedValue(): number;
+}
+
+export type WamParameterMap = { [id: string]: WamParameter }
+
+export interface WamParameterValue {
+    id: string
+    value: number;
+    normalized: boolean;
+}
+
+export type WamParameterValueMap = { [id: string]: WamParameterValue }
 
 // EVENTS
 
@@ -151,6 +168,7 @@ export interface WamAutomationEvent extends WamEventBase {
     type: 'automation';
     parameterId: string;
     parameterValue: number;
+    normalized: boolean;
 }
 
 export interface WamMidiEvent extends WamEventBase {
