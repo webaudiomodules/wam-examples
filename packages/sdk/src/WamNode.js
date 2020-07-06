@@ -50,7 +50,7 @@ export default class WamNode extends AudioWorkletNode {
 		/** @type {boolean} _destroyed */
 		this._destroyed = false;
 
-		this.port.onmessage = this.onMessage;
+		this.port.onmessage = this.onMessage.bind(this);
 	}
 
 	// TODO should get/set state be async? any type constraints?
