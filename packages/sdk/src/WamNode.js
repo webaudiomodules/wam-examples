@@ -2,6 +2,7 @@
 /** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
 /** @typedef { import('./WamTypes').WamParameterValueMap } WamParameterValueMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./WamTypes').WamEventType } WamEventType */
 /** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
 
 /* eslint-disable no-empty-function */
@@ -13,7 +14,7 @@
 // OC: IMO existing typings for DisposableAudioWorkletNode are too generic/uninformative
 export default class WamNode extends AudioWorkletNode {
 	/**
-	 * @param {AudioContext} audioContext
+	 * @param {BaseAudioContext} audioContext
 	 * @param {string} processorId
 	 * @param {string} instanceId
 	 * @param {WebAudioModule} module
@@ -35,7 +36,7 @@ export default class WamNode extends AudioWorkletNode {
 		this.module = module;
 		/** @private @property {{[key: string]: Promise<any>}} _pendingResponses **/
 		this._pendingResponses = {};
-		/** @private @property {{[subscriberId: string]: WamEventCallback}} */
+		/** @private @property {{[subscriberId: WamEventType]: WamEventCallback}} */
 		this._eventCallbacks = {};
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
@@ -124,7 +125,7 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string} subscriberId
+	 * @param {WamEventType} subscriberId
 	 * @param {WamEventCallback} callback
 	 * @returns {boolean}
 	 */
@@ -135,7 +136,7 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string} subscriberId
+	 * @param {WamEventType} subscriberId
 	 * @returns {boolean}
 	 */
 	removeEventCallback(subscriberId) {

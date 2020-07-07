@@ -79,12 +79,10 @@ export interface WamNode extends AudioNode {
     getCompensationDelay(): Promise<number>;
     addEventCallback<E extends WamEventType>(subscriberId: E, callback: WamEventCallback<E>): boolean;
     removeEventCallback(subscriberId: string): boolean;
-    // RSH: Should be able to remove specific callback
     onEvent(event: WamEvent): void;
     onMessage(message: MessageEvent): void;
     destroy(): void;
-    // RSH: Is it better to use EventTarget method names like
-    // addEventListener / removeEventListener / dispatchEvent
+    // RSH: Is it better to use EventTarget's methods? AudioNode already supports that.
 }
 export const WamNode: {
     prototype: WamNode;
@@ -122,6 +120,7 @@ export interface WamParameterConfiguration {
 }
 
 export interface WamParameterInfo extends Readonly<Required<WamParameterConfiguration>> {
+    readonly id: string;
     normalize(value: number): number;
     denormalize(value: number): number;
     valueString(value: number): string;
@@ -135,7 +134,7 @@ export interface WamParameter {
     readonly id: string;
     readonly info: WamParameterInfo;
     value: number;
-    normalized: boolean;
+    normalizedValue: boolean;
 }
 export const WamParameter: {
     prototype: WamParameter;
@@ -176,7 +175,7 @@ export interface WamMidiEvent extends WamEventBase<"midi"> {
     data2: number;
 }
 
-export type WamEventCallback<E extends WamEventType> = (event: E) => WamEventMap[E];
+export type WamEventCallback<E extends WamEventType = WamEventType> = (event: WamEventMap[E]) => any;
 
 export interface WamEventMap {
     "midi": WamMidiEvent;

@@ -1,4 +1,5 @@
 /** @typedef { import('./WamTypes').WamDescriptor } WamDescriptor */
+/** @typedef { import('./WamTypes').WamNode } WamNode */
 
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
@@ -11,7 +12,7 @@ export default class WebAudioModule {
 	static isWebAudioPlugin = true;
 
 	/**
-	 * @param {AudioContext} audioContext
+	 * @param {BaseAudioContext} audioContext
 	 * @param {any} [pluginOptions]
 	 * @returns {Promise<WebAudioModule>}
 	*/
@@ -31,7 +32,7 @@ export default class WebAudioModule {
 	/** @type {string} */
 	static guiModuleUrl = undefined;
 
-	/** @param {AudioContext} audioContext */
+	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
 		this.audioContext = audioContext;
 		this.instanceId = this.pluginId + performance.now();
@@ -54,7 +55,7 @@ export default class WebAudioModule {
 	// The audioNode of the plugin
 	// The host must connect to this input
 
-	/** @returns {AudioNode | undefined} */
+	/** @returns {WamNode | undefined} */
 	get audioNode() {
 		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
 		return this._audioNode;
@@ -68,7 +69,7 @@ export default class WebAudioModule {
 	 * will connected to the host.
 	 * It can be any object that extends AudioNode
 	 * @param {any} options
-	 * @returns {Promise<AudioNode>}
+	 * @returns {Promise<WamNode>}
 	 */
 	async createAudioNode(options = {}) {
 		// should return a subclass of WamNode
