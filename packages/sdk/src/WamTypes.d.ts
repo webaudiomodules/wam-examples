@@ -45,7 +45,6 @@ export interface WebAudioModule {
     destroy(): void;
     // RSH: We don't need loadGui
 }
-
 export const WebAudioModule: {
     prototype: WebAudioModule;
     isWebAudioPlugin: boolean;
@@ -68,26 +67,27 @@ export interface WamNode extends AudioNode {
     readonly processorId: string;
     readonly instanceId: string;
     readonly module: WebAudioModule;
-    // RSH: they should be getters only
+    getParameterInfo(parameterIdQuery?: string | string[]): Promise<WamParameterInfoMap>;
+    getParameterValues(normalized: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterValueMap>;
+    setParameterValues(parameterUpdates: WamParameterValueMap): Promise<void>;
     /** Returns a serializable that can be used to restore the WAM's state */
-    getState(): any;
+    getState(): Promise<any>;
     /** Use a serializable to restore the WAM's state */
-    setState(state: any): void;
+    setState(state: any): Promise<void>;
     // RSH: why not put getState/setState in WebAudioModule interface?
     /** Compensation delay hint in samples */
-    getCompensationDelay(): number;
-    addEventCallback(subscriberId: string, callback: WamEventCallback): boolean;
+    getCompensationDelay(): Promise<number>;
+    addEventCallback<E extends WamEventType>(subscriberId: E, callback: WamEventCallback<E>): boolean;
     removeEventCallback(subscriberId: string): boolean;
+    // RSH: Should be able to remove specific callback
     onEvent(event: WamEvent): void;
     onMessage(message: MessageEvent): void;
     destroy(): void;
     // RSH: Is it better to use EventTarget method names like
     // addEventListener / removeEventListener / dispatchEvent
 }
-
 export const WamNode: {
     prototype: WamNode;
-    generateWamParameters(): WamParameterSet;
     new (audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions): WamNode;
     // RSH: module already contains audioContext, processorId and instanceId
 };
@@ -100,7 +100,6 @@ export interface WamProcessor extends AudioWorkletProcessor {
     onMessage(message: MessageEvent): void;
     destroy(): void;
 }
-
 export const WamProcessor: {
     prototype: WamProcessor;
     new (options: AudioWorkletNodeOptions): WamProcessor;
@@ -122,30 +121,38 @@ export interface WamParameterConfiguration {
     units?: string;
 }
 
-export interface WamParameter {
-    readonly id: string;
-    readonly label: string;
-    readonly type: WamParameterType;
-    readonly defaultValue: number;
-    readonly minValue: number;
-    readonly maxValue: number;
-    readonly discreteStep: number;
-    readonly exponent: number;
-    readonly choices: string[];
-    readonly units: string;
-    value: number;
-    normalizedValue: number;
+export interface WamParameterInfo extends Readonly<Required<WamParameterConfiguration>> {
     normalize(value: number): number;
     denormalize(value: number): number;
     valueString(value: number): string;
 }
-
-export const WamParameter: {
-    prototype: WamParameter;
-    new (id: string, config?: WamParameterConfiguration): WamParameter;
+export const WamParameterInfo: {
+    prototype: WamParameterInfo;
+    new (id: string, config?: WamParameterConfiguration): WamParameterInfo;
 };
 
-export type WamParameterSet = Record<string, WamParameter>;
+export interface WamParameter {
+    readonly id: string;
+    readonly info: WamParameterInfo;
+    value: number;
+    normalized: boolean;
+}
+export const WamParameter: {
+    prototype: WamParameter;
+    new (info: WamParameterInfo): WamParameter;
+};
+
+export interface WamParameterValue {
+    id: string;
+    value: number;
+    normalized: boolean;
+}
+
+export type WamParameterMap = Record<string, WamParameter>;
+
+export type WamParameterInfoMap = Record<string, WamParameterInfo>;
+
+export type WamParameterValueMap = Record<string, WamParameterValue>;
 
 // EVENTS
 
@@ -169,7 +176,7 @@ export interface WamMidiEvent extends WamEventBase<"midi"> {
     data2: number;
 }
 
-export type WamEventCallback = (event: WamEvent) => any;
+export type WamEventCallback<E extends WamEventType> = (event: E) => WamEventMap[E];
 
 export interface WamEventMap {
     "midi": WamMidiEvent;
