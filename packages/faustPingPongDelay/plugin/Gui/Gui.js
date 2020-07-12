@@ -357,11 +357,13 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		const {
 			feedback,
 			time,
-			mix
+			mix,
+			enabled
         } = this._plug.params;
         this._root.getElementById('/PingPongDelayFaust/feedback').value = feedback ;
 		this._root.getElementById('/PingPongDelayFaust/time').value = time ;
 		this._root.getElementById('/PingPongDelayFaust/mix').value = mix ;
+		this._root.getElementById('/PingPongDelayFaust/bypass').value = 1 - enabled ;
 		window.requestAnimationFrame(this.handleAnimationFrame);
     }
     
