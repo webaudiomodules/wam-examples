@@ -1,7 +1,7 @@
-/** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
 // /** @typedef { import('./WamTypes').WamParameter } WamParameter */
-/** @typedef { import('./WamTypes').WamParameterMap } WamParameterMap */
-/** @typedef { import('./WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./api/WamTypes').WamParameterMap } WamParameterMap */
+/** @typedef { import('./api/WamTypes').WamEvent } WamEvent */
 
 import WamParameter from './WamParameter';
 

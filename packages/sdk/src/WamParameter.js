@@ -1,4 +1,4 @@
-/** @typedef { import('./WamTypes').WamParameterInfo } WamParameterInfo */
+/** @typedef { import('./api/WamTypes').WamParameterInfo } WamParameterInfo */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */

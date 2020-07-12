@@ -47,7 +47,7 @@ export interface WebAudioModule {
 }
 export const WebAudioModule: {
     prototype: WebAudioModule;
-    isWebAudioPlugin: boolean;
+    isWebAudioModule: boolean;
     createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
     descriptor: WamDescriptor;
     guiModuleUrl: string;
@@ -63,12 +63,12 @@ export interface WamDescriptor {
 }
 
 // PLUGIN
-export interface WamNode extends AudioNode {
+export interface WamNode extends AudioWorkletNode {
     readonly processorId: string;
     readonly instanceId: string;
     readonly module: WebAudioModule;
     getParameterInfo(parameterIdQuery?: string | string[]): Promise<WamParameterInfoMap>;
-    getParameterValues(normalized: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterValueMap>;
+    getParameterValues(normalized?: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterValueMap>;
     setParameterValues(parameterUpdates: WamParameterValueMap): Promise<void>;
     /** Returns a serializable that can be used to restore the WAM's state */
     getState(): Promise<any>;
@@ -86,7 +86,7 @@ export interface WamNode extends AudioNode {
 }
 export const WamNode: {
     prototype: WamNode;
-    new (audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions): WamNode;
+    new (audioContext: BaseAudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions): WamNode;
     // RSH: module already contains audioContext, processorId and instanceId
 };
 
@@ -100,6 +100,7 @@ export interface WamProcessor extends AudioWorkletProcessor {
 }
 export const WamProcessor: {
     prototype: WamProcessor;
+    generateWamParameterInfo(): WamParameterInfoMap;
     new (options: AudioWorkletNodeOptions): WamProcessor;
 };
 

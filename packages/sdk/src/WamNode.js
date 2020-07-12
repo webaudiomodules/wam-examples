@@ -1,9 +1,9 @@
-/** @typedef { import('./WamTypes').WebAudioModule } WebAudioModule */
-/** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./WamTypes').WamParameterValueMap } WamParameterValueMap */
-/** @typedef { import('./WamTypes').WamEvent } WamEvent */
-/** @typedef { import('./WamTypes').WamEventType } WamEventType */
-/** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
+/** @typedef { import('./api/WamTypes').WebAudioModule } WebAudioModule */
+/** @typedef { import('./api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('./api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./api/WamTypes').WamEventType } WamEventType */
+/** @typedef { import('./api/WamTypes').WamEventCallback } WamEventCallback */
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */

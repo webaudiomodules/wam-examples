@@ -1,5 +1,5 @@
-/** @typedef { import('./WamTypes').WamDescriptor } WamDescriptor */
-/** @typedef { import('./WamTypes').WamNode } WamNode */
+/** @typedef { import('./api/WamTypes').WamDescriptor } WamDescriptor */
+/** @typedef { import('./api/WamTypes').WamNode } WamNode */
 
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
