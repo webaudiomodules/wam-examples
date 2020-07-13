@@ -66,7 +66,7 @@ declare class AudioWorkletRegister {
     static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>
 }
 interface AudioWorkletGlobalScope {
-    registerProcessor: <T extends AudioWorkletProcessor>(name: string, constructor: AudioWorkletProcessorConstructor<T>) => void;
+    registerProcessor: <T extends AudioWorkletProcessor>(name: string, constructor: typeof AudioWorkletProcessor) => void;
     currentFrame: number;
     currentTime: number;
     sampleRate: number;
@@ -80,3 +80,4 @@ interface AudioWorkletGlobalScope {
         frame: number;
     }>
 }
+export const NOTHING = 0;
