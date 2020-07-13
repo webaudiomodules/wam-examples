@@ -24,18 +24,7 @@ export default class FaustPingPongDelayPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const baseURL = getBasetUrl(this.descriptor.url);
 		const factory = new PluginFactory(this.audioContext, baseURL);
-		let node = await factory.load();
-
-		// Note that the "exposed param names" will be the property names, not the 
-		// names passed in the get(...). These exposed params will be used in the GUI code
-		// and in the descriptor.json code.
-		this.internalParamsConfig = {
-            mix: node.parameters.get('/PingPongDelayFaust/mix'),
-            feedback: node.parameters.get('/PingPongDelayFaust/feedback'),
-			time: node.parameters.get('/PingPongDelayFaust/time'),
-			enabled: node.parameters.get('/PingPongDelayFaust/bypass')
-        };
-		
+		const node = await factory.load();
 		return node;
 	}
 }

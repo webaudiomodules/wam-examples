@@ -16,6 +16,33 @@ export default class QuadrafuzzPlugin extends WebAudioPlugin {
 	async createAudioNode(options) {
 		const quadrafuzzNode = new QuadrafuzzNode(this.audioContext, options);
 
+		this.paramsConfig = {
+			lowGain: {
+				defaultValue: 0.6,
+				minValue: 0,
+				maxValue: 1,
+			},
+			midLowGain: {
+				defaultValue: 0.8,
+				minValue: 0,
+				maxValue: 1,
+			},
+			midHighGain: {
+				defaultValue: 0.5,
+				minValue: 0,
+				maxValue: 1,
+			},
+			highGain: {
+				defaultValue: 0.5,
+				minValue: 0,
+				maxValue: 1,
+			},
+			enabled: {
+				defaultValue: 1,
+				minValue: 0,
+				maxValue: 1,
+			},
+		};
 
 		this.internalParamsConfig = {
 			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change

@@ -354,16 +354,10 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 	}
 
     handleAnimationFrame = () => {
-		const {
-			feedback,
-			time,
-			mix,
-			enabled
-        } = this._plug.params;
-        this._root.getElementById('/PingPongDelayFaust/feedback').value = feedback ;
-		this._root.getElementById('/PingPongDelayFaust/time').value = time ;
-		this._root.getElementById('/PingPongDelayFaust/mix').value = mix ;
-		this._root.getElementById('/PingPongDelayFaust/bypass').value = 1 - enabled ;
+        this._root.getElementById('/PingPongDelayFaust/feedback').value = this._plug.params['/PingPongDelayFaust/feedback'];
+		this._root.getElementById('/PingPongDelayFaust/time').value = this._plug.params['/PingPongDelayFaust/time'];
+		this._root.getElementById('/PingPongDelayFaust/mix').value = this._plug.params['/PingPongDelayFaust/mix'];
+		this._root.getElementById('/PingPongDelayFaust/bypass').value = 1 - this._plug.params['/PingPongDelayFaust/bypass'];
 		window.requestAnimationFrame(this.handleAnimationFrame);
     }
     
@@ -390,19 +384,19 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.getElementById('/PingPongDelayFaust/feedback')
 			.addEventListener('input', (e) =>
 				this._plug.setParam(
-					'feedback',
+					'/PingPongDelayFaust/feedback',
 					e.target.value
 				)
 			);
 		this._root
 			.getElementById('/PingPongDelayFaust/mix')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('mix', e.target.value)
+				this._plug.setParam('/PingPongDelayFaust/mix', e.target.value)
 			);
 		this._root
 			.getElementById('/PingPongDelayFaust/time')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('time', e.target.value)
+				this._plug.setParam('/PingPongDelayFaust/time', e.target.value)
 			);
 	}
 
@@ -413,7 +407,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.getElementById('/PingPongDelayFaust/bypass')
 			.addEventListener('change', (e) =>
 				this._plug.setParam(
-					'enabled',
+					'/PingPongDelayFaust/bypass',
 					1 - e.target.value
 				)
 			);

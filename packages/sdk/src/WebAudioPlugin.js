@@ -18,7 +18,6 @@ export default class WebAudioPlugin extends EventEmitter {
 		entry: undefined,
 		gui: 'none',
 		url: undefined,
-		params: {},
 		banks: {},
 		patches: {},
 	}
@@ -32,57 +31,52 @@ export default class WebAudioPlugin extends EventEmitter {
 	get patches() { return this.descriptor.patches || {}; }
 	get pluginId() { return this.vendor + this.name; }
 	instanceId = this.pluginId + performance.now();
+
+	_paramsConfig = undefined;
 	/**
 	 * @type {ParametersDescriptor}
 	 */
 	get paramsConfig() {
-		return Object.entries(this.descriptor.params || {}).reduce((configs, [name, {
-			type,
-			defaultValue,
-			minValue,
-			maxValue,
-			exponent,
-		}]) => {
-			configs[name] = {
-				type: type ?? 'float',
-				defaultValue: defaultValue ?? 0,
-				minValue: minValue ?? 0,
-				maxValue: maxValue ?? 1,
-				exponent: exponent ?? 0,
-			};
-			return configs;
-		}, {
-			enabled: {
-				type: 'boolean', defaultValue: 1, minValue: 0, maxValue: 1, exponent: 0,
-			},
-		});
+		const { internalParamsConfig } = this;
+		return Object.entries(this._paramsConfig || internalParamsConfig)
+			.reduce((configs, [name, {
+				type,
+				defaultValue,
+				minValue,
+				maxValue,
+				exponent,
+			}]) => {
+				const internalParam = internalParamsConfig[name];
+				configs[name] = {
+					type: type ?? internalParam?.type ?? 'float',
+					defaultValue: defaultValue ?? internalParam?.defaultValue ?? 0,
+					minValue: minValue ?? internalParam?.minValue ?? 0,
+					maxValue: maxValue ?? internalParam?.maxValue ?? 1,
+					exponent: exponent ?? internalParam?.exponent ?? 0,
+				};
+				return configs;
+			}, {});
+	}
+	set paramsConfig(config) {
+		if (this._paramsConfig) throw new Error('paramsConfig can be set only once.');
+		this._paramsConfig = config;
 	}
 	_internalParamsConfig = undefined;
 	/**
 	 * @type {InternalParametersDescriptor}
 	 */
 	get internalParamsConfig() {
-		const { paramsConfig } = this;
-		if (!this._internalParamsConfig) {
-			return Object.entries(paramsConfig)
-				.reduce((configs, [name, { minValue, maxValue, defaultValue }]) => {
-					configs[name] = {
-						minValue, maxValue, defaultValue, automationRate: 30,
-					};
-					return configs;
-				}, {});
+		if (!this._internalParamsConfig && this._audioNode instanceof AudioWorkletNode) {
+			return Object.fromEntries(this._audioNode.parameters);
 		}
 		return Object.entries(this._internalParamsConfig || {})
 			.reduce((configs, [name, config]) => {
 				if (config instanceof AudioParam) configs[name] = config;
 				else {
-					const minValue = paramsConfig[name] ? paramsConfig[name].minValue : 0;
-					const maxValue = paramsConfig[name] ? paramsConfig[name].maxValue : 1;
-					const defaultValue = paramsConfig[name] ? paramsConfig[name].defaultValue : 0;
 					const defaultConfig = {
-						minValue,
-						maxValue,
-						defaultValue,
+						minValue: 0,
+						maxValue: 1,
+						defaultValue: 0,
 						automationRate: 30,
 					};
 					configs[name] = { ...defaultConfig, ...config };
@@ -133,7 +127,6 @@ export default class WebAudioPlugin extends EventEmitter {
 	// EventEmitter is synchronous:
 	// https://nodejs.org/api/events.html#events_asynchronous_vs_synchronous
 	onBankChange(cb) { return this.on('change:bank', cb); }
-	onEnabledChange(cb) { return this.on('change:enabled', cb); }
 	onParamChange(paramName, cb) { return this.on(`change:param:${paramName}`, cb); }
 	onParamsChange(cb) { return this.on('change:params', cb); }
 	onPatchChange(cb) { return this.on('change:patch', cb); }
@@ -150,12 +143,6 @@ export default class WebAudioPlugin extends EventEmitter {
 	}
 
 	// Initial state of the plugin
-	get enabled() {
-		return this.paramMgr ? !!this.paramMgr.getParamValue('enabled') : true;
-	}
-	set enabled(enabled) {
-		this.setParam('enabled', +enabled || 0);
-	}
 	get params() {
 		return this.paramMgr.getParamsValues();
 	}
@@ -183,6 +170,7 @@ export default class WebAudioPlugin extends EventEmitter {
 			params = {},
 			patch,
 		} = options;
+		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 		// initialize params default values
 		const defaultParams = Object.entries(this.paramsConfig)
 			.reduce((currentParams, [name, { defaultValue }]) => {
@@ -193,7 +181,6 @@ export default class WebAudioPlugin extends EventEmitter {
 		this.bank = bank ?? Object.keys(this.banks)[0];
 		const initialParams = { ...defaultParams, ...(params || {}) };
 		this.patch = patch ?? this.banks[this.bank].patches[0];
-		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 
 		this.paramMgr = await ParamMgrReg.getNode(this, initialParams);
 
@@ -212,23 +199,6 @@ export default class WebAudioPlugin extends EventEmitter {
 	// eslint-disable-next-line class-methods-use-this
 	async createAudioNode() {
 		throw new TypeError('createAudioNode() not provided');
-	}
-
-	_setEnabled(enabled) {
-		this.setParam('enabled', +enabled || 0);
-		return enabled;
-	}
-
-	disable() {
-		const previousEnabled = this.enabled;
-		const enabled = this._setEnabled(false);
-		this.emit('change:enabled', enabled, previousEnabled);
-	}
-
-	enable() {
-		const previousEnabled = this.enabled;
-		const enabled = this._setEnabled(true);
-		this.emit('change:enabled', enabled, previousEnabled);
 	}
 
 	getBank() { return this.bank; }
@@ -268,9 +238,13 @@ export default class WebAudioPlugin extends EventEmitter {
 
 	getParam(paramName) { return this.paramMgr.getParamValue(paramName); }
 
-	setParam(paramName, paramValue) {
+	setParam(paramName, paramValue/*, time*/) {
 		return this.setParams({ [paramName]: paramValue });
 	}
+
+	// handleEvent(event, time) {
+	// 	// ...
+	// }
 
 	getPatch() { return this.patch; }
 
@@ -295,13 +269,11 @@ export default class WebAudioPlugin extends EventEmitter {
 	getState() {
 		const {
 			bank,
-			enabled,
 			params: { ...params },
 			patch,
 		} = this;
 		return {
 			bank,
-			enabled,
 			params,
 			patch,
 		};
@@ -310,11 +282,9 @@ export default class WebAudioPlugin extends EventEmitter {
 	setState(state) {
 		const {
 			bank: bankName,
-			enabled,
 			params,
 			patch: patchName,
 		} = state;
-		this._setEnabled(enabled);
 		const previousBank = this.bank;
 		const bank = this._setBank(bankName ?? Object.keys(this.banks)[0]);
 		const previousPatch = this.patch;

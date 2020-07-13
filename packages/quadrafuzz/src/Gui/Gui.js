@@ -101,13 +101,12 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		console.log("Quadrafuzz : set switch listener");
 		const { plugin } = this;
 		// by default, plugin is disabled
-		plugin.disable();
+		plugin.setParams({ enabled: 0 });
 
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				if (this.checked) plugin.enable();
-				else plugin.disable();
+				plugin.setParams({ enabled: +!!this.checked });
 			});
 	}
 
