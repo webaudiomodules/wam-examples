@@ -8,7 +8,7 @@ const defaultLoadOptions = {
  */
 export const getDescriptorFromUrl = async (url) => {
 	url = new URL(url, window.location.href);
-	const descriptor = await fetch(url).then((res) => res.json());
+	const descriptor = await fetch(url, { mode: 'no-cors' }).then((res) => res.json());
 	descriptor.url = url;
 	return descriptor;
 };
