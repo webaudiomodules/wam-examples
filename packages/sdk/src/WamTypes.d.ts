@@ -48,13 +48,12 @@ export type WamDescriptor = {
 
 export class WamNode extends AudioWorkletNode {
     constructor(audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions);
-    
+
     readonly processorId: string;
     readonly instanceId: string;
     readonly module: WebAudioModule;
 
     private _pendingResponses: { [key: string]: Promise<any> };
-
     private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
     private _destroyed: boolean;
 
@@ -67,13 +66,12 @@ export class WamNode extends AudioWorkletNode {
     addEventCallback(subscriberId: string, callback: WamEventCallback): boolean;
     removeEventCallback(subscriberId: string): boolean;
     onEvent(event: WamEvent): void;
-    onMessage(message: MessageEvent): void;
     destroy(): void;
 }
 
 export class WamProcessor extends AudioWorkletProcessor {
     static generateWamParameterInfo(): WamParameterInfoMap;
-    
+
     constructor(options: AudioWorkletNodeOptions);
 
     readonly processorId: string;
@@ -83,13 +81,9 @@ export class WamProcessor extends AudioWorkletProcessor {
     private _compensationDelay: number;
     private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
     private _destroyed: boolean;
-    
+
     getCompensationDelay(): number;
     onEvent(event: WamEvent): void;
-    onMessage(message: MessageEvent): void;
-    process(inputs: Float32Array[][], outputs: Float32Array[][], 
-        parameters: { [x: string]: Float32Array }): boolean;
-    destroy(): void;
 }
 
 // PARAMETERS
