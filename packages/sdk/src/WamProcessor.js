@@ -1,4 +1,5 @@
 /** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./WamTypes').WamParameterValueMap } WamParameterValueMap */
 // /** @typedef { import('./WamTypes').WamParameter } WamParameter */
 /** @typedef { import('./WamTypes').WamParameterMap } WamParameterMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
@@ -13,7 +14,42 @@ import WamParameter from './WamParameter';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
-// OC: IMO existing typings for AudioWorkletProcessor are too generic/uninformative
+/**
+ * @param {WamProcessor} processor
+ * @param {boolean} normalized
+ * @param {string[]=} parameterIdQuery
+ * @returns {WamParameterValueMap}
+ */
+function getParameterValues(processor, normalized, parameterIdQuery) {
+	/** @type {WamParameterValueMap} */
+	const parameterValues = {};
+	if (!parameterIdQuery.length) parameterIdQuery = Object.keys(processor._parameterState);
+	parameterIdQuery.forEach((parameterId) => {
+		const parameter = this._parameterState[parameterId];
+		if (!parameter) return;
+		parameterValues[parameterId] = {
+			id: parameterId,
+			value: normalized ? parameter.normalizedValue : parameter.value,
+			normalized,
+		};
+	});
+	return parameterValues;
+}
+
+/**
+ * @param {WamProcessor} processor
+ * @param {WamParameterValueMap} parameterUpdates
+ */
+function setParameterValues(processor, parameterUpdates) {
+	Object.keys(parameterUpdates).forEach((parameterId) => {
+		const parameterUpdate = parameterUpdates[parameterId];
+		const parameter = this._parameterState[parameterId];
+		if (!parameter) return;
+		if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
+		else parameter.normalizedValue = parameterUpdate.value;
+	});
+}
+
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
 	 * @returns {WamParameterInfoMap}
@@ -97,40 +133,23 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				} else if (noun === 'parameterValues') {
 					/*eslint-disable-next-line prefer-const */
 					let { normalized, parameterIdQuery } = content;
-					const parameterValues = {};
-					if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this._parameterState);
-					parameterIdQuery.forEach((parameterId) => {
-						const parameter = this._parameterState[parameterId];
-						if (!parameter) return;
-						parameterValues[parameterId] = {
-							id: parameterId,
-							value: normalized ? parameter.normalizedValue : parameter.value,
-							normalized,
-						};
-					});
-					response.content = parameterValues;
+					response.content = getParameterValues(this, normalized, parameterIdQuery);
 				} else if (noun === 'state') {
-					response.content = {}; // up to developer;
+					response.content = { parameterValues: getParameterValues(this, false) };
+					// ...additional state?
 				} else if (noun === 'compensationDelay') {
 					response.content = this.getCompensationDelay();
-				}
-				// else console.log(`unhandled response: ${noun}`);
+				} else response.content = 'error';
 			} else if (verb === 'set') {
 				if (noun === 'parameterValues') {
-					const { parameterUpdates } = content;
-					Object.keys(parameterUpdates).forEach((parameterId) => {
-						const parameterUpdate = parameterUpdates[parameterId];
-						const parameter = this._parameterState[parameterId];
-						if (!parameter) return;
-						if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
-						else parameter.normalizedValue = parameterUpdate.value;
-					});
+					const { parameterValues } = content;
+					setParameterValues(this, parameterValues);
 				} else if (noun === 'state') {
 					const { state } = content;
-					// up to developer
-				}
-				// else console.log(`unhandled response: ${noun}`);
-			}
+					if (state.parameterValues) setParameterValues(this, state.parameterValues);
+					// ...additional state?
+				} else response.content = 'error';
+			} else response.content = 'error';
 			this.port.postMessage(response);
 		}
 	}
