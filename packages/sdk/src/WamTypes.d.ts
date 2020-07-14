@@ -53,7 +53,6 @@ export class WamNode extends AudioWorkletNode {
     readonly instanceId: string;
     readonly module: WebAudioModule;
 
-    private _pendingResponses: { [key: string]: Promise<any> };
     private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
     private _destroyed: boolean;
 
