@@ -32,15 +32,6 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
     value?: M[K] extends (...args: any[]) => any ? ReturnType<M[K]> : M[K];
     error?: Error;
 }
-export interface MessagePortBidirectionalRequest<M = Record<string, any>, K extends keyof M = any> {
-    id: number;
-    call?: K;
-    args?: M[K] extends (...args: any[]) => any ? Parameters<M[K]> : M[K];
-    value?: M[K] extends (...args: any[]) => any ? ReturnType<M[K]> : M[K];
-    error?: Error;
-}
-export type WamMessagePortData = MessagePortBidirectionalRequest<WamNodeFunctionMap, keyof WamNodeFunctionMap>;
-export type IWamNode = PromisifiedFunctionMap<WamNodeFunctionMap>;
 
 export interface ParamMgrCallToProcessor extends Pick<WamNodeFunctionMap, "destroy"> {
     setParamsMapping(mapping: ParametersMapping): void;
