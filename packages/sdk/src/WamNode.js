@@ -13,24 +13,21 @@
 // OC: IMO existing typings for DisposableAudioWorkletNode are too generic/uninformative
 export default class WamNode extends AudioWorkletNode {
 	/**
-	 * @param {AudioContext} audioContext
-	 * @param {string} processorId
-	 * @param {string} instanceId
 	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
-	constructor(audioContext, processorId, instanceId, module, options) {
+	constructor(module, options) {
 		options.processorOptions = {
-			processorId,
-			instanceId,
+			processorId: module.processorId,
+			instanceId: module.instanceId,
 			...options.processorOptions,
 		};
-		super(audioContext, processorId, options);
+		super(module.audioContext, module.processorId, options);
 
 		/** @property {string} processorId */
-		this.processorId = processorId;
+		this.processorId = module.processorId;
 		/** @property {string} instanceId */
-		this.instanceId = instanceId;
+		this.instanceId = module.instanceId;
 		/** @property {WebAudioModule} loader */
 		this.module = module;
 		/** @private @property {{[key: string]: Promise<any>}} _pendingResponses **/

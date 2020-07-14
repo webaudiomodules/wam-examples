@@ -47,7 +47,7 @@ export type WamDescriptor = {
 // PLUGIN
 
 export class WamNode extends AudioWorkletNode {
-    constructor(audioContext: AudioContext, processorId: string, instanceId: string, module: WebAudioModule, options: AudioWorkletNodeOptions);
+    constructor(module: WebAudioModule, options: AudioWorkletNodeOptions);
 
     readonly processorId: string;
     readonly instanceId: string;
