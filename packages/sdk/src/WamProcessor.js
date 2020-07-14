@@ -68,15 +68,15 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			instanceId,
 		} = options.processorOptions;
 
-		/** @type {string} processorId */
+		/** @property {string} processorId */
 		this.processorId = processorId;
-		/** @type {string} instanceId */
+		/** @property {string} instanceId */
 		this.instanceId = instanceId;
-		/** @type {WamParameterInfoMap} */
+		/** @property {WamParameterInfoMap} */
 		// @ts-ignore
 		// TODO I believe this is the correct way to do this but TS is complaining...
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
-		/** @type {WamParameterMap} _parameters */
+		/** @property {WamParameterMap} _parameters */
 		this._parameterState = {};
 		Object.keys(this._parameterInfo).forEach((parameterId) => {
 			// TODO not sure how to deal with TS error:
@@ -84,9 +84,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			// @ts-ignore
 			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
 		});
-		/** @type {number} _compensationDelay */
+		/** @property {number} _compensationDelay */
 		this._compensationDelay = 0;
-		/** @type {boolean} _destroyed */
+		/** @property {boolean} _destroyed */
 		this._destroyed = false;
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
