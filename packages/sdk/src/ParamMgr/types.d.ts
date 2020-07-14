@@ -1,56 +1,6 @@
-interface AudioWorkletAudioParamDescriptor<P extends string = string> extends AudioParamDescriptor {
-    automationRate?: AutomationRate;
-    defaultValue?: number;
-    maxValue?: number;
-    minValue?: number;
-    name: P;
-}
-declare interface AudioWorkletProcessor<T extends Record<string, any> = Record<string, any>, F extends Record<string, any> = Record<string, any>, P extends string = string, O extends any = any> {
-    port: AudioWorkletMessagePort<T, F>;
-    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: { [key in P]: Float32Array }): boolean;
-}
-declare const AudioWorkletProcessor: {
-    parameterDescriptors(): AudioWorkletAudioParamDescriptor[];
-    new <T extends Record<string, any> = Record<string, any>, F extends Record<string, any> = Record<string, any>, P extends string = string, O extends any = any>(options: TypedAudioWorkletNodeOptions<O>): AudioWorkletProcessor<T, F, P, O>;
-}
+import { WamNodeOptions, WamAudioWorkletCommon, WamEvent, WamParameterInfoMap } from "../api/WamTypes";
 
-interface TypedAudioWorkletNodeOptions<T extends any = any> extends AudioWorkletNodeOptions {
-    processorOptions?: T;
-}
-interface AudioWorkletMessageEvent<T extends any = any> extends MessageEvent {
-    data: T;
-}
-interface AudioWorkletMessagePort<I extends { [key: string]: any } = { [key: string]: any }, O extends { [key: string]: any } = { [key: string]: any }> extends MessagePort {
-    onmessage: ((this: MessagePort, ev: AudioWorkletMessageEvent<I>) => any) | null;
-    onmessageerror: ((this: MessagePort, ev: AudioWorkletMessageEvent<I>) => any) | null;
-    postMessage(message: O, transfer: Transferable[]): void
-    postMessage(message: O, options?: PostMessageOptions): void
-}
-interface DataToProcessor {
-    destroy: true;
-}
-type DisposableAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
-declare interface DisposableAudioWorkletNode<
-        F extends Record<string, any> = Record<string, any>,
-        T extends Partial<DataToProcessor> & Record<string, any> = DataToProcessor,
-        P extends string = string,
-        O extends any = any
-> extends AudioWorkletNode {
-    port: AudioWorkletMessagePort<F, T & DataToProcessor>;
-    parameters: DisposableAudioParamMap<P>;
-    readonly options: TypedAudioWorkletNodeOptions<O>;
-    destroyed: boolean;
-    destroy(): void;
-}
-declare const DisposableAudioWorkletNode: {
-    new <
-        F extends Record<string, any> = Record<string, any>,
-        T extends Partial<DataToProcessor> & Record<string, any> = DataToProcessor,
-        P extends string = string,
-        O extends any = any
-    >(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<O>): DisposableAudioWorkletNode<F, T, P, O>;
-}
-declare class AudioWorkletRegister {
+export class AudioWorkletRegister {
     /**
 	 * Register a AudioWorklet processor in a closure,
      * sending to AudioWorkletProcessor with an unique identifier
@@ -65,18 +15,101 @@ declare class AudioWorkletRegister {
      */
     static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>
 }
-interface AudioWorkletGlobalScope {
-    registerProcessor: <T extends AudioWorkletProcessor>(name: string, constructor: AudioWorkletProcessorConstructor<T>) => void;
+
+export interface WamNodeFunctionMap extends WamAudioWorkletCommon {
+    dispatchEvent(e: WamEvent): void;
+}
+export type PromisifiedFunctionMap<T> = {
+    [K in keyof T]: T[K] extends (...args: any[]) => any ? (...args: Parameters<T[K]>) => PromiseLike<ReturnType<T[K]>> | ReturnType<T[K]> : T[K];
+};
+export interface MessagePortRequest<M = Record<string, (...args: any[]) => any>, K extends keyof M = keyof M> {
+    id: number;
+    call: K;
+    args?: M[K] extends (...args: any[]) => any ? Parameters<M[K]> : M[K];
+}
+export interface MessagePortResponse<M = Record<string, any>, K extends keyof M = keyof M> {
+    id: number;
+    value?: M[K] extends (...args: any[]) => any ? ReturnType<M[K]> : M[K];
+    error?: Error;
+}
+export interface MessagePortBidirectionalRequest<M = Record<string, any>, K extends keyof M = any> {
+    id: number;
+    call?: K;
+    args?: M[K] extends (...args: any[]) => any ? Parameters<M[K]> : M[K];
+    value?: M[K] extends (...args: any[]) => any ? ReturnType<M[K]> : M[K];
+    error?: Error;
+}
+export type WamMessagePortData = MessagePortBidirectionalRequest<WamNodeFunctionMap, keyof WamNodeFunctionMap>;
+export type IWamNode = PromisifiedFunctionMap<WamNodeFunctionMap>;
+
+export interface ParamMgrCallToProcessor extends Pick<WamNodeFunctionMap, "destroy"> {
+    setParamsMapping(mapping: ParametersMapping): void;
+    getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
+}
+export interface ParamMgrCallFromProcessor extends Omit<WamNodeFunctionMap, "getParameterInfo" | "getParameterValues"> {
+    setBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
+}
+export interface ParamMgrAudioWorkletOptions extends WamNodeOptions {
+	paramsConfig: WamParameterInfoMap;
+	paramsMapping: ParametersMapping;
+	internalParamsMinValues: number[];
+	internalParams: string[];
+}
+
+// AudioWorkletProcessor
+
+export interface TypedAudioWorkletNodeOptions<T extends any = any> extends AudioWorkletNodeOptions {
+    processorOptions?: T;
+}
+export interface TypedMessageEvent<T extends any = any> extends MessageEvent {
+    data: T;
+}
+export interface TypedMessagePortEventMap<T extends any = any> extends MessagePortEventMap {
+    "message": TypedMessageEvent<T>;
+}
+export interface TypedMessagePort<In extends any = any, Out extends any = any> extends MessagePort {
+    onmessage: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
+    onmessageerror: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
+    postMessage(message: Out, transfer: Transferable[]): void;
+    postMessage(message: Out, options?: PostMessageOptions): void;
+    addEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+export interface TypedAudioParamDescriptor<Par extends string = string> extends AudioParamDescriptor {
+    automationRate?: AutomationRate;
+    defaultValue?: number;
+    maxValue?: number;
+    minValue?: number;
+    name: Par;
+}
+export interface TypedAudioWorkletProcessor<MsgIn extends any = any, MsgOut extends any = any, Par extends string = string> {
+    port: TypedMessagePort<MsgIn, MsgOut>;
+    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<Par, Float32Array>): boolean;
+}
+export const TypedAudioWorkletProcessor: {
+    parameterDescriptors: TypedAudioParamDescriptor[];
+    new <MsgIn extends any = any, MsgOut extends any = any, Par extends string = string, Opt extends any = any>(options: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletProcessor<MsgIn, MsgOut, Par>;
+};
+
+export interface AudioWorkletGlobalScope {
+    registerProcessor: (name: string, constructor: new (options: any) => TypedAudioWorkletProcessor) => void;
     currentFrame: number;
     currentTime: number;
     sampleRate: number;
-    AudioWorkletProcessor: AudioWorkletProcessor;
-    WebAudioPluginParams: Record<string, {
-        internalParams: string[];
-        lock: Int32Array;
-        paramsBuffer: Float32Array;
-        inputs: Float32Array[];
-        outputs: Float32Array[];
-        frame: number;
-    }>
+    AudioWorkletProcessor: typeof TypedAudioWorkletProcessor;
+}
+
+export type TypedAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
+
+export interface TypedAudioWorkletNode<MsgIn extends any = any, MsgOut extends any = any, Par extends string = string> extends AudioWorkletNode {
+    readonly port: TypedMessagePort<MsgIn, MsgOut>;
+    readonly parameters: TypedAudioParamMap<Par>;
+    destroyed: boolean;
+    destroy(): void;
+}
+export const TypedAudioWorkletNode: {
+    prototype: TypedAudioWorkletNode;
+    new <MsgIn extends any = any, MsgOut extends any = any, Par extends string = string, Opt extends any = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par>;
 }

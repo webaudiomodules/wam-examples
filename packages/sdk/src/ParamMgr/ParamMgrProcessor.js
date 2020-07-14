@@ -1,13 +1,41 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
+/** @typedef { import('sdk/src/api/WamTypes').WamProcessor } WamProcessor */
+/** @typedef { import('sdk/src/api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('sdk/src/api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('sdk/src/api/WamTypes').WamNodeOptions } WamNodeOptions */
+/** @typedef { import('sdk/src/api/WamTypes').WamEvent } WamEvent */
+/** @template O @typedef { import('./types').TypedAudioWorkletNodeOptions<O> } TypedAudioWorkletNodeOptions */
+/** @typedef { import('./types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
+/** @typedef { import('./types').TypedAudioWorkletProcessor } AudioWorkletProcessor */
+/** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
+/** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
+/** @typedef { import('./types').WamNodeFunctionMap } WamNodeFunctionMap */
+/** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
+/** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
+/** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
+
 /**
  * Main function to stringify as a worklet.
  *
  * @param {string} processorId processor identifier
- * @param {ParametersDescriptor} paramsConfig parameterDescriptors
+ * @param {WamParameterInfoMap} paramsConfig parameterDescriptors
  */
 const processor = (processorId, paramsConfig) => {
+	/** @type {AudioWorkletGlobalScope & globalThis} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+	const { AudioWorkletProcessor, registerProcessor } = audioWorkletGlobalScope;
+	const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
 	const SharedArrayBuffer = globalThis.SharedArrayBuffer || globalThis.ArrayBuffer;
+	const normExp = (x, e) => (e === 0 ? x : x ** (1.5 ** -e));
+	const normalizeE = (x, min, max, e = 0) => (
+		min === 0 && max === 1
+			? normExp(x, e)
+			: normExp((x - min) / (max - min) || 0, e));
 	const normalize = (x, min, max) => (min === 0 && max === 1 ? x : (x - min) / (max - min) || 0);
 	const denormalize = (x, min, max) => (min === 0 && max === 1 ? x : x * (max - min) + min);
 	const mapValue = (x, eMin, eMax, sMin, sMax, tMin, tMax) => (
@@ -27,30 +55,19 @@ const processor = (processorId, paramsConfig) => {
 	);
 
 	/**
-	 * @typedef {{ destroy: true, paramsMapping: ParametersMapping, buffer: true }} T
-	 * @typedef {{ buffer: { lock: Int32Array, paramsBuffer: Float32Array } }} F
-	 * @typedef {{
-	 * 		paramsConfig: ParametersDescriptor;
-	 * 		paramsMapping: ParametersMapping;
-	 * 		internalParamsMinValues: number[];
-	 * 		internalParams: string[];
-	 * 		instanceId: string;
-	 * }} O
+	 * @typedef {MessagePortRequest<ParamMgrCallToProcessor> & MessagePortResponse<ParamMgrCallFromProcessor>} MsgIn
+	 * @typedef {MessagePortResponse<ParamMgrCallToProcessor> & MessagePortRequest<ParamMgrCallFromProcessor>} MsgOut
+	 * @typedef {ParamMgrAudioWorkletOptions} O
 	 */
 	/**
 	 * `ParamMgrNode`'s `AudioWorkletProcessor`
 	 *
 	 * @class ParamMgrProcessor
-	 * @extends {AudioWorkletProcessor<T, F>}
+	 * @extends {AudioWorkletProcessor<MsgIn, MsgOut>}
+	 * @implements {WamProcessor}
+	 * @implements {ParamMgrCallToProcessor}
 	 */
 	class ParamMgrProcessor extends AudioWorkletProcessor {
-		/**
-		 * Here describes plugin external parameters as it is
-		 *
-		 * @readonly
-		 * @static
-		 * @memberof ParamMgrProcessor
-		 */
 		static get parameterDescriptors() {
 			return Object.entries(paramsConfig).map(([name, { defaultValue, minValue, maxValue }]) => ({
 				name,
@@ -60,6 +77,10 @@ const processor = (processorId, paramsConfig) => {
 			}));
 		}
 
+		static generateWamParameterInfo() {
+			return paramsConfig;
+		}
+
 		/**
 		 * @param {TypedAudioWorkletNodeOptions<O>} options
 		 * @memberof ParamMgrProcessor
@@ -67,7 +88,7 @@ const processor = (processorId, paramsConfig) => {
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
-			this.supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
+			this.supportSharedArrayBuffer = supportSharedArrayBuffer;
 			const {
 				paramsMapping,
 				internalParamsMinValues,
@@ -75,35 +96,114 @@ const processor = (processorId, paramsConfig) => {
 				instanceId,
 			} = options.processorOptions;
 			this.processorId = processorId;
+			this.instanceId = instanceId;
 			this.internalParamsMinValues = internalParamsMinValues;
 			this.paramsConfig = paramsConfig;
 			this.paramsMapping = paramsMapping;
+			/** @type {Record<string, number>} */
+			this.paramsValues = {};
+			Object.entries(paramsConfig).forEach(([name, { defaultValue }]) => {
+				this.paramsValues[name] = defaultValue;
+			});
 			this.internalParams = internalParams;
 			this.internalParamsCount = this.internalParams.length;
-			this.buffer = new SharedArrayBuffer( // eslint-disable-line no-undef
+			this.buffer = new SharedArrayBuffer(
 				(this.internalParamsCount + 1) * Float32Array.BYTES_PER_ELEMENT,
 			);
 			this.$lock = new Int32Array(this.buffer, 0, 1);
-			this.$paramsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
-			// eslint-disable-next-line no-undef
-			if (!globalThis.WebAudioPluginParams) globalThis.WebAudioPluginParams = {};
-			const { WebAudioPluginParams } = globalThis; // eslint-disable-line no-undef
-			WebAudioPluginParams[instanceId] = {
-				internalParams,
-				lock: this.$lock,
-				paramsBuffer: this.$paramsBuffer,
-				inputs: [],
-				outputs: [],
-				frame: undefined,
-			};
-			this.exposed = WebAudioPluginParams[instanceId];
+			this.$internalParamsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
+			/** @type {Record<number, ((...args: any[]) => any)>} */
+			const resolves = {};
+			/** @type {Record<number, ((...args: any[]) => any)>} */
+			const rejects = {};
+			/**
+			 * @param {keyof ParamMgrCallFromProcessor} call
+			 * @param {any} args
+			 */
+			this.call = (call, ...args) => new Promise((resolve, reject) => {
+				const id = performance.now();
+				resolves[id] = resolve;
+				rejects[id] = reject;
+				this.port.postMessage({ id, call, args });
+			});
 			this.port.onmessage = (e) => {
-				if (e.data.destroy) this.destroy();
-				else if (e.data.paramsMapping) this.paramsMapping = e.data.paramsMapping;
-				else if (e.data.buffer) {
-					this.port.postMessage({ buffer: { lock: this.$lock, paramsBuffer: this.$paramsBuffer } });
+				const { id, call, args } = e.data;
+				const r = { id };
+				try {
+					if (call === 'destroy') this.destroy(true);
+					// @ts-ignore
+					else r.value = this[call](...args);
+				} catch (error) {
+					r.error = error;
 				}
+				// @ts-ignore
+				this.port.postMessage(r);
 			};
+		}
+
+		/**
+		 * @param {ParametersMapping} mapping
+		 */
+		setParamsMapping(mapping) {
+			this.paramsMapping = mapping;
+		}
+
+		getBuffer() {
+			return { lock: this.$lock, paramsBuffer: this.$internalParamsBuffer };
+		}
+
+		getCompensationDelay() {
+			return 128;
+		}
+
+		/**
+		 * @param {string | string[]} [parameterIdQuery]
+		 */
+		getParameterInfo(parameterIdQuery) {
+			if (!parameterIdQuery) parameterIdQuery = Object.keys(this.paramsConfig);
+			else if (typeof parameterIdQuery === 'string') parameterIdQuery = [parameterIdQuery];
+			/** @type {WamParameterInfoMap} */
+			const parameterInfo = {};
+			parameterIdQuery.forEach((parameterId) => {
+				parameterInfo[parameterId] = this.paramsConfig[parameterId];
+			});
+			return parameterInfo;
+		}
+
+		/**
+		 * @param {boolean} [normalized]
+		 * @param {string | string[]} [parameterIdQuery]
+		 */
+		getParameterValues(normalized, parameterIdQuery) {
+			if (!parameterIdQuery) parameterIdQuery = Object.keys(this.paramsConfig);
+			else if (typeof parameterIdQuery === 'string') parameterIdQuery = [parameterIdQuery];
+			/** @type {WamParameterValueMap} */
+			const parameterValues = {};
+			parameterIdQuery.forEach((parameterId) => {
+				if (!(parameterId in this.paramsValues)) return;
+				const { minValue, maxValue, exponent } = this.paramsConfig[parameterId];
+				const value = this.paramsValues[parameterId];
+				parameterValues[parameterId] = {
+					id: parameterId,
+					value: normalized ? normalizeE(value, minValue, maxValue, exponent) : value,
+					normalized,
+				};
+			});
+			return parameterValues;
+		}
+
+		/**
+		 * @param {WamParameterValueMap} parameterUpdates
+		 */
+		setParameterValues(parameterUpdates) {
+			return this.call('setParameterValues', parameterUpdates);
+		}
+
+		/**
+		 * @param {WamEvent} event
+		 */
+		onEvent(event) {
+			return this.call('dispatchEvent', event);
 		}
 
 		lock() {
@@ -124,46 +224,50 @@ const processor = (processorId, paramsConfig) => {
 		 */
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;
+			const numberOfInputs = inputs.length;
+			inputs.forEach((input, i) => { // Copy inputs to outputs
+				outputs[i] = input;
+			});
 			this.lock();
-			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }], i) => {
+			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }]) => {
 				const raw = parameters[name];
-				this.exposed.inputs[i] = raw;
-				if (!this.paramsMapping[name]) return;
+				if (name in this.paramsValues) this.paramsValues[name] = raw[raw.length - 1]; // Store to local temporary
+				if (!this.paramsMapping[name]) return; // No need to output
 				Object.entries(this.paramsMapping[name]).forEach(([targetName, targetMapping]) => {
 					const j = this.internalParams.indexOf(targetName);
 					if (j === -1) return;
-					const intrinsicValue = this.internalParamsMinValues[j];
+					const intrinsicValue = this.internalParamsMinValues[j]; // Output will be added to target intrinsicValue
 					const { sourceRange, targetRange } = targetMapping;
 					const [sMin, sMax] = sourceRange;
 					const [tMin, tMax] = targetRange;
 					let out;
 					if (minValue !== tMin || maxValue !== tMax
-							|| minValue !== sMin || maxValue !== sMax) {
+							|| minValue !== sMin || maxValue !== sMax) { // need to calculate with mapping
 						out = raw.map((v) => {
 							const mappedValue = mapValue(v, minValue, maxValue, sMin, sMax, tMin, tMax);
 							return mappedValue - intrinsicValue;
 						});
-					} else if (intrinsicValue) {
+					} else if (intrinsicValue) { // need to correct with intrinsicValue
 						out = raw.map((v) => v - intrinsicValue);
-					} else {
+					} else { // No need to modify
 						out = raw;
 					}
-					if (out.length === 1) outputs[j + 1][0].fill(out[0]);
-					else outputs[j + 1][0].set(out);
-					this.exposed.outputs[j] = outputs[j + 1][0]; // eslint-disable-line prefer-destructuring
-					this.$paramsBuffer[j] = out[0]; // eslint-disable-line prefer-destructuring
+					if (out.length === 1) outputs[j + numberOfInputs][0].fill(out[0]);
+					else outputs[j + numberOfInputs][0].set(out);
+					this.$internalParamsBuffer[j] = out[0]; // eslint-disable-line prefer-destructuring
 				});
 			});
 			this.unlock();
 			if (!this.supportSharedArrayBuffer) {
-				this.port.postMessage({ buffer: { lock: this.$lock, paramsBuffer: this.$paramsBuffer } });
+				this.call('setBuffer', { buffer: { lock: this.$lock, paramsBuffer: this.$internalParamsBuffer } });
 			}
-			this.exposed.frame = currentFrame; // eslint-disable-line no-undef
 			return true;
 		}
 
-		destroy() {
+		destroy(passive = false) {
 			this.destroyed = true;
+			this.port.close();
+			if (!passive) this.call('destroy');
 		}
 	}
 	registerProcessor(processorId, ParamMgrProcessor);

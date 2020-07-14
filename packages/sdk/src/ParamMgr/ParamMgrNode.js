@@ -1,40 +1,56 @@
-import DisposableAudioWorkletNode from './DisposableAudioWorkletNode';
 import MgrAudioParam from './MgrAudioParam';
 
+/* eslint-disable max-len */
+/* eslint-disable no-undef */
+/* eslint-disable prefer-destructuring */
+
+/** @typedef { import('sdk/src/api/WamTypes').WebAudioModule } WebAudioModule */
+/** @typedef { import('sdk/src/api/WamTypes').WamNode } WamNode */
+/** @typedef { import('sdk/src/api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('sdk/src/api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('sdk/src/api/WamTypes').WamNodeOptions } WamNodeOptions */
+/** @typedef { import('sdk/src/api/WamTypes').WamEvent } WamEvent */
+/** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
+/** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
+/** @template O @typedef { import('./types').TypedAudioWorkletNodeOptions<O> } TypedAudioWorkletNodeOptions */
+/** @typedef { import('./types').WamNodeFunctionMap } WamNodeFunctionMap */
+/** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
+/** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
+/** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
+
+/** @type {typeof import('./types').TypedAudioWorkletNode} */
+// @ts-ignore
+const AudioWorkletNode = globalThis.AudioWorkletNode;
+
 /**
- * @typedef {{ destroy: true, paramsMapping: ParametersMapping, buffer: true }} T
- * @typedef {{ buffer: { lock: Int32Array, paramsBuffer: Float32Array } }} F
- * @typedef {{
- * 		paramsConfig: ParametersDescriptor;
- * 		paramsMapping: ParametersMapping;
- * 		internalParamsMinValues: number[];
- * 		internalParams: string[];
- * 		instanceId: string;
- * }} O
+ * @typedef {MessagePortResponse<ParamMgrCallToProcessor> & MessagePortRequest<ParamMgrCallFromProcessor>} MsgIn
+ * @typedef {MessagePortRequest<ParamMgrCallToProcessor> & MessagePortResponse<ParamMgrCallFromProcessor>} MsgOut
+ * @typedef {ParamMgrAudioWorkletOptions} O
  */
 /**
  * @export
  * @class ParamMgrNode
- * @extends {DisposableAudioWorkletNode<F, T, string, O>}
+ * @extends {AudioWorkletNode<MsgIn, MsgOut>}
+ * @implements {WamNode}
+ * @implements {ParamMgrCallFromProcessor}
  */
-export default class ParamMgrNode extends DisposableAudioWorkletNode {
+export default class ParamMgrNode extends AudioWorkletNode {
 	/**
-     * @param {BaseAudioContext} context AudioContext
-     * @param {string} processorId Processor identifier
-	 * @param {Record<string, number>} parameterData parameters initial values map
-     * @param {O} processorOptions
-     * @param {import('../WebAudioPlugin').default} plugin the plugin instance
+     * @param {WebAudioModule} module AudioContext
+     * @param {TypedAudioWorkletNodeOptions<ParamMgrAudioWorkletOptions>} options AudioContext
 	 * @param {InternalParametersDescriptor} internalParamsConfig
      * @memberof ParamMgrNode
      */
-	constructor(context, processorId, parameterData, processorOptions, plugin, internalParamsConfig) {
-		super(context, processorId, {
-			numberOfInputs: 0,
-			numberOfOutputs: processorOptions.internalParams.length + 1,
-			parameterData,
-			processorOptions,
+	constructor(module, options, internalParamsConfig) {
+		super(module.audioContext, options.processorOptions.processorId, {
+			numberOfInputs: options.numberOfInputs,
+			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
+			parameterData: options.parameterData,
+			processorOptions: options.processorOptions,
 		});
-		this.plugin = plugin;
+		const { processorOptions } = options;
+		const { audioContext } = module;
+		this.module = module;
 		this.paramsConfig = processorOptions.paramsConfig;
 		this.internalParams = processorOptions.internalParams;
 		this.internalParamsConfig = internalParamsConfig;
@@ -43,11 +59,11 @@ export default class ParamMgrNode extends DisposableAudioWorkletNode {
 		this.paramsUpdateCheckFnRef = [];
 		Object.entries(this.getParams()).forEach(([name, param]) => {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
-			param.emitter = plugin;
+			param.emitter = module;
 			param.name = name;
 			param.exponent = this.paramsConfig[name]?.exponent || 0;
 		});
-		this.connect(context.destination, 0, 0);
+		this.connect(audioContext.destination, 0, 0);
 		this.port.onmessage = (e) => {
 			if (e.data.buffer) {
 				this.$lock = e.data.buffer.lock;

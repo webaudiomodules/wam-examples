@@ -1,4 +1,4 @@
-import DisposableAudioWorkletNode from "./DisposableAudioWorkletNode";
+import { TypedAudioWorkletNode } from "./types";
 import WebAudioPlugin from "../WebAudioPlugin";
 
 /**

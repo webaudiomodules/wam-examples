@@ -13,11 +13,11 @@ export default class WebAudioModule {
 
 	/**
 	 * @param {BaseAudioContext} audioContext
-	 * @param {any} [pluginOptions]
+	 * @param {any} [initialState]
 	 * @returns {Promise<WebAudioModule>}
 	*/
-	static createInstance(audioContext, pluginOptions = {}) {
-		return new this(audioContext).initialize(pluginOptions);
+	static createInstance(audioContext, initialState) {
+		return new this(audioContext).initialize(initialState);
 	}
 
 	/** @type {WamDescriptor} */
@@ -35,7 +35,7 @@ export default class WebAudioModule {
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
 		this.audioContext = audioContext;
-		this.instanceId = this.pluginId + performance.now();
+		this.instanceId = this.moduleId + performance.now();
 		this._audioNode = undefined;
 		this.initialized = false;
 	}
@@ -50,7 +50,7 @@ export default class WebAudioModule {
 
 	get name() { return this.descriptor.name; }
 	get vendor() { return this.descriptor.vendor; }
-	get pluginId() { return this.vendor + this.name; }
+	get moduleId() { return this.vendor + this.name; }
 
 	// The audioNode of the plugin
 	// The host must connect to this input
@@ -68,10 +68,10 @@ export default class WebAudioModule {
 	 * This async method must be redefined to get audionode that
 	 * will connected to the host.
 	 * It can be any object that extends AudioNode
-	 * @param {any} options
+	 * @param {any} [initialState]
 	 * @returns {Promise<WamNode>}
 	 */
-	async createAudioNode(options = {}) {
+	async createAudioNode(initialState) {
 		// should return a subclass of WamNode
 		throw new TypeError('createAudioNode() not provided');
 	}
@@ -80,11 +80,11 @@ export default class WebAudioModule {
 	 * Calling initialize([state]) will initialize the plugin with an initial state.
 	 * While initializing, the audionode is created by calling createAudionode()
 	 * Plugins that redefine initialize() must call super.initialize();
-	 * @param {any} options
+	 * @param {any} [initialState]
 	 * @returns {Promise<WebAudioModule>}
 	 */
-	async initialize(options = {}) { // maybe don't need this, only createAudioNode?
-		if (!this._audioNode) this.audioNode = await this.createAudioNode(options);
+	async initialize(initialState) { // maybe don't need this, only createAudioNode?
+		if (!this._audioNode) this.audioNode = await this.createAudioNode(initialState);
 		this.initialized = true;
 		return this;
 	}

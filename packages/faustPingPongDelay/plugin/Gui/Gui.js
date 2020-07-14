@@ -357,7 +357,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
         this._root.getElementById('/PingPongDelayFaust/feedback').value = this._plug.params['/PingPongDelayFaust/feedback'];
 		this._root.getElementById('/PingPongDelayFaust/time').value = this._plug.params['/PingPongDelayFaust/time'];
 		this._root.getElementById('/PingPongDelayFaust/mix').value = this._plug.params['/PingPongDelayFaust/mix'];
-		this._root.getElementById('/PingPongDelayFaust/bypass').value = 1 - this._plug.params['/PingPongDelayFaust/bypass'];
+		this._root.getElementById('/PingPongDelayFaust/bypass').value = this._plug.params['/PingPongDelayFaust/bypass'];
 		window.requestAnimationFrame(this.handleAnimationFrame);
     }
     
