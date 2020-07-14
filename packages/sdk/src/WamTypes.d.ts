@@ -78,7 +78,6 @@ export class WamProcessor extends AudioWorkletProcessor {
     private readonly _parameterInfo: WamParameterInfoMap;
     private _parameterState: WamParameterMap;
     private _compensationDelay: number;
-    private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
     private _destroyed: boolean;
 
     getCompensationDelay(): number;
