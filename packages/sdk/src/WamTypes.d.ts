@@ -17,7 +17,7 @@ export class WebAudioModule {
     get descriptor(): WamDescriptor;
     get name(): string;
     get vendor(): string;
-    get pluginId(): string;
+    get processorId(): string;
     set audioNode(arg: AudioNode);
     get audioNode(): AudioNode;
     /**
