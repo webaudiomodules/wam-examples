@@ -38,11 +38,11 @@ function getParameterValues(processor, normalized, parameterIdQuery) {
 
 /**
  * @param {WamProcessor} processor
- * @param {WamParameterValueMap} parameterUpdates
+ * @param {WamParameterValueMap} parameterValues
  */
-function setParameterValues(processor, parameterUpdates) {
-	Object.keys(parameterUpdates).forEach((parameterId) => {
-		const parameterUpdate = parameterUpdates[parameterId];
+function setParameterValues(processor, parameterValues) {
+	Object.keys(parameterValues).forEach((parameterId) => {
+		const parameterUpdate = parameterValues[parameterId];
 		const parameter = this._parameterState[parameterId];
 		if (!parameter) return;
 		if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
