@@ -80,8 +80,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// by default, assume mismatch in scheduling threads will be mitigated via message port
 		if (message.data.event) this.onEvent(message.data.event);
 		else if (message.data.request) {
-			const { request, content } = message.data;
-			const response = { response: request };
+			const { id, request, content } = message.data;
+			const response = { id, response: request };
 			const requestComponents = request.split('/');
 			const verb = requestComponents[0];
 			const noun = requestComponents[1];

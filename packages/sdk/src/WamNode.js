@@ -30,12 +30,14 @@ export default class WamNode extends AudioWorkletNode {
 		this.instanceId = module.instanceId;
 		/** @property {WebAudioModule} loader */
 		this.module = module;
-		/** @private @property {{[key: string]: Promise<any>}} _pendingResponses **/
+		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
 		this._pendingResponses = {};
 		/** @private @property {{[subscriberId: string]: WamEventCallback}} */
 		this._eventCallbacks = {};
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
+		/** @property {number} _messageId */
+		this._messageId = 0;
 
 		this.port.onmessage = this.onMessage.bind(this);
 	}
@@ -46,11 +48,13 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async getParameterInfo(parameterIds) {
 		const request = 'get/parameterInfo';
+		const id = this.generateMessageId();
 		if (parameterIds === undefined) parameterIds = [];
 		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
 				content: { parameterIds },
 			});
@@ -64,10 +68,13 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async getParameterValues(normalized, parameterIds) {
 		const request = 'get/parameterValues';
+		const id = this.generateMessageId();
 		if (parameterIds === undefined) parameterIds = [];
 		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
 				content: { normalized, parameterIds },
 			});
@@ -80,9 +87,11 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async setParameterValues(parameterValues) {
 		const request = 'set/parameterValues';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
 				content: { parameterValues },
 			});
@@ -92,18 +101,21 @@ export default class WamNode extends AudioWorkletNode {
 	/** @returns {Promise<any>} */
 	async getState() {
 		const request = 'get/state';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
-			this.port.postMessage({ request });
+			this._pendingResponses[id] = resolve;
+			this.port.postMessage({ id, request });
 		});
 	}
 
 	/** @param {any} state */
 	async setState(state) {
 		const request = 'set/state';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
 				content: { state },
 			});
@@ -113,9 +125,10 @@ export default class WamNode extends AudioWorkletNode {
 	/** @returns {Promise<number>} processing delay time in seconds */
 	async getCompensationDelay() {
 		const request = 'get/compensationDelay';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
-			this.port.postMessage({ request });
+			this._pendingResponses[id] = resolve;
+			this.port.postMessage({ id, request });
 		});
 	}
 
@@ -163,14 +176,19 @@ export default class WamNode extends AudioWorkletNode {
 		// by default, assume mismatch in scheduling threads will be mitigated via message port
 		if (message.data.event) this.onEvent(message.data.event);
 		else if (message.data.response) {
-			const { response, content } = message.data;
-			const resolvePendingResponse = this._pendingResponses[response];
+			const { id, response, content } = message.data;
+			const resolvePendingResponse = this._pendingResponses[id];
 			if (resolvePendingResponse) {
-				delete this._pendingResponses[response];
+				delete this._pendingResponses[id];
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
 		}
+	}
+
+	generateMessageId() {
+		/* eslint-disable-next-line no-plusplus */
+		return this._messageId++;
 	}
 
 	destroy() {
