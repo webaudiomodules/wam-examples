@@ -4,7 +4,7 @@
 /** @typedef { import('./WamTypes').WamParameterMap } WamParameterMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 
-import WamParameter from './WamParameter';
+import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */
@@ -66,6 +66,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		const {
 			processorId,
 			instanceId,
+			useSab,
 		} = options.processorOptions;
 
 		/** @property {string} processorId */
@@ -78,12 +79,33 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 		/** @property {WamParameterMap} _parameters */
 		this._parameterState = {};
-		Object.keys(this._parameterInfo).forEach((parameterId) => {
-			// TODO not sure how to deal with TS error:
-			// "Types have separate declarations of a private property '_data'"
-			// @ts-ignore
-			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
-		});
+		/** @property {boolean} _useSab */
+		this._useSab = !!useSab;
+		if (this._useSab) {
+			const numParameters = Object.keys(this._parameterInfo).length;
+			const byteLength = Float32Array.BYTES_PER_ELEMENT * numParameters;
+			/** @private @property {SharedArrayBuffer} _parameterBuffer */
+			this._parameterBuffer = new SharedArrayBuffer(byteLength);
+			/** @private @property {Float32Array} _parameterValues */
+			this._parameterValues = new Float32Array(this._parameterBuffer);
+			/** @private @property {[paramterId: string]: number} */
+			this._parameterIndices = {};
+			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
+				const info = this._parameterInfo[parameterId];
+				this._parameterIndices[parameterId] = index;
+				this._parameterState[parameterId] = new WamParameterSab(this._parameterValues, index, info);
+			});
+			// pass the SAB to main thread
+			this.port.postMessage({
+				useSab: true,
+				parameterIndices: this._parameterIndices,
+				parameterBuffer: this._parameterBuffer,
+			});
+		} else {
+			Object.keys(this._parameterInfo).forEach((parameterId) => {
+				this._parameterState[parameterId] = new WamParameterNoSab(this._parameterInfo[parameterId]);
+			});
+		}
 		/** @property {number} _compensationDelay */
 		this._compensationDelay = 0;
 		/** @property {boolean} _destroyed */

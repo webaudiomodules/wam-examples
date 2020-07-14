@@ -123,17 +123,12 @@ export class WamParameterInfo {
 
 export type WamParameterInfoMap = { [id: string]: WamParameterInfo }
 
-export class WamParameter {
-    constructor(info: WamParameterInfo);
-    readonly id: string;
-    readonly info: WamParameterInfo;
-    private _data: SharedArrayBuffer | ArrayBuffer;
-    private _value: Float64Array;
 
-    set value(newValue: number);
-    get value(): number;
-    set normalizedValue(newValueNorm: number);
-    get normalizedValue(): number;
+export interface WamParameter {
+    readonly info: WamParameterInfo;
+
+    value: number;
+    normalizedValue: number;
 }
 
 export type WamParameterMap = { [id: string]: WamParameter }

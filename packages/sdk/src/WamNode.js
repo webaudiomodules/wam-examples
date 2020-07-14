@@ -30,6 +30,8 @@ export default class WamNode extends AudioWorkletNode {
 		this.instanceId = module.instanceId;
 		/** @property {WebAudioModule} loader */
 		this.module = module;
+		/** @property {boolean} _useSab */
+		this._useSab = false; // can override this via processorOptions
 		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
 		this._pendingResponses = {};
 		/** @private @property {{[subscriberId: string]: WamEventCallback}} */
@@ -183,6 +185,14 @@ export default class WamNode extends AudioWorkletNode {
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
+		} else if (message.data.useSab) {
+			this._useSab = true;
+			/** @property {{[parameterId: string]: number}} _parameterIndices */
+			this._parameterIndices = message.data.parameterIndices;
+			/** @property {SharedArrayBuffer} _parameterBuffer */
+			this._parameterBuffer = message.data.parameterBuffer;
+			/** @property {Float32Array} _parameterValues */
+			this._parameterValues = new Float32Array(this._parameterBuffer);
 		}
 	}
 
