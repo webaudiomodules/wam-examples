@@ -41,51 +41,50 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string | string[] | undefined} parameterIdQuery
+	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterInfoMap>}
 	 */
-	async getParameterInfo(parameterIdQuery) {
+	async getParameterInfo(parameterIds) {
 		const request = 'get/parameterInfo';
-		if (parameterIdQuery === undefined) parameterIdQuery = [];
-		if (!Array.isArray(parameterIdQuery)) parameterIdQuery = [parameterIdQuery];
+		if (parameterIds === undefined) parameterIds = [];
+		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
 			this._pendingResponses[request] = resolve;
 			this.port.postMessage({
 				request,
-				content: { parameterIdQuery },
+				content: { parameterIds },
 			});
 		});
 	}
 
 	/**
 	 * @param {boolean} normalized
-	 * @param {string | string[] | undefined} parameterIdQuery
+	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterValueMap>}
 	 */
-	async getParameterValues(normalized, parameterIdQuery) {
+	async getParameterValues(normalized, parameterIds) {
 		const request = 'get/parameterValues';
-		if (parameterIdQuery === undefined) parameterIdQuery = [];
-		if (!Array.isArray(parameterIdQuery)) parameterIdQuery = [parameterIdQuery];
+		if (parameterIds === undefined) parameterIds = [];
+		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
 			this.port.postMessage({
 				request,
-				content: { normalized, parameterIdQuery },
+				content: { normalized, parameterIds },
 			});
 		});
 	}
 
 	/**
-	 * @param {WamParameterValueMap} parameterUpdates
+	 * @param {WamParameterValueMap} parameterValues
 	 * @returns {Promise<void>}
 	 */
-	async setParameterValues(parameterUpdates) {
+	async setParameterValues(parameterValues) {
 		const request = 'set/parameterValues';
 		return new Promise((resolve) => {
 			this._pendingResponses[request] = resolve;
 			this.port.postMessage({
 				request,
-				content: { parameterUpdates },
+				content: { parameterValues },
 			});
 		});
 	}

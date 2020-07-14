@@ -57,9 +57,9 @@ export class WamNode extends AudioWorkletNode {
     private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
     private _destroyed: boolean;
 
-    getParameterInfo(parameterIdQuery?: string | string[]): Promise<WamParameterInfoMap>;
-    setParameterValues(parameterUpdates: WamParameterValueMap): Promise<void>;
-    getParameterValues(normalized: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterValueMap>;
+    getParameterInfo(parameterIds?: string | string[]): Promise<WamParameterInfoMap>;
+    setParameterValues(parameterValues: WamParameterValueMap): Promise<void>;
+    getParameterValues(normalized: boolean, parameterIds?: string | string[]): Promise<WamParameterValueMap>;
     getState(): Promise<any>;
     setState(state: any): Promise<void>;
     getCompensationDelay(): number;
