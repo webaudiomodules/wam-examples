@@ -14,82 +14,89 @@
 // OC: IMO existing typings for DisposableAudioWorkletNode are too generic/uninformative
 export default class WamNode extends AudioWorkletNode {
 	/**
-	 * @param {BaseAudioContext} audioContext
-	 * @param {string} processorId
-	 * @param {string} instanceId
 	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
-	constructor(audioContext, processorId, instanceId, module, options) {
+	constructor(module, options) {
 		options.processorOptions = {
-			processorId,
-			instanceId,
+			processorId: module.processorId,
+			instanceId: module.instanceId,
 			...options.processorOptions,
 		};
-		super(audioContext, processorId, options);
+		super(module.audioContext, module.processorId, options);
 
 		/** @property {string} processorId */
-		this.processorId = processorId;
+		this.processorId = module.processorId;
 		/** @property {string} instanceId */
-		this.instanceId = instanceId;
+		this.instanceId = module.instanceId;
 		/** @property {WebAudioModule} loader */
 		this.module = module;
-		/** @private @property {{[key: string]: Promise<any>}} _pendingResponses **/
+		/** @property {boolean} _useSab */
+		this._useSab = false; // can override this via processorOptions
+		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
 		this._pendingResponses = {};
 		/** @private @property {{[subscriberId: WamEventType]: WamEventCallback}} */
 		this._eventCallbacks = {};
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
+		/** @property {number} _messageId */
+		this._messageId = 0;
 
 		this.port.onmessage = this.onMessage.bind(this);
 	}
 
 	/**
-	 * @param {string | string[] | undefined} parameterIdQuery
+	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterInfoMap>}
 	 */
-	async getParameterInfo(parameterIdQuery) {
+	async getParameterInfo(parameterIds) {
 		const request = 'get/parameterInfo';
-		if (parameterIdQuery === undefined) parameterIdQuery = [];
-		if (!Array.isArray(parameterIdQuery)) parameterIdQuery = [parameterIdQuery];
+		const id = this.generateMessageId();
+		if (parameterIds === undefined) parameterIds = [];
+		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
-				content: { parameterIdQuery },
+				content: { parameterIds },
 			});
 		});
 	}
 
 	/**
 	 * @param {boolean} normalized
-	 * @param {string | string[] | undefined} parameterIdQuery
+	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterValueMap>}
 	 */
-	async getParameterValues(normalized, parameterIdQuery) {
+	async getParameterValues(normalized, parameterIds) {
 		const request = 'get/parameterValues';
-		if (parameterIdQuery === undefined) parameterIdQuery = [];
-		if (!Array.isArray(parameterIdQuery)) parameterIdQuery = [parameterIdQuery];
+		const id = this.generateMessageId();
+		if (parameterIds === undefined) parameterIds = [];
+		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
-				content: { normalized, parameterIdQuery },
+				content: { normalized, parameterIds },
 			});
 		});
 	}
 
 	/**
-	 * @param {WamParameterValueMap} parameterUpdates
+	 * @param {WamParameterValueMap} parameterValues
 	 * @returns {Promise<void>}
 	 */
-	async setParameterValues(parameterUpdates) {
+	async setParameterValues(parameterValues) {
 		const request = 'set/parameterValues';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
-				content: { parameterUpdates },
+				content: { parameterValues },
 			});
 		});
 	}
@@ -97,18 +104,23 @@ export default class WamNode extends AudioWorkletNode {
 	/** @returns {Promise<any>} */
 	async getState() {
 		const request = 'get/state';
+		// perhaps the only info to request from processor is param state?
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
-			this.port.postMessage({ request });
+			this._pendingResponses[id] = resolve;
+			this.port.postMessage({ id, request });
 		});
 	}
 
 	/** @param {any} state */
 	async setState(state) {
 		const request = 'set/state';
+		const id = this.generateMessageId();
+		// perhaps the only info to send to processor is param state?
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
+			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
+				id,
 				request,
 				content: { state },
 			});
@@ -118,9 +130,10 @@ export default class WamNode extends AudioWorkletNode {
 	/** @returns {Promise<number>} processing delay time in seconds */
 	async getCompensationDelay() {
 		const request = 'get/compensationDelay';
+		const id = this.generateMessageId();
 		return new Promise((resolve) => {
-			this._pendingResponses[request] = resolve;
-			this.port.postMessage({ request });
+			this._pendingResponses[id] = resolve;
+			this.port.postMessage({ id, request });
 		});
 	}
 
@@ -168,14 +181,27 @@ export default class WamNode extends AudioWorkletNode {
 		// by default, assume mismatch in scheduling threads will be mitigated via message port
 		if (message.data.event) this.onEvent(message.data.event);
 		else if (message.data.response) {
-			const { response, content } = message.data;
-			const resolvePendingResponse = this._pendingResponses[response];
+			const { id, response, content } = message.data;
+			const resolvePendingResponse = this._pendingResponses[id];
 			if (resolvePendingResponse) {
-				delete this._pendingResponses[response];
+				delete this._pendingResponses[id];
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
+		} else if (message.data.useSab) {
+			this._useSab = true;
+			/** @property {{[parameterId: string]: number}} _parameterIndices */
+			this._parameterIndices = message.data.parameterIndices;
+			/** @property {SharedArrayBuffer} _parameterBuffer */
+			this._parameterBuffer = message.data.parameterBuffer;
+			/** @property {Float32Array} _parameterValues */
+			this._parameterValues = new Float32Array(this._parameterBuffer);
 		}
+	}
+
+	generateMessageId() {
+		/* eslint-disable-next-line no-plusplus */
+		return this._messageId++;
 	}
 
 	destroy() {

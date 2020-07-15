@@ -1,9 +1,10 @@
 /** @typedef { import('./api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./api/WamTypes').WamParameterValueMap } WamParameterValueMap */
 // /** @typedef { import('./WamTypes').WamParameter } WamParameter */
 /** @typedef { import('./api/WamTypes').WamParameterMap } WamParameterMap */
 /** @typedef { import('./api/WamTypes').WamEvent } WamEvent */
 
-import WamParameter from './WamParameter';
+import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */
@@ -13,7 +14,42 @@ import WamParameter from './WamParameter';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
-// OC: IMO existing typings for AudioWorkletProcessor are too generic/uninformative
+/**
+ * @param {WamProcessor} processor
+ * @param {boolean} normalized
+ * @param {string[]=} parameterIdQuery
+ * @returns {WamParameterValueMap}
+ */
+function getParameterValues(processor, normalized, parameterIdQuery) {
+	/** @type {WamParameterValueMap} */
+	const parameterValues = {};
+	if (!parameterIdQuery.length) parameterIdQuery = Object.keys(processor._parameterState);
+	parameterIdQuery.forEach((parameterId) => {
+		const parameter = this._parameterState[parameterId];
+		if (!parameter) return;
+		parameterValues[parameterId] = {
+			id: parameterId,
+			value: normalized ? parameter.normalizedValue : parameter.value,
+			normalized,
+		};
+	});
+	return parameterValues;
+}
+
+/**
+ * @param {WamProcessor} processor
+ * @param {WamParameterValueMap} parameterValues
+ */
+function setParameterValues(processor, parameterValues) {
+	Object.keys(parameterValues).forEach((parameterId) => {
+		const parameterUpdate = parameterValues[parameterId];
+		const parameter = this._parameterState[parameterId];
+		if (!parameter) return;
+		if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
+		else parameter.normalizedValue = parameterUpdate.value;
+	});
+}
+
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
 	 * @returns {WamParameterInfoMap}
@@ -30,27 +66,49 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		const {
 			processorId,
 			instanceId,
+			useSab,
 		} = options.processorOptions;
 
-		/** @type {string} processorId */
+		/** @property {string} processorId */
 		this.processorId = processorId;
-		/** @type {string} instanceId */
+		/** @property {string} instanceId */
 		this.instanceId = instanceId;
-		/** @type {WamParameterInfoMap} */
+		/** @property {WamParameterInfoMap} */
 		// @ts-ignore
 		// TODO I believe this is the correct way to do this but TS is complaining...
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
-		/** @type {WamParameterMap} _parameters */
+		/** @property {WamParameterMap} _parameters */
 		this._parameterState = {};
-		Object.keys(this._parameterInfo).forEach((parameterId) => {
-			// TODO not sure how to deal with TS error:
-			// "Types have separate declarations of a private property '_data'"
-			// @ts-ignore
-			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
-		});
-		/** @type {number} _compensationDelay */
+		/** @property {boolean} _useSab */
+		this._useSab = !!useSab;
+		if (this._useSab) {
+			const numParameters = Object.keys(this._parameterInfo).length;
+			const byteLength = Float32Array.BYTES_PER_ELEMENT * numParameters;
+			/** @private @property {SharedArrayBuffer} _parameterBuffer */
+			this._parameterBuffer = new SharedArrayBuffer(byteLength);
+			/** @private @property {Float32Array} _parameterValues */
+			this._parameterValues = new Float32Array(this._parameterBuffer);
+			/** @private @property {[paramterId: string]: number} */
+			this._parameterIndices = {};
+			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
+				const info = this._parameterInfo[parameterId];
+				this._parameterIndices[parameterId] = index;
+				this._parameterState[parameterId] = new WamParameterSab(this._parameterValues, index, info);
+			});
+			// pass the SAB to main thread
+			this.port.postMessage({
+				useSab: true,
+				parameterIndices: this._parameterIndices,
+				parameterBuffer: this._parameterBuffer,
+			});
+		} else {
+			Object.keys(this._parameterInfo).forEach((parameterId) => {
+				this._parameterState[parameterId] = new WamParameterNoSab(this._parameterInfo[parameterId]);
+			});
+		}
+		/** @property {number} _compensationDelay */
 		this._compensationDelay = 0;
-		/** @type {boolean} _destroyed */
+		/** @property {boolean} _destroyed */
 		this._destroyed = false;
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
@@ -80,8 +138,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// by default, assume mismatch in scheduling threads will be mitigated via message port
 		if (message.data.event) this.onEvent(message.data.event);
 		else if (message.data.request) {
-			const { request, content } = message.data;
-			const response = { response: request };
+			const { id, request, content } = message.data;
+			const response = { id, response: request };
 			const requestComponents = request.split('/');
 			const verb = requestComponents[0];
 			const noun = requestComponents[1];
@@ -97,40 +155,23 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				} else if (noun === 'parameterValues') {
 					/*eslint-disable-next-line prefer-const */
 					let { normalized, parameterIdQuery } = content;
-					const parameterValues = {};
-					if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this._parameterState);
-					parameterIdQuery.forEach((parameterId) => {
-						const parameter = this._parameterState[parameterId];
-						if (!parameter) return;
-						parameterValues[parameterId] = {
-							id: parameterId,
-							value: normalized ? parameter.normalizedValue : parameter.value,
-							normalized,
-						};
-					});
-					response.content = parameterValues;
+					response.content = getParameterValues(this, normalized, parameterIdQuery);
 				} else if (noun === 'state') {
-					response.content = {}; // up to developer;
+					response.content = { parameterValues: getParameterValues(this, false) };
+					// ...additional state?
 				} else if (noun === 'compensationDelay') {
 					response.content = this.getCompensationDelay();
-				}
-				// else console.log(`unhandled response: ${noun}`);
+				} else response.content = 'error';
 			} else if (verb === 'set') {
 				if (noun === 'parameterValues') {
-					const { parameterUpdates } = content;
-					Object.keys(parameterUpdates).forEach((parameterId) => {
-						const parameterUpdate = parameterUpdates[parameterId];
-						const parameter = this._parameterState[parameterId];
-						if (!parameter) return;
-						if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
-						else parameter.normalizedValue = parameterUpdate.value;
-					});
+					const { parameterValues } = content;
+					setParameterValues(this, parameterValues);
 				} else if (noun === 'state') {
 					const { state } = content;
-					// up to developer
-				}
-				// else console.log(`unhandled response: ${noun}`);
-			}
+					if (state.parameterValues) setParameterValues(this, state.parameterValues);
+					// ...additional state?
+				} else response.content = 'error';
+			} else response.content = 'error';
 			this.port.postMessage(response);
 		}
 	}

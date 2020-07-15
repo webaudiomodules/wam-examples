@@ -35,7 +35,7 @@ export default class WebAudioModule {
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
 		this.audioContext = audioContext;
-		this.instanceId = this.moduleId + performance.now();
+		this.instanceId = this.processorId + performance.now();
 		this._audioNode = undefined;
 		this.initialized = false;
 	}
@@ -50,7 +50,7 @@ export default class WebAudioModule {
 
 	get name() { return this.descriptor.name; }
 	get vendor() { return this.descriptor.vendor; }
-	get moduleId() { return this.vendor + this.name; }
+	get processorId() { return this.vendor + this.name; }
 
 	// The audioNode of the plugin
 	// The host must connect to this input
