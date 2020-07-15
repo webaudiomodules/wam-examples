@@ -82,7 +82,7 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		/**
-		 * @param {TypedAudioWorkletNodeOptions<O> & WamNodeOptions} options
+		 * @param {TypedAudioWorkletNodeOptions<O>} options
 		 * @memberof ParamMgrProcessor
 		 */
 		constructor(options) {

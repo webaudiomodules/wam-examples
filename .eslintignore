@@ -1,0 +1,2 @@
+packages/sdk/src/api/*
+!packages/sdk/src/api/WamTypes.d.ts

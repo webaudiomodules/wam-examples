@@ -38,5 +38,22 @@ module.exports = {
 		'react/jsx-one-expression-per-line': 0, // Buggy
 		'import/no-extraneous-dependencies': noExtraneousDependenciesRule,
 		'no-underscore-dangle': noUnderscoreDangleRule,
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                args: "none",
+                ignoreRestSiblings: true
+            }
+        ],
+        "import/extensions": ["error", "never"],
 	},
+    settings: {
+        'import/resolver': {
+            node: {
+                extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.d.ts']
+            }
+        },
+    },
+    parser: '@typescript-eslint/parser',
+    plugins: ['@typescript-eslint']
 };
