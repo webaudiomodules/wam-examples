@@ -1,5 +1,6 @@
 import MgrAudioParam from './MgrAudioParam';
 
+/* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable prefer-destructuring */
@@ -13,10 +14,11 @@ import MgrAudioParam from './MgrAudioParam';
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
 /** @template O @typedef { import('./types').TypedAudioWorkletNodeOptions<O> } TypedAudioWorkletNodeOptions */
-/** @typedef { import('./types').WamNodeFunctionMap } WamNodeFunctionMap */
 /** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
 /** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
 /** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
+/** @typedef { import('./types').ParametersMapping } ParametersMapping */
+/** @typedef { import('./types').InternalParametersDescriptor } InternalParametersDescriptor */
 
 /** @type {typeof import('./types').TypedAudioWorkletNode} */
 // @ts-ignore
@@ -42,7 +44,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
      * @memberof ParamMgrNode
      */
 	constructor(module, options, internalParamsConfig) {
-		super(module.audioContext, options.processorOptions.processorId, {
+		super(module.audioContext, module.processorId, {
 			numberOfInputs: options.numberOfInputs,
 			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
 			parameterData: options.parameterData,
@@ -50,6 +52,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		});
 		const { processorOptions } = options;
 		const { audioContext } = module;
+		this.initialized = false;
 		this.module = module;
 		this.paramsConfig = processorOptions.paramsConfig;
 		this.internalParams = processorOptions.internalParams;
@@ -64,44 +67,130 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			param.exponent = this.paramsConfig[name]?.exponent || 0;
 		});
 		this.connect(audioContext.destination, 0, 0);
-		this.port.onmessage = (e) => {
-			if (e.data.buffer) {
-				this.$lock = e.data.buffer.lock;
-				this.$paramsBuffer = e.data.buffer.paramsBuffer;
-				if (this.initialized) return;
-				Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
-					if (this.context.state === 'suspended') this.$paramsBuffer[i] = config.defaultValue;
-					if (config instanceof AudioParam || config instanceof AudioNode) {
-						try {
-							config.automationRate = 'a-rate';
-						} finally {
-							config.value = Math.max(0, config.minValue);
-							this.connect(config, i + 1);
-						}
-					} else {
-						if (config.onChange) this.plugin.on(`change:internalParam:${name}`, config.onChange);
-						this.requestDispatchIParamChange(name);
-					}
-				});
-				if (this.resolve) this.resolve(this);
-				this.resolve = undefined;
-				this.initialized = true;
+
+		/** @type {Record<number, ((...args: any[]) => any)>} */
+		const resolves = {};
+		/** @type {Record<number, ((...args: any[]) => any)>} */
+		const rejects = {};
+		/**
+		 * @param {keyof ParamMgrCallToProcessor} call
+		 * @param {any} args
+		 */
+		this.call = (call, ...args) => new Promise((resolve, reject) => {
+			const id = performance.now();
+			resolves[id] = resolve;
+			rejects[id] = reject;
+			this.port.postMessage({ id, call, args });
+		});
+		this.handleMessage = ({ data }) => {
+			const { id, call, args, value, error } = data;
+			if (call) {
+				/** @type {any} */
+				const r = { id };
+				try {
+					r.value = this[call](...args);
+				} catch (e) {
+					r.error = e;
+				}
+				this.port.postMessage(r);
+			} else {
+				if (error) {
+					if (rejects[id]) rejects[id](error);
+					delete rejects[id];
+					return;
+				}
+				if (resolves[id]) {
+					resolves[id](value);
+					delete resolves[id];
+				}
 			}
 		};
-		this.plugin.on('change:paramsMapping', (paramsMapping) => {
-			this.port.postMessage({ paramsMapping });
+		this.port.addEventListener('message', this.handleMessage);
+	}
+
+	/**
+	 * @returns {ReadonlyMap<string, MgrAudioParam>}
+	 */
+	get parameters() {
+		// @ts-ignore
+		return super.parameters;
+	}
+
+	get processorId() {
+		return this.module.processorId;
+	}
+
+	get instanceId() {
+		return this.module.instanceId;
+	}
+
+	async initialize() {
+		/** @type {{ lock: Int32Array, paramsBuffer: Float32Array }} */
+		const response = await this.call('getBuffer');
+		const { lock, paramsBuffer } = response;
+		this.$lock = lock;
+		this.$paramsBuffer = paramsBuffer;
+		Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
+			if (this.context.state === 'suspended') this.$paramsBuffer[i] = config.defaultValue;
+			if (config instanceof AudioParam) {
+				try {
+					config.automationRate = 'a-rate';
+				} finally {
+					config.value = Math.max(0, config.minValue);
+					this.connect(config, i + 1);
+				}
+			} else if (config instanceof AudioNode) {
+				this.connect(config, i + 1);
+			} else {
+				this.requestDispatchIParamChange(name);
+			}
+		});
+		this.initialized = true;
+	}
+
+	/**
+	 * @param {{ lock: Int32Array, paramsBuffer: Float32Array }}
+	 */
+	setBuffer({ lock, paramsBuffer }) {
+		this.$lock = lock;
+		this.$paramsBuffer = paramsBuffer;
+	}
+
+	setParamsMapping(paramsMapping) {
+		return this.call('setParamsMapping', paramsMapping);
+	}
+
+	getCompensationDelay() {
+		return this.call('getCompensationDelay');
+	}
+
+	getParameterInfo(parameterIdQuery) {
+		return this.call('getParameterInfo', parameterIdQuery);
+	}
+
+	getParameterValues(normalized, parameterIdQuery) {
+		return this.call('getParameterValues', normalized, parameterIdQuery);
+	}
+
+	/**
+	 * @param {WamParameterValueMap} parameterValues
+	 */
+	async setParameterValues(parameterValues) {
+		Object.keys(parameterValues).forEach((parameterId) => {
+			const parameterUpdate = parameterValues[parameterId];
+			const parameter = this.parameters.get(parameterId);
+			if (!parameter) return;
+			if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
+			else parameter.normalizedValue = parameterUpdate.value;
 		});
 	}
 
-	resolve = undefined;
+	getState() {
+		return this.getParameterValues();
+	}
 
-	initialized = false;
-
-	async initialize() {
-		return new Promise((resolve) => {
-			this.resolve = resolve;
-			this.port.postMessage({ buffer: true });
-		});
+	setState(state) {
+		return this.setParameterValues(state);
 	}
 
 	convertTimeToFrame(time) {
@@ -117,9 +206,11 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 */
 	requestDispatchIParamChange = (name) => {
 		if (!this.paramsChangeCanDispatch.has(name)) return;
-		const rate = this.internalParamsConfig[name].automationRate;
-		if (typeof rate !== 'number' || !rate) return;
-		const interval = 1000 / rate;
+		const config = this.internalParamsConfig[name];
+		if (!('onChange' in config)) return;
+		const { automationRate, onChange } = config;
+		if (typeof automationRate !== 'number' || !automationRate) return;
+		const interval = 1000 / automationRate;
 		const i = this.internalParams.indexOf(name);
 		if (i === -1) return;
 		if (i >= this.internalParams.length) return;
@@ -134,7 +225,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const prev = this.$prevParamsBuffer[i];
 		const cur = this.$paramsBuffer[i];
 		if (cur !== prev) {
-			this.plugin.emit(`change:internalParam:${name}`, cur, prev);
+			onChange(cur, prev);
 			this.$prevParamsBuffer[i] = cur;
 			this.paramsChangeCanDispatch.delete(name);
 		}
@@ -156,8 +247,12 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	connectIParam(name, dest, index) {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
-			if (typeof index === 'number') this.connect(dest, i + 1, index);
-			else this.connect(dest, i + 1);
+			if (dest instanceof AudioNode) {
+				if (typeof index === 'number') this.connect(dest, i + 1, index);
+				else this.connect(dest, i + 1);
+			} else {
+				this.connect(dest, i + 1);
+			}
 		}
 	}
 
@@ -169,8 +264,12 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	disconnectIParam(name, dest, index) {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
-			if (typeof index === 'number') this.disconnect(dest, i + 1, index);
-			else this.disconnect(dest, i + 1);
+			if (dest instanceof AudioNode) {
+				if (typeof index === 'number') this.disconnect(dest, i + 1, index);
+				else this.disconnect(dest, i + 1);
+			} else {
+				this.disconnect(dest, i + 1);
+			}
 		}
 	}
 
@@ -192,6 +291,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	getParams() {
+		// @ts-ignore
 		return Object.fromEntries(this.parameters);
 	}
 
@@ -324,11 +424,12 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		return param.cancelAndHoldAtTime(cancelTime);
 	}
 
-	destroy() {
+	async destroy() {
 		this.disconnect();
 		this.paramsUpdateCheckFnRef.forEach((ref) => {
 			if (typeof ref === 'number') window.clearTimeout(ref);
 		});
-		super.destroy();
+		await this.call('destroy');
+		this.port.close();
 	}
 }

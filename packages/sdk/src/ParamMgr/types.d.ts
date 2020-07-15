@@ -1,8 +1,5 @@
 /* eslint-disable max-len */
-
-import {
-	WamAudioWorkletCommon, WamEvent, WamNodeOptions, WamParameterInfoMap,
-} from '../api/WamTypes';
+import { WamNodeOptions, WamParameterInfoMap, WamNode } from '../api/WamTypes';
 
 export class AudioWorkletRegister {
 	/**
@@ -19,12 +16,71 @@ export class AudioWorkletRegister {
 	 */
 	static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>
 }
-
-export interface WamNodeFunctionMap extends WamAudioWorkletCommon {
-	dispatchEvent(e: WamEvent): void;
+export interface InternalParameterDescriptor {
+    /**
+     * `0` by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    defaultValue?: number;
+    /**
+     * `0` by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    minValue?: number;
+    /**
+     * `1` by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    maxValue?: number;
+    /**
+     * `30` (1/30s for each change check) by default
+     *
+     * @type {number}
+     * @memberof InternalParameterDescriptor
+     */
+    automationRate?: number;
+    /**
+     * The default event listener,
+     * the event will be fired when the param get changed
+     *
+     * @memberof InternalParameterDescriptor
+     */
+    onChange?: (value: number, previousValue: number) => any;
 }
+export type InternalParametersDescriptor<InternalParams extends string = string> = Record<InternalParams, AudioParam | InternalParameterDescriptor>;
+export interface ParameterMappingTarget {
+    /**
+     * Source param's `[minValue, maxValue]` by default
+     *
+     * @type {[number, number]}
+     * @memberof ParameterMappingTarget
+     */
+    sourceRange?: [number, number];
+    /**
+     * Source param's `[minValue, maxValue]` by default
+     *
+     * @type {[number, number]}
+     * @memberof ParameterMappingTarget
+     */
+    targetRange?: [number, number];
+}
+export type ParametersMapping<Params extends string = string, InternalParams extends string = string> = Record<Params, Record<InternalParams, ParameterMappingTarget>>;
+
+export type PromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => PromiseLike<ReturnType<F>>;
+
+export type UnPromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => ReturnType<F> extends PromiseLike<infer P> ? P : ReturnType<F>;
+
 export type PromisifiedFunctionMap<T> = {
-	[K in keyof T]: T[K] extends (...args: any[]) => any ? (...args: Parameters<T[K]>) => PromiseLike<ReturnType<T[K]>> | ReturnType<T[K]> : T[K];
+	[K in keyof T]: T[K] extends (...args: any[]) => any ? PromisifiedFunction<T[K]> : T[K];
+};
+export type UnPromisifiedFunctionMap<T> = {
+	[K in keyof T]: T[K] extends (...args: any[]) => any ? UnPromisifiedFunction<T[K]> : T[K];
 };
 export interface MessagePortRequest<M = Record<string, (...args: any[]) => any>, K extends keyof M = keyof M> {
 	id: number;
@@ -37,12 +93,12 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
 	error?: Error;
 }
 
-export interface ParamMgrCallToProcessor extends Pick<WamNodeFunctionMap, 'destroy'> {
+export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues'>> {
 	setParamsMapping(mapping: ParametersMapping): void;
 	getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
 }
-export interface ParamMgrCallFromProcessor extends Omit<WamNodeFunctionMap, 'getParameterInfo' | 'getParameterValues'> {
-	setBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
+export interface ParamMgrCallFromProcessor extends Pick<WamNode, 'dispatchEvent'> {
+	setBuffer(buffer: { lock: Int32Array, paramsBuffer: Float32Array }): void;
 }
 export interface ParamMgrAudioWorkletOptions extends WamNodeOptions {
 	paramsConfig: WamParameterInfoMap;

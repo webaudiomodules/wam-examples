@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-len */
@@ -13,10 +14,10 @@
 /** @typedef { import('./types').TypedAudioWorkletProcessor } AudioWorkletProcessor */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
-/** @typedef { import('./types').WamNodeFunctionMap } WamNodeFunctionMap */
 /** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
 /** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
 /** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
+/** @typedef { import('./types').ParametersMapping } ParametersMapping */
 
 /**
  * Main function to stringify as a worklet.
@@ -112,6 +113,7 @@ const processor = (processorId, paramsConfig) => {
 			);
 			this.$lock = new Int32Array(this.buffer, 0, 1);
 			this.$internalParamsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
+
 			/** @type {Record<number, ((...args: any[]) => any)>} */
 			const resolves = {};
 			/** @type {Record<number, ((...args: any[]) => any)>} */
@@ -126,19 +128,30 @@ const processor = (processorId, paramsConfig) => {
 				rejects[id] = reject;
 				this.port.postMessage({ id, call, args });
 			});
-			this.port.onmessage = (e) => {
-				const { id, call, args } = e.data;
-				const r = { id };
-				try {
-					if (call === 'destroy') this.destroy(true);
-					// @ts-ignore
-					else r.value = this[call](...args);
-				} catch (error) {
-					r.error = error;
+			this.handleMessage = ({ data }) => {
+				const { id, call, args, value, error } = data;
+				if (call) {
+					/** @type {any} */
+					const r = { id };
+					try {
+						r.value = this[call](...args);
+					} catch (e) {
+						r.error = e;
+					}
+					this.port.postMessage(r);
+				} else {
+					if (error) {
+						if (rejects[id]) rejects[id](error);
+						delete rejects[id];
+						return;
+					}
+					if (resolves[id]) {
+						resolves[id](value);
+						delete resolves[id];
+					}
 				}
-				// @ts-ignore
-				this.port.postMessage(r);
 			};
+			this.port.addEventListener('message', this.handleMessage);
 		}
 
 		/**
@@ -190,13 +203,6 @@ const processor = (processorId, paramsConfig) => {
 				};
 			});
 			return parameterValues;
-		}
-
-		/**
-		 * @param {WamParameterValueMap} parameterUpdates
-		 */
-		setParameterValues(parameterUpdates) {
-			return this.call('setParameterValues', parameterUpdates);
 		}
 
 		/**
@@ -264,10 +270,9 @@ const processor = (processorId, paramsConfig) => {
 			return true;
 		}
 
-		destroy(passive = false) {
+		destroy() {
 			this.destroyed = true;
 			this.port.close();
-			if (!passive) this.call('destroy');
 		}
 	}
 	registerProcessor(processorId, ParamMgrProcessor);
