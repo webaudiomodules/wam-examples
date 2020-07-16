@@ -60,6 +60,8 @@ declare interface ParamMgrNode<Params extends string = string, InternalParams ex
      * waiting for the processor that gives the `paramsBuffer` `SharedArrayBuffer`
      */
     initialize(): Promise<ParamMgrNode>;
+    _connect(...args: any[]): void;
+    _disconnect(...args: any[]): void;
     /**
      * convert an WebAudio time stamp to frame index
      */

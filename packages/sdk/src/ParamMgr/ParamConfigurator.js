@@ -6,7 +6,7 @@
 /** @typedef { import('./types').InternalParametersDescriptor } InternalParametersDescriptor */
 /** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */
 
-import WamParameterInfo from '../WamParameterInfo';
+import WamParameterInfo from '../WamParameterInfo.js';
 
 export default class ParamMappingConfigurator {
 	/**

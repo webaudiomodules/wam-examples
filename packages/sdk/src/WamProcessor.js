@@ -4,7 +4,7 @@
 /** @typedef { import('./api/WamTypes').WamParameterMap } WamParameterMap */
 /** @typedef { import('./api/WamTypes').WamEvent } WamEvent */
 
-import { WamParameterNoSab, WamParameterSab } from './WamParameter';
+import { WamParameterNoSab, WamParameterSab } from './WamParameter.js';
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */

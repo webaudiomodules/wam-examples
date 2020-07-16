@@ -1,19 +1,15 @@
 /* eslint-disable max-len */
-import ParamMgrNode from './ParamMgrNode';
 import { WebAudioModule } from '../api/WamTypes';
+import { ParamMgrOptions, ParametersMappingConfiguratorOptions } from './types';
 
 declare class ParamMgrRegister {
 	/**
 	 * Get a ParamManager as an AudioWorkletNode instance
 	 *
-	 * @static
-	 * @template P Params
-	 * @template I InternalParams
      * @param {WebAudioModule} module the module instance
-	 * @param {Record<string, number>} initialParamsValue initial params values
-	 * @returns {Promise<ParamMgrNode>} `ParamMgrNode` instance
-	 * @memberof ParamMgrRegister
+	 * @param {number} [numberOfInputs = 1]
+	 * @param {ParametersMappingConfiguratorOptions} [optionsIn = {}]
 	 */
-	static register<P extends string = string, I extends string = string>(module: WebAudioModule, initialParamsValue: Record<P, number>): Promise<ParamMgrNode<P, I>>
+	static register(module: WebAudioModule, numberOfInputs?: number, optionsIn?: ParametersMappingConfiguratorOptions): Promise<ParamMgrOptions>;
 }
 export default ParamMgrRegister;

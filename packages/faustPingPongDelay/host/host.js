@@ -1,5 +1,5 @@
 // Load the sdk with an es import (script type="module" necessary)
-import { Loader } from '../../sdk/esm/index.js';
+import * as Loader from '../../sdk/src/Loader.js';
 
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
@@ -31,8 +31,8 @@ const mountPlugin = (domNode) => {
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-    const instance = await faustPluginFactory.createInstance(audioContext,{});
-    
+	const instance = await faustPluginFactory.createInstance(audioContext, {});
+
 	window.instance = instance;
 
 	// Connect the audionode to the host
@@ -45,7 +45,6 @@ const mountPlugin = (domNode) => {
 	mountPlugin(pluginDomNode);
 
 	player.onplay = () => {
-		let state;
 		audioContext.resume(); // audio context must be resumed because browser restrictions
 	};
 })();

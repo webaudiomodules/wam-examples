@@ -354,10 +354,10 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 	}
 
     handleAnimationFrame = () => {
-        this._root.getElementById('/PingPongDelayFaust/feedback').value = this._plug.params['/PingPongDelayFaust/feedback'];
-		this._root.getElementById('/PingPongDelayFaust/time').value = this._plug.params['/PingPongDelayFaust/time'];
-		this._root.getElementById('/PingPongDelayFaust/mix').value = this._plug.params['/PingPongDelayFaust/mix'];
-		this._root.getElementById('/PingPongDelayFaust/bypass').value = this._plug.params['/PingPongDelayFaust/bypass'];
+        this._root.getElementById('/PingPongDelayFaust/feedback').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/feedback');
+		this._root.getElementById('/PingPongDelayFaust/time').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/time');
+		this._root.getElementById('/PingPongDelayFaust/mix').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/mix');
+		this._root.getElementById('/PingPongDelayFaust/bypass').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/bypass');
 		window.requestAnimationFrame(this.handleAnimationFrame);
     }
     
@@ -383,7 +383,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		this._root
 			.getElementById('/PingPongDelayFaust/feedback')
 			.addEventListener('input', (e) =>
-				this._plug.setParam(
+				this._plug.audioNode.setParamValue(
 					'/PingPongDelayFaust/feedback',
 					e.target.value
 				)
@@ -391,12 +391,12 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		this._root
 			.getElementById('/PingPongDelayFaust/mix')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('/PingPongDelayFaust/mix', e.target.value)
+				this._plug.audioNode.setParamValue('/PingPongDelayFaust/mix', e.target.value)
 			);
 		this._root
 			.getElementById('/PingPongDelayFaust/time')
 			.addEventListener('input', (e) =>
-				this._plug.setParam('/PingPongDelayFaust/time', e.target.value)
+				this._plug.audioNode.setParamValue('/PingPongDelayFaust/time', e.target.value)
 			);
 	}
 
@@ -406,9 +406,9 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		this._root
 			.getElementById('/PingPongDelayFaust/bypass')
 			.addEventListener('change', (e) =>
-				this._plug.setParam(
+				this._plug.audioNode.setParamValue(
 					'/PingPongDelayFaust/bypass',
-					1 - e.target.value
+					e.target.value
 				)
 			);
 	}
@@ -417,7 +417,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		let switches = this._root.querySelectorAll('.switch webaudio-switch');
 		switches.forEach((s) => {
 			console.log('### SWITCH ID = ' + s.id);
-			this._plug.setParam(s.id, 1);
+			this._plug.audioNode.setParamValue(s.id, 1);
 		});
 	}
 }

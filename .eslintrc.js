@@ -45,7 +45,7 @@ module.exports = {
                 ignoreRestSiblings: true
             }
         ],
-        "import/extensions": ["error", "never"],
+        'import/extensions': ['error', 'always', { pattern: { 'ts': 'never' } }],
 	},
     settings: {
         'import/resolver': {

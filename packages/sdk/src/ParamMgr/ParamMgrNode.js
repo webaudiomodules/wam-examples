@@ -1,4 +1,5 @@
-import MgrAudioParam from './MgrAudioParam';
+/* eslint-disable no-underscore-dangle */
+import MgrAudioParam from './MgrAudioParam.js';
 
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
@@ -43,7 +44,6 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			processorOptions: options.processorOptions,
 		});
 		const { processorOptions, internalParamsConfig } = options;
-		const { audioContext } = module;
 		this.initialized = false;
 		this.module = module;
 		this.paramsConfig = processorOptions.paramsConfig;
@@ -56,7 +56,6 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
 			param.info = this.paramsConfig[name];
 		});
-		this.connect(audioContext.destination, 0, 0);
 
 		/** @type {Record<number, ((...args: any[]) => any)>} */
 		const resolves = {};
@@ -95,8 +94,14 @@ export default class ParamMgrNode extends AudioWorkletNode {
 				}
 			}
 		};
-		this.port.addEventListener('message', this.handleMessage);
+		this.port.onmessage = this.handleMessage;
 	}
+
+	// @ts-ignore
+	_connect(...args) { super.connect(...args); }
+
+	// @ts-ignore
+	_disconnect(...args) { super.disconnect(...args); }
 
 	/**
 	 * @returns {ReadonlyMap<string, MgrAudioParam>}
@@ -127,10 +132,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 					config.automationRate = 'a-rate';
 				} finally {
 					config.value = Math.max(0, config.minValue);
-					this.connect(config, i + 1);
+					this._connect(config, this.numberOfInputs + i);
 				}
 			} else if (config instanceof AudioNode) {
-				this.connect(config, i + 1);
+				this._connect(config, this.numberOfInputs + i);
 			} else {
 				this.requestDispatchIParamChange(name);
 			}
@@ -240,10 +245,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this.connect(dest, offset + i, index);
-				else this.connect(dest, offset + i);
+				if (typeof index === 'number') this._connect(dest, offset + i, index);
+				else this._connect(dest, offset + i);
 			} else {
-				this.connect(dest, offset + i);
+				this._connect(dest, offset + i);
 			}
 		}
 	}
@@ -258,10 +263,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this.disconnect(dest, offset + i, index);
-				else this.disconnect(dest, offset + i);
+				if (typeof index === 'number') this._disconnect(dest, offset + i, index);
+				else this._disconnect(dest, offset + i);
 			} else {
-				this.disconnect(dest, offset + i);
+				this._disconnect(dest, offset + i);
 			}
 		}
 	}
@@ -418,7 +423,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	async destroy() {
-		this.disconnect();
+		this._disconnect();
 		this.paramsUpdateCheckFnRef.forEach((ref) => {
 			if (typeof ref === 'number') window.clearTimeout(ref);
 		});

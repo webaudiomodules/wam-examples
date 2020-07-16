@@ -147,7 +147,7 @@ const processor = (processorId, paramsConfig) => {
 					}
 				}
 			};
-			this.port.addEventListener('message', this.handleMessage);
+			this.port.onmessage = this.handleMessage;
 		}
 
 		/**
@@ -228,7 +228,9 @@ const processor = (processorId, paramsConfig) => {
 			if (this.destroyed) return false;
 			const numberOfInputs = inputs.length;
 			inputs.forEach((input, i) => { // Copy inputs to outputs
-				outputs[i] = input;
+				input.forEach((channel, j) => {
+					outputs[i][j] = new Float32Array(channel);
+				});
 			});
 			this.lock();
 			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }]) => {
