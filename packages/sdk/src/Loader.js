@@ -21,11 +21,13 @@ export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
 	} = descriptor;
 	const entryModuleUrl = new URL(entry, url);
 	const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
+	// @ts-ignore
 	const { default: PluginClass } = await import(/* webpackIgnore: true */entryModuleUrl);
 
 	const options = { ...defaultLoadOptions, ...optionsIn };
 	// if gui wanted, we load it right now
 	// if not wanted, the gui will be loaded when calling plugin.createGui()
+	// @ts-ignore
 	if (!options.noGui && guiModuleUrl) { await import(/* webpackIgnore: true */guiModuleUrl); }
 
 	/**

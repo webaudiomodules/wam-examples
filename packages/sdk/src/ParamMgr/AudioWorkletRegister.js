@@ -13,6 +13,7 @@ export default class AudioWorkletRegister {
 	static async registerProcessor(processorId, processor, audioWorklet, ...injection) {
 		this.registeringProcessors.get(audioWorklet).add(processorId);
 		try {
+			// @ts-ignore
 			const url = window.URL.createObjectURL(new Blob([`(${processor.toString()})(${[processorId, ...injection].map(JSON.stringify).join(', ')});`], { type: 'text/javascript' }));
 			await audioWorklet.addModule(url);
 			this.resolves[processorId].forEach((f) => f());

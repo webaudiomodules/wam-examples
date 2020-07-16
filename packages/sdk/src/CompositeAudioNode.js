@@ -42,11 +42,11 @@ export default class CompositeAudioNode extends GainNode {
 	}
 
 	connect(...args) {
-		this._output.connect(...args);
+		return this._output.connect(...args);
 	}
 
 	disconnect(...args) {
-		this._output.disconnect(...args);
+		return this._output.disconnect(...args);
 	}
 
 	connectMidi(dest, outindex, inindex) {

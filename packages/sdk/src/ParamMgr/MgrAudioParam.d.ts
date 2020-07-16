@@ -1,56 +1,7 @@
-import { TypedEventEmitter } from '../WebAudioPlugin';
+/* eslint-disable max-len */
+import { WamParameter } from '../api/WamTypes';
 
-/**
- * Extended `AudioParam` for normalized value support and event emissions.
- *
- * @interface MgrAudioParam
- * @extends {AudioParam}
- */
-declare interface MgrAudioParam extends AudioParam {
-    /**
-     * The event emitter for automation events
-     *
-     * @type {TypedEventEmitter}
-     * @memberof MgrAudioParam
-     */
-    emitter: TypedEventEmitter;
-    /**
-     * the parameter name
-     *
-     * @type {string}
-     * @memberof MgrAudioParam
-     */
-    name: string;
-    /**
-     * exponent factor declared in `descriptor.json`
-     *
-     * @type {number}
-     * @memberof MgrAudioParam
-     */
-    exponent: number;
-    /**
-     * normalize value following current max/max/exponent
-     *
-     * @param {number} value
-     * @returns {number}
-     * @memberof MgrAudioParam
-     */
-    normalize(value: number): number;
-    /**
-     * denormalize value following current max/max/exponent
-     *
-     * @param {number} value
-     * @returns {number}
-     * @memberof MgrAudioParam
-     */
-    denormalize(value: number): number;
-    /**
-     * normalized current param value
-     *
-     * @type {number}
-     * @memberof MgrAudioParam
-     */
-    normalizedValue: number;
+interface MgrAudioParam extends AudioParam, WamParameter {
     // normalized version of methods
     cancelAndHoldAtTime(cancelTime: number): MgrAudioParam;
     cancelScheduledValues(cancelTime: number): MgrAudioParam;
@@ -68,6 +19,6 @@ declare interface MgrAudioParam extends AudioParam {
 
 declare const MgrAudioParam: {
     prototype: MgrAudioParam;
-}
+};
 
 export default MgrAudioParam;

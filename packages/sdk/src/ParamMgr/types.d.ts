@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
-import { WamNodeOptions, WamParameterInfoMap, WamNode } from '../api/WamTypes';
+// eslint-disable-next-line object-curly-newline
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration } from '../api/WamTypes';
 
 export class AudioWorkletRegister {
 	/**
@@ -14,42 +15,28 @@ export class AudioWorkletRegister {
 	 * @param {...any[]} injection this will be serialized and injected to the `processor` function
 	 * @returns {Promise<void>} a Promise<void>
 	 */
-	static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>
+	static register(processorId: string, processor: (id: string, ...injections: any[]) => void, audioWorklet: AudioWorklet, ...injection: any[]): Promise<void>;
 }
 export interface InternalParameterDescriptor {
     /**
      * `0` by default
-     *
-     * @type {number}
-     * @memberof InternalParameterDescriptor
      */
     defaultValue?: number;
     /**
      * `0` by default
-     *
-     * @type {number}
-     * @memberof InternalParameterDescriptor
      */
     minValue?: number;
     /**
      * `1` by default
-     *
-     * @type {number}
-     * @memberof InternalParameterDescriptor
      */
     maxValue?: number;
     /**
      * `30` (1/30s for each change check) by default
-     *
-     * @type {number}
-     * @memberof InternalParameterDescriptor
      */
     automationRate?: number;
     /**
      * The default event listener,
      * the event will be fired when the param get changed
-     *
-     * @memberof InternalParameterDescriptor
      */
     onChange?: (value: number, previousValue: number) => any;
 }
@@ -57,20 +44,20 @@ export type InternalParametersDescriptor<InternalParams extends string = string>
 export interface ParameterMappingTarget {
     /**
      * Source param's `[minValue, maxValue]` by default
-     *
-     * @type {[number, number]}
-     * @memberof ParameterMappingTarget
      */
     sourceRange?: [number, number];
     /**
      * Source param's `[minValue, maxValue]` by default
-     *
-     * @type {[number, number]}
-     * @memberof ParameterMappingTarget
      */
     targetRange?: [number, number];
 }
 export type ParametersMapping<Params extends string = string, InternalParams extends string = string> = Record<Params, Record<InternalParams, ParameterMappingTarget>>;
+
+export interface ParametersMappingConfiguratorOptions {
+    paramsConfig?: Record<string, WamParameterConfiguration>;
+    paramsMapping?: ParametersMapping;
+    internalParamsConfig?: InternalParametersDescriptor;
+}
 
 export type PromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => PromiseLike<ReturnType<F>>;
 
@@ -105,6 +92,9 @@ export interface ParamMgrAudioWorkletOptions extends WamNodeOptions {
 	paramsMapping: ParametersMapping;
 	internalParamsMinValues: number[];
 	internalParams: string[];
+}
+export interface ParamMgrOptions extends TypedAudioWorkletNodeOptions<ParamMgrAudioWorkletOptions> {
+	internalParamsConfig: InternalParametersDescriptor;
 }
 
 // AudioWorkletProcessor

@@ -5,20 +5,15 @@ import MgrAudioParam from './MgrAudioParam';
 /* eslint-disable no-undef */
 /* eslint-disable prefer-destructuring */
 
-/** @typedef { import('sdk/src/api/WamTypes').WebAudioModule } WebAudioModule */
-/** @typedef { import('sdk/src/api/WamTypes').WamNode } WamNode */
-/** @typedef { import('sdk/src/api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('sdk/src/api/WamTypes').WamParameterValueMap } WamParameterValueMap */
-/** @typedef { import('sdk/src/api/WamTypes').WamNodeOptions } WamNodeOptions */
-/** @typedef { import('sdk/src/api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('../api/WamTypes').WebAudioModule } WebAudioModule */
+/** @typedef { import('../api/WamTypes').WamNode } WamNode */
+/** @typedef { import('../api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/WamTypes').WamEvent } WamEvent */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
-/** @template O @typedef { import('./types').TypedAudioWorkletNodeOptions<O> } TypedAudioWorkletNodeOptions */
+/**  @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
 /** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
 /** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
-/** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
-/** @typedef { import('./types').ParametersMapping } ParametersMapping */
-/** @typedef { import('./types').InternalParametersDescriptor } InternalParametersDescriptor */
 
 /** @type {typeof import('./types').TypedAudioWorkletNode} */
 // @ts-ignore
@@ -27,7 +22,6 @@ const AudioWorkletNode = globalThis.AudioWorkletNode;
 /**
  * @typedef {MessagePortResponse<ParamMgrCallToProcessor> & MessagePortRequest<ParamMgrCallFromProcessor>} MsgIn
  * @typedef {MessagePortRequest<ParamMgrCallToProcessor> & MessagePortResponse<ParamMgrCallFromProcessor>} MsgOut
- * @typedef {ParamMgrAudioWorkletOptions} O
  */
 /**
  * @export
@@ -38,19 +32,17 @@ const AudioWorkletNode = globalThis.AudioWorkletNode;
  */
 export default class ParamMgrNode extends AudioWorkletNode {
 	/**
-     * @param {WebAudioModule} module AudioContext
-     * @param {TypedAudioWorkletNodeOptions<ParamMgrAudioWorkletOptions>} options AudioContext
-	 * @param {InternalParametersDescriptor} internalParamsConfig
-     * @memberof ParamMgrNode
+     * @param {WebAudioModule} module
+     * @param {ParamMgrOptions} options
      */
-	constructor(module, options, internalParamsConfig) {
+	constructor(module, options) {
 		super(module.audioContext, module.processorId, {
 			numberOfInputs: options.numberOfInputs,
 			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
 			parameterData: options.parameterData,
 			processorOptions: options.processorOptions,
 		});
-		const { processorOptions } = options;
+		const { processorOptions, internalParamsConfig } = options;
 		const { audioContext } = module;
 		this.initialized = false;
 		this.module = module;
@@ -62,9 +54,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		this.paramsUpdateCheckFnRef = [];
 		Object.entries(this.getParams()).forEach(([name, param]) => {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
-			param.emitter = module;
-			param.name = name;
-			param.exponent = this.paramsConfig[name]?.exponent || 0;
+			param.info = this.paramsConfig[name];
 		});
 		this.connect(audioContext.destination, 0, 0);
 
@@ -146,10 +136,11 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			}
 		});
 		this.initialized = true;
+		return this;
 	}
 
 	/**
-	 * @param {{ lock: Int32Array, paramsBuffer: Float32Array }}
+	 * @param {{ lock: Int32Array, paramsBuffer: Float32Array }} buffer
 	 */
 	setBuffer({ lock, paramsBuffer }) {
 		this.$lock = lock;
@@ -245,13 +236,14 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {number} index
 	 */
 	connectIParam(name, dest, index) {
+		const offset = this.numberOfInputs;
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this.connect(dest, i + 1, index);
-				else this.connect(dest, i + 1);
+				if (typeof index === 'number') this.connect(dest, offset + i, index);
+				else this.connect(dest, offset + i);
 			} else {
-				this.connect(dest, i + 1);
+				this.connect(dest, offset + i);
 			}
 		}
 	}
@@ -262,13 +254,14 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {number} index
 	 */
 	disconnectIParam(name, dest, index) {
+		const offset = this.numberOfInputs;
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this.disconnect(dest, i + 1, index);
-				else this.disconnect(dest, i + 1);
+				if (typeof index === 'number') this.disconnect(dest, offset + i, index);
+				else this.disconnect(dest, offset + i);
 			} else {
-				this.disconnect(dest, i + 1);
+				this.disconnect(dest, offset + i);
 			}
 		}
 	}

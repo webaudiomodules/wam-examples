@@ -4,12 +4,11 @@
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
-/** @typedef { import('sdk/src/api/WamTypes').WamProcessor } WamProcessor */
-/** @typedef { import('sdk/src/api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('sdk/src/api/WamTypes').WamParameterValueMap } WamParameterValueMap */
-/** @typedef { import('sdk/src/api/WamTypes').WamNodeOptions } WamNodeOptions */
-/** @typedef { import('sdk/src/api/WamTypes').WamEvent } WamEvent */
-/** @template O @typedef { import('./types').TypedAudioWorkletNodeOptions<O> } TypedAudioWorkletNodeOptions */
+/** @typedef { import('../api/WamTypes').WamProcessor } WamProcessor */
+/** @typedef { import('../api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('../api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./types').ParamMgrOptions } ParamMgrProcessorOptions */
 /** @typedef { import('./types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
 /** @typedef { import('./types').TypedAudioWorkletProcessor } AudioWorkletProcessor */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
@@ -58,7 +57,6 @@ const processor = (processorId, paramsConfig) => {
 	/**
 	 * @typedef {MessagePortRequest<ParamMgrCallToProcessor> & MessagePortResponse<ParamMgrCallFromProcessor>} MsgIn
 	 * @typedef {MessagePortResponse<ParamMgrCallToProcessor> & MessagePortRequest<ParamMgrCallFromProcessor>} MsgOut
-	 * @typedef {ParamMgrAudioWorkletOptions} O
 	 */
 	/**
 	 * `ParamMgrNode`'s `AudioWorkletProcessor`
@@ -83,7 +81,7 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		/**
-		 * @param {TypedAudioWorkletNodeOptions<O>} options
+		 * @param {ParamMgrProcessorOptions} options
 		 * @memberof ParamMgrProcessor
 		 */
 		constructor(options) {
@@ -108,9 +106,7 @@ const processor = (processorId, paramsConfig) => {
 			});
 			this.internalParams = internalParams;
 			this.internalParamsCount = this.internalParams.length;
-			this.buffer = new SharedArrayBuffer(
-				(this.internalParamsCount + 1) * Float32Array.BYTES_PER_ELEMENT,
-			);
+			this.buffer = new SharedArrayBuffer((this.internalParamsCount + 1) * Float32Array.BYTES_PER_ELEMENT);
 			this.$lock = new Int32Array(this.buffer, 0, 1);
 			this.$internalParamsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
 

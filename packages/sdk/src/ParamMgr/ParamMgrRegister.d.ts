@@ -1,19 +1,19 @@
-import AudioWorkletRegister from './AudioWorkletRegister';
+/* eslint-disable max-len */
 import ParamMgrNode from './ParamMgrNode';
-import WebAudioPlugin from '../WebAudioPlugin';
+import { WebAudioModule } from '../api/WamTypes';
 
-declare class ParamMgrRegister extends AudioWorkletRegister {
+declare class ParamMgrRegister {
 	/**
 	 * Get a ParamManager as an AudioWorkletNode instance
 	 *
 	 * @static
 	 * @template P Params
 	 * @template I InternalParams
-     * @param {WebAudioPlugin} plugin the plugin instance
+     * @param {WebAudioModule} module the module instance
 	 * @param {Record<string, number>} initialParamsValue initial params values
 	 * @returns {Promise<ParamMgrNode>} `ParamMgrNode` instance
 	 * @memberof ParamMgrRegister
 	 */
-	static getNode<P extends string = string, I extends string = string>(plugin: WebAudioPlugin<any, P, I>, initialParamsValue: Record<P, number>): Promise<ParamMgrNode<P, I>>
+	static register<P extends string = string, I extends string = string>(module: WebAudioModule, initialParamsValue: Record<P, number>): Promise<ParamMgrNode<P, I>>
 }
 export default ParamMgrRegister;
