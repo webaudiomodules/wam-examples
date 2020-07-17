@@ -357,7 +357,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
         this._root.getElementById('/PingPongDelayFaust/feedback').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/feedback');
 		this._root.getElementById('/PingPongDelayFaust/time').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/time');
 		this._root.getElementById('/PingPongDelayFaust/mix').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/mix');
-		this._root.getElementById('/PingPongDelayFaust/bypass').value = this._plug.audioNode.getParamValue('/PingPongDelayFaust/bypass');
+		this._root.getElementById('/PingPongDelayFaust/bypass').value = 1 - this._plug.audioNode.getParamValue('/PingPongDelayFaust/bypass');
 		window.requestAnimationFrame(this.handleAnimationFrame);
     }
     
@@ -408,7 +408,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			.addEventListener('change', (e) =>
 				this._plug.audioNode.setParamValue(
 					'/PingPongDelayFaust/bypass',
-					e.target.value
+					1 - e.target.value
 				)
 			);
 	}
@@ -417,7 +417,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 		let switches = this._root.querySelectorAll('.switch webaudio-switch');
 		switches.forEach((s) => {
 			console.log('### SWITCH ID = ' + s.id);
-			this._plug.audioNode.setParamValue(s.id, 1);
+			this._plug.audioNode.setParamValue(s.id, 0);
 		});
 	}
 }

@@ -18,18 +18,9 @@ import PluginFactory from './Node.js';
 
 
 class FaustPingPongDelayNode extends CompositeAudioNode {
-	constructor(module, options, output) {
-		super(module, options);
+	setup(output) {
+		this.connect(output, 0, 0);
 		this._output = output;
-		this.setup();
-	}
-
-	connectNodes() {
-		super._connect(this._output, 0, 0);
-	}
-
-	setup() {
-		this.connectNodes();
 	}
 }
 
@@ -47,8 +38,9 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		const factory = new PluginFactory(this.audioContext, baseURL);
 		const faustNode = await factory.load();
 		const options = await ParamMgrRegister.register(this, faustNode.numberOfInputs, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
-		const node = new FaustPingPongDelayNode(this, options, faustNode);
-		await node.initialize();
-		return node;
+		const paramMgrNode = new FaustPingPongDelayNode(this, options, faustNode);
+		await paramMgrNode.initialize();
+		paramMgrNode.setup(faustNode);
+		return paramMgrNode;
 	}
 }

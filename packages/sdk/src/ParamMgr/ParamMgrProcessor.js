@@ -229,7 +229,7 @@ const processor = (processorId, paramsConfig) => {
 			const numberOfInputs = inputs.length;
 			inputs.forEach((input, i) => { // Copy inputs to outputs
 				input.forEach((channel, j) => {
-					outputs[i][j] = new Float32Array(channel);
+					outputs[i][j].set(channel);
 				});
 			});
 			this.lock();

@@ -38,6 +38,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
      */
 	constructor(module, options) {
 		super(module.audioContext, module.processorId, {
+			outputChannelCount: [...new Array(options.numberOfInputs).fill(options.channelCount || 2), ...options.processorOptions.internalParams.map(() => 1)],
 			numberOfInputs: options.numberOfInputs,
 			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
 			parameterData: options.parameterData,
@@ -97,12 +98,6 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		this.port.onmessage = this.handleMessage;
 	}
 
-	// @ts-ignore
-	_connect(...args) { super.connect(...args); }
-
-	// @ts-ignore
-	_disconnect(...args) { super.disconnect(...args); }
-
 	/**
 	 * @returns {ReadonlyMap<string, MgrAudioParam>}
 	 */
@@ -132,10 +127,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 					config.automationRate = 'a-rate';
 				} finally {
 					config.value = Math.max(0, config.minValue);
-					this._connect(config, this.numberOfInputs + i);
+					this.connect(config, this.numberOfInputs + i);
 				}
 			} else if (config instanceof AudioNode) {
-				this._connect(config, this.numberOfInputs + i);
+				this.connect(config, this.numberOfInputs + i);
 			} else {
 				this.requestDispatchIParamChange(name);
 			}
@@ -245,10 +240,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this._connect(dest, offset + i, index);
-				else this._connect(dest, offset + i);
+				if (typeof index === 'number') this.connect(dest, offset + i, index);
+				else this.connect(dest, offset + i);
 			} else {
-				this._connect(dest, offset + i);
+				this.connect(dest, offset + i);
 			}
 		}
 	}
@@ -263,10 +258,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
-				if (typeof index === 'number') this._disconnect(dest, offset + i, index);
-				else this._disconnect(dest, offset + i);
+				if (typeof index === 'number') this.disconnect(dest, offset + i, index);
+				else this.disconnect(dest, offset + i);
 			} else {
-				this._disconnect(dest, offset + i);
+				this.disconnect(dest, offset + i);
 			}
 		}
 	}
@@ -423,7 +418,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	async destroy() {
-		this._disconnect();
+		this.disconnect();
 		this.paramsUpdateCheckFnRef.forEach((ref) => {
 			if (typeof ref === 'number') window.clearTimeout(ref);
 		});

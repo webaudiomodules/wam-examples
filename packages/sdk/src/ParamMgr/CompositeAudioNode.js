@@ -6,26 +6,13 @@
 import ParamMgrNode from './ParamMgrNode.js';
 
 export default class CompositeAudioNode extends ParamMgrNode {
-	// @ts-ignore
-	_connect(...args) { super._connect(...args); }
-
-	// @ts-ignore
-	_disconnect(...args) { super._disconnect(...args); }
-
-	get output() { return this._output; }
-
-	connect = (...args) => { return this.output.connect(...args); }
-
-	disconnect = (...args) => { return this.output.disconnect(...args); }
-
-	createNodes() {
-		this._output = this;
+	_output = undefined;
+	connect(...args) {
+		if (this._output) return this._output.connect(...args);
+		return super.connect(...args);
 	}
-
-	connectNodes() {}
-
-	setup() {
-		this.createNodes();
-		this.connectNodes();
+	disconnect(...args) {
+		if (this._output) return this._output.disconnect(...args);
+		return super.disconnect(...args);
 	}
 }
