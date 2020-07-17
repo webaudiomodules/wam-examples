@@ -27,7 +27,7 @@ const mountPlugin = (domNode) => {
 (async () => {
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
-	const faustPluginFactory = await Loader.loadPluginFromUrl('../plugin/descriptor.json'/*, { noGui: true }*/);
+	const faustPluginFactory = await Loader.loadModuleFromUrl('../plugin/descriptor.json'/*, { noGui: true }*/);
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin

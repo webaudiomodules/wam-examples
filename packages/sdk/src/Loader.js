@@ -13,7 +13,7 @@ export const getDescriptorFromUrl = async (url) => {
 	return descriptor;
 };
 
-export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
+export const loadModuleFromDescriptor = async (descriptor, optionsIn) => {
 	const {
 		entry = './index.js',
 		gui = './gui.js',
@@ -22,7 +22,7 @@ export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
 	const entryModuleUrl = new URL(entry, url);
 	const guiModuleUrl = gui === 'none' ? undefined : new URL(gui, url);
 	// @ts-ignore
-	const { default: PluginClass } = await import(/* webpackIgnore: true */entryModuleUrl);
+	const { default: WamClass } = await import(/* webpackIgnore: true */entryModuleUrl);
 
 	const options = { ...defaultLoadOptions, ...optionsIn };
 	// if gui wanted, we load it right now
@@ -33,14 +33,14 @@ export const loadPluginFromDescriptor = async (descriptor, optionsIn) => {
 	/**
 	 * Extends Plugin with actual descriptor and gui module url
 	 */
-	PluginClass.descriptor = descriptor;
-	PluginClass.guiModuleUrl = guiModuleUrl;
+	WamClass.descriptor = descriptor;
+	WamClass.guiModuleUrl = guiModuleUrl;
 
-	return PluginClass;
+	return WamClass;
 };
 
-export const loadPluginFromUrl = async (url, options) => {
+export const loadModuleFromUrl = async (url, options) => {
 	const descriptor = await getDescriptorFromUrl(url);
-	const plugin = await loadPluginFromDescriptor(descriptor, options);
-	return plugin;
+	const WamClass = await loadModuleFromDescriptor(descriptor, options);
+	return WamClass;
 };

@@ -3,7 +3,7 @@
 import AudioWorkletRegister from './AudioWorkletRegister.js';
 import processor from './ParamMgrProcessor.js';
 import ParamMappingConfigurator from './ParamConfigurator.js';
-/** @typedef { import('../api/WamTypes').WebAudioModule } WebAudioModule */
+/** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
 /** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */
 /** @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
 

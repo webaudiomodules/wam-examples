@@ -4,10 +4,10 @@
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
-/** @typedef { import('../api/WamTypes').WamProcessor } WamProcessor */
-/** @typedef { import('../api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../api/WamTypes').WamParameterValueMap } WamParameterValueMap */
-/** @typedef { import('../api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('../api/types').WamProcessor } WamProcessor */
+/** @typedef { import('../api/types').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('../api/types').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/types').WamEvent } WamEvent */
 /** @typedef { import('./types').ParamMgrOptions } ParamMgrProcessorOptions */
 /** @typedef { import('./types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
 /** @typedef { import('./types').TypedAudioWorkletProcessor } AudioWorkletProcessor */

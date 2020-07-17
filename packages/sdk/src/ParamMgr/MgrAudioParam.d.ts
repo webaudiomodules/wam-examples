@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { WamParameter } from '../api/WamTypes';
+import { WamParameter } from '../api/types';
 
 interface MgrAudioParam extends AudioParam, WamParameter {
     // normalized version of methods

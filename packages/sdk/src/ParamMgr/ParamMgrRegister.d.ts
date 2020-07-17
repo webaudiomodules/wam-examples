@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { WebAudioModule } from '../api/WamTypes';
+import { WebAudioModule } from '../api/types';
 import { ParamMgrOptions, ParametersMappingConfiguratorOptions } from './types';
 
 declare class ParamMgrRegister {

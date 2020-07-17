@@ -1,5 +1,5 @@
-/** @typedef { import('./api/WamTypes').WamParameterType } WamParameterType */
-/** @typedef { import('./api/WamTypes').WamParameterConfiguration } WamParameterConfiguration */
+/** @typedef { import('./api/types').WamParameterType } WamParameterType */
+/** @typedef { import('./api/types').WamParameterConfiguration } WamParameterConfiguration */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */

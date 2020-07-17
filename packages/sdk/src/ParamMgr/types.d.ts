@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 // eslint-disable-next-line object-curly-newline
-import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration } from '../api/WamTypes';
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration } from '../api/types';
 
 export class AudioWorkletRegister {
 	/**

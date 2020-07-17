@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
-/** @typedef { import('../api/WamTypes').WamParameterConfiguration } WamParameterConfiguration */
-/** @typedef { import('../api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('../api/types').WamParameterConfiguration } WamParameterConfiguration */
+/** @typedef { import('../api/types').WamParameterInfoMap } WamParameterInfoMap */
 /** @typedef { import('./types').ParametersMapping } ParametersMapping */
 /** @typedef { import('./types').InternalParametersDescriptor } InternalParametersDescriptor */
 /** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */

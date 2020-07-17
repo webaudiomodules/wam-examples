@@ -1,8 +1,9 @@
-/** @typedef { import('./api/WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./api/WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('./api/types').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./api/types').WamParameterValueMap } WamParameterValueMap */
 // /** @typedef { import('./WamTypes').WamParameter } WamParameter */
-/** @typedef { import('./api/WamTypes').WamParameterMap } WamParameterMap */
-/** @typedef { import('./api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('./api/types').WamParameterMap } WamParameterMap */
+/** @typedef { import('./api/types').WamEvent } WamEvent */
+/** @typedef { import('./api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
 
 import { WamParameterNoSab, WamParameterSab } from './WamParameter.js';
 
@@ -49,6 +50,12 @@ function setParameterValues(processor, parameterValues) {
 		else parameter.normalizedValue = parameterUpdate.value;
 	});
 }
+
+
+/** @type {AudioWorkletGlobalScope & globalThis} */
+// @ts-ignore
+const audioWorkletGlobalScope = globalThis;
+const { AudioWorkletProcessor } = audioWorkletGlobalScope;
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**

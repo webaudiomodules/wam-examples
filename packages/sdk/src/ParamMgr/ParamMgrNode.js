@@ -6,10 +6,10 @@ import MgrAudioParam from './MgrAudioParam.js';
 /* eslint-disable no-undef */
 /* eslint-disable prefer-destructuring */
 
-/** @typedef { import('../api/WamTypes').WebAudioModule } WebAudioModule */
-/** @typedef { import('../api/WamTypes').WamNode } WamNode */
-/** @typedef { import('../api/WamTypes').WamParameterValueMap } WamParameterValueMap */
-/** @typedef { import('../api/WamTypes').WamEvent } WamEvent */
+/** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
+/** @typedef { import('../api/types').WamNode } WamNode */
+/** @typedef { import('../api/types').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/types').WamEvent } WamEvent */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
 /**  @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
