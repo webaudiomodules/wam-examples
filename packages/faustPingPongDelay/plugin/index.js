@@ -22,6 +22,10 @@ class FaustPingPongDelayNode extends CompositeAudioNode {
 		this.connect(output, 0, 0);
 		this._output = output;
 	}
+	destroy() {
+		super.destroy();
+		this._output.destroy();
+	}
 }
 
 const getBasetUrl = (relativeURL) => {

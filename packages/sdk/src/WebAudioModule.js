@@ -106,4 +106,8 @@ export default class WebAudioModule {
 		const { createElement } = await this.loadGui();
 		return createElement(this, options);
 	}
+
+	destroy() {
+		if (!this._audioNode) this._audioNode.destroy();
+	}
 }
