@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable object-curly-newline */
-import { TypedAudioWorkletNode, MessagePortResponse, ParamMgrCallToProcessor, MessagePortRequest, ParamMgrCallFromProcessor, ParamMgrOptions } from './types';
+import { TypedAudioWorkletNode, MessagePortResponse, ParamMgrCallToProcessor, MessagePortRequest, ParamMgrCallFromProcessor, ParamMgrOptions, InternalParametersDescriptor } from './types';
 import { WebAudioModule, WamNode } from '../api/types';
 
 interface MsgIn extends MessagePortResponse<ParamMgrCallToProcessor>, MessagePortRequest<ParamMgrCallFromProcessor> {}
