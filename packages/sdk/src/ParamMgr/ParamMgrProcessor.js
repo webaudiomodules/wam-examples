@@ -110,6 +110,7 @@ const processor = (processorId, paramsConfig) => {
 			this.$lock = new Int32Array(this.buffer, 0, 1);
 			this.$internalParamsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
 
+			this.messagePortRequestId = -1;
 			/** @type {Record<number, ((...args: any[]) => any)>} */
 			const resolves = {};
 			/** @type {Record<number, ((...args: any[]) => any)>} */
@@ -119,7 +120,7 @@ const processor = (processorId, paramsConfig) => {
 			 * @param {any} args
 			 */
 			this.call = (call, ...args) => new Promise((resolve, reject) => {
-				const id = performance.now();
+				const id = this.messagePortRequestId--;
 				resolves[id] = resolve;
 				rejects[id] = reject;
 				this.port.postMessage({ id, call, args });
