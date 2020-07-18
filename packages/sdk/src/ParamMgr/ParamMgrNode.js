@@ -95,7 +95,8 @@ export default class ParamMgrNode extends AudioWorkletNode {
 				}
 			}
 		};
-		this.port.onmessage = this.handleMessage;
+		this.port.start();
+		this.port.addEventListener('message', this.handleMessage);
 	}
 
 	/**

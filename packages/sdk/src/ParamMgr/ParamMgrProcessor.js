@@ -147,7 +147,8 @@ const processor = (processorId, paramsConfig) => {
 					}
 				}
 			};
-			this.port.onmessage = this.handleMessage;
+			this.port.start();
+			this.port.addEventListener('message', this.handleMessage);
 		}
 
 		/**
