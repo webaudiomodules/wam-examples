@@ -17,7 +17,7 @@ export default class AudioWorkletRegister {
 			const url = window.URL.createObjectURL(new Blob([`(${processor.toString()})(${[processorId, ...injection].map(JSON.stringify).join(', ')});`], { type: 'text/javascript' }));
 			await audioWorklet.addModule(url);
 			this.resolves[processorId].forEach((f) => f());
-			this.registeringProcessors.delete(processorId);
+			this.registeringProcessors.get(audioWorklet).delete(processorId);
 			this.registeredProcessors.get(audioWorklet).add(processorId);
 		} catch (e) {
 			this.rejects[processorId].forEach((f) => f(e));

@@ -99,24 +99,24 @@ export interface ParamMgrOptions extends TypedAudioWorkletNodeOptions<ParamMgrAu
 
 // AudioWorkletProcessor
 
-export interface TypedAudioWorkletNodeOptions<T extends any = any> extends AudioWorkletNodeOptions {
+export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
 	processorOptions?: T;
 }
-export interface TypedMessageEvent<T extends any = any> extends MessageEvent {
+export interface TypedMessageEvent<T = any> extends MessageEvent {
 	data: T;
 }
-export interface TypedMessagePortEventMap<T extends any = any> extends MessagePortEventMap {
+export interface TypedMessagePortEventMap<T = any> extends MessagePortEventMap {
 	'message': TypedMessageEvent<T>;
 }
-export interface TypedMessagePort<In extends any = any, Out extends any = any> extends MessagePort {
+export interface TypedMessagePort<In = any, Out = any> extends MessagePort {
 	onmessage: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
 	onmessageerror: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
 	postMessage(message: Out, transfer: Transferable[]): void;
 	postMessage(message: Out, options?: PostMessageOptions): void;
-	// addEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | AddEventListenerOptions): void;
-	// addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-	// removeEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | EventListenerOptions): void;
-	// removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+	addEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 export interface TypedAudioParamDescriptor<Par extends string = string> extends AudioParamDescriptor {
 	automationRate?: AutomationRate;
@@ -125,13 +125,13 @@ export interface TypedAudioParamDescriptor<Par extends string = string> extends 
 	minValue?: number;
 	name: Par;
 }
-export interface TypedAudioWorkletProcessor<MsgIn extends any = any, MsgOut extends any = any, Par extends string = string> {
+export interface TypedAudioWorkletProcessor<MsgIn = any, MsgOut = any, Par extends string = string> {
 	port: TypedMessagePort<MsgIn, MsgOut>;
 	process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<Par, Float32Array>): boolean;
 }
 export const TypedAudioWorkletProcessor: {
 	parameterDescriptors: TypedAudioParamDescriptor[];
-	new <MsgIn extends any = any, MsgOut extends any = any, Par extends string = string, Opt extends any = any>(options: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletProcessor<MsgIn, MsgOut, Par>;
+	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(options: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletProcessor<MsgIn, MsgOut, Par>;
 };
 
 export interface AudioWorkletGlobalScope {
@@ -144,7 +144,7 @@ export interface AudioWorkletGlobalScope {
 
 export type TypedAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
 
-export interface TypedAudioWorkletNode<MsgIn extends any = any, MsgOut extends any = any, Par extends string = string> extends AudioWorkletNode {
+export interface TypedAudioWorkletNode<MsgIn = any, MsgOut = any, Par extends string = string> extends AudioWorkletNode {
 	readonly port: TypedMessagePort<MsgIn, MsgOut>;
 	readonly parameters: TypedAudioParamMap<Par>;
 	destroyed: boolean;
@@ -152,5 +152,5 @@ export interface TypedAudioWorkletNode<MsgIn extends any = any, MsgOut extends a
 }
 export const TypedAudioWorkletNode: {
 	prototype: TypedAudioWorkletNode;
-	new <MsgIn extends any = any, MsgOut extends any = any, Par extends string = string, Opt extends any = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par>;
+	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par>;
 };
