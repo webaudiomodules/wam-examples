@@ -22,6 +22,7 @@ class FaustPingPongDelayNode extends CompositeAudioNode {
 		this.connect(output, 0, 0);
 		this._output = output;
 	}
+
 	destroy() {
 		super.destroy();
 		this._output.destroy();
@@ -37,7 +38,7 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
-	async createAudioNode() {
+	async createAudioNode(initialState) {
 		const baseURL = getBasetUrl(this.descriptor.url);
 		const factory = new PluginFactory(this.audioContext, baseURL);
 		const faustNode = await factory.load();
@@ -45,6 +46,7 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		const paramMgrNode = new FaustPingPongDelayNode(this, options, faustNode);
 		await paramMgrNode.initialize();
 		paramMgrNode.setup(faustNode);
+		if (initialState) paramMgrNode.setState(initialState);
 		return paramMgrNode;
 	}
 }

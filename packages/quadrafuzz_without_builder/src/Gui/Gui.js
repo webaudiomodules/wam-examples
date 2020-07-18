@@ -206,12 +206,14 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 			lowGain,
 			midLowGain,
 			midHighGain,
-			highGain
-		} = this.plugin.params;
-		this.shadowRoot.querySelector('#knob1').value = lowGain ;
+			highGain,
+			enabled,
+		} = this.plugin.audioNode.getParamsValues();
+		this.shadowRoot.querySelector('#knob1').value = lowGain;
 		this.shadowRoot.querySelector('#knob2').value = midLowGain;
-		this.shadowRoot.querySelector('#knob3').value = midHighGain ;
-		this.shadowRoot.querySelector('#knob4').value = highGain ;
+		this.shadowRoot.querySelector('#knob3').value = midHighGain;
+		this.shadowRoot.querySelector('#knob4').value = highGain;
+		this.shadowRoot.querySelector('#switch1').value = enabled;
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
@@ -236,22 +238,22 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ lowGain: e.target.value});
+				this.plugin.audioNode.setParamsValues({ lowGain: e.target.value});
 			});
 		this.shadowRoot
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ midLowGain: e.target.value});
+				this.plugin.audioNode.setParamsValues({ midLowGain: e.target.value});
 			});
 			this.shadowRoot
 			.querySelector('#knob3')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ midHighGain: e.target.value });
+				this.plugin.audioNode.setParamsValues({ midHighGain: e.target.value });
 			});
 			this.shadowRoot
 			.querySelector('#knob4')
 			.addEventListener('input', (e) => {
-				this.plugin.setParams({ highGain: e.target.value });
+				this.plugin.audioNode.setParamsValues({ highGain: e.target.value });
 			});
 	}
 
@@ -259,12 +261,12 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 		console.log("Quadrafuzz : set switch listener");
 		const { plugin } = this;
 		// by default, plugin is disabled
-		plugin.setParams({ enabled: 0 });
+		plugin.audioNode.setParamsValues({ enabled: 1 });
 
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				plugin.setParams({ enabled: +!!this.checked });
+				plugin.audioNode.setParamsValues({ enabled: +!!this.checked });
 			});
 	}
 

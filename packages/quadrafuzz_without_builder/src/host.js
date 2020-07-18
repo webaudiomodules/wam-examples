@@ -1,5 +1,5 @@
 // Load the sdk with an es import (script type="module" necessary)
-import { Loader } from '../../sdk/esm/index.js';
+import * as Loader from '../../sdk/src/Loader.js';
 
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
@@ -35,7 +35,7 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const Quadrafuzz = await Loader.loadPluginFromUrl('./descriptor.json');
+	const Quadrafuzz = await Loader.loadModuleFromUrl('./descriptor.json');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
@@ -60,12 +60,12 @@ const mountPlugin = (domNode) => {
 		setTimeout(() => {
 			console.log("After 2.5s, set lowGain to 0.1...")
 			// set param feedback after 5 seconds
-			instance.setParam('lowGain', 0);
-			instance.setParam('midLowGain', 0);
-			instance.setParam('midHighGain', 0);
-			instance.setParam('highGain', 0);
+			instance.audioNode.setParamValue('lowGain', 0);
+			instance.audioNode.setParamValue('midLowGain', 0);
+			instance.audioNode.setParamValue('midHighGain', 0);
+			instance.audioNode.setParamValue('highGain', 0);
 			// store current state
-			state = instance.getState();
+			state = instance.audioNode.getState();
 			console.log('instance state', state);
 		}, 2500);
 		/*
