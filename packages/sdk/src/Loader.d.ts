@@ -1,4 +1,6 @@
-import { WebAudioModule, WamDescriptor } from "./api/types";
+/* eslint-disable max-len */
+import { WebAudioModule, WamDescriptor } from './api/types';
+
 export interface LoadPluginOptions {
     noGui?: boolean;
 }
