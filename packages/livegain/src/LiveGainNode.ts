@@ -1,28 +1,23 @@
 /* eslint-disable import/no-duplicates */
 import { CompositeAudioNode } from "sdk";
-import { TemporalAnalyserRegister, TemporalAnalyserNode } from "./TemporalAnalyser";
-import type { LiveGainPlugin } from "./LiveGainPlugin";
-import { atodb, dbtoa } from "./math";
+import { TemporalAnalyserNode } from "./worklets/TemporalAnalyser";
+import { atodb, dbtoa } from "./utils/math";
 
 export default class LiveGainNode extends CompositeAudioNode {
-    temporalAnalyserNode: TemporalAnalyserNode;
-    private _plugin: LiveGainPlugin;
+    analyserNode: TemporalAnalyserNode;
+    inputGainNode: GainNode;
+    outputGainNode: GainNode;
     private _metering: "preFader" | "postFader" = "postFader";
     private _requestTimer = -1;
     levels: number[] = [];
-    constructor(audioContext: BaseAudioContext, options: { plugin: LiveGainPlugin }) {
-        super(audioContext);
-        const { plugin } = options;
-        this._plugin = plugin;
-    }
     handleMeteringChanged = (v: number) => {
         if (["postFader", "preFader"][~~v] !== this._metering) {
             if (this._metering === "preFader") {
-                this._output.disconnect(this.temporalAnalyserNode);
-                this._input.connect(this.temporalAnalyserNode);
+                this.outputGainNode.disconnect(this.analyserNode);
+                this.inputGainNode.connect(this.analyserNode);
             } else {
-                this._input.disconnect(this.temporalAnalyserNode);
-                this._output.connect(this.temporalAnalyserNode);
+                this.inputGainNode.disconnect(this.analyserNode);
+                this.outputGainNode.connect(this.analyserNode);
             }
         }
     };
@@ -31,17 +26,18 @@ export default class LiveGainNode extends CompositeAudioNode {
         this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
         this.gain.linearRampToValueAtTime(dbtoa(v), this.context.currentTime + 0.01);
     };
-    handleDestroy = () => {
+    destroy() {
         window.clearTimeout(this._requestTimer);
-        if (this.temporalAnalyserNode) this.temporalAnalyserNode.destroy();
-    };
+        if (this.analyserNode) this.analyserNode.destroy();
+        super.destroy();
+    }
     startRequest = () => {
         let lastResult: number[] = [];
         const request = async () => {
-            if (this._plugin.initialized && this.temporalAnalyserNode && !this.temporalAnalyserNode.destroyed) {
-                const { rms } = await this.temporalAnalyserNode.gets({ rms: true });
+            if (this.initialized && this.analyserNode && !this.analyserNode.destroyed) {
+                const absMax = await this.analyserNode.getAbsMax();
                 const thresh = 1;
-                const levels = rms.map(v => atodb(v));
+                const levels = absMax.map(v => atodb(v));
                 if (!lastResult.every((v, i) => v === levels[i] || Math.abs(v - levels[i]) < thresh) || lastResult.length !== levels.length) {
                     this.levels = levels;
                     lastResult = levels;
@@ -50,30 +46,25 @@ export default class LiveGainNode extends CompositeAudioNode {
             scheduleRequest();
         };
         const scheduleRequest = () => {
-            this._requestTimer = window.setTimeout(request, this._plugin.initialized ? this._plugin.getParam("speedLim") : 16);
+            this._requestTimer = window.setTimeout(request, this.initialized ? this.getParamValue("speedLim") : 16);
         };
         request();
     };
-    async createNodes() {
-        super.createNodes();
-        await TemporalAnalyserRegister.register(this.context.audioWorklet);
-        this.temporalAnalyserNode = new TemporalAnalyserNode(this.context);
-    }
     connectNodes() {
-        super.connectNodes();
-        this._input.connect(this._output);
-        if (this._metering === "preFader") this._input.connect(this.temporalAnalyserNode);
-        else this._output.connect(this.temporalAnalyserNode);
+        this.connect(this.inputGainNode);
+        this.inputGainNode.connect(this.outputGainNode);
+        if (this._metering === "preFader") this.inputGainNode.connect(this.analyserNode);
+        else this.outputGainNode.connect(this.analyserNode);
     }
-    async setup() {
-        await this.createNodes();
+    setup(inputGainNode: GainNode, outputGainNode: GainNode, analyserNode: TemporalAnalyserNode) {
+        this.inputGainNode = inputGainNode;
+        this.outputGainNode = outputGainNode;
+        this.analyserNode = analyserNode;
         this.connectNodes();
+        this._output = this.outputGainNode;
         this.startRequest();
     }
     get gain() {
-        return this._output.gain;
-    }
-    get state() {
-        return this._plugin.state;
+        return this.outputGainNode.gain;
     }
 }

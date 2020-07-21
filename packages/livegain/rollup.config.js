@@ -10,7 +10,7 @@ const common = {
 
     output: [
         {
-            sourcemap: true,
+            // sourcemap: true,
             chunkFileNames: "[name].js",
             dir: "./dist/",
             format: "es"
@@ -25,7 +25,7 @@ const common = {
         }),
         babel({
             exclude: /node_modules/,
-            runtimeHelpers: true,
+            runtimeHelpers: false,
             extensions: [".js", ".jsx", ".ts", ".tsx"]
         }),
         resolve({
@@ -44,8 +44,8 @@ const common = {
         replace({
             "process.env.NODE_ENV": JSON.stringify("production")
         }),
-        omt(),
-        terser()
+        omt()
+        // terser()
     ]
 };
 const plugin = {

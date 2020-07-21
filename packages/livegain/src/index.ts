@@ -1,3 +1,3 @@
-import LiveGainPlugin from "./LiveGainPlugin";
+import LiveGainModule from "./LiveGainPlugin";
 
-export default LiveGainPlugin;
+export default LiveGainModule;

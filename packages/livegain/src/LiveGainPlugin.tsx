@@ -1,14 +1,13 @@
 
-import { WebAudioPlugin } from "sdk";
+import { WebAudioModule, ParamMgrRegister } from "sdk";
 import LiveGainNode from "./LiveGainNode";
+import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
 
 export type Parameters = "gain" | "frameRate" | "speedLim" | "min" | "max" | "step" | "orientation" | "metering";
-export class LiveGainPlugin extends WebAudioPlugin<LiveGainNode, Parameters, Parameters> {
-    static pluginName = "LiveGain";
-    async createAudioNode() {
-        const node = new LiveGainNode(this.audioContext, { plugin: this });
-        await node.setup();
-        this.paramsConfig = {
+export class LiveGainModule extends WebAudioModule<LiveGainNode> {
+    async createAudioNode(initialState?: any) {
+        let node: LiveGainNode;
+        const paramsConfig = {
             gain: {
                 defaultValue: 0,
                 minValue: -70,
@@ -50,17 +49,26 @@ export class LiveGainPlugin extends WebAudioPlugin<LiveGainNode, Parameters, Par
                 maxValue: 1
             }
         };
-        this.internalParamsConfig = {
-            gain: { onChange: node.handleGainChanged },
+        const internalParamsConfig = {
+            gain: { onChange: (v: number) => node.handleGainChanged(v) },
             frameRate: {},
             speedLim: {},
             min: {},
             max: {},
             step: {},
             orientation: {},
-            metering: { onChange: node.handleMeteringChanged }
+            metering: { onChange: (v: number) => node.handleMeteringChanged(v) }
         };
+        const inputGainNode = this.audioContext.createGain();
+        const outGainNode = this.audioContext.createGain();
+        await register(this.audioContext.audioWorklet);
+        const analyserNode = new TemporalAnalyserNode(this.audioContext);
+        const options = await ParamMgrRegister.register(this, inputGainNode.numberOfInputs, { internalParamsConfig, paramsConfig });
+        node = new LiveGainNode(this, options);
+        await node.initialize();
+        node.setup(inputGainNode, outGainNode, analyserNode);
+        if (initialState) node.setState(initialState);
         return node;
     }
 }
-export default LiveGainPlugin;
+export default LiveGainModule;

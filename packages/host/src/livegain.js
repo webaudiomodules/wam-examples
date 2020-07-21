@@ -35,7 +35,7 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const LiveGain = await Loader.loadPluginFromUrl('/livegain/descriptor.json');
+	const LiveGain = await Loader.loadModuleFromUrl('./livegain/descriptor.json');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
@@ -54,7 +54,7 @@ const mountPlugin = (domNode) => {
 
 	player.onplay = () => {
 		audioContext.resume(); // audio context must be resumed because browser restrictions
-		instance.paramMgr.setParamValueCurveAtTime('max', [6, 10, 1, 6], instance.audioContext.currentTime, 5);
-		instance.paramMgr.setParamValueCurveAtTime('gain', [0, -70, 0], instance.audioContext.currentTime, 10);
+		instance.audioNode.setParamValueCurveAtTime('max', [6, 10, 1, 6], instance.audioContext.currentTime, 5);
+		instance.audioNode.setParamValueCurveAtTime('gain', [0, -70, 0], instance.audioContext.currentTime, 10);
 	};
 })();
