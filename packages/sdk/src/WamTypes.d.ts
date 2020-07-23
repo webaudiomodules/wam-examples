@@ -139,6 +139,11 @@ export interface WamParameterValue {
 }
 
 export type WamParameterValueMap = { [id: string]: WamParameterValue }
+// MIDI
+
+export interface WamMidiData {
+    bytes: [number, number, number]
+}
 
 // EVENTS
 
@@ -160,9 +165,7 @@ export interface WamAutomationEvent extends WamEventBase {
 
 export interface WamMidiEvent extends WamEventBase {
     type: 'midi';
-    status: number;
-    data1: number;
-    data2: number;
+    data: WamMidiData;
 }
 
 export type WamEventCallback = (event: WamEvent) => any;
