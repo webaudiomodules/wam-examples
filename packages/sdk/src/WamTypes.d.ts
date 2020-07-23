@@ -57,8 +57,8 @@ export class WamNode extends AudioWorkletNode {
     private _destroyed: boolean;
 
     getParameterInfo(parameterIds?: string | string[]): Promise<WamParameterInfoMap>;
-    setParameterValues(parameterValues: WamParameterValueMap): Promise<void>;
-    getParameterValues(normalized: boolean, parameterIds?: string | string[]): Promise<WamParameterValueMap>;
+    setParameterValues(parameterValues: WamParameterDataMap): Promise<void>;
+    getParameterValues(normalized: boolean, parameterIds?: string | string[]): Promise<WamParameterDataMap>;
     getState(): Promise<any>;
     setState(state: any): Promise<void>;
     getCompensationDelay(): Promise<number>;
@@ -132,13 +132,13 @@ export interface WamParameter {
 
 export type WamParameterMap = { [id: string]: WamParameter }
 
-export interface WamParameterValue {
+export interface WamParameterData {
     id: string
     value: number;
     normalized: boolean;
 }
 
-export type WamParameterValueMap = { [id: string]: WamParameterValue }
+export type WamParameterDataMap = { [id: string]: WamParameterData }
 // MIDI
 
 export interface WamMidiData {
@@ -158,9 +158,7 @@ export type WamEvent = WamAutomationEvent | WamMidiEvent;
 
 export interface WamAutomationEvent extends WamEventBase {
     type: 'automation';
-    parameterId: string;
-    parameterValue: number;
-    normalized: boolean;
+    data: WamParameterData;
 }
 
 export interface WamMidiEvent extends WamEventBase {

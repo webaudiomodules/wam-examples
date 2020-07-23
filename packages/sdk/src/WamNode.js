@@ -1,6 +1,6 @@
 /** @typedef { import('./WamTypes').WebAudioModule } WebAudioModule */
 /** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./WamTypes').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('./WamTypes').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 /** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
 
@@ -66,7 +66,7 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * @param {boolean} normalized
 	 * @param {string | string[]=} parameterIds
-	 * @returns {Promise<WamParameterValueMap>}
+	 * @returns {Promise<WamParameterDataMap>}
 	 */
 	async getParameterValues(normalized, parameterIds) {
 		const request = 'get/parameterValues';
@@ -84,7 +84,7 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {WamParameterValueMap} parameterValues
+	 * @param {WamParameterDataMap} parameterValues
 	 * @returns {Promise<void>}
 	 */
 	async setParameterValues(parameterValues) {

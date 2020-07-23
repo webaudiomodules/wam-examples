@@ -1,6 +1,6 @@
 /** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./WamTypes').WamParameterValueMap } WamParameterValueMap */
-// /** @typedef { import('./WamTypes').WamParameter } WamParameter */
+/** @typedef { import('./WamTypes').WamParameterDataMap } WamParameterDataMap */
+/** @typedef { import('./WamTypes').WamParameterData } WamParameterData */
 /** @typedef { import('./WamTypes').WamParameterMap } WamParameterMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 
@@ -18,10 +18,10 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter';
  * @param {WamProcessor} processor
  * @param {boolean} normalized
  * @param {string[]=} parameterIdQuery
- * @returns {WamParameterValueMap}
+ * @returns {WamParameterDataMap}
  */
 function getParameterValues(processor, normalized, parameterIdQuery) {
-	/** @type {WamParameterValueMap} */
+	/** @type {WamParameterDataMap} */
 	const parameterValues = {};
 	if (!parameterIdQuery.length) parameterIdQuery = Object.keys(processor._parameterState);
 	parameterIdQuery.forEach((parameterId) => {
@@ -38,7 +38,7 @@ function getParameterValues(processor, normalized, parameterIdQuery) {
 
 /**
  * @param {WamProcessor} processor
- * @param {WamParameterValueMap} parameterValues
+ * @param {WamParameterDataMap} parameterValues
  */
 function setParameterValues(processor, parameterValues) {
 	Object.keys(parameterValues).forEach((parameterId) => {
