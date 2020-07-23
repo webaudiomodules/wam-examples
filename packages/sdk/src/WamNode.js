@@ -41,7 +41,7 @@ export default class WamNode extends AudioWorkletNode {
 		/** @property {number} _messageId */
 		this._messageId = 0;
 
-		this.port.onmessage = this.onMessage.bind(this);
+		this.port.onmessage = this._onMessage.bind(this);
 	}
 
 	/**
@@ -50,7 +50,7 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async getParameterInfo(parameterIds) {
 		const request = 'get/parameterInfo';
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		if (parameterIds === undefined) parameterIds = [];
 		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
@@ -70,7 +70,7 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async getParameterValues(normalized, parameterIds) {
 		const request = 'get/parameterValues';
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		if (parameterIds === undefined) parameterIds = [];
 		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
@@ -89,7 +89,7 @@ export default class WamNode extends AudioWorkletNode {
 	 */
 	async setParameterValues(parameterValues) {
 		const request = 'set/parameterValues';
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
@@ -104,7 +104,7 @@ export default class WamNode extends AudioWorkletNode {
 	async getState() {
 		const request = 'get/state';
 		// perhaps the only info to request from processor is param state?
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
 			this.port.postMessage({ id, request });
@@ -114,7 +114,7 @@ export default class WamNode extends AudioWorkletNode {
 	/** @param {any} state */
 	async setState(state) {
 		const request = 'set/state';
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		// perhaps the only info to send to processor is param state?
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
@@ -129,7 +129,7 @@ export default class WamNode extends AudioWorkletNode {
 	/** @returns {Promise<number>} processing delay time in seconds */
 	async getCompensationDelay() {
 		const request = 'get/compensationDelay';
-		const id = this.generateMessageId();
+		const id = this._generateMessageId();
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
 			this.port.postMessage({ id, request });
@@ -176,7 +176,7 @@ export default class WamNode extends AudioWorkletNode {
 	 * Messages from audio thread
 	 * @param {MessageEvent} message
 	 * */
-	onMessage(message) {
+	_onMessage(message) {
 		// by default, assume mismatch in scheduling threads will be mitigated via message port
 		if (message.data.event) this.onEvent(message.data.event);
 		else if (message.data.response) {
@@ -198,7 +198,7 @@ export default class WamNode extends AudioWorkletNode {
 		}
 	}
 
-	generateMessageId() {
+	_generateMessageId() {
 		/* eslint-disable-next-line no-plusplus */
 		return this._messageId++;
 	}
