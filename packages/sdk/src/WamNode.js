@@ -225,16 +225,17 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {MessageEvent} message
 	 * */
 	_onMessage(message) {
-		// const { data } = message;
-		if (message.data.response) {
-			const { id, response, content } = message.data;
+		const { data } = message;
+		/*eslint-disable-next-line object-curly-newline */
+		const { id, response, content, useSab, event } = data;
+		if (response) {
 			const resolvePendingResponse = this._pendingResponses[id];
 			if (resolvePendingResponse) {
 				delete this._pendingResponses[id];
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
-		} else if (message.data.useSab) {
+		} else if (useSab) {
 			this._useSab = true;
 			/** @property {{[parameterId: string]: number}} _parameterIndices */
 			this._parameterIndices = message.data.parameterIndices;
@@ -242,7 +243,7 @@ export default class WamNode extends AudioWorkletNode {
 			this._parameterBuffer = message.data.parameterBuffer;
 			/** @property {Float32Array} _parameterValues */
 			this._parameterValues = new Float32Array(this._parameterBuffer);
-		} else if (message.data.event) this._onEvent(message.data.event); // scheduled from audio thread
+		} else if (event) this._onEvent(message.data.event); // scheduled from audio thread
 	}
 
 	_onEvent(event) {
