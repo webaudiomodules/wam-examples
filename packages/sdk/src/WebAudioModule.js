@@ -12,12 +12,12 @@ class WebAudioModule {
 	static isWebAudioPlugin = true;
 
 	/**
-	 * @param {AudioContext} audioContext
-	 * @param {any} [pluginOptions]
+	 * @param {BaseAudioContext} audioContext
+	 * @param {any} [initialState]
 	 * @returns {Promise<WebAudioModule>}
 	*/
-	static createInstance(audioContext, pluginOptions = {}) {
-		return new this(audioContext).initialize(pluginOptions);
+	static createInstance(audioContext, initialState = {}) {
+		return new this(audioContext).initialize(initialState);
 	}
 
 	/** @returns {WamDescriptor} */
