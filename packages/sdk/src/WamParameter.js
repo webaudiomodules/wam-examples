@@ -66,3 +66,6 @@ class WamParameterSab extends WamParameterNoSab {
 }
 
 export { WamParameterNoSab, WamParameterSab };
+
+AudioWorkletGlobalScope.WamParameterNoSab = WamParameterNoSab;
+AudioWorkletGlobalScope.WamParameterSab = WamParameterSab;
