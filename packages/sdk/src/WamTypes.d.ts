@@ -49,7 +49,6 @@ export const WebAudioModule: {
     prototype: WebAudioModule;
     isWebAudioPlugin: boolean;
     createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
-    descriptor: WamDescriptor;
     guiModuleUrl: string;
     new (audioContext: BaseAudioContext): WebAudioModule;
 };
