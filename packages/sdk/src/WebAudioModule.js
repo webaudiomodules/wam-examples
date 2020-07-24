@@ -7,7 +7,7 @@
 /* eslint-disable indent */
 /* eslint-disable no-console */
 
-export default class WebAudioModule {
+class WebAudioModule {
 	static isWebAudioPlugin = true;
 
 	/**
@@ -110,3 +110,5 @@ export default class WebAudioModule {
 		return createElement(this, options);
 	}
 }
+
+export default WebAudioModule;
