@@ -250,11 +250,14 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// assumes events arrive sorted by time
 		while (this._eventQueue.length) {
 			const { id, event } = this._eventQueue[0];
+			if (!event.time) event.time = currentTime;
 			const sampleIndex = Math.round((event.time - currentTime) * sampleRate);
 			if (sampleIndex < samplesPerQuantum) {
 				if (eventsBySampleIndex[sampleIndex]) eventsBySampleIndex[sampleIndex].push(event);
 				else eventsBySampleIndex[sampleIndex] = [event];
-				if (id) this.port.postMessage({ id, response }); // notify main thread
+				// notify main thread
+				if (id) this.port.postMessage({ id, response });
+				else this.port.postMessage({ event });
 				this._eventQueue.shift();
 			} else break;
 		}
