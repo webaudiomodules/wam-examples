@@ -5,8 +5,6 @@
 /** @typedef { import('./api/types').WamEvent } WamEvent */
 /** @typedef { import('./api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
 
-import { WamParameterNoSab, WamParameterSab } from './WamParameter.js';
-
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
@@ -36,7 +34,8 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter.js';
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;
-const { AudioWorkletProcessor } = audioWorkletGlobalScope;
+// @ts-ignore
+const { AudioWorkletProcessor, WamParameterNoSab, WamParameterSab } = audioWorkletGlobalScope;
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
