@@ -47,6 +47,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			useSab,
 		} = options.processorOptions;
 
+		if (!processorId) throw Error('must provide processorId argument!');
+		if (!instanceId) throw Error('must provide instanceId argument!');
+
 		/** @property {string} processorId */
 		this.processorId = processorId;
 		/** @property {string} instanceId */
