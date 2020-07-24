@@ -82,39 +82,95 @@ export default class WamParameterInfo {
 			throw Error(errBase.concat('choice type parameter requires list of strings in choices'));
 		}
 
-		/** @readonly @property {string} id */
+		/**
+		 * The parameter's unique identifier.
+		 * @readonly @property {string} id
+		 */
 		this.id = id;
-		/** @readonly @property {string} label */
+
+		/**
+		 * The parameter's human-readable name.
+		 * @readonly @property {string} label
+		 */
 		this.label = label;
-		/** @readonly @property {WamParameterType} type */
+
+		/**
+		 * The parameter's data type.
+		 * @readonly @property {WamParameterType} type
+		 */
 		this.type = type;
-		/** @readonly @property {number} defaultValue */
+
+		/**
+		 * The parameter's default value. Must be
+		 * within range `[minValue, maxValue]`.
+		 * @readonly @property {number} defaultValue
+		 */
 		this.defaultValue = defaultValue;
-		/** @readonly @property {number} minValue */
+
+		/**
+		 * The minimum valid value of the parameter's range.
+		 * @readonly @property {number} minValue
+		 */
 		this.minValue = minValue;
-		/** @readonly @property {number} maxValue */
+
+		/**
+		 * The maximum valid value of the parameter's range.
+		 * @readonly @property {number} maxValue
+		 */
 		this.maxValue = maxValue;
-		/** @readonly @property {number} discreteStep */
+
+		/**
+		 * The distance between adjacent valid integer
+		 * values, if applicable.
+		 * @readonly @property {number} discreteStep
+		 */
 		this.discreteStep = discreteStep;
-		/** @readonly @property {number} exponent */
+
+		/**
+		 * The nonlinear (exponential) skew of the parameter's
+		 * range, if applicable.
+		 *  @readonly @property {number} exponent
+		 */
 		this.exponent = exponent;
-		/** @readonly @property {string[]} choices */
+
+		/**
+		 * A list of human-readable choices corresponding to each
+		 * valid integer value in the parameter's range, if applicable.
+		 * @readonly @property {string[]} choices
+		 */
 		this.choices = choices;
-		/** @readonly @property {string} units */
+
+		/**
+		 * A human-readable string representing the units of the
+		 * parameter's range, if applicable.
+		 * @readonly @property {string} units
+		 */
 		this.units = units;
 	}
 
-	/** @param {number} value convert a denormalized value to normalized range */
+	/**
+	 * Convert a value from the parameter's denormalized range
+	 * `[minValue, maxValue]` to normalized range `[0, 1]`.
+	 * @param {number} value
+	 */
 	normalize(value) {
 		return normalize(value, this.minValue, this.maxValue, this.exponent);
 	}
 
-	/** @param {number} valueNorm convert a normalized value to denormalized range */
+	/**
+	 * Convert a value from normalized range `[0, 1]` to the
+	 * parameter's denormalized range `[minValue, maxValue]`.
+	 * @param {number} valueNorm
+	 */
 	denormalize(valueNorm) {
 		return denormalize(valueNorm, this.minValue, this.maxValue, this.exponent);
 	}
 
-	/** @param {number} value get (denormalized) value as human-readable string */
+	/**
+	 * Get a human-readable string representing the given value,
+	 * including units if applicable.
+	 * @param {number} value
+	 */
 	valueString(value) {
 		if (this.choices) return this.choices[value];
 		if (this.units !== '') return `${value} ${this.units}`;

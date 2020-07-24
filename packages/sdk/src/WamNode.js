@@ -3,6 +3,7 @@
 /** @typedef { import('./WamTypes').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 /** @typedef { import('./WamTypes').WamEventType } WamEventType */
+/** @typedef { import('./WamTypes').WamListenerType } WamListenerType */
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
@@ -10,7 +11,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
-// OC: IMO existing typings for DisposableAudioWorkletNode are too generic/uninformative
 export default class WamNode extends AudioWorkletNode {
 	/**
 	 * @param {WebAudioModule} module
@@ -49,6 +49,8 @@ export default class WamNode extends AudioWorkletNode {
 	get instanceId() { return this.module.instanceId; }
 
 	/**
+	 * Get parameter info for the specified parameter ids,
+	 * or omit argument to get info for all parameters.
 	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterInfoMap>}
 	 */
@@ -68,6 +70,8 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
+	 * Get parameter values for the specified parameter ids,
+	 * or omit argument to get values for all parameters.
 	 * @param {boolean} normalized
 	 * @param {string | string[]=} parameterIds
 	 * @returns {Promise<WamParameterDataMap>}
@@ -88,6 +92,7 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
+	 * Set parameter values for the specified parameter ids.
 	 * @param {WamParameterDataMap} parameterValues
 	 * @returns {Promise<void>}
 	 */
@@ -104,7 +109,11 @@ export default class WamNode extends AudioWorkletNode {
 		});
 	}
 
-	/** @returns {Promise<any>} */
+	/**
+	 * Returns an object (such as JSON or a serialized blob)
+	 * that can be used to restore the WAM's state.
+	 * @returns {Promise<any>}
+	 */
 	async getState() {
 		const request = 'get/state';
 		// perhaps the only info to request from processor is param state?
@@ -115,7 +124,11 @@ export default class WamNode extends AudioWorkletNode {
 		});
 	}
 
-	/** @param {any} state */
+	/**
+	 * Use an object (such as JSON or a serialized blob)
+	 * to restore the WAM's state.
+	 * @param {any} state
+	 */
 	async setState(state) {
 		const request = 'set/state';
 		const id = this._generateMessageId();
@@ -130,7 +143,10 @@ export default class WamNode extends AudioWorkletNode {
 		});
 	}
 
-	/** @returns {Promise<number>} processing delay time in seconds */
+	/**
+	 * Compensation delay hint in seconds.
+	 * @returns {Promise<number>}
+	 */
 	async getCompensationDelay() {
 		const request = 'get/compensationDelay';
 		const id = this._generateMessageId();
@@ -141,7 +157,9 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string} type
+	 * Register a callback function so it will be called
+	 * when matching events are processed.
+	 * @param {WamListenerType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -150,7 +168,9 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string} type
+	 * Deregister a callback function so it will no longer
+	 * be called when matching events are processed.
+	 * @param {WamListenerType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -159,6 +179,8 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
+	 * From the main thread, schedule a WamEvent.
+	 * Listeners will be triggered when the event is processed.
 	 * @param {WamEvent} event
 	 */
 	scheduleEvent(event) {
@@ -180,6 +202,7 @@ export default class WamNode extends AudioWorkletNode {
 		}).catch((rejected) => { delete this._pendingResponses[id]; });
 	}
 
+	/** From the main thread, clear all pending WamEvents. */
 	async clearEvents() {
 		const request = 'remove/events';
 		const id = this._generateMessageId();
@@ -235,6 +258,7 @@ export default class WamNode extends AudioWorkletNode {
 		return this._messageId++;
 	}
 
+	/** Stop processing and remove the node from the graph. */
 	destroy() {
 		this.port.postMessage({ destroy: true });
 		this.port.close();

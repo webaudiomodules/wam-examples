@@ -14,12 +14,18 @@ class WamParameterNoSab {
 		this.value = info.defaultValue;
 	}
 
-	/** @param {number} valueNorm set current value in normalized range */
+	/**
+	 * Set current value in normalized range
+	 * @param {number} valueNorm
+	 */
 	set normalizedValue(valueNorm) {
 		this.value = this.info.denormalize(valueNorm);
 	}
 
-	/** @returns {number} get current value in normalized range */
+	/**
+	 * Get current value in normalized range
+	 * @returns {number}
+	 */
 	get normalizedValue() {
 		return this.info.normalize(this.value);
 	}
@@ -40,15 +46,20 @@ class WamParameterSab extends WamParameterNoSab {
 		this._index = index;
 	}
 
-	/** @param {number} value set current (denormalized) value
+	/**
+	 * Set current (denormalized) value
 	 * NOTE: expectation is for only one thread to write to this value
 	 * TODO check thread safety
+	 * @param {number} value
 	*/
 	set value(value) {
 		this._array[this._index] = value;
 	}
 
-	/** @returns {number} get current (denormalized) value */
+	/**
+	 * Get current (denormalized) value
+	 * @returns {number}
+	 */
 	get value() {
 		return this._array[this._index];
 	}

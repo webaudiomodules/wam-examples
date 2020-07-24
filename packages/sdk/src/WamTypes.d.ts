@@ -1,9 +1,9 @@
 export interface WebAudioModule {
-    /** The `AudioContext` where the plugin's node lives in */
+    /** The `AudioContext` where the plugin's node lives */
     audioContext: BaseAudioContext;
     /** The `AudioNode` that handles audio in the plugin where the host can connect to/from */
     audioNode: WamNode;
-    /** This will returns true after calling `initialize()`. */
+    /** This will return true after calling `initialize()`. */
     initialized: boolean;
     /** The identifier of the current WAM, composed of vender + name */
     moduleId: string;
@@ -42,6 +42,7 @@ export interface WebAudioModule {
      * Make sure this calls every internal destroys.
      */
     destroy(): void;
+    // OGC Do we need destroy method here as well?
 }
 
 export const WebAudioModule: {
@@ -69,21 +70,27 @@ export interface WamNode extends AudioNode {
     readonly moduleId: string;
     readonly instanceId: string;
     readonly module: WebAudioModule;
-
+    /** Get parameter info for the specified parameter ids, or omit argument to get info for all parameters. */
     getParameterInfo(parameterIds?: string | string[]): Promise<WamParameterInfoMap>;
-    setParameterValues(parameterValues: WamParameterDataMap): Promise<void>;
+    /** Get parameter values for the specified parameter ids, or omit argument to get values for all parameters. */
     getParameterValues(normalized: boolean, parameterIds?: string | string[]): Promise<WamParameterDataMap>;
-
-    /** Returns a serializable that can be used to restore the WAM's state */
+    /** Set parameter values for the specified parameter ids. */
+    setParameterValues(parameterValues: WamParameterDataMap): Promise<void>;
+    /** Returns an object (such as JSON or a serialized blob) that can be used to restore the WAM's state. */
     getState(): Promise<any>;
-    /** Use a serializable to restore the WAM's state */
+    /** Use an object (such as JSON or a serialized blob) to restore the WAM's state. */
     setState(state: any): Promise<void>;
-    /** Compensation delay hint in seconds */
+    /** Compensation delay hint in seconds. */
     getCompensationDelay(): Promise<number>;
+    /** Register a callback function so it will be called when matching events are processed. */
     addEventListener(type: WamListenerType, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean);
+    /** Deregister a callback function so it will no longer be called when matching events are processed. */
     removeEventListener(type: WamListenerType, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean);
+    /** From the main thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
     scheduleEvent(event: WamEvent): void;
+    /** From the main thread, clear all pending WamEvents. */
     clearEvents(): Promise<void>;
+    /** Stop processing and remove the node from the graph. */
     destroy(): void;
 }
 
@@ -96,9 +103,13 @@ export const WamNode: {
 export interface WamProcessor extends AudioWorkletProcessor {
     readonly moduleId: string;
     readonly instanceId: string;
+    /** Compensation delay hint in seconds. */
     getCompensationDelay(): number;
+    /** From the audio thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
     scheduleEvent(event: WamEvent): void;
+    /** From the audio thread, clear all pending WamEvents. */
     clearEvents(): void;
+    /** Stop processing and remove the node from the graph. */
     destroy(): void;
 }
 
@@ -124,18 +135,31 @@ export interface WamParameterConfiguration {
 }
 
 export interface WamParameterInfo {
+    /** The parameter's unique identifier. */
     readonly id: string;
+    /** The parameter's human-readable name. */
     readonly label: string;
+    /** The parameter's data type. */
     readonly type: WamParameterType;
+    /** The parameter's default value. Must be within range `[minValue, maxValue]`. */
     readonly defaultValue: number;
+    /** The minimum valid value of the parameter's range. */
     readonly minValue: number;
+    /** The maximum valid value of the parameter's range. */
     readonly maxValue: number;
+    /** The distance between adjacent valid integer values, if applicable. */
     readonly discreteStep: number;
+    /** The nonlinear (exponential) skew of the parameter's range, if applicable. */
     readonly exponent: number;
+    /** A list of human-readable choices corresponding to each valid value in the parameter's range, if applicable. */
     readonly choices: string[];
+    /** A human-readable string representing the units of the parameter's range, if applicable. */
     readonly units: string;
+    /** Convert a value from the parameter's denormalized range `[minValue, maxValue]` to normalized range `[0, 1]`. */
     normalize(value: number): number;
-    denormalize(value: number): number;
+    /** Convert a value from normalized range `[0, 1]` to the parameter's denormalized range `[minValue, maxValue]`. */
+    denormalize(valueNorm: number): number;
+    /** Get a human-readable string representing the given value, including units if applicable. */
     valueString(value: number): string;
 }
 

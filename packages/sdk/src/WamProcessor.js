@@ -17,12 +17,16 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 /* eslint-disable radix */
 
 /**
+ * A WamEvent and corresponding message id used to trigger callbacks
+ * on the main thread once the event has been processed.
  * @typedef {Object} PendingWamEvent
  * @property {number} id
  * @property {WamEvent} event
 */
 
 /**
+ * A range of sample indices and corresponding list of simultaneous
+ * WamEvents to be processed at the beginning of the slice.
  * @typedef {Object} ProcessingSlice
  * @property {[number, number]} range
  * @property {WamEvent[]} events
@@ -30,15 +34,14 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
+	 * Override to fetch plugin's params via whatever means desired.
 	 * @returns {WamParameterInfoMap}
 	 */
 	static generateWamParameterInfo() {
-		return {}; // override to fetch plugin's params via whatever means desired
+		return {};
 	}
 
-	/**
-	 * @param {AudioWorkletNodeOptions} options
-	 */
+	/** @param {AudioWorkletNodeOptions} options */
 	constructor(options) {
 		super(options);
 		const {
@@ -108,10 +111,15 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this.port.onmessage = this._onMessage.bind(this);
 	}
 
-	/** @returns {number} processing delay time in seconds */
+	/**
+	 * Compensation delay hint in seconds.
+	 * @returns {number}
+	 */
 	getCompensationDelay() { return this._compensationDelay; }
 
 	/**
+	 * From the audio thread, schedule a WamEvent.
+	 * Listeners will be triggered when the event is processed.
 	 * @param {WamEvent} event
 	 */
 	scheduleEvent(event) {
@@ -119,14 +127,15 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._eventQueue.push({ id: 0, event });
 	}
 
+	/** From the audio thread, clear all pending WamEvents. */
 	clearEvents() {
 		this._eventQueue = [];
 	}
 
 	/**
-	 * Messages from main thread
+	 * Messages from main thread appear here.
 	 * @param {MessageEvent} message
-	 * */
+	 */
 	_onMessage(message) {
 		if (message.data.request) {
 			const { id, request, content } = message.data;
@@ -221,9 +230,11 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		else parameter.normalizedValue = value;
 	}
 
-	/** @returns {ProcessingSlice[]} */
+	/**
+	 * Example implementation of custom sample accurate event scheduling.
+	 * @returns {ProcessingSlice[]}
+	 * */
 	_getProcessingSlices() {
-		// sample accurate scheduling for custom DSP
 		const response = 'add/event';
 		const samplesPerQuantum = 128;
 		/** @ts-ignore */
@@ -293,6 +304,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		return true;
 	}
 
+	/** Stop processing and remove the node from the graph. */
 	destroy() {
 		this._destroyed = true;
 	}
