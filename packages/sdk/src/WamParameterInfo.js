@@ -82,24 +82,6 @@ export default class WamParameterInfo {
 			throw Error(errBase.concat('choice type parameter requires list of strings in choices'));
 		}
 
-		// We could make these truly readonly, but it doesn't play nicely with TS...
-		/*
-		Object.defineProperties(this, {
-			id: { value: id, enumerable: true },
-			label: { value: label, enumerable: true },
-			type: { value: type, enumerable: true },
-			defaultValue: { value: defaultValue, enumerable: true },
-			minValue: { value: minValue, enumerable: true },
-			maxValue: { value: maxValue, enumerable: true },
-			discreteStep: { value: discreteStep, enumerable: true },
-			exponent: { value: exponent, enumerable: true },
-			choices: { value: choices, enumerable: true },
-			units: { value: units, enumerable: true },
-		});
-		*/
-
-		// ...these lines will satisfy TS, but will throw errors
-		// in strict mode if we use defineProperties as shown above...
 		/** @readonly @property {string} id */
 		this.id = id;
 		/** @readonly @property {string} label */
