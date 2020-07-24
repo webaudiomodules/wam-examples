@@ -96,7 +96,7 @@ export interface WamNode extends AudioNode {
 export const WamNode: {
     prototype: WamNode;
     generateWamParameters(): WamParameterInfoMap;
-    new (module: WebAudioModule, options: AudioWorkletNodeOptions);
+    new (module: WebAudioModule, options: AudioWorkletNodeOptions): WamNode;
 };
 
 export interface WamProcessor extends AudioWorkletProcessor {
