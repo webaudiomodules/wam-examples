@@ -156,14 +156,6 @@ class WebAudioModule {
 		const { createElement } = await this._loadGui();
 		return createElement(this);
 	}
-
-	/**
-     * The host will call this method when destroy the WAM.
-     * Make sure this calls every internal destroys.
-     */
-	destroy() {
-		if (!this._audioNode) this._audioNode.destroy();
-	}
 }
 
 export default WebAudioModule;
