@@ -2,6 +2,7 @@
 /** @typedef { import('./WamTypes').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('./WamTypes').WamParameterData } WamParameterData */
 /** @typedef { import('./WamTypes').WamParameterMap } WamParameterMap */
+/** @typedef { import('./WamTypes').WamMidiData } WamMidiData */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
 
 import { WamParameterNoSab, WamParameterSab } from './WamParameter';
@@ -13,10 +14,18 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
+/* eslint-disable radix */
 
 /**
+ * @typedef {Object} PendingWamEvent
+ * @property {number} id
+ * @property {WamEvent} event
+*/
 
 /**
+ * @typedef {Object} ProcessingSlice
+ * @property {[number, number]} range
+ * @property {WamEvent[]} events
  */
 
 export default class WamProcessor extends AudioWorkletProcessor {
@@ -75,6 +84,16 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				this._parameterState[parameterId] = new WamParameterNoSab(this._parameterInfo[parameterId]);
 			});
 		}
+
+		/*
+		 * TODO
+		 * Maybe this should all be refactored at some point to use a ringbuffer backed
+		 * by SAB. Relying heavily on MessagePort for now, but it would be possible to
+		 * handle automation / midi events etc without it.
+		*/
+		/** @property {PendingWamEvent[]} _eventQueue */
+		this._eventQueue = [];
+
 		/** @property {number} _compensationDelay */
 		this._compensationDelay = 0;
 		/** @property {boolean} _destroyed */
@@ -92,11 +111,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	/**
 	 * @param {WamEvent} event
 	 */
-	onEvent(event) {
-		// trigger callbacks
-		// this.port.postMessage(event);
-		// handle event
-		// ...
+	scheduleEvent(event) {
+		// no need for ids if scheduled from audio thread
+		this._eventQueue.push({ id: 0, event });
+	}
+
+	clearEvents() {
+		this._eventQueue = [];
 	}
 
 	/**
@@ -104,14 +125,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {MessageEvent} message
 	 * */
 	_onMessage(message) {
-		// by default, assume mismatch in scheduling threads will be mitigated via message port
-		if (message.data.event) this.onEvent(message.data.event);
-		else if (message.data.request) {
+		if (message.data.request) {
 			const { id, request, content } = message.data;
 			const response = { id, response: request };
 			const requestComponents = request.split('/');
 			const verb = requestComponents[0];
 			const noun = requestComponents[1];
+			response.content = 'error';
 			if (verb === 'get') {
 				if (noun === 'parameterInfo') {
 					let { parameterIdQuery } = content;
@@ -130,17 +150,31 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					// ...additional state?
 				} else if (noun === 'compensationDelay') {
 					response.content = this.getCompensationDelay();
-				} else response.content = 'error';
+				}
 			} else if (verb === 'set') {
 				if (noun === 'parameterValues') {
 					const { parameterValues } = content;
 					this._setParameterValues(parameterValues);
+					delete response.content;
 				} else if (noun === 'state') {
 					const { state } = content;
 					if (state.parameterValues) this._setParameterValues(state.parameterValues);
 					// ...additional state?
-				} else response.content = 'error';
-			} else response.content = 'error';
+					delete response.content;
+				}
+			} else if (verb === 'add') {
+				if (noun === 'event') {
+					const { event } = content;
+					this._eventQueue.push({ id, event });
+					return; // defer postMessage until event is processed
+				}
+			} else if (verb === 'remove') {
+				if (noun === 'events') {
+					const ids = this._eventQueue.map((queued) => queued.id);
+					this.clearEvents();
+					response.content = ids;
+				}
+			}
 			this.port.postMessage(response);
 		}
 	}
@@ -184,6 +218,49 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		else parameter.normalizedValue = value;
 	}
 
+	/** @returns {ProcessingSlice[]} */
+	_getProcessingSlices() {
+		// sample accurate scheduling for custom DSP
+		const response = 'add/event';
+		const samplesPerQuantum = 128;
+		/** @ts-ignore */
+		const { currentTime, sampleRate } = globalThis;
+		/** @type {{[sampleIndex: number]: WamEvent[]}} */
+		const eventsBySampleIndex = {};
+		// assumes events arrive sorted by time
+		while (this._eventQueue.length) {
+			const { id, event } = this._eventQueue[0];
+			const sampleIndex = Math.round((event.time - currentTime) * sampleRate);
+			if (sampleIndex < samplesPerQuantum) {
+				if (eventsBySampleIndex[sampleIndex]) eventsBySampleIndex[sampleIndex].push(event);
+				else eventsBySampleIndex[sampleIndex] = [event];
+				if (id) this.port.postMessage({ id, response }); // notify main thread
+				this._eventQueue.shift();
+			} else break;
+		}
+
+		/** @type {ProcessingSlice[]} */
+		const processingSlices = [];
+		const keys = Object.keys(eventsBySampleIndex);
+		if (keys[0] !== '0') keys.unshift('0');
+		const lastIndex = keys.length;
+		keys.forEach((key, index) => {
+			const startSample = parseInt(key);
+			const endSample = (index < lastIndex) ? parseInt(keys[index + 1]) : samplesPerQuantum;
+			processingSlices.push({ range: [startSample, endSample], events: eventsBySampleIndex[key] });
+		});
+		return processingSlices;
+	}
+
+	/** @param {WamEvent} event */
+	_processEvent(event) {
+		switch (event.type) {
+		case 'automation': this._setParameterValue(event.data); break;
+		case 'midi': /*...*/ break;
+		default: break;
+		}
+	}
+
 	/**
 	 * @param {Float32Array[][]} inputs
 	 * @param {Float32Array[][]} outputs
@@ -191,14 +268,25 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 */
 	process(inputs, outputs, parameters) {
 		if (this._destroyed) return false;
-		/* custom DSP here */
-		// const input = inputs[0];
-		// const output = outputs[0];
-		// if (input.length == output.length) {
-		// 	for (let channel = 0; channel < output.length; ++channel) {
-		// 		output[channel].set(input[channel]);
-		// 	}
-		// }
+		const input = inputs[0];
+		const output = outputs[0];
+		if (input.length !== output.length) return true;
+
+		const processingSlices = this._getProcessingSlices();
+		processingSlices.forEach(({ range, events }) => {
+			// pause to process events at proper sample
+			events.forEach((event) => this._processEvent(event));
+			// continue processing
+			const [startSample, endSample] = range;
+			for (let c = 0; c < output.length; ++c) {
+				const x = input[c];
+				const y = output[c];
+				for (let n = startSample; n < endSample; ++n) {
+					/* custom DSP here */
+					y[n] = x[n];
+				}
+			}
+		});
 		return true;
 	}
 

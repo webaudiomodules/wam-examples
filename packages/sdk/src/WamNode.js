@@ -2,7 +2,7 @@
 /** @typedef { import('./WamTypes').WamParameterInfoMap } WamParameterInfoMap */
 /** @typedef { import('./WamTypes').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('./WamTypes').WamEvent } WamEvent */
-/** @typedef { import('./WamTypes').WamEventCallback } WamEventCallback */
+/** @typedef { import('./WamTypes').WamEventType } WamEventType */
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
@@ -34,12 +34,14 @@ export default class WamNode extends AudioWorkletNode {
 		this._useSab = false; // can override this via processorOptions
 		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
 		this._pendingResponses = {};
-		/** @private @property {{[subscriberId: string]: WamEventCallback}} */
-		this._eventCallbacks = {};
+		/** @private @property {{[key: number]: Promise<any>}} _pendingEvents **/
+		this._pendingEvents = {};
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
 		/** @property {number} _messageId */
-		this._messageId = 0;
+		this._messageId = 1;
+		/** @property {Set<WamEventType>} _supportedEventTypes */
+		this._supportedEventTypes = new Set(['wam-event', 'wam-automation', 'wam-midi']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -137,39 +139,60 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {string} subscriberId
-	 * @param {WamEventCallback} callback
-	 * @returns {boolean}
+	 * @param {string} type
+	 * @param {EventListenerOrEventListenerObject | null} callback
+	 * @param {AddEventListenerOptions | boolean} options;
 	 */
-	addEventCallback(subscriberId, callback) {
-		if (this._eventCallbacks[subscriberId]) return false;
-		this._eventCallbacks[subscriberId] = callback;
-		return true;
+	addEventListener(type, callback, options) {
+		if (this._supportedEventTypes.has(type)) super.addEventListener(type, callback, options);
 	}
 
 	/**
-	 * @param {string} subscriberId
-	 * @returns {boolean}
+	 * @param {string} type
+	 * @param {EventListenerOrEventListenerObject | null} callback
+	 * @param {AddEventListenerOptions | boolean} options;
 	 */
-	removeEventCallback(subscriberId) {
-		if (this._eventCallbacks[subscriberId]) {
-			delete this._eventCallbacks[subscriberId];
-			return true;
-		}
-		return false;
+	removeEventListener(type, callback, options) {
+		if (this._supportedEventTypes.has(type)) super.removeEventListener(type, callback, options);
 	}
 
 	/**
 	 * @param {WamEvent} event
 	 */
-	onEvent(event) {
-		// trigger callbacks
-		Object.keys(this._eventCallbacks).forEach((subscriberId) => {
-			this._eventCallbacks[subscriberId](event);
+	scheduleEvent(event) {
+		const request = 'add/event';
+		const id = this._generateMessageId();
+		let processed = false;
+		new Promise((resolve, reject) => {
+			this._pendingResponses[id] = resolve;
+			this._pendingEvents[id] = () => { if (!processed) reject(); };
+			this.port.postMessage({
+				id,
+				request,
+				content: { event },
+			});
+		}).then((resolved) => {
+			processed = true;
+			delete this._pendingEvents[id];
+			this._onEvent(event);
+		}).catch((rejected) => { delete this._pendingResponses[id]; });
+	}
+
+	async clearEvents() {
+		const request = 'remove/events';
+		const id = this._generateMessageId();
+		return new Promise((resolve) => {
+			const ids = Object.keys(this._pendingEvents);
+			if (ids.length) {
+				this._pendingResponses[id] = resolve;
+				this.port.postMessage({ id, request });
+			}
+		}).then((clearedIds) => {
+			clearedIds.forEach((clearedId) => {
+				this._pendingEvents[clearedId]();
+				delete this._pendingEvents[clearedId];
+			});
 		});
-		// handle event
-		// this.port.postMessage({ event });
-		// ...
 	}
 
 	/**
@@ -177,9 +200,8 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {MessageEvent} message
 	 * */
 	_onMessage(message) {
-		// by default, assume mismatch in scheduling threads will be mitigated via message port
-		if (message.data.event) this.onEvent(message.data.event);
-		else if (message.data.response) {
+		// const { data } = message;
+		if (message.data.response) {
 			const { id, response, content } = message.data;
 			const resolvePendingResponse = this._pendingResponses[id];
 			if (resolvePendingResponse) {
@@ -195,7 +217,15 @@ export default class WamNode extends AudioWorkletNode {
 			this._parameterBuffer = message.data.parameterBuffer;
 			/** @property {Float32Array} _parameterValues */
 			this._parameterValues = new Float32Array(this._parameterBuffer);
-		}
+		} else if (message.data.event) this._onEvent(message.data.event); // scheduled from audio thread
+	}
+
+	_onEvent(event) {
+		const { type } = event;
+		this.dispatchEvent(new CustomEvent(type, {
+			bubbles: true,
+			detail: event,
+		}));
 	}
 
 	_generateMessageId() {

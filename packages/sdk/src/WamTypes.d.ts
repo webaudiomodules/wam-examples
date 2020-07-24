@@ -53,18 +53,16 @@ export class WamNode extends AudioWorkletNode {
     readonly instanceId: string;
     readonly module: WebAudioModule;
 
-    private _eventCallbacks: { [subscriberId: string]: WamEventCallback };
-    private _destroyed: boolean;
-
     getParameterInfo(parameterIds?: string | string[]): Promise<WamParameterInfoMap>;
     setParameterValues(parameterValues: WamParameterDataMap): Promise<void>;
     getParameterValues(normalized: boolean, parameterIds?: string | string[]): Promise<WamParameterDataMap>;
     getState(): Promise<any>;
     setState(state: any): Promise<void>;
     getCompensationDelay(): Promise<number>;
-    addEventCallback(subscriberId: string, callback: WamEventCallback): boolean;
-    removeEventCallback(subscriberId: string): boolean;
-    onEvent(event: WamEvent): void;
+    addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean);
+    removeEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean);
+    scheduleEvent(event: WamEvent): void;
+    clearEvents(): Promise<void>;
     destroy(): void;
 }
 
@@ -81,7 +79,8 @@ export class WamProcessor extends AudioWorkletProcessor {
     private _destroyed: boolean;
 
     getCompensationDelay(): number;
-    onEvent(event: WamEvent): void;
+    scheduleEvent(event: WamEvent): void;
+    clearEvents(): void;
 }
 
 // PARAMETERS
@@ -167,5 +166,3 @@ export interface WamMidiEvent extends WamEventBase<WamMidiData> {
     type: 'midi';
     data: WamMidiData;
 }
-
-export type WamEventCallback = (event: WamEvent) => any;
