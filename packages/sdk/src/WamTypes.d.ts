@@ -111,6 +111,7 @@ export interface WamProcessor extends AudioWorkletProcessor {
     /** Stop processing and remove the node from the graph. */
     destroy(): void;
 }
+
 export const WamProcessor: {
     prototype: WamProcessor;
     new (options: AudioWorkletNodeOptions): WamProcessor;
