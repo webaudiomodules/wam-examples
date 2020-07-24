@@ -6,7 +6,7 @@
 /* eslint-disable no-plusplus */
 /** @typedef { import('../api/types').WamProcessor } WamProcessor */
 /** @typedef { import('../api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../api/types').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/types').WamParameterDataMap } WamParameterValueMap */
 /** @typedef { import('../api/types').WamEvent } WamEvent */
 /** @typedef { import('./types').ParamMgrOptions } ParamMgrProcessorOptions */
 /** @typedef { import('./types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
@@ -94,7 +94,7 @@ const processor = (processorId, paramsConfig) => {
 				internalParams,
 				instanceId,
 			} = options.processorOptions;
-			this.processorId = processorId;
+			this.moduleId = processorId;
 			this.instanceId = instanceId;
 			this.internalParamsMinValues = internalParamsMinValues;
 			this.paramsConfig = paramsConfig;
@@ -203,11 +203,12 @@ const processor = (processorId, paramsConfig) => {
 			return parameterValues;
 		}
 
-		/**
-		 * @param {WamEvent} event
-		 */
-		onEvent(event) {
-			return this.call('dispatchEvent', event);
+		scheduleEvent() {
+			throw new Error('Not Implemented yet');
+		}
+
+		clearEvents() {
+			throw new Error('Not Implemented yet');
 		}
 
 		lock() {

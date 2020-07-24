@@ -8,7 +8,7 @@ import MgrAudioParam from './MgrAudioParam.js';
 
 /** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
 /** @typedef { import('../api/types').WamNode } WamNode */
-/** @typedef { import('../api/types').WamParameterValueMap } WamParameterValueMap */
+/** @typedef { import('../api/types').WamParameterDataMap } WamParameterValueMap */
 /** @typedef { import('../api/types').WamEvent } WamEvent */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
@@ -37,7 +37,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
      * @param {ParamMgrOptions} options
      */
 	constructor(module, options) {
-		super(module.audioContext, module.processorId, {
+		super(module.audioContext, module.moduleId, {
 			outputChannelCount: [...new Array(options.numberOfInputs).fill(options.channelCount || 2), ...options.processorOptions.internalParams.map(() => 1)],
 			numberOfInputs: options.numberOfInputs,
 			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
@@ -108,7 +108,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	get processorId() {
-		return this.module.processorId;
+		return this.module.moduleId;
 	}
 
 	get instanceId() {
@@ -162,6 +162,17 @@ export default class ParamMgrNode extends AudioWorkletNode {
 
 	getParameterValues(normalized, parameterIdQuery) {
 		return this.call('getParameterValues', normalized, parameterIdQuery);
+	}
+
+	/**
+	 * @param {WamEvent} event
+	 */
+	scheduleEvent(event) {
+		this.call('scheduleEvent', event);
+	}
+
+	async clearEvents() {
+		this.call('clearEvents');
 	}
 
 	/**

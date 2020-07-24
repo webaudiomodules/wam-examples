@@ -80,7 +80,7 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
 	error?: Error;
 }
 
-export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues'>> {
+export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues' | 'scheduleEvent' | 'clearEvents'>> {
 	setParamsMapping(mapping: ParametersMapping): void;
 	getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
 }

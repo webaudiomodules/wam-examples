@@ -14,7 +14,7 @@ export default class ParamMgrRegister {
 	 * @param {ParametersMappingConfiguratorOptions} [optionsIn = {}]
 	 */
 	static async register(module, numberOfInputs = 1, optionsIn = {}) {
-		const { audioContext, processorId, instanceId } = module;
+		const { audioContext, moduleId: processorId, instanceId } = module;
 		const { paramsConfig, paramsMapping, internalParamsConfig } = new ParamMappingConfigurator(optionsIn);
 		const initialParamsValue = Object.entries(paramsConfig)
 			.reduce((currentParams, [name, { defaultValue }]) => {

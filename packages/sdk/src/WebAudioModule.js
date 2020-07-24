@@ -8,7 +8,7 @@
 /* eslint-disable indent */
 /* eslint-disable no-console */
 
-export default class WebAudioModule {
+class WebAudioModule {
 	static isWebAudioPlugin = true;
 
 	/**
@@ -20,7 +20,7 @@ export default class WebAudioModule {
 		return new this(audioContext).initialize(initialState);
 	}
 
-	/** @type {WamDescriptor} */
+	/** @returns {WamDescriptor} */
 	static descriptor = {
 		name: 'WebAudioPlugin',
 		vendor: 'PluginVendor',
@@ -29,37 +29,78 @@ export default class WebAudioModule {
 		url: undefined,
 	}
 
-	/** @type {string} */
+	/**
+	 * Url to load the plugin's GUI HTML
+	 * @returns {string}
+	 */
 	static guiModuleUrl = undefined;
 
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
+		/**
+		 * The `AudioContext` where the plugin's `AudioNode` lives
+		 * @property {BaseAudioContext} audioContext
+		 */
 		this.audioContext = audioContext;
-		this.instanceId = this.processorId + performance.now();
+
+		/**
+		 * The unique identifier of the current WAM instance.
+		 * @property {string} instanceId
+		 */
+		this.instanceId = this.moduleId + performance.now();
+
+		/**
+		 * The plugin's `AudioNode` that the host can connect to/from
+		 * @property {WamNode | undefined} _audioNode
+		 */
 		this._audioNode = undefined;
+
+		/**
+		 * This will return true after calling `initialize()`.
+		 * @property {boolean} initialized
+		 */
 		this.initialized = false;
 	}
 
 	// Accessors for values inherited from descriptor.json
 
+	/**
+	 * The identifier of the current WAM, composed of vender + name
+	 * @returns {string}
+	 */
+	get moduleId() { return this.vendor + this.name; }
+
+	/**
+	 * The values from `descriptor.json`
+	 * @returns {WamDescriptor}
+	 * */
 	/** @returns {WamDescriptor} */
 	get descriptor() {
 		// @ts-ignore
 		return this.constructor.descriptor;
 	}
 
+	/**
+	 * The WAM's name
+	 * @returns {string}
+	 */
 	get name() { return this.descriptor.name; }
+
+	/**
+	 * The WAM Vendor's name
+	 * @returns {string}
+	 */
 	get vendor() { return this.descriptor.vendor; }
-	get processorId() { return this.vendor + this.name; }
 
-	// The audioNode of the plugin
-	// The host must connect to this input
-
-	/** @returns {WamNode | undefined} */
+	/**
+	 * The plugin's `AudioNode` that the host can connect to/from
+	 * @returns {WamNode | undefined}
+	 * */
 	get audioNode() {
 		if (!this.initialized) console.warn('plugin should be initialized before getting the audionode');
 		return this._audioNode;
 	}
+	/** @param {WamNode} node */
 	set audioNode(node) {
 		this._audioNode = node;
 	}
@@ -77,37 +118,52 @@ export default class WebAudioModule {
 	}
 
 	/**
-	 * Calling initialize([state]) will initialize the plugin with an initial state.
-	 * While initializing, the audionode is created by calling createAudionode()
-	 * Plugins that redefine initialize() must call super.initialize();
-	 * @param {any} [initialState]
+     * The host will call this method to initialize the WAM with an initial state.
+     *
+     * In this method, WAM devs should call `createAudioNode()`
+     * and store its return `AudioNode` to `this.audioNode`,
+     * then set `initialized` to `true` to ensure that
+     * the `audioNode` property is available after initialized.
+     *
+     * These two behaviors are implemented by default in the SDK.
+     *
+     * The WAM devs can also fetch and preload the GUI Element in while initializing.
+	 * @param {any=} state
 	 * @returns {Promise<WebAudioModule>}
 	 */
-	async initialize(initialState) { // maybe don't need this, only createAudioNode?
-		if (!this._audioNode) this.audioNode = await this.createAudioNode(initialState);
+	async initialize(state) { // maybe don't need this, only createAudioNode?
+		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 		this.initialized = true;
 		return this;
 	}
 
-	//** TODO */
-	async loadGui() {
+	async _loadGui() {
 		// @ts-ignore
 		if (!this.constructor.guiModuleUrl) throw new TypeError('Gui module not found');
 		// @ts-ignore
 		return import(/* webpackIgnore: true */this.constructor.guiModuleUrl);
 	}
 
-	//** TODO */
-	async createGui(options = {}) {
+	/**
+	 * Redefine this method to get the WAM's GUI as an HTML `Element`.
+	 * @returns {Promise<HTMLElement>}
+	 */
+	async createGui() {
 		if (!this.initialized) console.warn('Plugin should be initialized before getting the gui');
 		// Do not fail if no gui is present, just return undefined
 		// @ts-ignore
 		if (!this.constructor.guiModuleUrl) return undefined;
-		const { createElement } = await this.loadGui();
-		return createElement(this, options);
+		const { createElement } = await this._loadGui();
+		return createElement(this);
 	}
 
+	/**
+     * The host will call this method when destroy the WAM.
+     * Make sure this calls every internal destroys.
+     */
 	destroy() {
 		if (!this._audioNode) this._audioNode.destroy();
 	}
 }
+
+export default WebAudioModule;
