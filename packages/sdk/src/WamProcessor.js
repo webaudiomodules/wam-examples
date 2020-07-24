@@ -15,40 +15,9 @@ import { WamParameterNoSab, WamParameterSab } from './WamParameter';
 /* eslint-disable lines-between-class-members */
 
 /**
- * @param {WamProcessor} processor
- * @param {boolean} normalized
- * @param {string[]=} parameterIdQuery
- * @returns {WamParameterDataMap}
- */
-function getParameterValues(processor, normalized, parameterIdQuery) {
-	/** @type {WamParameterDataMap} */
-	const parameterValues = {};
-	if (!parameterIdQuery.length) parameterIdQuery = Object.keys(processor._parameterState);
-	parameterIdQuery.forEach((parameterId) => {
-		const parameter = this._parameterState[parameterId];
-		if (!parameter) return;
-		parameterValues[parameterId] = {
-			id: parameterId,
-			value: normalized ? parameter.normalizedValue : parameter.value,
-			normalized,
-		};
-	});
-	return parameterValues;
-}
 
 /**
- * @param {WamProcessor} processor
- * @param {WamParameterDataMap} parameterValues
  */
-function setParameterValues(processor, parameterValues) {
-	Object.keys(parameterValues).forEach((parameterId) => {
-		const parameterUpdate = parameterValues[parameterId];
-		const parameter = this._parameterState[parameterId];
-		if (!parameter) return;
-		if (!parameterUpdate.normalized) parameter.value = parameterUpdate.value;
-		else parameter.normalizedValue = parameterUpdate.value;
-	});
-}
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
@@ -155,9 +124,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				} else if (noun === 'parameterValues') {
 					/*eslint-disable-next-line prefer-const */
 					let { normalized, parameterIdQuery } = content;
-					response.content = getParameterValues(this, normalized, parameterIdQuery);
+					response.content = this._getParameterValues(normalized, parameterIdQuery);
 				} else if (noun === 'state') {
-					response.content = { parameterValues: getParameterValues(this, false) };
+					response.content = { parameterValues: this._getParameterValues(false) };
 					// ...additional state?
 				} else if (noun === 'compensationDelay') {
 					response.content = this.getCompensationDelay();
@@ -165,15 +134,54 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			} else if (verb === 'set') {
 				if (noun === 'parameterValues') {
 					const { parameterValues } = content;
-					setParameterValues(this, parameterValues);
+					this._setParameterValues(parameterValues);
 				} else if (noun === 'state') {
 					const { state } = content;
-					if (state.parameterValues) setParameterValues(this, state.parameterValues);
+					if (state.parameterValues) this._setParameterValues(state.parameterValues);
 					// ...additional state?
 				} else response.content = 'error';
 			} else response.content = 'error';
 			this.port.postMessage(response);
 		}
+	}
+
+	/**
+	 * @param {boolean} normalized
+	 * @param {string[]=} parameterIdQuery
+	 * @returns {WamParameterDataMap}
+	 */
+	_getParameterValues(normalized, parameterIdQuery) {
+		/** @type {WamParameterDataMap} */
+		const parameterValues = {};
+		if (!parameterIdQuery) parameterIdQuery = [];
+		if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this._parameterState);
+		parameterIdQuery.forEach((id) => {
+			const parameter = this._parameterState[id];
+			if (!parameter) return;
+			parameterValues[id] = {
+				id,
+				value: normalized ? parameter.normalizedValue : parameter.value,
+				normalized,
+			};
+		});
+		return parameterValues;
+	}
+
+	/** @param {WamParameterDataMap} parameterUpdates */
+	_setParameterValues(parameterUpdates) {
+		Object.keys(parameterUpdates).forEach((parameterId) => {
+			const parameterUpdate = parameterUpdates[parameterId];
+			this._setParameterValue(parameterUpdate);
+		});
+	}
+
+	/** @param {WamParameterData} parameterUpdate */
+	_setParameterValue(parameterUpdate) {
+		const { id, value, normalized } = parameterUpdate;
+		const parameter = this._parameterState[id];
+		if (!parameter) return;
+		if (!normalized) parameter.value = value;
+		else parameter.normalizedValue = value;
 	}
 
 	/**
