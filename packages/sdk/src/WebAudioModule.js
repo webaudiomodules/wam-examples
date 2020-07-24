@@ -92,8 +92,7 @@ class WebAudioModule {
 		return this;
 	}
 
-	//** TODO */
-	async loadGui() {
+	async _loadGui() {
 		// @ts-ignore
 		if (!this.constructor.guiModuleUrl) throw new TypeError('Gui module not found');
 		// @ts-ignore
@@ -106,8 +105,8 @@ class WebAudioModule {
 		// Do not fail if no gui is present, just return undefined
 		// @ts-ignore
 		if (!this.constructor.guiModuleUrl) return undefined;
-		const { createElement } = await this.loadGui();
-		return createElement(this, options);
+		const { createElement } = await this._loadGui();
+		return createElement(this);
 	}
 }
 
