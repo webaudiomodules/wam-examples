@@ -41,6 +41,11 @@ export default class WebAudioModule {
 
 	// Accessors for values inherited from descriptor.json
 
+	/**
+	 * The identifier of the current WAM, composed of vender + name
+	 * @returns {string}
+	 */
+	get moduleId() { return this.vendor + this.name; }
 	/** @returns {WamDescriptor} */
 	get descriptor() {
 		// @ts-ignore
@@ -49,7 +54,6 @@ export default class WebAudioModule {
 
 	get name() { return this.descriptor.name; }
 	get vendor() { return this.descriptor.vendor; }
-	get processorId() { return this.vendor + this.name; }
 
 	// The audioNode of the plugin
 	// The host must connect to this input

@@ -5,8 +5,8 @@ export interface WebAudioModule {
     audioNode: WamNode;
     /** This will returns true after calling `initialize()`. */
     initialized: boolean;
-    /** The identifier of the current WAM. */
-    processorId: string;
+    /** The identifier of the current WAM, composed of vender + name */
+    moduleId: string;
     /** The unique identifier of the current WAM instance. */
     instanceId: string;
     /** The values from `descriptor.json` */
@@ -15,9 +15,6 @@ export interface WebAudioModule {
     readonly name: string;
     /** The WAM Vendor's name */
     readonly vendor: string;
-    /** Composed by vender + name */
-    readonly pluginId: string;
-    // RSH: rename to moduleId ?
 
     /**
      * This async method must be redefined to get `AudioNode` that
@@ -69,7 +66,7 @@ export interface WamDescriptor {
 export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
 
 export interface WamNode extends AudioNode {
-    readonly processorId: string;
+    readonly moduleId: string;
     readonly instanceId: string;
     readonly module: WebAudioModule;
 
@@ -97,7 +94,7 @@ export const WamNode: {
 };
 
 export interface WamProcessor extends AudioWorkletProcessor {
-    readonly processorId: string;
+    readonly moduleId: string;
     readonly instanceId: string;
     getCompensationDelay(): number;
     scheduleEvent(event: WamEvent): void;

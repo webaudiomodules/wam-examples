@@ -17,18 +17,15 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
+		const { audioContext, moduleId, instanceId } = module;
 		options.processorOptions = {
-			processorId: module.processorId,
-			instanceId: module.instanceId,
+			moduleId,
+			instanceId,
 			...options.processorOptions,
 		};
-		super(module.audioContext, module.processorId, options);
+		super(audioContext, moduleId, options);
 
-		/** @property {string} processorId */
-		this.processorId = module.processorId;
-		/** @property {string} instanceId */
-		this.instanceId = module.instanceId;
-		/** @property {WebAudioModule} loader */
+		/** @property {WebAudioModule} module */
 		this.module = module;
 		/** @property {boolean} _useSab */
 		this._useSab = false; // can override this via processorOptions
@@ -45,6 +42,11 @@ export default class WamNode extends AudioWorkletNode {
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
+
+	/** @returns {string} */
+	get moduleId() { return this.module.moduleId; }
+	/** @returns {string} */
+	get instanceId() { return this.module.instanceId; }
 
 	/**
 	 * @param {string | string[]=} parameterIds
