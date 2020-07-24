@@ -139,6 +139,7 @@ export interface WamParameterData {
 }
 
 export type WamParameterDataMap = { [id: string]: WamParameterData }
+
 // MIDI
 
 export interface WamMidiData {
@@ -149,19 +150,20 @@ export interface WamMidiData {
 
 export type WamEventType = "midi" | "automation"; // TODO 'sysex', 'mpe', 'osc'
 
-interface WamEventBase {
+interface WamEventBase<T> {
     type: WamEventType;
     time?: number;
+    data: T;
 }
 
 export type WamEvent = WamAutomationEvent | WamMidiEvent;
 
-export interface WamAutomationEvent extends WamEventBase {
+export interface WamAutomationEvent extends WamEventBase<WamParameterData> {
     type: 'automation';
     data: WamParameterData;
 }
 
-export interface WamMidiEvent extends WamEventBase {
+export interface WamMidiEvent extends WamEventBase<WamMidiData> {
     type: 'midi';
     data: WamMidiData;
 }
