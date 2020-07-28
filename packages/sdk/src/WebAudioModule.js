@@ -9,7 +9,7 @@
 /* eslint-disable no-console */
 
 class WebAudioModule {
-	static isWebAudioPlugin = true;
+	static isWebAudioModule = true;
 
 	/**
 	 * @param {BaseAudioContext} audioContext
@@ -22,7 +22,7 @@ class WebAudioModule {
 
 	/** @returns {WamDescriptor} */
 	static descriptor = {
-		name: 'WebAudioPlugin',
+		name: 'WebAudioModule',
 		vendor: 'PluginVendor',
 		entry: undefined,
 		gui: 'none',

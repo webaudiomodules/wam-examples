@@ -7,7 +7,7 @@ export { QuadrafuzzHTMLElement };
 
 /**
  * A mandatory method if you want a gui for your plugin
- * @param {WebAudioPlugin} plugin - the plugin instance
+ * @param {WebAudioModule} plugin - the plugin instance
  * @returns {Node} - the plugin root node that is inserted in the DOM of the host
  */
 export async function createElement(plugin, ...args) {

@@ -22,7 +22,7 @@
     "last 2 Safari versions",
     "not dead"
   ],
-  "webaudioplugins": {
+  "webaudiomodules": {
     "livegain": "dist",
     "pingpongdelay": "dist",
     "quadrafuzz": "dist"

@@ -6,7 +6,7 @@ import { CompositeAudioNode } from 'sdk';
 // an async mehod createNode is expored at the end of this
 // file.
 export default class QuadrafuzzNode extends CompositeAudioNode {
-	// plugin is an instance of he class that exends WebAudioPlugin
+	// plugin is an instance of he class that exends WebAudioModule
 	// this instance is he plugin as an Observable
 	// options is an extra container that could be ussed to indicate
 	// the number of inputs and outputs...
@@ -74,42 +74,42 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 	}
 /*
       *
-      *Tools to build sounds 
+      *Tools to build sounds
       */
 	 getDistortionCurve(k) {
 		 console.log("GET DISTORSION CURVE k = " + k)
 		var sampleRate = this.context.sampleRate;
 		var curve = new Float32Array(sampleRate);
 		var deg = Math.PI / 180;
-	
+
 		for (var i = 0; i < sampleRate; i++) {
 		  var x = i * 2 / sampleRate - 1;
 		  curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
 		}
 		return curve;
-	  } 
-	  
+	  }
+
 	  isNumber(arg) {
 		return toString.call(arg) === '[object Number]' && arg === +arg;
 	  }
-	
+
 	  isInRange(arg, min, max) {
 		if (!this.isNumber(arg) || !this.isNumber(min) || !this.isNumber(max))
 		  return false;
-	
+
 		return arg >= min && arg <= max;
 	  }
-	
-	
+
+
 	  // Takes a number from 0 to 1 and normalizes it to fit within range floor to ceiling
 	  normalize(num, floor, ceil) {
 		if (!this.isNumber(num) || !this.isNumber(floor) || !this.isNumber(ceil))
 		  return;
-	
+
 		return ((ceil - floor) * num) / 1 + floor;
 	  }
 
-	  
+
 
 
 // Setter part, it is here that you define the link between the params and the nodes values.

@@ -3,30 +3,30 @@ const Bundler = require('parcel-bundler');
 const express = require('express');
 const chalk = require('chalk');
 
-const { webaudioplugins } = require('./package.json');
+const { webaudiomodules } = require('./package.json');
 
 const app = express();
 
-Object.entries(webaudioplugins).forEach(([moduleName, directory]) => {
-	let webaudiopluginDistPath;
+Object.entries(webaudiomodules).forEach(([moduleName, directory]) => {
+	let webaudiomoduleDistPath;
 	try {
-		webaudiopluginDistPath = path.dirname(require.resolve(path.join(moduleName, directory)));
+		webaudiomoduleDistPath = path.dirname(require.resolve(path.join(moduleName, directory)));
 	} catch (err) {
 		let message = '';
 		if (directory) {
 			message = `\nVerify that "${directory}" directory exists in "${moduleName}" module directory.`;
 		}
 		console.log(chalk`{yellow 🚧🚧🚧
-Cannot load webaudioplugin [{bold ${moduleName}}].${message}
+Cannot load webaudiomodule [{bold ${moduleName}}].${message}
 Maybe ${moduleName} has not been built or linked yet ?
 Have you executed the commands "{bold yarn lerna bootstrap}" and "{bold yarn build}" ?}`);
 	}
 
-	if (!webaudiopluginDistPath) return;
+	if (!webaudiomoduleDistPath) return;
 
 	app.use(
 		`/${moduleName}`,
-		express.static(webaudiopluginDistPath),
+		express.static(webaudiomoduleDistPath),
 	);
 });
 

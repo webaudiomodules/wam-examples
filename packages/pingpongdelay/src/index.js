@@ -1,9 +1,9 @@
-// Double role for WebAudioPlugin :
+// Double role for WebAudioModule :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
-//     (state in WebAudioPlugin, initialized with the default values of
+//     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
-import { WebAudioPlugin } from 'sdk';
+import { WebAudioModule } from 'sdk';
 
 import PingPongDelayNode from './Node';
 /**
@@ -15,9 +15,9 @@ import PingPongDelayNode from './Node';
  * Definition of a new plugin
  *
  * @class PingPongDelayPlugin
- * @extends {WebAudioPlugin<PingPongDelayNode, Params, InternalParams>}
+ * @extends {WebAudioModule<PingPongDelayNode, Params, InternalParams>}
  */
-export default class PingPongDelayPlugin extends WebAudioPlugin {
+export default class PingPongDelayPlugin extends WebAudioModule {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
