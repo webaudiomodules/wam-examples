@@ -2,9 +2,15 @@
 import { WebAudioModule, ParamMgrRegister } from "sdk";
 import LiveGainNode from "./LiveGainNode";
 import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
+import { createElement } from "./gui";
 
 export type Parameters = "gain" | "frameRate" | "speedLim" | "min" | "max" | "step" | "orientation" | "metering";
 export class LiveGainModule extends WebAudioModule<LiveGainNode> {
+    static descriptor = {
+        name: "LiveGain",
+        vendor: "WebAudioModule"
+    };
+
     async createAudioNode(initialState?: any) {
         let node: LiveGainNode;
         const paramsConfig = {
@@ -69,6 +75,10 @@ export class LiveGainModule extends WebAudioModule<LiveGainNode> {
         node.setup(inputGainNode, outGainNode, analyserNode);
         if (initialState) node.setState(initialState);
         return node;
+    }
+
+    createGui() {
+        return createElement(this);
     }
 }
 export default LiveGainModule;

@@ -35,11 +35,18 @@ const getBasetUrl = (relativeURL) => {
 };
 // Definition of a new plugin
 export default class FaustPingPongDelayPlugin extends WebAudioModule {
+	static descriptor = {
+		name: 'FaustPingPongDelay',
+		vendor: 'WebAudioModule',
+	};
+
+	static _guiModuleUrl = new URL('./Gui/index.js', import.meta.url);
+
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
 	async createAudioNode(initialState) {
-		const baseURL = getBasetUrl(this.descriptor.url);
+		const baseURL = getBasetUrl(new URL('.', import.meta.url));
 		const factory = new PluginFactory(this.audioContext, baseURL);
 		const faustNode = await factory.load();
 		const options = await ParamMgrRegister.register(this, faustNode.numberOfInputs, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });

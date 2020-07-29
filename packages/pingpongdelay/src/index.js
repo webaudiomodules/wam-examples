@@ -5,7 +5,8 @@
 //      the params variable below...)
 import { WebAudioModule } from 'sdk';
 
-import PingPongDelayNode from './Node';
+import PingPongDelayNode from './Node.js';
+import { createElement } from './Gui/index.js';
 /**
  * @typedef {"feedback" | "time" | "mix"} Params
  * @typedef {"feedback" | "delayLeftTime" | "delayRightTime"
@@ -18,6 +19,11 @@ import PingPongDelayNode from './Node';
  * @extends {WebAudioModule<PingPongDelayNode, Params, InternalParams>}
  */
 export default class PingPongDelayPlugin extends WebAudioModule {
+	static descriptor = {
+		name: 'PingPongDelay',
+		vendor: 'WebAudioModule',
+	};
+
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
@@ -65,5 +71,9 @@ export default class PingPongDelayPlugin extends WebAudioModule {
 		};
 
 		return pingPongDelayNode;
+	}
+
+	createGui() {
+		return createElement(this);
 	}
 }

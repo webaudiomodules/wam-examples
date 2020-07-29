@@ -1,6 +1,3 @@
-// Load the sdk with an es import (script type="module" necessary)
-import * as Loader from '../../sdk/src/Loader.js';
-
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 
@@ -25,13 +22,10 @@ const mountPlugin = (domNode) => {
 };
 
 (async () => {
-	// Load plugin from the url of its json descriptor
-	// Pass the option { noGui: true } to not load the GUI by default
-	const faustPluginFactory = await Loader.loadModuleFromUrl('../plugin/descriptor.json'/*, { noGui: true }*/);
-
+	const { default: WAM } = await import('../plugin/index.js');
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await faustPluginFactory.createInstance(audioContext, {});
+	const instance = await WAM.createInstance(audioContext);
 
 	window.instance = instance;
 

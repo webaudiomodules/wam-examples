@@ -7,9 +7,16 @@
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrRegister from '../../sdk/src/ParamMgr/ParamMgrRegister.js';
 import QuadrafuzzNode from './Node.js';
+import { createElement } from './Gui/index.js';
+
 
 // Definition of a new plugin
 export default class QuadrafuzzPlugin extends WebAudioModule {
+	static descriptor = {
+		name: 'Quadrafuzz',
+		vendor: 'WebAudioModule',
+	};
+
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
@@ -65,5 +72,9 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 		if (initialState) quadrafuzzNode.setState(initialState);
 		//----
 		return quadrafuzzNode;
+	}
+
+	createGui() {
+		return createElement(this);
 	}
 }

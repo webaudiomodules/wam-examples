@@ -3,8 +3,6 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
 import omt from "@surma/rollup-plugin-off-main-thread";
-import copy from "rollup-plugin-copy";
-import { terser } from "rollup-plugin-terser";
 
 const common = {
 
@@ -18,11 +16,6 @@ const common = {
     ],
 
     plugins: [
-        copy({
-            targets: [
-                { src: "src/descriptor.json", dest: "dist/" }
-            ]
-        }),
         babel({
             exclude: /node_modules/,
             runtimeHelpers: false,
@@ -52,8 +45,4 @@ const plugin = {
     ...common,
     input: "./src/index.ts"
 };
-const gui = {
-    ...common,
-    input: "./src/gui.tsx"
-};
-export default [plugin, gui];
+export default [plugin];
