@@ -1,16 +1,16 @@
 # Parameter Manager
 
-This document provides a description of the parameter manager used in the `WebAudioPlugin` [SDK](https://github.com/53js/webaudioplugin/tree/master/packages/sdk), and a guide to handle parameters in an `WebAudioPlugin`.
+This document provides a description of the parameter manager used in the `WebAudioModule` [SDK](https://github.com/53js/webaudioplugin/tree/master/packages/sdk), and a guide to handle parameters in an `WebAudioModule`.
 
 ### Motivation
 
-It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its `AtTime` methods, to allow developers to schedule sample-accurate `a-rate` or buffer-accurate `k-rate` automations in several ways. 
+It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its `AtTime` methods, to allow developers to schedule sample-accurate `a-rate` or buffer-accurate `k-rate` automations in several ways.
 
-It is important for an `WebAudioPlugin` to control its parameters sample-accurately. However, the `AudioParam`s exist only inside `AudioNode`s, they are not constructable independently. In order to have customizable `AudioParam`s that control different parameters, we designed the Parameter Manager, which is mainly an `AudioWorkletNode` that creates user defined `AudioParam`s, then transform them to `AudioNode` outputs.
+It is important for an `WebAudioModule` to control its parameters sample-accurately. However, the `AudioParam`s exist only inside `AudioNode`s, they are not constructable independently. In order to have customizable `AudioParam`s that control different parameters, we designed the Parameter Manager, which is mainly an `AudioWorkletNode` that creates user defined `AudioParam`s, then transform them to `AudioNode` outputs.
 
 ### Plugin Design Patterns
 
-The `WebAudioPlugin` developer should declare every parameters that are controllable by the host application in the `descriptor.json`. These are the plugin's *exposed parameters*. (see [`ParametersDescriptor`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts)), accessible under the plugin's `paramsConfig` field.
+The `WebAudioModule` developer should declare every parameters that are controllable by the host application in the `descriptor.json`. These are the plugin's *exposed parameters*. (see [`ParametersDescriptor`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts)), accessible under the plugin's `paramsConfig` field.
 
 It is possible to control different variables in the plugin. These variables, we call them *internal parameters*, can be `AudioParam`s or an event handler that will be called while the values change, under a certain fire rate. A config of these parameters is accessible under the plugin's `internalParamsConfig` field. (see [`InternalParametersDescriptor`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts))
 
@@ -22,11 +22,11 @@ There are four main design patterns to link the *exposed parameters* to the *int
 
 > ![Direct + event listener pattern](paramMgr_0.png)
 
-> If the developer leaves the `internalParamsConfig` and the `paramsMapping` unset, the SDK will derive the `internalParamsConfig` from the `paramsConfig`, which means they are containing same parameter names and values. The `paramsMapping` will be filled with peer to peer mappings with no value mapping. 
+> If the developer leaves the `internalParamsConfig` and the `paramsMapping` unset, the SDK will derive the `internalParamsConfig` from the `paramsConfig`, which means they are containing same parameter names and values. The `paramsMapping` will be filled with peer to peer mappings with no value mapping.
 
 > In this case, the developer can listen to the `change:internalParam:${paramName}` event to handle the *internal parameters* value changes, up to 30 times per second. The developer can also connect manually outputs of the `paramMgr` to `AudioParam`s.
 
-> For example: 
+> For example:
 ```JavaScript
 plugin.on('change:internalParam:enabled', (value, prevValue) => {
     console.log(`Param "enabled" has been changed from ${prevValue} to ${value}`);
@@ -40,9 +40,9 @@ if (plugin.initialized) plugin.paramMgr.connectIParam('gain', audioNode.gain);
 
 > ![Direct + default event listeners or `AudioParam`s pattern](paramMgr_1.png)
 
-> If the developer declared the `internalParamsConfig` and leaves the `paramsMapping` unset, the SDK will automatically make links between the *exposed parameters* and the *internal parameters*, taking account of the giving `AudioParam`, or the `onChange` callback with the `automationRate`. 
+> If the developer declared the `internalParamsConfig` and leaves the `paramsMapping` unset, the SDK will automatically make links between the *exposed parameters* and the *internal parameters*, taking account of the giving `AudioParam`, or the `onChange` callback with the `automationRate`.
 
-> The `paramsMapping` will be filled with peer to peer mappings with no value mapping. 
+> The `paramsMapping` will be filled with peer to peer mappings with no value mapping.
 
 > For example:
 ```JavaScript
@@ -69,7 +69,7 @@ plugin.internalParamsConfig = {
 
 > Dynamically change the `paramsMapping` is possible using the setter.
 
-> For example: 
+> For example:
 ```JSON
 // in the descriptor.json
 {
@@ -121,7 +121,7 @@ It is possible to schedule parameter automations with a normalized value, or get
 All `AudioParam` methods are exposed in the Parameter Manager with their normalized version. The list is under the [ParamMgrNode interface](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/ParamMgrNode.d.ts), including time conversion methods `convertTimeToFrame` and `convertFrameToTime`.
 
 ### Need to go deeper?
-Sample-accurate *internal parameters* and *exposed parameters* values, with a frame stamp, are accessible in the `AudioWorkletGlobalScope`. The developer can get them by getting `globalThis.WebAudioPluginParams[instanceId]`, the instance identifier `instanceId` is unique to each `WebAudioPlugin` instance. See [AudioWorkletGlobalScope](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/types.d.ts).
+Sample-accurate *internal parameters* and *exposed parameters* values, with a frame stamp, are accessible in the `AudioWorkletGlobalScope`. The developer can get them by getting `globalThis.WebAudioModuleParams[instanceId]`, the instance identifier `instanceId` is unique to each `WebAudioModule` instance. See [AudioWorkletGlobalScope](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/types.d.ts).
 
 ### Use a Plugin from a Host
 

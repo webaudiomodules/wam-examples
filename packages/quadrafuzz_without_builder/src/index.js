@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
-// Double role for WebAudioPlugin :
+// Double role for WebAudioModule :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
-//     (state in WebAudioPlugin, initialized with the default values of
+//     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrRegister from '../../sdk/src/ParamMgr/ParamMgrRegister.js';

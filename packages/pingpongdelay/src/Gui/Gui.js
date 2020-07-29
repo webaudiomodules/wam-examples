@@ -11,8 +11,8 @@ import template from './Gui.template.html';
 export default class PingPongDelayHTMLElement extends HTMLElement {
 	/**
 	 * plugin = the same that is passed in the DSP part. It's the instance
-	 * of the class that extends WebAudioPlugin. It's an Observable plugin
-	 * @param {import("sdk").WebAudioPlugin<AudioNode, "feedback" | "time" | "mix">} plugin
+	 * of the class that extends WebAudioModule. It's an Observable plugin
+	 * @param {import("sdk").WebAudioModule<AudioNode, "feedback" | "time" | "mix">} plugin
 	 * @memberof PingPongDelayHTMLElement
 	 */
 	constructor(plugin) {

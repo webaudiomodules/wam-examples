@@ -1,15 +1,15 @@
 /* eslint-disable no-underscore-dangle */
-// Double role for WebAudioPlugin :
+// Double role for WebAudioModule :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
-//     (state in WebAudioPlugin, initialized with the default values of
+//     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
-import { WebAudioPlugin } from 'sdk';
+import { WebAudioModule } from 'sdk';
 
 import QuadrafuzzNode from './Node.js';
 
 // Definition of a new plugin
-export default class QuadrafuzzPlugin extends WebAudioPlugin {
+export default class QuadrafuzzPlugin extends WebAudioModule {
 	// The plugin redefines the async method createAudionode()
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state

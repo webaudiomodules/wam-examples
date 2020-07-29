@@ -29,9 +29,9 @@ const mountPlugin = (domNode) => {
 	// Pass the option { noGui: true } to not load the GUI by default
 	// IMPORTANT NOTICE :
 	// In order to be able to load the plugin in this example host,
-	// you must add the plugin to the field webaudioplugins
+	// you must add the plugin to the field webaudiomodules
 	// in the package.json. Example :
-	// "webaudioplugins": {
+	// "webaudiomodules": {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
@@ -40,7 +40,7 @@ const mountPlugin = (domNode) => {
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
     const instance = await Quadrafuzz.createInstance(audioContext,{});
-    
+
 	window.instance = instance;
 	// instance.enable();
 
@@ -56,7 +56,7 @@ const mountPlugin = (domNode) => {
 	player.onplay = () => {
 		let state;
 		audioContext.resume(); // audio context must be resumed because browser restrictions
-		
+
 		setTimeout(() => {
 			console.log("After 2.5s, set lowGain to 0.1...")
 			// set param feedback after 5 seconds

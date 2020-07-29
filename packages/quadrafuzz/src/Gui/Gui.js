@@ -22,7 +22,7 @@ const getAssetUrl = (asset) => {
 // practical as they encapsulate everyhing in a shadow dom
 export default class QuadrafuzzHTMLElement extends HTMLElement {
 	// plugin = the same that is passed in the DSP part. It's the instance
-	// of the class that extends WebAudioPlugin. It's an Observable plugin
+	// of the class that extends WebAudioModule. It's an Observable plugin
 	constructor(plugin) {
 		super();
 
