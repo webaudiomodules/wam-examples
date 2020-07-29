@@ -66,7 +66,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// @ts-ignore
 		// TODO I believe this is the correct way to do this but TS is complaining...
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
-		/** @property {WamParameterMap} _parameters */
+		/** @property {WamParameterMap} _parameterState */
 		this._parameterState = {};
 		/** @property {boolean} _useSab */
 		this._useSab = !!useSab;
