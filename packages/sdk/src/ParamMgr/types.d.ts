@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 // eslint-disable-next-line object-curly-newline
-import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration } from '../api/types';
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent } from '../api/types';
 
 export class AudioWorkletRegister {
 	/**
@@ -84,8 +84,9 @@ export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<W
 	setParamsMapping(mapping: ParametersMapping): void;
 	getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
 }
-export interface ParamMgrCallFromProcessor extends Pick<WamNode, 'dispatchEvent'> {
+export interface ParamMgrCallFromProcessor {
 	setBuffer(buffer: { lock: Int32Array, paramsBuffer: Float32Array }): void;
+	dispatchWamEvent(event: WamEvent): void;
 }
 export interface ParamMgrAudioWorkletOptions extends WamNodeOptions {
 	paramsConfig: WamParameterInfoMap;

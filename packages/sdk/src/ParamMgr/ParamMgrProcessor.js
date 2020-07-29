@@ -25,7 +25,7 @@
  * @param {WamParameterInfoMap} paramsConfig parameterDescriptors
  */
 const processor = (processorId, paramsConfig) => {
-	/** @type {AudioWorkletGlobalScope & globalThis} */
+	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	const { AudioWorkletProcessor, registerProcessor } = audioWorkletGlobalScope;
@@ -61,7 +61,6 @@ const processor = (processorId, paramsConfig) => {
 	/**
 	 * `ParamMgrNode`'s `AudioWorkletProcessor`
 	 *
-	 * @class ParamMgrProcessor
 	 * @extends {AudioWorkletProcessor<MsgIn, MsgOut>}
 	 * @implements {WamProcessor}
 	 * @implements {ParamMgrCallToProcessor}
@@ -76,13 +75,8 @@ const processor = (processorId, paramsConfig) => {
 			}));
 		}
 
-		static generateWamParameterInfo() {
-			return paramsConfig;
-		}
-
 		/**
 		 * @param {ParamMgrProcessorOptions} options
-		 * @memberof ParamMgrProcessor
 		 */
 		constructor(options) {
 			super(options);
@@ -109,6 +103,8 @@ const processor = (processorId, paramsConfig) => {
 			this.buffer = new SharedArrayBuffer((this.internalParamsCount + 1) * Float32Array.BYTES_PER_ELEMENT);
 			this.$lock = new Int32Array(this.buffer, 0, 1);
 			this.$internalParamsBuffer = new Float32Array(this.buffer, 4, this.internalParamsCount);
+			/** @type {WamEvent[]} */
+			this.eventQueue = [];
 
 			this.messagePortRequestId = -1;
 			/** @type {Record<number, ((...args: any[]) => any)>} */
@@ -203,20 +199,24 @@ const processor = (processorId, paramsConfig) => {
 			return parameterValues;
 		}
 
-		scheduleEvent() {
-			throw new Error('Not Implemented yet');
+		/**
+		 * @param {WamEvent} event
+		 */
+		scheduleEvent(event) {
+			this.eventQueue.push(event);
+			this.eventQueue.sort((a, b) => b.time - a.time).reverse();
 		}
 
 		clearEvents() {
-			throw new Error('Not Implemented yet');
+			this.eventQueue = [];
 		}
 
 		lock() {
-			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 1); // eslint-disable-line no-undef
+			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 1);
 		}
 
 		unlock() {
-			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 0); // eslint-disable-line no-undef
+			if (globalThis.Atomics) Atomics.store(this.$lock, 0, 0);
 		}
 
 		/**
@@ -268,6 +268,14 @@ const processor = (processorId, paramsConfig) => {
 			if (!this.supportSharedArrayBuffer) {
 				this.call('setBuffer', { buffer: { lock: this.$lock, paramsBuffer: this.$internalParamsBuffer } });
 			}
+			const { currentTime } = audioWorkletGlobalScope;
+			let $event;
+			for ($event = 0; $event < this.eventQueue.length; $event++) {
+				const event = this.eventQueue[$event];
+				if (event.time && event.time > currentTime) break;
+				this.call('dispatchWamEvent', event);
+			}
+			if ($event) this.eventQueue.splice(0, $event);
 			return true;
 		}
 

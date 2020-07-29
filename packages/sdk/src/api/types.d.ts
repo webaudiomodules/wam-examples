@@ -3,7 +3,7 @@ export interface WebAudioModule<Node extends WamNode = WamNode> {
     /** The `AudioContext` where the plugin's node lives */
     audioContext: BaseAudioContext;
     /** The `AudioNode` that handles audio in the plugin where the host can connect to/from */
-    audioNode: WamNode;
+    audioNode: Node;
     /** This will return true after calling `initialize()`. */
     initialized: boolean;
     /** The identifier of the current WAM, composed of vender + name */
@@ -44,15 +44,11 @@ export const WebAudioModule: {
     isWebAudioModule: boolean;
     createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
     descriptor: WamDescriptor;
-    guiModuleUrl: string;
     new <Node extends WamNode = WamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 };
 export interface WamDescriptor {
     name: string;
     vendor: string;
-    entry?: string;
-    gui: string;
-    url?: string;
 }
 
 // Node
@@ -100,7 +96,6 @@ export interface WamNode extends AudioWorkletNode {
 }
 export const WamNode: {
     prototype: WamNode;
-    generateWamParameters(): WamParameterInfoMap;
     new (module: WebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 export interface WamProcessor extends AudioWorkletProcessor {

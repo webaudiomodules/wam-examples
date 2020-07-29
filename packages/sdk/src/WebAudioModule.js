@@ -24,16 +24,13 @@ class WebAudioModule {
 	static descriptor = {
 		name: 'WebAudioModule',
 		vendor: 'PluginVendor',
-		entry: undefined,
-		gui: 'none',
-		url: undefined,
 	}
 
 	/**
 	 * Url to load the plugin's GUI HTML
 	 * @returns {string}
 	 */
-	static guiModuleUrl = undefined;
+	static _guiModuleUrl = undefined;
 
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
@@ -139,9 +136,9 @@ class WebAudioModule {
 
 	async _loadGui() {
 		// @ts-ignore
-		if (!this.constructor.guiModuleUrl) throw new TypeError('Gui module not found');
+		if (!this.constructor._guiModuleUrl) throw new TypeError('Gui module not found');
 		// @ts-ignore
-		return import(/* webpackIgnore: true */this.constructor.guiModuleUrl);
+		return import(/* webpackIgnore: true */this.constructor._guiModuleUrl);
 	}
 
 	/**
@@ -152,7 +149,7 @@ class WebAudioModule {
 		if (!this.initialized) console.warn('Plugin should be initialized before getting the gui');
 		// Do not fail if no gui is present, just return undefined
 		// @ts-ignore
-		if (!this.constructor.guiModuleUrl) return undefined;
+		if (!this.constructor._guiModuleUrl) return undefined;
 		const { createElement } = await this._loadGui();
 		return createElement(this);
 	}

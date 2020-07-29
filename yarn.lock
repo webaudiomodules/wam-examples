@@ -25,7 +25,7 @@
     invariant "^2.2.4"
     semver "^5.5.0"
 
-"@babel/core@^7.1.0", "@babel/core@^7.10.5", "@babel/core@^7.7.5":
+"@babel/core@^7.10.5":
   version "7.10.5"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.10.5.tgz#1f15e2cca8ad9a1d78a38ddba612f5e7cdbbd330"
   integrity sha512-O34LQooYVDXPl7QWCdW9p4NR+QlzOr7xShPPJz8GsuCU3/8ua/wqTr7gmnxXv+WBESiGU/G5s16i6tUvHkNb+w==
@@ -439,7 +439,7 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.9.4.tgz#68a35e6b0319bbc014465be43828300113f2f2e8"
   integrity sha512-bC49otXX6N0/VYhgOMh4gnP26E9xnDZK3TmbNpxYzzz9BQLBosQwfyOe9/cXUU3txYhTzLCbcqd5c8y/OmCjHA==
 
-"@babel/parser@^7.1.0", "@babel/parser@^7.10.4", "@babel/parser@^7.10.5":
+"@babel/parser@^7.10.4", "@babel/parser@^7.10.5":
   version "7.10.5"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.10.5.tgz#e7c6bf5a7deff957cec9f04b551e2762909d826b"
   integrity sha512-wfryxy4bE1UivvQKSQDU4/X6dr+i8bctjUjj8Zyt3DQy7NtPizJXT8M52nqpNKL+nq2PW8lxk4ZqLj0fD4B4hQ==
@@ -1063,7 +1063,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/template@^7.10.4", "@babel/template@^7.3.3":
+"@babel/template@^7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.10.4.tgz#3251996c4200ebc71d1a8fc405fba940f36ba278"
   integrity sha512-ZCjD27cGJFUB6nmCB1Enki3r+L5kJveX9pq1SvAUKoICy6CZ9yD8xO086YXdYhvNjBdnekm4ZnaP5yC8Cs/1tA==
@@ -1096,7 +1096,7 @@
     globals "^11.1.0"
     lodash "^4.17.13"
 
-"@babel/traverse@^7.1.0", "@babel/traverse@^7.10.4", "@babel/traverse@^7.10.5":
+"@babel/traverse@^7.10.4", "@babel/traverse@^7.10.5":
   version "7.10.5"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.10.5.tgz#77ce464f5b258be265af618d8fddf0536f20b564"
   integrity sha512-yc/fyv2gUjPqzTz0WHeRJH2pv7jA9kA7mBX2tXl/x5iOE81uaVPuGPtaYk7wmkx4b67mQ7NqI8rmT2pF47KYKQ==
@@ -1135,7 +1135,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@babel/types@^7.10.4", "@babel/types@^7.10.5", "@babel/types@^7.3.0", "@babel/types@^7.3.3":
+"@babel/types@^7.10.4", "@babel/types@^7.10.5":
   version "7.10.5"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.10.5.tgz#d88ae7e2fde86bfbfe851d4d81afa70a997b5d15"
   integrity sha512-ixV66KWfCI6GKoA/2H9v6bQdbfXEwwpOdQ8cRvb4F+eyvhlaHxWFMQB4+3d9QFJXZsiiiqVrewNV0DFEQpyT4Q==

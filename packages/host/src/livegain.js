@@ -1,6 +1,3 @@
-// Load the sdk with an es import (script type="module" necessary)
-import { Loader } from 'sdk';
-
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 
@@ -35,11 +32,11 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const LiveGain = await Loader.loadModuleFromUrl('./livegain/descriptor.json');
+	const { default: WAM } = await import('livegain');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await LiveGain.createInstance(audioContext);
+	const instance = await WAM.createInstance(audioContext);
 	// For debugging the plugin in the browser console, expose the instance to window.
 	window.instance = instance;
 

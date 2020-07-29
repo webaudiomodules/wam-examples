@@ -168,11 +168,32 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {WamEvent} event
 	 */
 	scheduleEvent(event) {
+		if (event.type === 'automation') {
+			const { time } = event;
+			const { id, normalized, value } = event.data;
+			const audioParam = this.getParam(id);
+			if (!audioParam) return;
+			if (audioParam.info.type === 'float') {
+				if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
+				else audioParam.linearRampToValueAtTime(value, time);
+			} else {
+				// eslint-disable-next-line no-lonely-if
+				if (normalized) audioParam.setNormalizedValueAtTime(value, time);
+				else audioParam.setValueAtTime(value, time);
+			}
+		}
 		this.call('scheduleEvent', event);
 	}
 
 	async clearEvents() {
 		this.call('clearEvents');
+	}
+
+	/**
+	 * @param {WamEvent} event
+	 */
+	dispatchWamEvent(event) {
+		this.dispatchEvent(new CustomEvent(event.type, { detail: event }));
 	}
 
 	/**

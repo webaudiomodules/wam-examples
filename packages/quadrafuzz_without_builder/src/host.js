@@ -1,6 +1,3 @@
-// Load the sdk with an es import (script type="module" necessary)
-import * as Loader from '../../sdk/src/Loader.js';
-
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 
@@ -35,11 +32,11 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const Quadrafuzz = await Loader.loadModuleFromUrl('./descriptor.json');
+	const { default: Quadrafuzz } = await import('./index.js');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-    const instance = await Quadrafuzz.createInstance(audioContext,{});
+	const instance = await Quadrafuzz.createInstance(audioContext, {});
 
 	window.instance = instance;
 	// instance.enable();

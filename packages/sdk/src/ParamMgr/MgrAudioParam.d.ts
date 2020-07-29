@@ -12,7 +12,7 @@ interface MgrAudioParam extends AudioParam, WamParameter {
     setTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
     setNormalizedTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
     setValueAtTime(value: number, startTime: number): MgrAudioParam;
-    setNormalizedValueAtTime(valueIn: string, startTime: number): MgrAudioParam;
+    setNormalizedValueAtTime(value: number, startTime: number): MgrAudioParam;
     setValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
     setNormalizedValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
 }
