@@ -134,6 +134,30 @@ describe('WamParameterInterpolation Suite', () => {
 		expect(testC.values.slice(startIndex, endIndex)).toAllEqual(endValue);
 	});
 
+	it('Should work properly when interpolation period is greater than that of render quantum', () => {
+		const longerInterpolationPeriod = Math.round(samplesPerRenderQuantum * Math.PI);
+		const infoD = new WamParameterInfo('D', { defaultValue: startValue, minValue: startValue, maxValue: endValue });
+		const testD = new WamParameterInterpolator(infoD, longerInterpolationPeriod);
+		testD.setEndValue(endValue);
+
+		startIndex = 0;
+		endIndex = samplesPerRenderQuantum;
+		const remainder = longerInterpolationPeriod % samplesPerRenderQuantum;
+		let fullRenders = Math.floor(longerInterpolationPeriod / samplesPerRenderQuantum);
+		while (fullRenders--) {
+			testD.process(startIndex, endIndex);
+			expect(testD.values).toAllIncrease();
+		}
+		expect(testD.done).toBe(false);
+		testD.process(0, samplesPerRenderQuantum);
+		expect(testD.done).toBe(false);
+		expect(testD.values.slice(0, remainder)).toAllIncrease();
+		expect(testD.values.slice(remainder, samplesPerRenderQuantum)).toAllEqual(endValue);
+		testD.process(0, remainder);
+		expect(testD.done).toBe(true);
+		expect(testD.values).toAllEqual(endValue);
+	});
+
 	it('Should interpolate linearly when skew is zero', () => {
 		startIndex = 0;
 		endIndex = samplesPerInterpolation;
