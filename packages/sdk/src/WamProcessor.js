@@ -1,4 +1,5 @@
 /** @typedef { import('./api/types').WamParameterInfoMap } WamParameterInfoMap */
+/** @typedef { import('./api/types').WamParameterInfo } WamParameterInfo */
 /** @typedef { import('./api/types').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('./api/types').WamParameterData } WamParameterData */
 /** @typedef { import('./api/types').WamParameterMap } WamParameterMap */
@@ -30,12 +31,28 @@
  * @property {WamEvent[]} events
  */
 
+/**
+ * @typedef {Object} WamParameterInterpolatorMap
+ * @property {string} id
+ * @property {WamParameterInterpolator} interpolator
+ */
+
 
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;
-// @ts-ignore
-const { AudioWorkletProcessor, WamParameterNoSab, WamParameterSab } = audioWorkletGlobalScope;
+
+const {
+	AudioWorkletProcessor,
+	// @ts-ignore
+	WamParameterInfo,
+	// @ts-ignore
+	WamParameterInterpolator,
+	// @ts-ignore
+	WamParameterNoSab,
+	// @ts-ignore
+	WamParameterSab,
+} = audioWorkletGlobalScope;
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
@@ -43,7 +60,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @returns {WamParameterInfoMap}
 	 */
 	static generateWamParameterInfo() {
-		return {};
+		return { gain: new WamParameterInfo('gain') };
 	}
 
 	/** @param {AudioWorkletNodeOptions} options */
@@ -68,6 +85,14 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 		/** @property {WamParameterMap} _parameterState */
 		this._parameterState = {};
+
+		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
+		this._parameterInterpolators = {};
+		Object.keys(this._parameterInfo).forEach((parameterId) => {
+			const info = this._parameterInfo[parameterId];
+			this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
+		});
+
 		/** @property {boolean} _useSab */
 		this._useSab = !!useSab;
 		if (this._useSab) {
@@ -171,11 +196,11 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			} else if (verb === 'set') {
 				if (noun === 'parameterValues') {
 					const { parameterValues } = content;
-					this._setParameterValues(parameterValues);
+					this._setParameterValues(parameterValues, true);
 					delete response.content;
 				} else if (noun === 'state') {
 					const { state } = content;
-					if (state.parameterValues) this._setParameterValues(state.parameterValues);
+					if (state.parameterValues) this._setParameterValues(state.parameterValues, false);
 					// ...additional state?
 					delete response.content;
 				}
@@ -218,21 +243,41 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		return parameterValues;
 	}
 
-	/** @param {WamParameterDataMap} parameterUpdates */
-	_setParameterValues(parameterUpdates) {
+	/**
+	 * @param {WamParameterDataMap} parameterUpdates
+	 * @param {boolean} interpolate
+	 */
+	_setParameterValues(parameterUpdates, interpolate) {
 		Object.keys(parameterUpdates).forEach((parameterId) => {
 			const parameterUpdate = parameterUpdates[parameterId];
-			this._setParameterValue(parameterUpdate);
+			this._setParameterValue(parameterUpdate, interpolate);
 		});
 	}
 
-	/** @param {WamParameterData} parameterUpdate */
-	_setParameterValue(parameterUpdate) {
+	/**
+	 * @param {WamParameterData} parameterUpdate
+	 * @param {boolean} interpolate
+	 */
+	_setParameterValue(parameterUpdate, interpolate) {
 		const { id, value, normalized } = parameterUpdate;
 		const parameter = this._parameterState[id];
 		if (!parameter) return;
 		if (!normalized) parameter.value = value;
 		else parameter.normalizedValue = value;
+		const interpolator = this._parameterInterpolators[id];
+		if (interpolate) interpolator.setEndValue(parameter.value);
+		else interpolator.setStartValue(parameter.value);
+	}
+
+	/**
+	 * @param {number} startIndex
+	 * @param {number} endIndex
+	 */
+	_interpolateParameterValues(startIndex, endIndex) {
+		Object.keys(this._parameterInterpolators).forEach((parameterId) => {
+			const interpolator = this._parameterInterpolators[parameterId];
+			interpolator.process(startIndex, endIndex);
+		});
 	}
 
 	/**
@@ -276,7 +321,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	/** @param {WamEvent} event */
 	_processEvent(event) {
 		switch (event.type) {
-		case 'automation': this._setParameterValue(event.data); break;
+		case 'automation': this._setParameterValue(event.data, true); break;
 		case 'midi': /*...*/ break;
 		default: break;
 		}
@@ -295,16 +340,19 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 		const processingSlices = this._getProcessingSlices();
 		processingSlices.forEach(({ range, events }) => {
+			const [startSample, endSample] = range;
 			// pause to process events at proper sample
 			events.forEach((event) => this._processEvent(event));
+			// perform parameter interpolation
+			this._interpolateParameterValues(startSample, endSample);
 			// continue processing
-			const [startSample, endSample] = range;
+			const gain = this._parameterInterpolators.gain.values;
 			for (let c = 0; c < output.length; ++c) {
 				const x = input[c];
 				const y = output[c];
 				for (let n = startSample; n < endSample; ++n) {
 					/* custom DSP here */
-					y[n] = x[n];
+					y[n] = x[n] * gain[n];
 				}
 			}
 		});
