@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-plusplus */
-/* eslint-disable import/first */
 
 import expect from './jestUtilities';
 import { diffArray } from './testUtilities';
