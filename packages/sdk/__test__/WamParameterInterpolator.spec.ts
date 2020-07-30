@@ -104,6 +104,51 @@ describe('WamParameterInterpolator Suite', () => {
 		expect(testA.values).toAllEqual(endValue);
 	});
 
+	it('Should continue from current value when setting end value during interpolation', () => {
+		testA.setStartValue(startValue);
+		testA.setEndValue(endValue);
+		const partialInterpolation = Math.round(samplesPerInterpolation / 3);
+
+		startIndex = 0;
+		endIndex = partialInterpolation;
+		testA.process(startIndex, endIndex);
+		// Partial slice (less than samplesPerInterpolation)
+		testA.setEndValue(startValue);
+
+		startIndex = endIndex;
+		endIndex += samplesPerInterpolation - endIndex;
+		testA.process(startIndex, endIndex);
+		// Should not have finished interpolating
+		expect(testA.done).toEqual(false);
+
+		startIndex = endIndex;
+		endIndex = samplesPerRenderQuantum;
+		testA.process(startIndex, endIndex);
+		// Should have finished interpolating but not filled
+		expect(testA.done).toEqual(false);
+
+		startIndex = 0;
+		endIndex = partialInterpolation;
+		const increasingSlice = testA.values.slice(startIndex, endIndex);
+		startIndex = endIndex;
+		endIndex = startIndex + samplesPerInterpolation;
+		const decreasingSlice = testA.values.slice(startIndex, endIndex);
+		startIndex = endIndex;
+		endIndex = samplesPerRenderQuantum;
+		const filledSlice = testA.values.slice(startIndex, endIndex);
+		// Verify values
+		expect(increasingSlice).toAllIncrease();
+		expect(decreasingSlice).toAllDecrease();
+		expect(filledSlice).toAllEqual(startValue);
+		expect(testA.done).toEqual(false);
+
+		startIndex = 0;
+		testA.process(startIndex, endIndex);
+		// Should have finishing filling values
+		expect(testA.done).toEqual(true);
+		expect(testA.values).toAllEqual(startValue);
+	});
+
 	it('Should not interpolate discrete parameters', () => {
 		const infoC = new WamParameterInfo('C', {
 			defaultValue: startValue,
