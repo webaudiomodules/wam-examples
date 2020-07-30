@@ -145,15 +145,6 @@ export default class WamParameterInterpolator {
 	}
 
 	/**
-	 * Call this when no longer using the instance in order
-	 * to allow deletion of unused static lookup tables.
-	 */
-	destroy() {
-		// clean out reference associated with this instance
-		this._removeTableReference(this._tableKey);
-	}
-
-	/**
 	 * Utility for managing lifecycles of lookup tables.
 	 * @param {string} oldKey
 	 */
@@ -171,15 +162,6 @@ export default class WamParameterInterpolator {
 				delete WamParameterInterpolator._tableReferences[oldKey];
 			}
 		}
-	}
-
-	/**
-	 * Whether or not further processing is required before
-	 * accessing per-sample values.
-	 * @returns {boolean}
-	 */
-	get done() {
-		return this._changed && this._filled === this.values.length;
 	}
 
 	/**
@@ -317,6 +299,24 @@ export default class WamParameterInterpolator {
 				this._filled = this.values.length;
 			}
 		}
+	}
+
+	/**
+	 * Whether or not further processing is required before
+	 * accessing per-sample values.
+	 * @returns {boolean}
+	 */
+	get done() {
+		return this._changed && this._filled === this.values.length;
+	}
+
+	/**
+	 * Call this when no longer using the instance in order
+	 * to allow deletion of unused static lookup tables.
+	 */
+	destroy() {
+		// clean out reference associated with this instance
+		this._removeTableReference(this._tableKey);
 	}
 }
 
