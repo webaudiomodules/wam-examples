@@ -9,7 +9,7 @@ import WamParameterInterpolator from '../src/WamParameterInterpolator.js';
 
 const samplesPerRenderQuantum = 128;
 
-describe('WamParameterInterpolation Suite', () => {
+describe('WamParameterInterpolator Suite', () => {
 	// TODO setup should be in a 'beforeEach' but TS can't resolve scope...
 	let e = 0.0;
 	const samplesPerInterpolation = 32; // Note that some tests will fail if this is made very large
