@@ -328,16 +328,34 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	}
 
 	/**
+	 * Override this to implement custom DSP.
+	 * @param {number} startSample beginning of processing slice
+	 * @param {number} endSample end of processing slice
+	 * @param {Float32Array[][]} inputs
+	 * @param {Float32Array[][]} outputs
+	 * @param {{[x: string]: Float32Array}} parameters
+	 */
+	_process(startSample, endSample, inputs, outputs, parameters) {
+		const input = inputs[0];
+		const output = outputs[0];
+		if (input.length !== output.length) return;
+		const gain = this._parameterInterpolators.gain.values;
+		for (let c = 0; c < output.length; ++c) {
+			const x = input[c];
+			const y = output[c];
+			for (let n = startSample; n < endSample; ++n) {
+				y[n] = x[n] * gain[n];
+			}
+		}
+	}
+
+	/**
 	 * @param {Float32Array[][]} inputs
 	 * @param {Float32Array[][]} outputs
 	 * @param {{[x: string]: Float32Array}} parameters
 	 */
 	process(inputs, outputs, parameters) {
 		if (this._destroyed) return false;
-		const input = inputs[0];
-		const output = outputs[0];
-		if (input.length !== output.length) return true;
-
 		const processingSlices = this._getProcessingSlices();
 		processingSlices.forEach(({ range, events }) => {
 			const [startSample, endSample] = range;
@@ -346,15 +364,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			// perform parameter interpolation
 			this._interpolateParameterValues(startSample, endSample);
 			// continue processing
-			const gain = this._parameterInterpolators.gain.values;
-			for (let c = 0; c < output.length; ++c) {
-				const x = input[c];
-				const y = output[c];
-				for (let n = startSample; n < endSample; ++n) {
-					/* custom DSP here */
-					y[n] = x[n] * gain[n];
-				}
-			}
+			this._process(startSample, endSample, inputs, outputs, parameters);
 		});
 		return true;
 	}
