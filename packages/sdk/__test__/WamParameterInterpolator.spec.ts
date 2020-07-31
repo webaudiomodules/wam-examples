@@ -207,6 +207,19 @@ describe('WamParameterInterpolator Suite', () => {
 		expect(testD.values).toAllEqual(endValue);
 	});
 
+	it('Should throw if skew is set out of range', () => {
+		expect(() => new WamParameterInterpolator(infoA, 0, 1.001)).toThrow();
+		expect(() => new WamParameterInterpolator(infoA, 0, -1.001)).toThrow();
+		expect(() => new WamParameterInterpolator(infoA, 0, 1.0)).not.toThrow();
+		expect(() => new WamParameterInterpolator(infoA, 0, -1.0)).not.toThrow();
+
+		expect(() => testA.setSkew(1.001)).toThrow();
+		expect(() => testA.setSkew(-1.001)).toThrow();
+		expect(() => testA.setSkew(1.0)).not.toThrow();
+		expect(() => testA.setSkew(-1.0)).not.toThrow();
+		expect(() => testA.setSkew(0.0)).not.toThrow();
+	});
+
 	it('Should interpolate linearly when skew is zero', () => {
 		startIndex = 0;
 		endIndex = samplesPerInterpolation;
