@@ -1,5 +1,5 @@
 
-import { WebAudioModule, ParamMgrRegister } from "sdk";
+import { WebAudioModule, ParamMgrFactory } from "sdk";
 import LiveGainNode from "./LiveGainNode";
 import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
 import { createElement } from "./gui";
@@ -12,7 +12,7 @@ export class LiveGainModule extends WebAudioModule<LiveGainNode> {
     };
 
     async createAudioNode(initialState?: any) {
-        let node: LiveGainNode;
+        const node = new LiveGainNode(this.audioContext);
         const paramsConfig = {
             gain: {
                 defaultValue: 0,
@@ -69,10 +69,8 @@ export class LiveGainModule extends WebAudioModule<LiveGainNode> {
         const outGainNode = this.audioContext.createGain();
         await register(this.audioContext.audioWorklet);
         const analyserNode = new TemporalAnalyserNode(this.audioContext);
-        const options = await ParamMgrRegister.register(this, inputGainNode.numberOfInputs, { internalParamsConfig, paramsConfig });
-        node = new LiveGainNode(this, options);
-        await node.initialize();
-        node.setup(inputGainNode, outGainNode, analyserNode);
+        const paramMgrNode = await ParamMgrFactory.create<Parameters>(this, { internalParamsConfig, paramsConfig });
+        node.setup(inputGainNode, outGainNode, paramMgrNode, analyserNode);
         if (initialState) node.setState(initialState);
         return node;
     }

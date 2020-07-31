@@ -1,23 +1,40 @@
 /* eslint-disable no-underscore-dangle */
+/** @template P @template I @typedef { import('sdk').ParamMgrNode<P, I> } ParamMgrNode */
 import { CompositeAudioNode } from 'sdk';
 
+/**
+ * @typedef {"feedback" | "time" | "mix" | "enabled"} Params
+ * @typedef {"feedback" | "delayLeftTime" | "delayRightTime"
+ * | "dryGain" | "wetGain" | "enabled"} InternalParams
+ */
 // name is not so important here, the file Node.js is imported
 // Normally the class does no need to be exported as
 // an async mehod createNode is expored at the end of this
 // file.
 export default class PingPongDelayNode extends CompositeAudioNode {
+	/**
+	 * @type {ParamMgrNode<Params, InternalParams>}
+	 */
+	_wamNode = undefined;
+
+	get paramMgr() {
+		return this._wamNode;
+	}
+
 	// plugin is an instance of he class that exends WebAudioModule
 	// this instance is he plugin as an Observable
 	// options is an extra container that could be ussed to indicate
 	// the number of inputs and outputs...
 	constructor(audioContext, options) {
 		super(audioContext, options);
-		super.setup();
+		this.createNodes();
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
 	createNodes() {
-		super.createNodes();
+		this._input = this.context.createGain();
+		super.connect(this._input);
+		this._output = this.context.createGain();
 		this.delayNodeLeft = this.context.createDelay();
 		this.delayNodeRight = this.context.createDelay();
 		this.dryGainNode = this.context.createGain();
@@ -27,7 +44,6 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 	}
 
 	connectNodes() {
-		super.connectNodes();
 		// dry mix
 		this._input.connect(this.dryGainNode);
 		// dry mix out
@@ -48,6 +64,14 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 		// wet out
 		this.channelMerger.connect(this.wetGainNode);
 		this.wetGainNode.connect(this._output);
+	}
+
+	/**
+	 * @param {ParamMgrNode<Params, InternalParams>} wamNode
+	 */
+	setup(wamNode) {
+		this._wamNode = wamNode;
+		this.connectNodes();
 	}
 
 	isEnabled = true;

@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable max-len */
 /* eslint-disable import/extensions */
 /* eslint-disable max-classes-per-file */
@@ -13,19 +14,29 @@
 //     and exposed params.
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import ParamMgrRegister from '../../sdk/src/ParamMgr/ParamMgrRegister.js';
+import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
 import PluginFactory from './Node.js';
+import { createElement } from './Gui/index.js';
 
 
 class FaustPingPongDelayNode extends CompositeAudioNode {
-	setup(output) {
+	setup(output, paramMgr) {
 		this.connect(output, 0, 0);
+		this._wamNode = paramMgr;
 		this._output = output;
 	}
 
 	destroy() {
 		super.destroy();
-		this._output.destroy();
+		if (this._output) this._output.destroy();
+	}
+
+	getParamValue(name) {
+		return this._wamNode.getParamValue(name);
+	}
+
+	setParamValue(name, value) {
+		return this._wamNode.setParamValue(name, value);
 	}
 }
 
@@ -49,11 +60,14 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		const baseURL = getBasetUrl(new URL('.', import.meta.url));
 		const factory = new PluginFactory(this.audioContext, baseURL);
 		const faustNode = await factory.load();
-		const options = await ParamMgrRegister.register(this, faustNode.numberOfInputs, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
-		const paramMgrNode = new FaustPingPongDelayNode(this, options, faustNode);
-		await paramMgrNode.initialize();
-		paramMgrNode.setup(faustNode);
-		if (initialState) paramMgrNode.setState(initialState);
-		return paramMgrNode;
+		const paramMgrNode = await ParamMgrFactory.create(this, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
+		const node = new FaustPingPongDelayNode(this.audioContext);
+		node.setup(faustNode, paramMgrNode);
+		if (initialState) node.setState(initialState);
+		return node;
+	}
+
+	createGui() {
+		return createElement(this);
 	}
 }

@@ -232,12 +232,7 @@ const processor = (processorId, paramsConfig) => {
 		 */
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;
-			const numberOfInputs = inputs.length;
-			inputs.forEach((input, i) => { // Copy inputs to outputs
-				input.forEach((channel, j) => {
-					outputs[i][j].set(channel);
-				});
-			});
+			const outputOffset = 1;
 			this.lock();
 			Object.entries(this.paramsConfig).forEach(([name, { minValue, maxValue }]) => {
 				const raw = parameters[name];
@@ -262,8 +257,8 @@ const processor = (processorId, paramsConfig) => {
 					} else { // No need to modify
 						out = raw;
 					}
-					if (out.length === 1) outputs[j + numberOfInputs][0].fill(out[0]);
-					else outputs[j + numberOfInputs][0].set(out);
+					if (out.length === 1) outputs[j + outputOffset][0].fill(out[0]);
+					else outputs[j + outputOffset][0].set(out);
 					this.$internalParamsBuffer[j] = out[0]; // eslint-disable-line prefer-destructuring
 				});
 			});

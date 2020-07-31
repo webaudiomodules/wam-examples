@@ -38,9 +38,8 @@ export default class ParamMgrNode extends AudioWorkletNode {
      */
 	constructor(module, options) {
 		super(module.audioContext, module.moduleId, {
-			outputChannelCount: [...new Array(options.numberOfInputs).fill(options.channelCount || 2), ...options.processorOptions.internalParams.map(() => 1)],
-			numberOfInputs: options.numberOfInputs,
-			numberOfOutputs: options.numberOfInputs + options.processorOptions.internalParams.length,
+			numberOfInputs: 0,
+			numberOfOutputs: 1 + options.processorOptions.internalParams.length,
 			parameterData: options.parameterData,
 			processorOptions: options.processorOptions,
 		});
@@ -121,6 +120,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const { lock, paramsBuffer } = response;
 		this.$lock = lock;
 		this.$paramsBuffer = paramsBuffer;
+		const offset = 1;
 		Object.entries(this.internalParamsConfig).forEach(([name, config], i) => {
 			if (this.context.state === 'suspended') this.$paramsBuffer[i] = config.defaultValue;
 			if (config instanceof AudioParam) {
@@ -128,14 +128,15 @@ export default class ParamMgrNode extends AudioWorkletNode {
 					config.automationRate = 'a-rate';
 				} finally {
 					config.value = Math.max(0, config.minValue);
-					this.connect(config, this.numberOfInputs + i);
+					this.connect(config, offset + i);
 				}
 			} else if (config instanceof AudioNode) {
-				this.connect(config, this.numberOfInputs + i);
+				this.connect(config, offset + i);
 			} else {
 				this.requestDispatchIParamChange(name);
 			}
 		});
+		this.connect(this.module.audioContext.destination, 0, 0);
 		this.initialized = true;
 		return this;
 	}
@@ -269,7 +270,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {number} index
 	 */
 	connectIParam(name, dest, index) {
-		const offset = this.numberOfInputs;
+		const offset = 1;
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {
@@ -287,7 +288,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {number} index
 	 */
 	disconnectIParam(name, dest, index) {
-		const offset = this.numberOfInputs;
+		const offset = 1;
 		const i = this.getIParamIndex(name);
 		if (i !== null) {
 			if (dest instanceof AudioNode) {

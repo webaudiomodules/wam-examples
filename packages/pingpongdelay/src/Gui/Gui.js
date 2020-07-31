@@ -12,7 +12,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 	/**
 	 * plugin = the same that is passed in the DSP part. It's the instance
 	 * of the class that extends WebAudioModule. It's an Observable plugin
-	 * @param {import("sdk").WebAudioModule<AudioNode, "feedback" | "time" | "mix">} plugin
+	 * @param {import('sdk').WebAudioModule<import('../Node').default>} plugin
 	 * @memberof PingPongDelayHTMLElement
 	 */
 	constructor(plugin) {
@@ -30,7 +30,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 			mix,
 			time,
 			enabled,
-		} = this.plugin.params;
+		} = this.plugin.audioNode.paramMgr.getParamsValues();
 		this.shadowRoot.querySelector('#knob1').value = feedback * 100;
 		this.shadowRoot.querySelector('#knob2').value = time * 100;
 		this.shadowRoot.querySelector('#knob3').value = mix * 100;
@@ -52,20 +52,20 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
-				if (this.plugin.audioContext.state === 'suspended') this.plugin.paramMgr.setParamValue('feedback', e.target.value / 100);
-				else this.plugin.paramMgr.setParamTargetAtTime('feedback', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
+				if (this.plugin.audioContext.state === 'suspended') this.plugin.audioNode.paramMgr.setParamValue('feedback', e.target.value / 100);
+				else this.plugin.audioNode.paramMgr.setParamTargetAtTime('feedback', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 		this.shadowRoot
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {
-				if (this.plugin.audioContext.state === 'suspended') this.plugin.paramMgr.setParamValue('time', e.target.value / 100);
-				else this.plugin.paramMgr.setParamTargetAtTime('time', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
+				if (this.plugin.audioContext.state === 'suspended') this.plugin.audioNode.paramMgr.setParamValue('time', e.target.value / 100);
+				else this.plugin.audioNode.paramMgr.setParamTargetAtTime('time', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 		this.shadowRoot
 			.querySelector('#knob3')
 			.addEventListener('input', (e) => {
-				if (this.plugin.audioContext.state === 'suspended') this.plugin.paramMgr.setParamValue('mix', e.target.value / 100);
-				else this.plugin.paramMgr.setParamTargetAtTime('mix', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
+				if (this.plugin.audioContext.state === 'suspended') this.plugin.audioNode.paramMgr.setParamValue('mix', e.target.value / 100);
+				else this.plugin.audioNode.paramMgr.setParamTargetAtTime('mix', e.target.value / 100, this.plugin.audioContext.currentTime, 0.01);
 			});
 	}
 
@@ -74,7 +74,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				plugin.paramMgr.setParamValue('enabled', +!!this.checked);
+				plugin.paramMgr.audioNode.setParamValue('enabled', +!!this.checked);
 			});
 	}
 

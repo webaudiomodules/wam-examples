@@ -1,12 +1,14 @@
 /* eslint-disable import/no-duplicates */
-import { CompositeAudioNode } from "sdk";
+import { CompositeAudioNode, ParamMgrNode } from "sdk";
 import { TemporalAnalyserNode } from "./worklets/TemporalAnalyser";
 import { atodb, dbtoa } from "./utils/math";
+import { Parameters } from "./LiveGainPlugin";
 
 export default class LiveGainNode extends CompositeAudioNode {
     analyserNode: TemporalAnalyserNode;
     inputGainNode: GainNode;
     outputGainNode: GainNode;
+    _wamNode: ParamMgrNode<Parameters>;
     private _metering: "preFader" | "postFader" = "postFader";
     private _requestTimer = -1;
     levels: number[] = [];
@@ -34,7 +36,7 @@ export default class LiveGainNode extends CompositeAudioNode {
     startRequest = () => {
         let lastResult: number[] = [];
         const request = async () => {
-            if (this.initialized && this.analyserNode && !this.analyserNode.destroyed) {
+            if (this._wamNode.initialized && this.analyserNode && !this.analyserNode.destroyed) {
                 const absMax = await this.analyserNode.getAbsMax();
                 const thresh = 1;
                 const levels = absMax.map(v => atodb(v));
@@ -46,7 +48,7 @@ export default class LiveGainNode extends CompositeAudioNode {
             scheduleRequest();
         };
         const scheduleRequest = () => {
-            this._requestTimer = window.setTimeout(request, this.initialized ? this.getParamValue("speedLim") : 16);
+            this._requestTimer = window.setTimeout(request, this._wamNode.initialized ? this._wamNode.getParamValue("speedLim") : 16);
         };
         request();
     };
@@ -56,15 +58,28 @@ export default class LiveGainNode extends CompositeAudioNode {
         if (this._metering === "preFader") this.inputGainNode.connect(this.analyserNode);
         else this.outputGainNode.connect(this.analyserNode);
     }
-    setup(inputGainNode: GainNode, outputGainNode: GainNode, analyserNode: TemporalAnalyserNode) {
+    setup(inputGainNode: GainNode, outputGainNode: GainNode, wamNode: ParamMgrNode<Parameters>, analyserNode: TemporalAnalyserNode) {
         this.inputGainNode = inputGainNode;
         this.outputGainNode = outputGainNode;
         this.analyserNode = analyserNode;
         this.connectNodes();
         this._output = this.outputGainNode;
+        this._wamNode = wamNode;
         this.startRequest();
     }
     get gain() {
         return this.outputGainNode.gain;
+    }
+    getParamValue(name: Parameters) {
+        return this._wamNode.getParamValue(name);
+    }
+    setParamValue(name: Parameters, value: number) {
+        return this._wamNode.setParamValue(name, value);
+    }
+    getParamsValues() {
+        return this._wamNode.getParamsValues();
+    }
+    setParamsValues(values: Partial<Record<Parameters, number>>) {
+        return this._wamNode.setParamsValues(values);
     }
 }

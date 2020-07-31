@@ -4,7 +4,7 @@
 // 2 - This makes the instance of the current class an Observable
 //     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
-import { WebAudioModule, ParamMgrRegister } from 'sdk';
+import { WebAudioModule, ParamMgrFactory } from 'sdk';
 import QuadrafuzzNode from './Node.js';
 import { createElement } from './Gui/index.js';
 
@@ -19,7 +19,7 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 	// that must return an <Audionode>
 	// It also listen to plugin state change event to update the audionode internal state
 	async createAudioNode(initialState) {
-		let quadrafuzzNode;
+		const quadrafuzzNode = new QuadrafuzzNode(this.audioContext);
 		const paramsConfig = {
 			lowGain: {
 				defaultValue: 0.6,
@@ -63,10 +63,8 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 		// const paramsMapping = {};
 
 		const optionsIn = { internalParamsConfig, paramsConfig };
-		const options = await ParamMgrRegister.register(this, 2, optionsIn);
-		quadrafuzzNode = new QuadrafuzzNode(this, options);
-		await quadrafuzzNode.initialize();
-		quadrafuzzNode.setup();
+		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
+		quadrafuzzNode.setup(paramMgrNode);
 		if (initialState) quadrafuzzNode.setState(initialState);
 		//----
 		return quadrafuzzNode;

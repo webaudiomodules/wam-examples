@@ -9,6 +9,10 @@ import { CompositeAudioNode } from 'sdk';
 // an async mehod createNode is expored at the end of this
 // file.
 export default class QuadrafuzzNode extends CompositeAudioNode {
+	/**
+	 * @type {ParamMgrNode}
+	 */
+	_wamNode = undefined;
 	// plugin is an instance of he class that exends WebAudioModule
 	// this instance is he plugin as an Observable
 	// options is an extra container that could be ussed to indicate
@@ -72,7 +76,11 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 		}
 	}
 
-	setup() {
+	/**
+	 * @param {ParamMgrNode} wamNode
+	 */
+	setup(wamNode) {
+		this._wamNode = wamNode;
 		this.createNodes();
 		this.connectNodes();
 	}
@@ -175,5 +183,21 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 		if (!this.isNumber(mix) || mix > 1 || mix < 0) return 0;
 		if (mix >= 0.5) return 1;
 		return 1 - (0.5 - mix) * 2;
+	}
+
+	getParamValue(name) {
+		return this._wamNode.getParamValue(name);
+	}
+
+	setParamValue(name, value) {
+		return this._wamNode.setParamValue(name, value);
+	}
+
+	getParamsValues() {
+		return this._wamNode.getParamsValues();
+	}
+
+	setParamsValues(values) {
+		return this._wamNode.setParamsValues(values);
 	}
 }

@@ -3,17 +3,17 @@
 import AudioWorkletRegister from './AudioWorkletRegister.js';
 import processor from './ParamMgrProcessor.js';
 import ParamMappingConfigurator from './ParamConfigurator.js';
+import ParamMgrNode from './ParamMgrNode.js';
 /** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
 /** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */
 /** @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
 
-export default class ParamMgrRegister {
+export default class ParamMgrFactory {
 	/**
 	 * @param {WebAudioModule} module
-	 * @param {number} [numberOfInputs = 1]
 	 * @param {ParametersMappingConfiguratorOptions} [optionsIn = {}]
 	 */
-	static async register(module, numberOfInputs = 1, optionsIn = {}) {
+	static async create(module, optionsIn = {}) {
 		const { audioContext, moduleId: processorId, instanceId } = module;
 		const { paramsConfig, paramsMapping, internalParamsConfig } = new ParamMappingConfigurator(optionsIn);
 		const initialParamsValue = Object.entries(paramsConfig)
@@ -30,7 +30,6 @@ export default class ParamMgrRegister {
 		/** @type {ParamMgrOptions} */
 		const options = {
 			internalParamsConfig,
-			numberOfInputs,
 			parameterData: initialParamsValue,
 			processorOptions: {
 				paramsConfig,
@@ -42,6 +41,8 @@ export default class ParamMgrRegister {
 				processorId,
 			},
 		};
-		return options;
+		const node = new ParamMgrNode(module, options);
+		await node.initialize();
+		return node;
 	}
 }

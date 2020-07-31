@@ -1,8 +1,10 @@
-import ParamMgrNode from './ParamMgrNode.js';
-import { WebAudioModule } from '../api/types';
-import { ParamMgrOptions } from './types';
+import { WamNode } from '../api/types';
 
-interface CompositeAudioNode extends ParamMgrNode {
+interface CompositeAudioNode extends Omit<GainNode, keyof EventTarget>, WamNode {
+    /**
+     * `undefined` by default, override it for proxying the interface
+     */
+    _wamNode: WamNode;
     /**
      * `undefined` by default, override it after calling every `this.connect()`
      */
@@ -10,7 +12,7 @@ interface CompositeAudioNode extends ParamMgrNode {
 }
 declare const CompositeAudioNode: {
     prototype: CompositeAudioNode;
-    new (module: WebAudioModule, options: ParamMgrOptions): CompositeAudioNode;
+    new (audioContext: BaseAudioContext, options?: GainOptions): CompositeAudioNode;
 };
 
 export default CompositeAudioNode;
