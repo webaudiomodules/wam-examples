@@ -111,7 +111,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._destroyed = false;
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
-		else globalThis.WamProcessors = { instanceId: this };
+		else globalThis.WamProcessors = { [instanceId]: this };
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}

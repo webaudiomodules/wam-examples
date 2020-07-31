@@ -106,6 +106,9 @@ const processor = (processorId, paramsConfig) => {
 			/** @type {WamEvent[]} */
 			this.eventQueue = [];
 
+			if (audioWorkletGlobalScope.WamProcessors) audioWorkletGlobalScope.WamProcessors[instanceId] = this;
+			else audioWorkletGlobalScope.WamProcessors = { [instanceId]: this };
+
 			this.messagePortRequestId = -1;
 			/** @type {Record<number, ((...args: any[]) => any)>} */
 			const resolves = {};

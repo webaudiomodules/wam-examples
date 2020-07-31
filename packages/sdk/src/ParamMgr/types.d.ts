@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 // eslint-disable-next-line object-curly-newline
-import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent } from '../api/types';
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent, WamProcessor } from '../api/types';
 
 export class AudioWorkletRegister {
 	/**
@@ -141,6 +141,7 @@ export interface AudioWorkletGlobalScope {
 	currentTime: number;
 	sampleRate: number;
 	AudioWorkletProcessor: typeof TypedAudioWorkletProcessor;
+	WamProcessors: Record<string, WamProcessor>;
 }
 
 export type TypedAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
