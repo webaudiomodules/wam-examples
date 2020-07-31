@@ -20,7 +20,7 @@ export default class WamParameterInterpolator {
 	 * Lookup tables to avoid recomputing interpolation curves. Keyed
 	 * by `'<samplesPerInterpolation>_<skew>'`. Not used for
 	 * discrete parameters.
-	 * @static @property {Record<string, Float32Array>} _tables
+	 * @private @static @property {Record<string, Float32Array>} _tables
 	 */
 	static _tables;
 
@@ -28,7 +28,7 @@ export default class WamParameterInterpolator {
 	 * List of parameter ids currently using the lookup table associated
 	 * with the key. Keyed by `'<samplesPerInterpolation>_<skew>'`.
 	 * For purging unused lookup tables. Not used for discrete parameters.
-	 * @static @property {Record<string, string[]>} _tableReferences
+	 * @private @static @property {Record<string, string[]>} _tableReferences
 	 */
 	static _tableReferences;
 
@@ -50,19 +50,19 @@ export default class WamParameterInterpolator {
 
 		/**
 		 * Buffer storing per-sample values.
-		 * @property {Float32Array} values
+		 * @readonly @property {Float32Array} values
 		 */
 		this.values = new Float32Array(samplesPerQuantum);
 
 		/**
-		 * Composed by concatenating `'<samplesPerInterpolation>_<skew>'`
-		 * @property {string} _tableKey
+		 * Composed by concatenating `'<samplesPerInterpolation>_<skew>'`.
+		 * @private @property {string} _tableKey
 		 */
 		this._tableKey = nullTableKey;
 
 		/**
 		 * The (static) lookup table used to avoid recomputing ramps.
-		 * @property {Float32Array}
+		 * @private @property {Float32Array}
 		 */
 		this._table = WamParameterInterpolator._tables[this._tableKey];
 
@@ -70,7 +70,7 @@ export default class WamParameterInterpolator {
 		 * Determines if interpolation will be linear / nonlinear.
 		 * Note that this is distinct from the corresponding
 		 * parameter's `exponent` value.
-		 * @property {number} _skew
+		 * @private @property {number} _skew
 		 */
 		this._skew = 1;
 
@@ -79,62 +79,63 @@ export default class WamParameterInterpolator {
 		/**
 		 * Whether or not to perform interpolation
 		 * (false for integer parameters, true otherwise).
-		 * @readonly @property {boolean} _discrete
+		 * @readonly @private @property {boolean} _discrete
 		 */
 		this._discrete = !!discreteStep;
 
 		/**
 		 * The interpolation period in samples.
-		 * @readonly @property {number} _N
+		 * @readonly @private @property {number} _N
 		 */
 		this._N = this._discrete ? 0 : samplesPerInterpolation;
 
 		/**
 		 * The current interpolation index.
-		 * @property {number} _n
+		 * @private @property {number} _n
 		 */
 		this._n = 0;
 
 		/**
 		 * The parameter value when interpolation starts.
-		 * @property {number} _startValue
+		 * @private @property {number} _startValue
 		*/
 		this._startValue = info.defaultValue;
 
 		/**
 		 * The parameter value when interpolation ends.
-		 * @property {number} _endValue
+		 * @private @property {number} _endValue
 		 */
 		this._endValue = info.defaultValue;
 
 		/**
-		 * The most recently computed value.
-		 * @property {number} _currentValue
+		 * The most recently computed parameter value.
+		 * @private @property {number} _currentValue
 		 */
 		this._currentValue = info.defaultValue;
 
 		/**
 		 * The difference between `startValue` and `endValue`.
-		 * @property {number} _deltaValue
+		 * @private @property {number} _deltaValue
 		 */
 		this._deltaValue = 0;
 
 		/**
 		 * Allows consistent output with respect to skew setting
 		 * whether increasing or decreasing during interpolation.
+		 * @private @property {boolean} _inverted
 		 */
 		this._inverted = false;
 
 		/**
 		 * Whether the most recently requested interpolation has completed.
-		 * @property {boolean} _changed
+		 * @private @property {boolean} _changed
 		 */
 		this._changed = true;
 
 		/**
 		 * How many samples have been uniformly filled following
 		 * completion of most recently requested interpolation.
-		 * @property {number} _filled
+		 * @private @property {number} _filled
 		 */
 		this._filled = 0;
 
@@ -146,6 +147,7 @@ export default class WamParameterInterpolator {
 
 	/**
 	 * Utility for managing lifecycles of lookup tables.
+	 * @private
 	 * @param {string} oldKey
 	 */
 	_removeTableReference(oldKey) {
