@@ -22,44 +22,49 @@ describe('WamParameterInterpolator Suite', () => {
 	let startIndex = 0;
 	let endIndex = 0;
 	it('Should manage lifecycles of static lookup tables', () => {
+		/* eslint-disable-next-line */
+		const tables = WamParameterInterpolator['_tables'];
+		/* eslint-disable-next-line */
+		const tableReferences = WamParameterInterpolator['_tableReferences'];
+
 		// Initial key and corresponding references should be present
-		expect(WamParameterInterpolator._tables[initialKey]).toBeDefined();
+		expect(tables[initialKey]).toBeDefined();
 		// 2 references -- testA and testB share the table
-		expect(WamParameterInterpolator._tableReferences[initialKey].length).toEqual(2);
+		expect(tableReferences[initialKey].length).toEqual(2);
 
 		e = 0.5;
 		testA.setSkew(e);
 		const additionalKey = [samplesPerInterpolation, e].join('_');
 
 		// Initial key and corresponding references should still be present
-		expect(WamParameterInterpolator._tables[initialKey]).toBeDefined();
+		expect(tables[initialKey]).toBeDefined();
 		// 1 reference, only testB uses this table
-		expect(WamParameterInterpolator._tableReferences[initialKey].length).toEqual(1);
+		expect(tableReferences[initialKey].length).toEqual(1);
 
 		// Expected key and corresponding references should be present
-		expect(WamParameterInterpolator._tables[additionalKey]).toBeDefined();
+		expect(tables[additionalKey]).toBeDefined();
 		// 1 reference, only testA uses this table
-		expect(WamParameterInterpolator._tableReferences[additionalKey].length).toEqual(1);
+		expect(tableReferences[additionalKey].length).toEqual(1);
 
 		testA.setSkew(0);
 
 		// Expected key and corresponding reference should no longer be present
-		expect(WamParameterInterpolator._tables[additionalKey]).toBeUndefined();
-		expect(WamParameterInterpolator._tableReferences[additionalKey]).toBeUndefined();
+		expect(tables[additionalKey]).toBeUndefined();
+		expect(tableReferences[additionalKey]).toBeUndefined();
 
 		// Initial key and corresponding references should still be present
-		expect(WamParameterInterpolator._tables[initialKey]).toBeDefined();
+		expect(tables[initialKey]).toBeDefined();
 		// 2 references, testA and testB share the same table again
-		expect(WamParameterInterpolator._tableReferences[initialKey].length).toEqual(2);
+		expect(tableReferences[initialKey].length).toEqual(2);
 
 		// Tables and references should be cleaned up after destroying instances
 		testA.destroy();
 		// 1 reference, testB still uses this table
-		expect(WamParameterInterpolator._tableReferences[initialKey].length).toEqual(1);
+		expect(tableReferences[initialKey].length).toEqual(1);
 		testB.destroy();
 		// 0 tables, 0 references, all instances destroyed
-		expect(WamParameterInterpolator._tables[initialKey]).toBeUndefined();
-		expect(WamParameterInterpolator._tableReferences[initialKey]).toBeUndefined();
+		expect(tables[initialKey]).toBeUndefined();
+		expect(tableReferences[initialKey]).toBeUndefined();
 	});
 
 	it('Should be filled after call to setStartValue', () => {
