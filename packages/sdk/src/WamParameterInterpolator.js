@@ -35,8 +35,9 @@ export default class WamParameterInterpolator {
 	/**
 	 * @param {WamParameterInfo} info
 	 * @param {number} samplesPerInterpolation
+	 * @param {number=} skew
 	 */
-	constructor(info, samplesPerInterpolation) {
+	constructor(info, samplesPerInterpolation, skew = 0) {
 		if (!WamParameterInterpolator._tables) {
 			WamParameterInterpolator._tables = { nullTableKey: new Float32Array(0) };
 			WamParameterInterpolator._tableReferences = { nullTableKey: [] };
@@ -72,7 +73,7 @@ export default class WamParameterInterpolator {
 		 * parameter's `exponent` value.
 		 * @private @property {number} _skew
 		 */
-		this._skew = 1;
+		this._skew = 2; // intentionally initialized out of range, see setSkew
 
 		const { discreteStep } = info;
 
@@ -139,8 +140,7 @@ export default class WamParameterInterpolator {
 		 */
 		this._filled = 0;
 
-		// linear by default
-		if (!this._discrete) this.setSkew(0);
+		if (!this._discrete) this.setSkew(skew);
 		else this._skew = 0;
 		this.setStartValue(this._startValue);
 	}

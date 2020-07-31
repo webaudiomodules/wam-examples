@@ -20,7 +20,7 @@ declare class WamParameterInterpolator {
 	 * with interpolation when applicable. Only one instance
 	 * should be created per WamParameter.
 	 */
-	constructor(info: WamParameterInfo, samplesPerInterpolation: number);
+	constructor(info: WamParameterInfo, samplesPerInterpolation: number, skew?: number);
 
 	readonly info: WamParameterInfo;
 
