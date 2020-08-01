@@ -4,6 +4,7 @@
 // in the code...
 import style from './Gui.css';
 import template from './Gui.template.html';
+import './utils/webaudio-controls.js';
 
 // The GUI is a WebComponent. Not mandatory but useful.
 // MANDORY : the GUI should be a DOM node. WebComponents are
@@ -74,7 +75,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				plugin.paramMgr.audioNode.setParamValue('enabled', +!!this.checked);
+				plugin.audioNode.paramMgr.setParamValue('enabled', +!!this.checked);
 			});
 	}
 
