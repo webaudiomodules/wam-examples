@@ -6,8 +6,6 @@
 		1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9),
 		1px 1px 1px 0px rgba(0, 0, 0, 0.9);
 
-	width: 120px;
-	height: 180px;
 	display: block;
 	user-select: none;
 	cursor: move;

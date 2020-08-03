@@ -9,6 +9,7 @@ declare const globalThis: AudioWorkletGlobalScope;
 const { registerProcessor } = globalThis;
 
 class TransmitterProcessor extends AudioWorkletProxyProcessor<ITransmitterProcessor, ITransmitterNode, TransmitterParameters> {
+    static fnNames: (keyof ITransmitterNode)[] = ["setBuffer"];
     private destroyed = false;
     private readonly window: Float32Array[] = [];
     enabled = false;

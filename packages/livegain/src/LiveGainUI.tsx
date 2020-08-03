@@ -5,6 +5,7 @@
 /* eslint-disable react/destructuring-assignment */
 import * as React from "react";
 import type { LiveGainModule } from "./LiveGainPlugin";
+import { dbtoa } from "./utils/math";
 
 interface PointerDownEvent {
     x: number;
@@ -37,7 +38,7 @@ export default class LiveGainUI extends React.PureComponent<{ module: LiveGainMo
     state: { inputBuffer: string } = { inputBuffer: "" };
     interactionRect: number[] = [0, 0, 0, 0];
     inTouch = false;
-    normLevels: number[] = [];
+    levels: number[] = [];
     maxValues: number[] = [];
     maxTimer: number;
     $changeTimer = -1;
@@ -109,7 +110,6 @@ export default class LiveGainUI extends React.PureComponent<{ module: LiveGainMo
         } = this.props.module.audioNode.getParamsValues();
         const orientation = (["horizontal", "vertical"] as const)[~~orientationIn];
         const { inputBuffer } = this.state;
-        const levels = this.props.module.audioNode.levels;
         const ctx = this.ctx;
         if (!ctx) return;
         const bgColor = "rgb(40, 40, 40)";
@@ -126,167 +126,135 @@ export default class LiveGainUI extends React.PureComponent<{ module: LiveGainMo
         const textColor = "rgba(0, 0, 0, 1)";
         const lineWidth = 0.5;
         const padding = 8;
-        const distance = this.distance;
+        const getDistance = (state: { value: number; min: number; max: number }) => {
+            const { max, min, value } = state;
+            const normalized = (Math.max(min, Math.min(max, value)) - min) / (max - min);
+            return normalized;
+        };
         const displayValue = inputBuffer ? inputBuffer + "_" : this.displayValue;
+        const clipValue = 0;
 
         const [width, height] = this.fullSize();
         ctx.clearRect(0, 0, width, height);
 
-        this.normLevels = levels.map((v) => {
-            if (v <= 0) return Math.max(0, (v - min) / -min);
-            return 1 + Math.min(1, v / max);
-        });
-        if (this.normLevels.length === 0) this.normLevels = [0];
-        if (this.normLevels.find((v, i) => typeof this.maxValues[i] === "undefined" || v > this.maxValues[i])) {
-            this.maxValues = [...this.normLevels];
+        this.levels = this.props.module.audioNode.levels;
+        const channels = this.levels.length;
+
+        if (channels === 0) this.levels = [0];
+        if (this.levels.find((v, i) => typeof this.maxValues[i] === "undefined" || v > this.maxValues[i])) {
+            this.maxValues = [...this.levels];
             if (this.maxTimer) window.clearTimeout(this.maxTimer);
             this.maxTimer = window.setTimeout(() => {
-                this.maxValues = [...this.normLevels];
+                this.maxValues = [...this.levels];
                 this.maxTimer = undefined;
                 this.schedulePaint();
             }, 1000);
-        } else if (this.normLevels.find((v, i) => v < this.maxValues[i]) && typeof this.maxTimer === "undefined") {
+        } else if (this.levels.find((v, i) => v < this.maxValues[i]) && typeof this.maxTimer === "undefined") {
             this.maxTimer = window.setTimeout(() => {
-                this.maxValues = [...this.normLevels];
+                this.maxValues = [...this.levels];
                 this.maxTimer = undefined;
                 this.schedulePaint();
             }, 1000);
         }
 
-        const channels = this.normLevels.length;
         const meterThick = 8;
-        const metersThick = meterThick * (1.5 * channels - 0.5);
-        if (orientation === "vertical") {
-            const $top = fontSize + padding;
-            const $height = height - 2 * (fontSize + padding);
-            const clip = max > 0 ? max / (max - min) * $height : 10;
+        const metersThick = (meterThick + 1) * channels - 1;
 
-            const warmStop = clip + 1;
-            const hotStop = clip;
-            const gradient = ctx.createLinearGradient(0, $top + $height, 0, $top);
-            gradient.addColorStop(0, coldColor);
-            gradient.addColorStop(($height - warmStop) / $height, warmColor);
-            gradient.addColorStop(($height - hotStop) / $height, hotColor);
-            gradient.addColorStop(1, overloadColor);
+        ctx.font = `${fontFace === "regular" ? "" : fontFace} ${fontSize}px ${fontFamily}, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillStyle = textColor;
+        if (orientation === "horizontal") {
+            ctx.textAlign = "left";
+            ctx.fillText(displayValue, 4, height - 2, width);
+        } else {
+            ctx.fillText(displayValue, width * 0.5, height - 2, width);
+        }
+        this.interactionRect = [
+            padding,
+            fontSize + padding,
+            width - 2 * padding,
+            height - 2 * (fontSize + padding)
+        ];
 
-            this.interactionRect = [
-                0,
-                $top,
-                width,
-                $height
-            ];
-
-            const left = (width - metersThick) * 0.5;
-            let $left = left;
-            const $width = meterThick;
-            ctx.fillStyle = bgColor;
-            this.normLevels.forEach((v) => {
-                if (v < 1) ctx.fillRect($left, $top + warmStop, $width, $height - warmStop);
-                if (v < 2) ctx.fillRect($left, $top, $width, hotStop);
-                $left += $width * 1.5;
+        ctx.save();
+        let $width: number;
+        const $height = meterThick;
+        if (orientation === "horizontal") {
+            $width = this.interactionRect[2];
+            ctx.translate(padding, (height - metersThick) * 0.5);
+        } else {
+            $width = this.interactionRect[3];
+            ctx.translate((width - metersThick) * 0.5, height - fontSize - padding);
+            ctx.rotate(-Math.PI * 0.5);
+        }
+        ctx.fillStyle = bgColor;
+        if (min >= clipValue || clipValue >= max) {
+            const fgColor = overloadColor;
+            let $top = 0;
+            this.levels.forEach((v) => {
+                ctx.fillRect(0, $top, $width, $height);
+                $top += $height + 1;
             });
-            $left = left;
-            ctx.fillStyle = gradient;
-            this.normLevels.forEach((v, i) => {
-                if (v > 0) {
-                    const drawHeight = Math.min(1, v) * ($height - warmStop);
-                    ctx.fillRect($left, $top + $height - drawHeight, $width, drawHeight);
-                }
-                if (v > 1) {
-                    const drawHeight = Math.min(1, (v - 1)) * clip;
-                    ctx.fillRect($left, $top + hotStop - drawHeight, $width, drawHeight);
-                }
+            $top = 0;
+            ctx.fillStyle = fgColor;
+            this.levels.forEach((v, i) => {
+                const distance = getDistance({ value: v, min, max });
+                if (distance > 0) ctx.fillRect(0, $top, distance * $width, $height);
                 const histMax = this.maxValues[i];
                 if (typeof histMax === "number" && histMax > v) {
-                    if (histMax <= 1) ctx.fillRect($left, $top + height - histMax * (height - warmStop), $width, 1);
-                    else ctx.fillRect($left, $top + Math.max(0, hotStop - (histMax - 1) * clip), $width, 1);
+                    const histDistance = getDistance({ value: histMax, min, max });
+                    ctx.fillRect(Math.min($width - 1, histDistance * $width), $top, 1, $height);
                 }
-                $left += $width * 1.5;
+                $top += $height + 1;
             });
-
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = triBorderColor;
-            const triOrigin: [number, number] = [
-                (width + metersThick) * 0.5 + lineWidth * 0.5 + 0.5,
-                this.interactionRect[1] - this.interactionRect[3] * (1 - distance)
-            ];
-            ctx.beginPath();
-            ctx.moveTo(triOrigin[0], triOrigin[1]);
-            ctx.lineTo(triOrigin[0] + 8, triOrigin[1] - 4);
-            ctx.lineTo(triOrigin[0] + 8, triOrigin[1] + 4);
-            ctx.lineTo(triOrigin[0], triOrigin[1]);
-            ctx.stroke();
-
-            ctx.fillStyle = this.inTouch ? triOnColor : triColor;
-            ctx.fill();
-
-            ctx.font = `${fontFace === "regular" ? "" : fontFace} ${fontSize}px ${fontFamily}, sans-serif`;
-            ctx.textAlign = "center";
-            ctx.fillStyle = textColor;
-            ctx.fillText(displayValue, width * 0.5, height - 2, width);
         } else {
-            const $left = padding;
-            const $width = width - 2 * padding;
-            const clip = max > 0 ? max / (max - min) * $width : 10;
-
-            const warmStop = $width - clip - 1;
+            const clipDistance = getDistance({ value: clipValue, min, max });
+            const clip = $width - clipDistance * $width;
             const hotStop = $width - clip;
-            const gradient = ctx.createLinearGradient($left, 0, $left + $width, 0);
+            const warmStop = hotStop - 1;
+            const gradient = ctx.createLinearGradient(0, 0, $width, 0);
             gradient.addColorStop(0, coldColor);
             gradient.addColorStop(warmStop / $width, warmColor);
             gradient.addColorStop(hotStop / $width, hotColor);
             gradient.addColorStop(1, overloadColor);
-
-            this.interactionRect = [
-                $left,
-                fontSize + padding,
-                $width,
-                height - 2 * (fontSize + padding)
-            ];
-
-            const top = (height - metersThick) * 0.5;
-            let $top = top;
-            const $height = meterThick;
-            ctx.fillStyle = bgColor;
-            this.normLevels.forEach((v) => {
-                if (v < 1) ctx.fillRect($left, $top, warmStop, $height);
-                if (v < 2) ctx.fillRect($left + hotStop, $top, clip, $height);
-                $top += $height * 1.5;
+            let $top = 0;
+            this.levels.forEach((v) => {
+                ctx.fillRect(0, $top, warmStop, $height);
+                ctx.fillRect(hotStop, $top, clip, $height);
+                $top += $height + 1;
             });
-            $top = top;
+            $top = 0;
             ctx.fillStyle = gradient;
-            this.normLevels.forEach((v, i) => {
-                if (v > 0) ctx.fillRect($left, $top, Math.min(1, v) * warmStop, $height);
-                if (v > 1) ctx.fillRect($left + hotStop, $top, Math.min(1, (v - 1)) * clip, $height);
+            this.levels.forEach((v, i) => {
+                const distance = getDistance({ value: v, min, max });
+                if (distance > 0) ctx.fillRect(0, $top, Math.min(warmStop, distance * $width), $height);
+                if (distance > clipDistance) ctx.fillRect(hotStop, $top, Math.min(clip, (distance - clipDistance) * $width), $height);
                 const histMax = this.maxValues[i];
                 if (typeof histMax === "number" && histMax > v) {
-                    if (histMax <= 1) ctx.fillRect($left + Math.min(warmStop - 1, histMax * warmStop), $top, 1, $height);
-                    else ctx.fillRect($left + Math.min(width - 1, hotStop + (histMax - 1) * clip), $top, 1, $height);
+                    const histDistance = getDistance({ value: histMax, min, max });
+                    if (histDistance <= clipDistance) ctx.fillRect(histDistance * $width, $top, 1, $height);
+                    else ctx.fillRect(Math.min($width - 1, histDistance * $width), $top, 1, $height);
                 }
-                $top += $height * 1.5;
+                $top += $height + 1;
             });
-
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = triBorderColor;
-            const triOrigin: [number, number] = [
-                this.interactionRect[0] + this.interactionRect[2] * distance,
-                (height + metersThick) * 0.5 + lineWidth * 0.5 + 2
-            ];
-            ctx.beginPath();
-            ctx.moveTo(triOrigin[0] - 4, triOrigin[1] + 8);
-            ctx.lineTo(triOrigin[0], triOrigin[1]);
-            ctx.lineTo(triOrigin[0] + 4, triOrigin[1] + 8);
-            ctx.lineTo(triOrigin[0] - 4, triOrigin[1] + 8);
-            ctx.stroke();
-
-            ctx.fillStyle = this.inTouch ? triOnColor : triColor;
-            ctx.fill();
-
-            ctx.font = `${fontFace === "regular" ? "" : fontFace} ${fontSize}px ${fontFamily}, sans-serif`;
-            ctx.fillStyle = textColor;
-            ctx.textAlign = "left";
-            ctx.fillText(displayValue, 4, height - 2, width);
         }
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = triBorderColor;
+        const triOrigin: [number, number] = [
+            $width * this.distance,
+            metersThick + lineWidth
+        ];
+        ctx.beginPath();
+        ctx.moveTo(triOrigin[0], triOrigin[1]);
+        ctx.lineTo(triOrigin[0] - 4, triOrigin[1] + 8);
+        ctx.lineTo(triOrigin[0] + 4, triOrigin[1] + 8);
+        ctx.lineTo(triOrigin[0], triOrigin[1]);
+        ctx.stroke();
+
+        ctx.fillStyle = this.inTouch ? triOnColor : triColor;
+        ctx.fill();
+        ctx.restore();
     }
     getValueFromPos(e: PointerDownEvent) {
         const { orientation: orientationIn, min, step: stepIn } = this.props.module.audioNode.getParamsValues();
