@@ -53,10 +53,10 @@ export interface ParameterMappingTarget {
 }
 export type ParametersMapping<Params extends string = string, InternalParams extends string = string> = Record<Params, Record<InternalParams, ParameterMappingTarget>>;
 
-export interface ParametersMappingConfiguratorOptions {
-    paramsConfig?: Record<string, WamParameterConfiguration>;
-    paramsMapping?: ParametersMapping;
-    internalParamsConfig?: InternalParametersDescriptor;
+export interface ParametersMappingConfiguratorOptions<Params extends string = string, InternalParams extends string = string> {
+    paramsConfig?: Record<Params, WamParameterConfiguration>;
+    paramsMapping?: ParametersMapping<Params, InternalParams>;
+    internalParamsConfig?: InternalParametersDescriptor<InternalParams>;
 }
 
 export type PromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => PromiseLike<ReturnType<F>>;

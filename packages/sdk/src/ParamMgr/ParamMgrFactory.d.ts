@@ -10,6 +10,6 @@ declare class ParamMgrFactory {
      * @param {WebAudioModule} module the module instance
 	 * @param {ParametersMappingConfiguratorOptions} [optionsIn = {}]
 	 */
-	static create<Params extends string = string, InternalParams extends string = string>(module: WebAudioModule, optionsIn?: ParametersMappingConfiguratorOptions): Promise<ParamMgrNode<Params, InternalParams>>;
+	static create<Params extends string = string, InternalParams extends string = string>(module: WebAudioModule, optionsIn?: ParametersMappingConfiguratorOptions<Params, InternalParams>): Promise<ParamMgrNode<Params, InternalParams>>;
 }
 export default ParamMgrFactory;
