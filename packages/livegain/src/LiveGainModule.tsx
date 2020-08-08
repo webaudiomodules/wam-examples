@@ -1,18 +1,19 @@
 
 import { WebAudioModule, ParamMgrFactory } from "sdk";
-import LiveGainNode from "./LiveGainNode";
 import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
 import { createElement } from "./gui";
+import Node from "./LiveGainNode";
+import UI from "./LiveGainUI";
 
 export type Parameters = "gain" | "frameRate" | "speedLim" | "min" | "max" | "step" | "orientation" | "metering";
-export class LiveGainModule extends WebAudioModule<LiveGainNode> {
+export class LiveGainModule extends WebAudioModule<Node> {
     static descriptor = {
         name: "LiveGain",
         vendor: "WebAudioModule"
     };
 
     async createAudioNode(initialState?: any) {
-        const node = new LiveGainNode(this.audioContext);
+        const node = new Node(this.audioContext);
         const paramsConfig = {
             gain: {
                 defaultValue: 0,
@@ -69,14 +70,14 @@ export class LiveGainModule extends WebAudioModule<LiveGainNode> {
         const outGainNode = this.audioContext.createGain();
         await register(this.audioContext.audioWorklet);
         const analyserNode = new TemporalAnalyserNode(this.audioContext);
-        const paramMgrNode = await ParamMgrFactory.create<Parameters>(this, { internalParamsConfig, paramsConfig });
+        const paramMgrNode = await ParamMgrFactory.create<Parameters, Parameters>(this, { internalParamsConfig, paramsConfig });
         node.setup(inputGainNode, outGainNode, paramMgrNode, analyserNode);
         if (initialState) node.setState(initialState);
         return node;
     }
 
-    createGui() {
-        return createElement(this);
+    createGui(): Promise<HTMLDivElement> {
+        return createElement(this, UI);
     }
 }
 export default LiveGainModule;

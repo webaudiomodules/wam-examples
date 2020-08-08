@@ -1,11 +1,12 @@
 import { rms, zcr, setTypedArray, absMax } from "../utils/buffer";
+import yinEstimate from "../utils/yin";
 import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "./AudioWorklet";
 import { ITemporalAnalyserProcessor, ITemporalAnalyserNode, TemporalAnalyserParameters } from "./TemporalAnalyserWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 
 const processorID = "__WebAudioModule_LiveGain_TemporalAnalyser";
 declare const globalThis: AudioWorkletGlobalScope;
-const { registerProcessor } = globalThis;
+const { registerProcessor, sampleRate } = globalThis;
 
 class TemporalAnalyserProcessor extends AudioWorkletProxyProcessor<ITemporalAnalyserProcessor, ITemporalAnalyserNode, TemporalAnalyserParameters> {
     static get parameterDescriptors(): TypedAudioParamDescriptor<TemporalAnalyserParameters>[] {
@@ -45,6 +46,9 @@ class TemporalAnalyserProcessor extends AudioWorkletProxyProcessor<ITemporalAnal
     }
     getZCR() {
         return this.window.map(zcr);
+    }
+    getEstimatedFreq(threshold?: number, probabilityThreshold?: number) {
+        return this.window.map(ch => yinEstimate(ch, { sampleRate, threshold, probabilityThreshold }));
     }
     getBuffer() {
         const data = this.window;

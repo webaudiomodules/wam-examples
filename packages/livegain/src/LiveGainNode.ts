@@ -2,7 +2,7 @@
 import { CompositeAudioNode, ParamMgrNode } from "sdk";
 import { TemporalAnalyserNode } from "./worklets/TemporalAnalyser";
 import { atodb, dbtoa } from "./utils/math";
-import { Parameters } from "./LiveGainPlugin";
+import { Parameters } from "./LiveGainModule";
 
 export default class LiveGainNode extends CompositeAudioNode {
     analyserNode: TemporalAnalyserNode;

@@ -7,7 +7,7 @@ import AudioWorkletRegister from "./AudioWorkletRegister";
 
 export const processorID = "__WebAudioModule_LiveGain_TemporalAnalyser";
 export class TemporalAnalyserNode extends AudioWorkletProxyNode<ITemporalAnalyserNode, ITemporalAnalyserProcessor, TemporalAnalyserParameters> {
-    static fnNames: (keyof ITemporalAnalyserProcessor)[] = ["getRMS", "getAbsMax", "getZCR", "getBuffer", "destroy"];
+    static fnNames: (keyof ITemporalAnalyserProcessor)[] = ["getRMS", "getAbsMax", "getZCR",, "getEstimatedFreq", "getBuffer", "destroy"];
     constructor(context: BaseAudioContext) {
         super(context, processorID, { numberOfInputs: 1, numberOfOutputs: 0 });
         const _destroy = this.destroy;

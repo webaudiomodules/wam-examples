@@ -4,8 +4,7 @@
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/destructuring-assignment */
 import * as React from "react";
-import type { LiveGainModule } from "./LiveGainPlugin";
-import { dbtoa } from "./utils/math";
+import type Module from "./LiveGainModule";
 
 interface PointerDownEvent {
     x: number;
@@ -30,7 +29,7 @@ interface PointerUpEvent {
     originalEvent: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent;
 }
 
-export default class LiveGainUI extends React.PureComponent<{ module: LiveGainModule }, { inputBuffer: string }> {
+export default class LiveGainUI extends React.PureComponent<{ module: Module }, { inputBuffer: string }> {
     static defaultSize: [number, number] = [210, 90];
     refCanvas = React.createRef<HTMLCanvasElement>();
     paintScheduled = false;
@@ -138,9 +137,9 @@ export default class LiveGainUI extends React.PureComponent<{ module: LiveGainMo
         ctx.clearRect(0, 0, width, height);
 
         this.levels = this.props.module.audioNode.levels;
-        const channels = this.levels.length;
 
-        if (channels === 0) this.levels = [0];
+        if (this.levels.length === 0) this.levels = [-Infinity];
+        const channels = this.levels.length;
         if (this.levels.find((v, i) => typeof this.maxValues[i] === "undefined" || v > this.maxValues[i])) {
             this.maxValues = [...this.levels];
             if (this.maxTimer) window.clearTimeout(this.maxTimer);
