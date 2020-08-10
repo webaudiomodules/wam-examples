@@ -46,15 +46,18 @@ const common = {
 };
 const liveGain = {
     ...common,
-    input: "./src/LiveGainModule.tsx"
+    input: "./src/LiveGainModule.tsx",
+    output: [{ ...common.output[0], dir: "./dist/livegain" }]
 };
 const oscilloscope = {
     ...common,
-    input: "./src/OscilloscopeModule.tsx"
+    input: "./src/OscilloscopeModule.tsx",
+    output: { ...common.output[0], dir: "./dist/oscilloscope" }
 };
 const spectroscope = {
     ...common,
     input: "./src/SpectroscopeModule.tsx",
+    output: { ...common.output[0], dir: "./dist/spectroscope" },
     onwarn(warning, warn) {
         // suppress eval warnings
         if (warning.code === "EVAL") return;
@@ -64,6 +67,7 @@ const spectroscope = {
 const spectrogram = {
     ...common,
     input: "./src/SpectrogramModule.tsx",
+    output: { ...common.output[0], dir: "./dist/spectrogram" },
     onwarn(warning, warn) {
         // suppress eval warnings
         if (warning.code === "EVAL") return;
