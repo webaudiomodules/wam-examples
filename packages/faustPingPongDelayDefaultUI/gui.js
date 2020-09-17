@@ -27,6 +27,7 @@ class FaustDefaultGui extends HTMLElement {
 		this.faustUI.paramChangeByUI = (path, value) => {
 			faustNode.setParamValue(path, value);
 		};
+		faustNode.output_handler = (path, value) => this.faustUI.paramChangeByDSP(path, value);
 		$container.style.width = `${this.faustUI.minWidth}px`;
 		$container.style.height = `${this.faustUI.minHeight}px`;
 		this.root.appendChild($container);
