@@ -264,7 +264,7 @@ const processor = (processorId, paramsConfig) => {
 			});
 			this.unlock();
 			if (!this.supportSharedArrayBuffer) {
-				this.call('setBuffer', { buffer: { lock: this.$lock, paramsBuffer: this.$internalParamsBuffer } });
+				this.call('setBuffer', { lock: this.$lock, paramsBuffer: this.$internalParamsBuffer });
 			}
 			const { currentTime } = audioWorkletGlobalScope;
 			let $event;
