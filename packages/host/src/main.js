@@ -1,3 +1,5 @@
+import './main.css';
+
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 
@@ -9,19 +11,37 @@ const AudioContext = window.AudioContext // Default
 const audioContext = new AudioContext();
 const mediaElementSource = audioContext.createMediaElementSource(player);
 
+let currentPluginAudioNode;
+
 // Very simple function to connect the plugin audionode to the host
 const connectPlugin = (audioNode) => {
+	if (currentPluginAudioNode) {
+		mediaElementSource.disconnect(currentPluginAudioNode);
+		currentPluginAudioNode.disconnect(audioContext.destination);
+		currentPluginAudioNode = null;
+	}
 	mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
+	currentPluginAudioNode = audioNode;
 };
 
 // Very simple function to append the plugin root dom node to the host
 const mountPlugin = (domNode) => {
-	mount.innerHtml = '';
+	mount.innerHTML = '';
 	mount.appendChild(domNode);
 };
 
-(async () => {
+const form = document.querySelector('#form');
+const examples = document.querySelectorAll('#examples > li');
+
+Array.from(examples).forEach((example) => {
+	example.addEventListener('click', () => {
+		const pluginUrl = `/packages/${example.dataset.pluginUrl}/index.js`;
+		form.pluginUrl.value = pluginUrl;
+	});
+});
+
+const setPlugin = async (pluginUrl) => {
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
 	// IMPORTANT NOTICE :
@@ -32,7 +52,7 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const { default: WAM } = await import('pingpongdelay');
+	const { default: WAM } = await import(pluginUrl);
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
@@ -46,38 +66,18 @@ const mountPlugin = (domNode) => {
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
 
+	audioContext.resume();
+	player.play();
+
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
 	const pluginDomNode = await instance.createGui();
 
 	mountPlugin(pluginDomNode);
+};
 
-	player.onplay = () => {
-		let state;
-		setTimeout(() => {
-			// set param feedback after 5 seconds
-			instance.setParam('feedback', 0.5);
-			// store current state
-			state = instance.getState();
-			console.log('instance state', state);
-		}, 2500);
-		audioContext.resume(); // audio context must be resumed because browser restrictions
-		setTimeout(() => {
-			// Just for the example : updates the state of the plugin
-			// Audionode and Gui should be updated accordingly
-			console.log('timeout setParams out of bounds');
-			instance.setParams({ feedback: 25 });
-			try {
-				console.log('try to set a param that does not exists in descriptor.json fails with error :');
-				instance.setParams({ gain: 9000 });
-			} catch (e) {
-				console.warn(e.message);
-			}
-		}, 5000);
-		setTimeout(() => {
-			// restore state to stored one
-			instance.setState(state); // feedback should go back to its initial value
-			console.log('instance state', instance.getState());
-		}, 10000);
-	};
-})();
+form.addEventListener('submit', (event) => {
+	event.preventDefault();
+	const pluginUrl = form.pluginUrl.value;
+	setPlugin(pluginUrl);
+});
