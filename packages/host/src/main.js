@@ -1,5 +1,13 @@
 import './main.css';
 
+window.process = {
+	...(window.process ?? {}),
+	env: {
+		...(window.process?.env ?? {}),
+		NODE_ENV: window.process?.env?.NODE_ENV || 'production',
+	},
+};
+
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 

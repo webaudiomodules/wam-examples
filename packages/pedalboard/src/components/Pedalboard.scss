@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@300;400;700&display=swap');
+
+* {
+	box-sizing: border-box;
+}
+
+.Pedalboard {
+	--color-dark: #545663;
+	--color-darker: #242427;
+	--color-white: #fff;
+
+	--spacing-xs: 4px;
+	--spacing-sm: 8px;
+	--spacing-md: 16px;
+
+	width: 100%;
+	height: 300px;
+	display: flex;
+	overflow: hidden;
+	flex-direction: column;
+	padding: var(--spacing-sm);
+	color: var(--color-white);
+	border-radius: var(--spacing-xs);
+	font-family: 'Kumbh Sans', sans-serif;
+	background: var(--color-dark);
+
+	&_content {
+		display: flex;
+		width: 100%;
+		height: 100%;
+	}
+
+	&Header {
+		margin-bottom: var(--spacing-sm);
+
+		h1 {
+			font-size: .8rem;
+			margin: 0;
+		}
+	}
+
+	&Board {
+		width: 100%;
+		height: 100%;
+		margin-right: var(--spacing-sm);
+		padding: var(--spacing-sm);
+		background: var(--color-darker);
+		border-radius: var(--spacing-xs);
+	}
+
+	&Selector {
+		flex-shrink: 0;
+		width: 200px;
+		height: 100%;
+		padding: var(--spacing-sm);
+		background: var(--color-darker);
+		border-radius: var(--spacing-xs);
+	}
+}
