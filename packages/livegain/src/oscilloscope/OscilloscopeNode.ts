@@ -1,17 +1,17 @@
 /* eslint-disable import/no-duplicates */
 import { CompositeAudioNode, ParamMgrNode } from "sdk";
-import { SpectralAnalyserNode } from "./worklets/SpectralAnalyser";
-import { Parameters } from "./SpectroscopeModule";
+import { TemporalAnalyserNode } from "../worklets/TemporalAnalyser";
+import { Parameters } from ".";
 
-export default class SpectroscopeNode extends CompositeAudioNode {
-    analyserNode: SpectralAnalyserNode;
+export default class OscilloscopeNode extends CompositeAudioNode {
+    analyserNode: TemporalAnalyserNode;
     outputGainNode: GainNode;
     _wamNode: ParamMgrNode<Parameters>;
     destroy() {
         if (this.analyserNode) this.analyserNode.destroy();
         super.destroy();
     }
-    setup(outputGainNode: GainNode, wamNode: ParamMgrNode<Parameters>, analyserNode: SpectralAnalyserNode) {
+    setup(outputGainNode: GainNode, wamNode: ParamMgrNode<Parameters>, analyserNode: TemporalAnalyserNode) {
         this.outputGainNode = outputGainNode;
         this.analyserNode = analyserNode;
         this.connect(this.outputGainNode);

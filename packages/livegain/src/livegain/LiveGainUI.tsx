@@ -4,7 +4,7 @@
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/destructuring-assignment */
 import * as React from "react";
-import type Module from "./LiveGainModule";
+import type Module from ".";
 
 interface PointerDownEvent {
     x: number;

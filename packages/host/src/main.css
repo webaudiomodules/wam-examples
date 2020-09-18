@@ -1,0 +1,27 @@
+body {
+	padding: 20px;
+}
+
+#examples {
+	margin: 0;
+	padding: 0;
+	list-style-position: inside;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#form {
+	margin: 20px 0;
+}
+
+#form > div {
+	margin-bottom: 10px;
+}
+
+label {
+	display: block;
+}
+
+input[name="pluginUrl"] {
+	width: 300px;
+}

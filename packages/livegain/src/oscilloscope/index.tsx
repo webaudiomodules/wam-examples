@@ -2,8 +2,8 @@
 import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
 import Node from "./OscilloscopeNode";
-import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
-import { createElement } from "./gui";
+import { TemporalAnalyserNode, register } from "../worklets/TemporalAnalyser";
+import { createElement } from "../gui";
 import UI from "./OscilloscopeUI";
 
 export type Parameters = "frameRate" | "windowSize" | "interleaved" | "showStats";

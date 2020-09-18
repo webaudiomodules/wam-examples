@@ -11,7 +11,6 @@ const common = {
         {
             // sourcemap: true,
             chunkFileNames: "[name].js",
-            dir: "./dist/",
             format: "es"
         }
     ],
@@ -46,17 +45,17 @@ const common = {
 };
 const liveGain = {
     ...common,
-    input: "./src/LiveGainModule.tsx",
+    input: "./src/livegain/index.tsx",
     output: [{ ...common.output[0], dir: "./dist/livegain" }]
 };
 const oscilloscope = {
     ...common,
-    input: "./src/OscilloscopeModule.tsx",
+    input: "./src/oscilloscope/index.tsx",
     output: { ...common.output[0], dir: "./dist/oscilloscope" }
 };
 const spectroscope = {
     ...common,
-    input: "./src/SpectroscopeModule.tsx",
+    input: "./src/spectroscope/index.tsx",
     output: { ...common.output[0], dir: "./dist/spectroscope" },
     onwarn(warning, warn) {
         // suppress eval warnings
@@ -66,7 +65,7 @@ const spectroscope = {
 };
 const spectrogram = {
     ...common,
-    input: "./src/SpectrogramModule.tsx",
+    input: "./src/spectrogram/index.tsx",
     output: { ...common.output[0], dir: "./dist/spectrogram" },
     onwarn(warning, warn) {
         // suppress eval warnings
