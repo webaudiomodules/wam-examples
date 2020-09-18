@@ -1,7 +1,7 @@
 
 import { WebAudioModule, ParamMgrFactory } from "sdk";
-import { TemporalAnalyserNode, register } from "./worklets/TemporalAnalyser";
-import { createElement } from "./gui";
+import { TemporalAnalyserNode, register } from "../worklets/TemporalAnalyser";
+import { createElement } from "../gui";
 import Node from "./LiveGainNode";
 import UI from "./LiveGainUI";
 

@@ -1,15 +1,15 @@
 
 import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
-import Node from "./SpectrogramNode";
-import { SpectralAnalyserNode, register } from "./worklets/SpectralAnalyser";
-import { createElement } from "./gui";
-import UI from "./SpectrogramUI";
+import Node from "./SpectroscopeNode";
+import { SpectralAnalyserNode, register } from "../worklets/SpectralAnalyser";
+import { createElement } from "../gui";
+import UI from "./SpectroscopeUI";
 
 export type Parameters = "frameRate" | "windowSize" | "fftSize" | "fftOverlap" | "windowFunction";
-export class SpectrogramModule extends WebAudioModule<Node> {
+export class SpectroscopeModule extends WebAudioModule<Node> {
     static descriptor = {
-        name: "Spectrogram",
+        name: "Spectroscope",
         vendor: "WebAudioModule"
     };
 
@@ -57,4 +57,4 @@ export class SpectrogramModule extends WebAudioModule<Node> {
         return createElement(this, UI);
     }
 }
-export default SpectrogramModule;
+export default SpectroscopeModule;

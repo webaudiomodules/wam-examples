@@ -5,7 +5,7 @@
 /* eslint-disable react/destructuring-assignment */
 import * as React from "react";
 import Color from "color-js";
-import type Module from "./OscilloscopeModule";
+import type Module from ".";
 
 export default class OscilloscopeUI extends React.PureComponent<{ module: Module }> {
     static defaultSize: [number, number] = [640, 360];
