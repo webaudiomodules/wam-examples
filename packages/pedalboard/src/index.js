@@ -26,8 +26,8 @@ export default class PedalboardPlugin extends WebAudioModule {
 		};
 
 		const optionsIn = { internalParamsConfig, paramsConfig, paramsMapping };
-		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
-		pedalboardAudioNode.setup(paramMgrNode);
+		//const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
+		//pedalboardAudioNode.setup(paramMgrNode);
 		if (initialState) pedalboardAudioNode.setState(initialState);		
 		return pedalboardAudioNode;
 	}

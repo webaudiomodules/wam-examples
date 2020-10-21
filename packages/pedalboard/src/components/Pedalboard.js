@@ -79,44 +79,28 @@ const Pedalboard = ({audioContext, audioNode}) => {
 			const deletedPluginIndex = prevState.findIndex(plugin => plugin.id === pluginID);		
 
 			//plugin = premier et dernier
-			if(deletedPluginIndex === 0 && prevState.length === 1){
-				console.log("the plugin is the first and the last");
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();
-				console.log("Disconnected the actual plugin");
-				audioNode.disconnect();
-				console.log("Disconnected main node");
-				audioNode.connect(audioContext.destination);
-				console.log("Connected main node to speakers");
+			if(deletedPluginIndex === 0 && prevState.length === 1){				
+				prevState[deletedPluginIndex].instance.audioNode.disconnect();				
+				audioNode._input.disconnect();				
+				audioNode._input.connect(audioNode._output);				
 			}
 			//plugin = premier et pas dernier
-			else if(deletedPluginIndex === 0 && prevState.length > 1) {
-				console.log("the plugin is the first but not the last");
+			else if(deletedPluginIndex === 0 && prevState.length > 1) {		
 				prevState[deletedPluginIndex].instance.audioNode.disconnect();
-				console.log("Disconnected the actual plugin");
-				audioNode.disconnect();				
-				console.log("Main node disconnected");
-				audioNode.connect(prevState[deletedPluginIndex + 1].instance.audioNode);
-				console.log("Main node connected to the " + deletedPluginIndex + 1 + " index");
+				audioNode._input.disconnect();				
+				audioNode._input.connect(prevState[deletedPluginIndex + 1].instance.audioNode);
 			}
 			//plugin = dernier
-			else if(deletedPluginIndex === prevState.length - 1) {
-				console.log("The plugin is the last");
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();
-				console.log("Disconnected actual plugin");
-				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();
-				console.log("Disconnected previous plugin");
-				prevState[deletedPluginIndex - 1].instance.audioNode.connect(audioContext.destination);
-				console.log("Connected previous plugin to the spekaers");
+			else if(deletedPluginIndex === prevState.length - 1) {				
+				prevState[deletedPluginIndex].instance.audioNode.disconnect();				
+				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();				
+				prevState[deletedPluginIndex - 1].instance.audioNode.connect(audioNode._output);			
 			}
 			//plugin = middle
-			else {
-				console.log("The plugin is not first or last");
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();
-				console.log("Disconnected the actual plugin");
-				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();
-				console.log("Disconnected the previous plugin");
-				prevState[deletedPluginIndex - 1].instance.audioNode.connect(prevState[deletedPluginIndex + 1].instance.audioNode);
-				console.log("Connected the previous plugin to the next");
+			else {				
+				prevState[deletedPluginIndex].instance.audioNode.disconnect();	
+				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();				
+				prevState[deletedPluginIndex - 1].instance.audioNode.connect(prevState[deletedPluginIndex + 1].instance.audioNode);				
 			}
 
 			return prevState.filter(instance => instance.id !== pluginID);
@@ -131,24 +115,16 @@ const Pedalboard = ({audioContext, audioNode}) => {
 			const newPluginIndex = newState.findIndex(plugin => plugin.id === newPlugin.id);
 			
 			//plugin est le premier
-			if(newPluginIndex === 0 ){
-				console.log("The plugin is the first")
-				audioNode.disconnect();
-				console.log("Disconnected main audio node")
-				audioNode.connect(newState[newPluginIndex].instance.audioNode);
-				console.log("Connected main audio node to new plugin")
-				newState[newPluginIndex].instance.audioNode.connect(audioContext.destination);
-				console.log("Connected new plugin to the speakers")
+			if(newPluginIndex === 0 ){				
+				audioNode._input.disconnect();				
+				audioNode._input.connect(newState[newPluginIndex].instance.audioNode);				
+				newState[newPluginIndex].instance.audioNode.connect(audioNode._output);				
 			}			
 			//plugin est le dernier
-			else if(newPluginIndex === newState.length - 1) {
-				console.log("The plugin is the last")
-				newState[newPluginIndex - 1].instance.audioNode.disconnect();
-				console.log("Disconnected previous plugin")
-				newState[newPluginIndex - 1].instance.audioNode.connect(newState[newPluginIndex].instance.audioNode);
-				console.log("Connected previous plugin to the new one")
-				newState[newPluginIndex].instance.audioNode.connect(audioContext.destination);
-				console.log("Connceted new plugin to the speakers");
+			else if(newPluginIndex === newState.length - 1) {				
+				newState[newPluginIndex - 1].instance.audioNode.disconnect();				
+				newState[newPluginIndex - 1].instance.audioNode.connect(newState[newPluginIndex].instance.audioNode);				
+				newState[newPluginIndex].instance.audioNode.connect(audioNode._output);				
 			}
 
 			audioContext.resume();
@@ -171,8 +147,8 @@ const Pedalboard = ({audioContext, audioNode}) => {
 			setPlugins(mappedContent);
 			setInstances([]);	
 
-			audioNode.disconnect();
-			audioNode.connect(audioContext.destination);
+			audioNode._input.disconnect();
+			audioNode._input.connect(audioNode._output);
 		}
 		fileReader.readAsText(file);
 	}
@@ -202,10 +178,8 @@ const Pedalboard = ({audioContext, audioNode}) => {
 					<PedalboardSelector onClick={handleClickThumbnail} />
 				</div>
 			</section>
-			
 			<img src={importIcon} alt="importer" width="30px"/>							
-			<input type="file"  accept=".json" onChange={e => handleImport(e.target.files[0])} />			
-										
+			<input type="file"  accept=".json" onChange={e => handleImport(e.target.files[0])} />										
 			<button className={css.Button} onClick={handleExport}>
 				<img src={exportIcon} alt="exporter" width="30px"/>
 				Exporter				

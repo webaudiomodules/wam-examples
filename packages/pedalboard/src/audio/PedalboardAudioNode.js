@@ -13,17 +13,11 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 	}
 
 	createNodes() {
-		this.input = this.context.createGain();
-		this.output = this.context.createGain();
+		this._input = this.context.createGain();
+		super.connect(this._input);
+		
+		this._output = this.context.createGain();
+		this._input.connect(this._output);
 	}
 
-	connectNodes() {
-		super.connect(this.input);
-		this.input.connect(this.output);
-	}
-
-	setup(wamNode) {
-		this.wamNode = wamNode;
-		this.connectNodes();
-	}
 }
