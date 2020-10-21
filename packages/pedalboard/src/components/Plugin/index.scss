@@ -1,0 +1,23 @@
+
+.PluginContainer {
+    
+    .Plugin {
+        padding-right: 10px;                
+    }
+    
+    .PluginIcon {
+        margin-top: 10px;
+        margin-left: auto;
+        margin-right: auto;        
+        width: 25px;
+        cursor: grab;
+        visibility: hidden;
+    }
+
+    &:hover {        
+        .PluginIcon {
+            visibility: visible;
+            display: flex;
+        }
+    }
+}

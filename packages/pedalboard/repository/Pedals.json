@@ -1,0 +1,18 @@
+[
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
+    },
+    {
+      "url": "/packages/pingpongdelay/dist/index.js",
+      "thumbnail": "pingpongdelay.png" 
+    },
+    {
+      "url": "/packages/faustPingPongDelay/plugin/index.js",
+      "thumbnail": "faustPingPongDelay.png"
+    },
+    {
+      "url": "/packages/faustPingPongDelayDefaultUI/index.js",
+      "thumbnail": "faustPingPongDelayDefaultUI.png"
+    }
+  ]

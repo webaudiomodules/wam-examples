@@ -28,15 +28,14 @@ export default class PedalboardPlugin extends WebAudioModule {
 		const optionsIn = { internalParamsConfig, paramsConfig, paramsMapping };
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
 		pedalboardAudioNode.setup(paramMgrNode);
-		if (initialState) pedalboardAudioNode.setState(initialState);
-
+		if (initialState) pedalboardAudioNode.setState(initialState);		
 		return pedalboardAudioNode;
 	}
 
 	// eslint-disable-next-line class-methods-use-this
-	createGui() {
+	createGui() {		
 		const root = document.createElement('div');
-		ReactDOM.render(<Pedalboard />, root);
+		ReactDOM.render(<Pedalboard audioContext={this.audioContext} audioNode={this.audioNode}/>, root);
 		return root;
 	}
 }

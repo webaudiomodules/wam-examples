@@ -14,7 +14,7 @@
 	--spacing-md: 16px;
 
 	width: 100%;
-	height: 300px;
+	height: 450px;
 	display: flex;
 	overflow: hidden;
 	flex-direction: column;
@@ -41,19 +41,40 @@
 
 	&Board {
 		width: 100%;
-		height: 100%;
+		height: fit-content;
+		min-height: 300px;
+		margin-top: auto;
+		margin-bottom: auto;
 		margin-right: var(--spacing-sm);
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
 		border-radius: var(--spacing-xs);
+		overflow-x: auto;		
+		display: flex;
 	}
 
 	&Selector {
 		flex-shrink: 0;
 		width: 200px;
-		height: 100%;
+		height: 350px;
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
 		border-radius: var(--spacing-xs);
+		overflow-y: auto;
+		text-align: center;
+
+		&Thumbnail {
+			padding-right: 10px;
+			cursor: grab;		
+		}	
+		
 	}
 }
+
+.Button {
+	background-color: transparent;
+	margin-right: 10px;	
+	padding-right: 10px;
+	cursor: grab;
+}
+
