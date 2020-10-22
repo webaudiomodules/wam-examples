@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import download from "downloadjs";
 
 import Plugin from './Plugin';
@@ -8,7 +8,6 @@ import importIcon from '../../demo/public/import.png';
 import exportIcon from '../../demo/public/export.png';
 import css from './Pedalboard.scss';
 
-var pluginNumber = 0;
 
 const PedalboardHeader = () => (
 	<header className={css.PedalboardHeader}>
@@ -19,23 +18,17 @@ const PedalboardHeader = () => (
 const PedalboardBoard = ({
 	plugins,
 	handleClickRemove,
-	setInstances,
-	audioContext,
-	audioNode
 }) => {		
 	return (
 		<main className={css.PedalboardBoard}>
 			{
-				plugins?.length > 0 && plugins.map((plugin) => {					
+				plugins?.length > 0 && plugins.map((plugin) => {	
+					console.log(plugin)				
 					return (
 						<Plugin
-							id={plugin.id}
+							plugin={plugin}
 							key={plugin.id}
-							pluginUrl={plugin.url}
-							onClickRemove={handleClickRemove}
-							audioContext={audioContext}	
-							setInstances={setInstances}
-							paramsConfig={plugin.params || {}}					
+							onClickRemove={handleClickRemove}				
 						/>
 					)
 				})
@@ -64,127 +57,66 @@ const PedalboardSelector = ({onClick}) => (
 	</aside>
 );
 
-const Pedalboard = ({audioContext, audioNode}) => {		
+const Pedalboard = ({audioNode}) => {		
 	const [plugins, setPlugins] = useState([]);
-	const [instances, setInstances] = useState([]);	
 
-	const handleClickThumbnail = pluginUrl => {		
-		setPlugins([...plugins, {url: pluginUrl, id: pluginNumber++}]);				
+	useEffect(() => {
+		audioNode.addEventListener("onchange", handlePluginListChange);
+
+		return () => {
+			audioNode.removeEventListener("onchange", handlePluginListChange);
+		}
+	});
+
+	const handlePluginListChange = (e) => {		
+		setPlugins([...e.detail.pluginList])	
 	}
 
-	const handleClickRemove = pluginID => {			
-		setPlugins(prevState => prevState.filter(plugin => plugin.id !== pluginID));	
-		setInstances(prevState => {//disconect 
-	
-			const deletedPluginIndex = prevState.findIndex(plugin => plugin.id === pluginID);		
-
-			//plugin = premier et dernier
-			if(deletedPluginIndex === 0 && prevState.length === 1){				
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();				
-				audioNode._input.disconnect();				
-				audioNode._input.connect(audioNode._output);				
-			}
-			//plugin = premier et pas dernier
-			else if(deletedPluginIndex === 0 && prevState.length > 1) {		
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();
-				audioNode._input.disconnect();				
-				audioNode._input.connect(prevState[deletedPluginIndex + 1].instance.audioNode);
-			}
-			//plugin = dernier
-			else if(deletedPluginIndex === prevState.length - 1) {				
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();				
-				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();				
-				prevState[deletedPluginIndex - 1].instance.audioNode.connect(audioNode._output);			
-			}
-			//plugin = middle
-			else {				
-				prevState[deletedPluginIndex].instance.audioNode.disconnect();	
-				prevState[deletedPluginIndex - 1].instance.audioNode.disconnect();				
-				prevState[deletedPluginIndex - 1].instance.audioNode.connect(prevState[deletedPluginIndex + 1].instance.audioNode);				
-			}
-
-			return prevState.filter(instance => instance.id !== pluginID);
-
-		});
+	const handleClickThumbnail = pluginUrl => {	
+		audioNode.addPlugin(pluginUrl);		
 	}
 
-	const handleInstanceCreated = newPlugin => {	
-		setInstances(prevState => {			
-			const newState = [...prevState, newPlugin];
-			
-			const newPluginIndex = newState.findIndex(plugin => plugin.id === newPlugin.id);
-			
-			//plugin est le premier
-			if(newPluginIndex === 0 ){				
-				audioNode._input.disconnect();				
-				audioNode._input.connect(newState[newPluginIndex].instance.audioNode);				
-				newState[newPluginIndex].instance.audioNode.connect(audioNode._output);				
-			}			
-			//plugin est le dernier
-			else if(newPluginIndex === newState.length - 1) {				
-				newState[newPluginIndex - 1].instance.audioNode.disconnect();				
-				newState[newPluginIndex - 1].instance.audioNode.connect(newState[newPluginIndex].instance.audioNode);				
-				newState[newPluginIndex].instance.audioNode.connect(audioNode._output);				
-			}
-
-			audioContext.resume();
-
-			return newState;
-		});
+	const handleClickRemove = pluginID => {
+		audioNode.removePlugin(pluginID);
 	}
 
 	const handleImport = file => {
 		const fileReader = new FileReader();
 		fileReader.onloadend = () => {
-			const parsedContent = JSON.parse(fileReader.result);
-			const mappedContent = parsedContent.map(plugin => {
-				return {
-					url: plugin.url,
-					params: plugin.params,
-					id: pluginNumber++
-				}
-			});
-			setPlugins(mappedContent);
-			setInstances([]);	
-
-			audioNode._input.disconnect();
-			audioNode._input.connect(audioNode._output);
+			audioNode.clearPlugins();			
+			audioNode.setState(JSON.parse(fileReader.result));
 		}
 		fileReader.readAsText(file);
 	}
 
 	const handleExport = async () => {
-		const pedalBoard = await Promise.all(instances.map(async (plugin, index) => {
-			return {
-				url: plugins[index].url,
-				params: await plugin.instance.audioNode.getState()
-			};
-		}));		
+		const pedalBoard = await audioNode.getState();	
 		download(JSON.stringify(pedalBoard), "exports.json", "text/plain");		
 	}
 
 	return (
-		<>
-			<section className={css.Pedalboard}>						
-				<PedalboardHeader />
-				<div className={css.Pedalboard_content}>
-					<PedalboardBoard
-						plugins={plugins}
-						handleClickRemove={handleClickRemove}	
-						setInstances={handleInstanceCreated}
-						audioNode={audioNode}
-						audioContext={audioContext}	
-					/>
+		<section className={css.Pedalboard}>						
+			<PedalboardHeader />
+			<div className={css.Pedalboard_content}>
+				<PedalboardBoard
+					plugins={plugins}
+					handleClickRemove={handleClickRemove}							
+				/>
+				<div>
+					<label className={css.Pedalboard_contentButton}>	
+						<img src={importIcon} alt="importer" width="30px"/>	
+						<p>Importer</p>						
+						<input style={{visibility: "hidden"}} type="file"  accept=".json" onChange={e => handleImport(e.target.files[0])} />	
+					</label>	
+
+					<button className={css.Button} onClick={handleExport}>
+						<img src={exportIcon} alt="exporter" width="30px"/>
+						Exporter				
+					</button>	
 					<PedalboardSelector onClick={handleClickThumbnail} />
-				</div>
-			</section>
-			<img src={importIcon} alt="importer" width="30px"/>							
-			<input type="file"  accept=".json" onChange={e => handleImport(e.target.files[0])} />										
-			<button className={css.Button} onClick={handleExport}>
-				<img src={exportIcon} alt="exporter" width="30px"/>
-				Exporter				
-			</button>	
-		</>
+				</div>								
+			</div>
+		</section>			
 	);
 };
 

@@ -30,6 +30,25 @@
 		height: 100%;
 	}
 
+	&_contentButton {
+		cursor: grab;
+		display: inline-block;
+		border: 2px solid darkgray;
+		box-shadow: -1px -1px darkgray;		
+		margin-right: 3px;
+		padding-right: 3px;
+		margin-bottom: 3px;
+
+		input {
+			display: none;
+		}
+
+		p {
+			display: inline;
+			color: black;
+		}
+	}
+
 	&Header {
 		margin-bottom: var(--spacing-sm);
 
@@ -73,8 +92,6 @@
 
 .Button {
 	background-color: transparent;
-	margin-right: 10px;	
-	padding-right: 10px;
 	cursor: grab;
 }
 
