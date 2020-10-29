@@ -1,4 +1,4 @@
-import { CompositeAudioNode } from 'sdk';
+import { CompositeAudioNode, ParamMgrFactory } from 'sdk';
 
 export default class PedalboardAudioNode extends CompositeAudioNode {
 
@@ -25,9 +25,11 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 	}
 
 	async getState() {
-		return await Promise.all(this.pluginList.map(async (plugin) => {
+		console.log("before save: ", this.pluginList);
+		return await Promise.all(this.pluginList.map(async (plugin) => {			
 			return {
 				url: plugin.url,
+				position: plugin.position,
 				params: await plugin.instance.audioNode.getState()
 			};
 		}));
@@ -56,12 +58,21 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		const { default: WAM } = await import(pluginURL);
 		const instance = await WAM.createInstance(this.audioContext);
 		
-		if(paramsConfig !== undefined) {
-			instance.audioNode.setState(paramsConfig);
+		if(paramsConfig !== undefined) {			
+			//BUG: When we call setParamValue, only the GUI is updated, not the real values
+			Object.keys(paramsConfig).forEach(param => {				
+				try {
+					instance.audioNode.setParamValue(param, paramsConfig[param].value);
+				}catch(err){
+					console.error("Error: ", err);
+				}
+			});
+			console.log("DEBUUUG:", paramsConfig, instance.audioNode.getState());
 		}				
 		
 		const newPlugin = {
 			id: this.pluginID++,
+			position: this.pluginList.length,
 			url: pluginURL,
 			instance
 		};
@@ -100,6 +111,64 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		}
 
 		this.pluginList = this.pluginList.filter(plugin => plugin.id !== pluginID);
+		this.dispatchEvent(new CustomEvent("onchange", {detail: {pluginList: this.pluginList}}));
+	}
+
+	shiftPluginPosition(from, to){
+		if(from < to) {			
+			this.pluginList.sort((a, b) => a.position - b.position).forEach(plugin => {
+				if(plugin.position > from && plugin.position <= to) {
+					plugin.position -= 1;					
+				}else if(plugin.position === from) {					
+					plugin.position = to;
+				}
+			});
+		}else {
+			this.pluginList.sort((a, b) => a.position - b.position).forEach(plugin => {
+				if(plugin.position >= to && plugin.position < from) {
+					plugin.position += 1;
+				}else if(plugin.position === from) {
+					plugin.position = to;
+				}
+			});
+		}		
+	}
+
+	swapPlugins(oldIndex, newIndex) {		
+		if(oldIndex === newIndex) return;
+
+		this._input.disconnect();		
+
+		this.pluginList.forEach(plugin => {
+			plugin.instance.audioNode.disconnect();
+		});
+		
+		//If we swap the plugins, we only have to swap their positions
+		if(Math.abs(oldIndex - newIndex) === 1) {
+			const newPos = this.pluginList[newIndex].position;
+			this.pluginList[newIndex].position = this.pluginList[oldIndex].position;
+			this.pluginList[oldIndex].position = newPos;
+		}else {
+			//Otherwise we have to shift the plugins
+			this.shiftPluginPosition(oldIndex, newIndex);			
+		}
+
+
+		const pluginToConnect = this.pluginList.find(e => e.position === 0);		
+		this._input.connect(pluginToConnect.instance.audioNode);
+		console.log("INPUT CONNECTED to:", pluginToConnect.instance.name);
+
+		
+		this.pluginList.sort((a, b) => a.position - b.position).forEach((plugin, index) => {
+			if(index === this.pluginList.length - 1) {
+				plugin.instance.audioNode.connect(this._output);
+				console.log("Plugin: ", plugin.instance.name, "connect to the output");
+			}else {
+				plugin.instance.audioNode.connect(this.pluginList[index + 1].instance.audioNode);
+				console.log("Plugin: ", plugin.instance.name, " connected to: ", this.pluginList[index + 1].instance.name)
+			}
+		});
+						
 		this.dispatchEvent(new CustomEvent("onchange", {detail: {pluginList: this.pluginList}}));
 	}
 

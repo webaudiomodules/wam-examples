@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import download from "downloadjs";
+import { Draggable, DragDropContainer, Droppable } from "react-draggable-hoc";
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
 import Plugin from './Plugin';
 
@@ -15,42 +17,49 @@ const PedalboardHeader = () => (
 	</header>
 );
 
-const PedalboardBoard = ({
+const PluginWrapper = SortableElement(({plugin, onClickRemove}) => <Plugin plugin={plugin} onClickRemove={onClickRemove} />);
+
+const PedalboardBoard = SortableContainer(({
 	plugins,
 	handleClickRemove,
-}) => {		
+}) => {
+	const sortedPlugins = plugins.sort((a, b) => a.position - b.position);
 	return (
 		<main className={css.PedalboardBoard}>
 			{
-				plugins?.length > 0 && plugins.map((plugin) => {	
-					console.log(plugin)				
-					return (
-						<Plugin
-							plugin={plugin}
-							key={plugin.id}
-							onClickRemove={handleClickRemove}				
-						/>
-					)
+				sortedPlugins.map((plugin, index) => {
+					return (<PluginWrapper
+						key={index}
+						index={index}
+						plugin={plugin}
+						onClickRemove={handleClickRemove}
+					/>);
 				})
-			}
+			}			
 		</main>
 	);
-}
+})
 
+//container flex
+//max height
 const PedalboardSelector = ({onClick}) => (
 	<aside className={css.PedalboardSelector}>
 		{
-			PedalsJSON?.length > 0 && PedalsJSON.map(pedal => {
-				return (
-					<img
-						src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
-						width="80"
-						height="80"
-						alt={`image_pedale_${pedal.url}`}
-						key={pedal.url}
-						className={css.PedalboardSelectorThumbnail}
-						onClick={() => onClick(pedal.url)}
-					/>
+			PedalsJSON?.length > 0 && PedalsJSON.map((pedal, index) => {
+				return (						
+					<Draggable key={index} dragProps={pedal} className="Simple-cell">
+					<div className="Cell-simple">
+						<img
+							src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
+							width="80"
+							height="80"
+							alt={`image_pedale_${pedal.url}`}
+							key={pedal.url}
+							className={css.PedalboardSelectorThumbnail}
+							onClick={() => onClick(pedal.url)}
+						/>
+					</div>
+					</Draggable>													
 				);
 			})
 		}
@@ -68,8 +77,8 @@ const Pedalboard = ({audioNode}) => {
 		}
 	});
 
-	const handlePluginListChange = (e) => {		
-		setPlugins([...e.detail.pluginList])	
+	const handlePluginListChange = (e) => {				
+		setPlugins([...e.detail.pluginList]);		
 	}
 
 	const handleClickThumbnail = pluginUrl => {	
@@ -94,14 +103,40 @@ const Pedalboard = ({audioNode}) => {
 		download(JSON.stringify(pedalBoard), "exports.json", "text/plain");		
 	}
 
+	const onDrop = pedal => {
+		audioNode.addPlugin(pedal.dragProps.url);	
+	};
+
+	const onSortPlugin = ({oldIndex, newIndex}) => {
+		audioNode.swapPlugins(oldIndex, newIndex);
+	}
+
 	return (
+	<DragDropContainer className="Simple-page-container">
 		<section className={css.Pedalboard}>						
 			<PedalboardHeader />
 			<div className={css.Pedalboard_content}>
-				<PedalboardBoard
-					plugins={plugins}
-					handleClickRemove={handleClickRemove}							
-				/>
+				<Droppable onDrop={onDrop}>
+					{({ isHovered, ref, dragProps }) => (
+						<div
+							className={css.Pedalboard_content}							
+							ref={ref}
+							style={{
+								backgroundColor: isHovered ? "rgba(0, 130, 20, 0.2)" : undefined,
+								border: dragProps ? "1px dashed #ccc" : undefined
+							}}
+						>					
+							<div className={css.Pedalboard_content}>
+								<PedalboardBoard
+									axis="x"
+									onSortEnd={onSortPlugin}									
+									plugins={plugins}
+									handleClickRemove={handleClickRemove}							
+								/>			
+							</div>
+						</div>
+					)}
+				</Droppable>											
 				<div>
 					<label className={css.Pedalboard_contentButton}>	
 						<img src={importIcon} alt="importer" width="30px"/>	
@@ -116,7 +151,8 @@ const Pedalboard = ({audioNode}) => {
 					<PedalboardSelector onClick={handleClickThumbnail} />
 				</div>								
 			</div>
-		</section>			
+		</section>						
+	  </DragDropContainer>		
 	);
 };
 

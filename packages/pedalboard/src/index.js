@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { WebAudioModule, ParamMgrFactory } from 'sdk';
+import { WebAudioModule } from 'sdk';
 
 import Pedalboard from './components/Pedalboard';
 import PedalboardAudioNode from './audio/PedalboardAudioNode';
@@ -24,10 +24,7 @@ export default class PedalboardPlugin extends WebAudioModule {
 		};
 		const paramsMapping = {
 		};
-
-		//const optionsIn = { internalParamsConfig, paramsConfig, paramsMapping };
-		//const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
-		//pedalboardAudioNode.setup(paramMgrNode);
+		
 		if (initialState) pedalboardAudioNode.setState(initialState);		
 		return pedalboardAudioNode;
 	}
