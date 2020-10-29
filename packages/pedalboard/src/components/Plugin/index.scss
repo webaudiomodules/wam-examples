@@ -1,11 +1,7 @@
+.PluginWrapper {
+    margin-right: 10px;
 
-.PluginContainer {
-
-    .Plugin {
-        margin-right: 10px;                
-    }
-    
-    .PluginIcon {
+    .Icon {
         margin-top: 10px;
         margin-left: auto;
         margin-right: auto;        
@@ -15,7 +11,7 @@
     }
 
     &:hover {        
-        .PluginIcon {
+        .Icon {
             visibility: visible;
             display: flex;
         }

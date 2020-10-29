@@ -4,15 +4,14 @@ import crossIcon from '../../../demo/public/cross.png';
 
 import css from './index.scss';
 
-const PLUGIN_WIDTH = 250;
-const PLUGIN_HEIGHT = 400;
+const PLUGIN_WIDTH = 230;
+const PLUGIN_HEIGHT = 300;
 
 const Plugin = ({
 	plugin,
 	onClickRemove,
 }) => {
 	const plugginWrapperRef = useRef(plugin.id);
-	//const plugginCrossRef = useRef(plugin.url);
 	let pluginGui;
 
 	useEffect(() => {
@@ -30,8 +29,8 @@ const Plugin = ({
 			const scaleWidth = PLUGIN_WIDTH / instanceRect.width;
 			const scaleHeight = PLUGIN_HEIGHT / instanceRect.height;
 
-			parent.style.width = instanceRect.width * scaleWidth + 'px';
-			parent.style.height = instanceRect.height * scaleHeight + 'px';
+			parent.style.width = PLUGIN_WIDTH + 'px';
+			parent.style.height = PLUGIN_HEIGHT + 'px';
 
 			const translateX = (scaleWidth - 1) * 100 / 2;
 			const translateY = (scaleHeight - 1) * 100 / 2;
@@ -49,9 +48,11 @@ const Plugin = ({
 
 
 	return (
-		<div className={css.PluginContainer}>
-			<div className={css.Plugin} ref={plugginWrapperRef} />
-			<img className={css.PluginIcon} src={crossIcon} onClick={() => onClickRemove(plugin.id)} />
+		<div className={css.PluginWrapper}>
+			<div className={css.PluginContainer}>
+				<div ref={plugginWrapperRef} />			
+			</div>
+			<img className={css.Icon} src={crossIcon} onClick={() => onClickRemove(plugin.id)} />
 		</div>
 	);
 }
