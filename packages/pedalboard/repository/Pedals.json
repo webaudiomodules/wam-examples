@@ -1,38 +1,47 @@
 [
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/pingpongdelay/dist/index.js",
-      "thumbnail": "pingpongdelay.png" 
+      "thumbnail": "pingpongdelay.png" ,
+      "type": "Echo"
     },
     {
       "url": "/packages/faustPingPongDelay/plugin/index.js",
-      "thumbnail": "faustPingPongDelay.png"
+      "thumbnail": "faustPingPongDelay.png",
+      "type": "Echo"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "test_pedal_horizon.png"
+      "thumbnail": "test_pedal_horizon.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     },
     {
       "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png"
+      "thumbnail": "quadrafuzz.png",
+      "type": "Amplificateur"
     }
   ]

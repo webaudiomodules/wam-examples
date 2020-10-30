@@ -42,6 +42,7 @@ const PedalboardBoard = SortableContainer(({
 
 const PedalboardSelector = ({onClick, audioNode}) => {
 	const inputRef = useRef("0");
+	const [selectedType, setSelectedType] = useState('default');
 
 	const handleImport = file => {
 		const fileReader = new FileReader();
@@ -57,6 +58,8 @@ const PedalboardSelector = ({onClick, audioNode}) => {
 		download(JSON.stringify(pedalBoard), "exports.json", "text/plain");		
 	}
 
+	const handleTypeChange = type => setSelectedType(type);
+	
 	return (
 		<>
 			<div className={css.Pedalboard_contentButtonWrapper}>
@@ -73,29 +76,49 @@ const PedalboardSelector = ({onClick, audioNode}) => {
 						onChange={e => handleImport(e.target.files[0])}
 					/>	
 				</button>	
-
 				<button className={css.Button} onClick={handleExport}>
 					<img src={exportIcon} alt="exporter" width="30px"/>
 					Exporter			
-				</button>
+				</button>								
 			</div>	
+			<select
+				className={css.Pedalboard_contentSelectWrapper}
+				onChange={(e) => handleTypeChange(e.target.value)}
+			>
+				<option value="default">Toutes les pédales</option>
+				{
+					PedalsJSON?.length > 0 &&
+					[...new Set(PedalsJSON.map(p => p.type))].map((type, index) => {
+						return (
+							<option
+								key={index}
+								value={type}								
+							>
+								{type}
+							</option>				
+						)
+					})
+				}				
+			</select> 
 			<aside className={css.PedalboardSelector}>
 				{
 					PedalsJSON?.length > 0 && PedalsJSON.map((pedal, index) => {
-						return (						
-							<Draggable key={index} dragProps={pedal} className={css.PedalboardSelectorCell}>
-							<div>
-								<img
-									src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
-									alt={`image_pedale_${pedal.url}`}
-									key={pedal.url}
-									className={css.PedalboardSelectorThumbnail}
-									onClick={() => onClick(pedal.url)}
-								/>
-							</div>
-							</Draggable>												
-						);
-					})
+						if(selectedType === 'default' || selectedType === pedal.type) {
+							return (											
+								<Draggable key={index} dragProps={pedal} className={css.PedalboardSelectorCell}>
+								<div>
+									<img
+										src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
+										alt={`image_pedale_${pedal.url}`}
+										key={pedal.url}
+										className={css.PedalboardSelectorThumbnail}
+										onClick={() => onClick(pedal.url)}
+									/>
+								</div>
+								</Draggable>												
+							);
+						}
+					})				
 				}
 			</aside>
 		</>
