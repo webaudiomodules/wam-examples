@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import download from "downloadjs";
 import { Draggable, DragDropContainer, Droppable } from "react-draggable-hoc";
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
@@ -40,19 +40,15 @@ const PedalboardBoard = SortableContainer(({
 	);
 })
 
-//container flex
-//max height
 const PedalboardSelector = ({onClick}) => (
 	<aside className={css.PedalboardSelector}>
 		{
 			PedalsJSON?.length > 0 && PedalsJSON.map((pedal, index) => {
 				return (						
-					<Draggable key={index} dragProps={pedal} className="Simple-cell">
-					<div className="Cell-simple">
+					<Draggable key={index} dragProps={pedal} className={css.PedalboardSelectorCell}>
+					<div>
 						<img
 							src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
-							width="80"
-							height="80"
 							alt={`image_pedale_${pedal.url}`}
 							key={pedal.url}
 							className={css.PedalboardSelectorThumbnail}
@@ -68,6 +64,7 @@ const PedalboardSelector = ({onClick}) => (
 
 const Pedalboard = ({audioNode}) => {		
 	const [plugins, setPlugins] = useState([]);
+	const inputRef = useRef("0");
 
 	useEffect(() => {
 		audioNode.addEventListener("onchange", handlePluginListChange);
@@ -119,7 +116,7 @@ const Pedalboard = ({audioNode}) => {
 				<Droppable onDrop={onDrop}>
 					{({ isHovered, ref, dragProps }) => (
 						<div
-							className={css.Pedalboard_content}							
+							className={css.Pedalboard_contentScroll}											
 							ref={ref}
 							style={{
 								backgroundColor: isHovered ? "rgba(0, 130, 20, 0.2)" : undefined,
@@ -137,17 +134,27 @@ const Pedalboard = ({audioNode}) => {
 						</div>
 					)}
 				</Droppable>											
-				<div>
-					<label className={css.Pedalboard_contentButton}>	
-						<img src={importIcon} alt="importer" width="30px"/>	
-						<p>Importer</p>						
-						<input style={{visibility: "hidden"}} type="file"  accept=".json" onChange={e => handleImport(e.target.files[0])} />	
-					</label>	
+				<div className={css.Pedalboard_SelectorWrapper}>		
+					<div className={css.Pedalboard_contentButtonWrapper}>
+						<button className={css.Button} onClick={() => {
+							inputRef.current.click();
+						}}>	
+							<img src={importIcon} alt="importer" width="30px"/>	
+							Importer						
+							<input
+								style={{display: "none"}}
+								ref={inputRef}
+								type="file"
+								accept=".json"
+								onChange={e => handleImport(e.target.files[0])}
+							/>	
+						</button>	
 
-					<button className={css.Button} onClick={handleExport}>
-						<img src={exportIcon} alt="exporter" width="30px"/>
-						Exporter				
-					</button>	
+						<button className={css.Button} onClick={handleExport}>
+							<img src={exportIcon} alt="exporter" width="30px"/>
+							Exporter			
+						</button>
+					</div>			
 					<PedalboardSelector onClick={handleClickThumbnail} />
 				</div>								
 			</div>
@@ -155,5 +162,5 @@ const Pedalboard = ({audioNode}) => {
 	  </DragDropContainer>		
 	);
 };
-
+			
 export default Pedalboard;

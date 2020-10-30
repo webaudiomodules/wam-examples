@@ -12,7 +12,27 @@
       "thumbnail": "faustPingPongDelay.png"
     },
     {
-      "url": "/packages/faustPingPongDelayDefaultUI/index.js",
-      "thumbnail": "faustPingPongDelayDefaultUI.png"
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "test_pedal_horizon.png"
+    },
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
+    },
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
+    },
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
+    },
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
+    },
+    {
+      "url": "/packages/quadrafuzz/dist/index.js",
+      "thumbnail": "quadrafuzz.png"
     }
   ]

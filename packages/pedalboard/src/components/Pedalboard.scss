@@ -16,16 +16,22 @@
 	width: 100%;
 	height: 450px;
 	display: flex;
-	overflow: hidden;
 	flex-direction: column;
 	padding: var(--spacing-sm);
 	color: var(--color-white);
 	border-radius: var(--spacing-xs);
 	font-family: 'Kumbh Sans', sans-serif;
-	background: var(--color-dark);
+	background: var(--color-dark); 
 
 	&_content {
 		display: flex;
+		width: 100%;
+		height: 100%;
+	}	
+
+	&_contentScroll {
+		display: flex;
+		overflow-x: auto;	
 		width: 100%;
 		height: 100%;
 	}
@@ -48,7 +54,7 @@
 			color: black;
 		}
 	}
-
+	
 	&Header {
 		margin-bottom: var(--spacing-sm);
 
@@ -59,7 +65,8 @@
 	}
 
 	&Board {
-		width: 100%;
+		width: 100%;  
+		min-width: max-content;	
 		height: fit-content;
 		min-height: 400px;
 		margin-top: auto;
@@ -67,25 +74,47 @@
 		margin-right: var(--spacing-sm);
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
-		border-radius: var(--spacing-xs);
-		overflow-x: auto;		
+		border-radius: var(--spacing-xs);				
 		display: flex;
+	}
+
+	&_contentButtonWrapper {
+		display: flex;
+		margin-bottom: 5px;
+	}
+
+	&_SelectorWrapper {
+		height: auto;	
+		min-width: 200px;	
+		margin-top: auto;
+		margin-bottom: auto;
+		margin-left: 10px;	
 	}
 
 	&Selector {
 		flex-shrink: 0;
-		width: 200px;
-		height: 350px;
+		width: 180px;
+		height: 300px;
+		display: block;
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
 		border-radius: var(--spacing-xs);
 		overflow-y: auto;
 		text-align: center;
+		margin-bottom: 10px;
 
 		&Thumbnail {
 			padding-right: 10px;
-			cursor: grab;		
-		}	
+			cursor: grab;	
+			max-width: 80px;
+			max-height: 90px;	
+		}
+
+		&Cell {
+			height: fit-content;
+			width: fit-content;
+			display: inline-block;
+		}
 		
 	}
 }
