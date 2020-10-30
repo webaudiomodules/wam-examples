@@ -40,31 +40,70 @@ const PedalboardBoard = SortableContainer(({
 	);
 })
 
-const PedalboardSelector = ({onClick}) => (
-	<aside className={css.PedalboardSelector}>
-		{
-			PedalsJSON?.length > 0 && PedalsJSON.map((pedal, index) => {
-				return (						
-					<Draggable key={index} dragProps={pedal} className={css.PedalboardSelectorCell}>
-					<div>
-						<img
-							src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
-							alt={`image_pedale_${pedal.url}`}
-							key={pedal.url}
-							className={css.PedalboardSelectorThumbnail}
-							onClick={() => onClick(pedal.url)}
-						/>
-					</div>
-					</Draggable>													
-				);
-			})
+const PedalboardSelector = ({onClick, audioNode}) => {
+	const inputRef = useRef("0");
+
+	const handleImport = file => {
+		const fileReader = new FileReader();
+		fileReader.onloadend = () => {
+			audioNode.clearPlugins();			
+			audioNode.setState(JSON.parse(fileReader.result));
 		}
-	</aside>
-);
+		fileReader.readAsText(file);
+	}
+
+	const handleExport = async () => {
+		const pedalBoard = await audioNode.getState();	
+		download(JSON.stringify(pedalBoard), "exports.json", "text/plain");		
+	}
+
+	return (
+		<>
+			<div className={css.Pedalboard_contentButtonWrapper}>
+				<button className={css.Button} onClick={() => {
+					inputRef.current.click();
+				}}>	
+					<img src={importIcon} alt="importer" width="30px"/>	
+					Importer						
+					<input
+						style={{display: "none"}}
+						ref={inputRef}
+						type="file"
+						accept=".json"
+						onChange={e => handleImport(e.target.files[0])}
+					/>	
+				</button>	
+
+				<button className={css.Button} onClick={handleExport}>
+					<img src={exportIcon} alt="exporter" width="30px"/>
+					Exporter			
+				</button>
+			</div>	
+			<aside className={css.PedalboardSelector}>
+				{
+					PedalsJSON?.length > 0 && PedalsJSON.map((pedal, index) => {
+						return (						
+							<Draggable key={index} dragProps={pedal} className={css.PedalboardSelectorCell}>
+							<div>
+								<img
+									src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
+									alt={`image_pedale_${pedal.url}`}
+									key={pedal.url}
+									className={css.PedalboardSelectorThumbnail}
+									onClick={() => onClick(pedal.url)}
+								/>
+							</div>
+							</Draggable>												
+						);
+					})
+				}
+			</aside>
+		</>
+	);
+}
 
 const Pedalboard = ({audioNode}) => {		
-	const [plugins, setPlugins] = useState([]);
-	const inputRef = useRef("0");
+	const [plugins, setPlugins] = useState([]);	
 
 	useEffect(() => {
 		audioNode.addEventListener("onchange", handlePluginListChange);
@@ -84,20 +123,6 @@ const Pedalboard = ({audioNode}) => {
 
 	const handleClickRemove = pluginID => {
 		audioNode.removePlugin(pluginID);
-	}
-
-	const handleImport = file => {
-		const fileReader = new FileReader();
-		fileReader.onloadend = () => {
-			audioNode.clearPlugins();			
-			audioNode.setState(JSON.parse(fileReader.result));
-		}
-		fileReader.readAsText(file);
-	}
-
-	const handleExport = async () => {
-		const pedalBoard = await audioNode.getState();	
-		download(JSON.stringify(pedalBoard), "exports.json", "text/plain");		
 	}
 
 	const onDrop = pedal => {
@@ -134,28 +159,11 @@ const Pedalboard = ({audioNode}) => {
 						</div>
 					)}
 				</Droppable>											
-				<div className={css.Pedalboard_SelectorWrapper}>		
-					<div className={css.Pedalboard_contentButtonWrapper}>
-						<button className={css.Button} onClick={() => {
-							inputRef.current.click();
-						}}>	
-							<img src={importIcon} alt="importer" width="30px"/>	
-							Importer						
-							<input
-								style={{display: "none"}}
-								ref={inputRef}
-								type="file"
-								accept=".json"
-								onChange={e => handleImport(e.target.files[0])}
-							/>	
-						</button>	
-
-						<button className={css.Button} onClick={handleExport}>
-							<img src={exportIcon} alt="exporter" width="30px"/>
-							Exporter			
-						</button>
-					</div>			
-					<PedalboardSelector onClick={handleClickThumbnail} />
+				<div className={css.Pedalboard_SelectorWrapper}>									
+					<PedalboardSelector
+						onClick={handleClickThumbnail}
+						audioNode={audioNode}
+					/>
 				</div>								
 			</div>
 		</section>						
