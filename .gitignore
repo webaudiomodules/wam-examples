@@ -8,6 +8,7 @@ coverage
 build/
 dist/
 esm/
+typedoc/
 
 # ide
 .vscode
