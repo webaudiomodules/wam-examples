@@ -82,7 +82,7 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
 		// Link the param manager to the DSP code of the plugin. 
 		// Remember that the param manager will provide automation, etc.
-		quadrafuzzNode.setup(paramMgrNode);
+		quadrafuzzNode.setup(paramMgrNode); 
 
 		// If there is  an initial state at construction for this plugin, 
 		if (initialState) quadrafuzzNode.setState(initialState);

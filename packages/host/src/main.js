@@ -11,7 +11,7 @@ const AudioContext =
 
 const audioContext = new AudioContext();
 // If looking for low latency (i.e. guitar plugged into live input)
-// const audioContext = new AudioContext({ latencyHint: 0.00001 /* seconds */ });
+// const audioContext = new AudioContext({ latencyHint: 0.00001});
 const mediaElementSource = audioContext.createMediaElementSource(player);
 
 let currentPluginAudioNode;

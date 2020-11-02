@@ -151,7 +151,7 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 	getParamValue(name) {
 		return this._wamNode.getParamValue(name);
 	}
-
+ 
 	setParamValue(name, value) {
 		return this._wamNode.setParamValue(name, value);
 	}
