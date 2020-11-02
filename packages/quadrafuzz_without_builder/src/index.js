@@ -4,24 +4,34 @@
 // 2 - This makes the instance of the current class an Observable
 //     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
+
+// IMPORT NECESSARY DSK FILES
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
+
+// DSP part
 import QuadrafuzzNode from './Node.js';
+// GUI part
 import { createElement } from './Gui/index.js';
 
 
 // Definition of a new plugin
+// All plugins must inherit from WebAudioModule
 export default class QuadrafuzzPlugin extends WebAudioModule {
 	static descriptor = {
 		name: 'Quadrafuzz',
 		vendor: 'WebAudioModule',
 	};
 
-	// The plugin redefines the async method createAudionode()
-	// that must return an <Audionode>
-	// It also listen to plugin state change event to update the audionode internal state
+	// The plugin must redefine the async method createAudionode()
+	// that returns an <Audionode>
 	async createAudioNode(initialState) {
+		// this node implements the DSP code. It is seen as a single WebAudio node
+		// and shares the connect/disconnect methods, but it can be a graph
+		// of nodes.
 		const quadrafuzzNode = new QuadrafuzzNode(this.audioContext);
+
+		// Defined exposed parameters
 		const paramsConfig = {
 			lowGain: {
 				defaultValue: 0.6,
@@ -50,6 +60,8 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 			},
 		};
 
+		// if some of the exposed parameters correspond to native WebAudio nodes, we will be
+		// able to benefit from the WebAudio API implementation of automation
 		const internalParamsConfig = {
 			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
 			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
@@ -64,9 +76,15 @@ export default class QuadrafuzzPlugin extends WebAudioModule {
 		// hmmm no mapping...
 		// const paramsMapping = {};
 
+		// Create a param manager instance (ParamMgr comes from the SDK)
+		// with the param configs
 		const optionsIn = { internalParamsConfig, paramsConfig };
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
+		// Link the param manager to the DSP code of the plugin. 
+		// Remember that the param manager will provide automation, etc.
 		quadrafuzzNode.setup(paramMgrNode);
+
+		// If there is  an initial state at construction for this plugin, 
 		if (initialState) quadrafuzzNode.setState(initialState);
 		//----
 		return quadrafuzzNode;
