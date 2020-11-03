@@ -222,46 +222,4 @@ body.appendChild(domNode);
 
 ## sdk
 
-### descriptor.json
-
-_if you copy the following, mind to remove comments ;-)_
-```js
-{
-	// Name of the plugin
-	"name": "PluginName",
-	"params": {
-		// A map of every param available in the plugin
-		"paramVariableName": {
-			"defaultValue": 0.5,
-			"minValue": 0,
-			"maxValue": 1
-		},
-	},
-	"banks": {
-		// A map of every bank available in the plugin
-		"bank1": {
-			"label": "Bank 1",
-			"patches": [
-				"patch1"
-			]
-		}
-	},
-	"patches" : {
-		// A map of every patch available in the plugin
-		"patch1": {
-			"label": "Patch 1",
-			"params": {
-				"paramVariableName": 0.6,
-			}
-		}
-	},
-	// the relative path to WebAudioModule module (default: index.js)
-	"entry": "./index.js",
-	// the relative path to WebAudioModule module (default: gui.js)
-	"gui": "./Gui/index.js"
-}
-```
-
-### Loader
-
 ### WebAudioModule
