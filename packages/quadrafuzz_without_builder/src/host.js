@@ -49,7 +49,7 @@ const mountPlugin = (domNode) => {
 	const pluginDomNode = await pluginInstance.createGui();
 
 	mountPlugin(pluginDomNode);
-
+ 
 	player.onplay = () => {
 		let state;
 		audioContext.resume(); // audio context must be resumed because browser restrictions
