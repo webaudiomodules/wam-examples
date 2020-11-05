@@ -61,7 +61,6 @@ yarn lerna create simplegain
 
 2. Test your plugin in a host
 
-The host package allows to test plugins loaded thanks to the sdk plugin loader.
 In order to test your plugin, you have to create a new html file in the src folder inside the package `host`.
 The html file may also link a JavaScript file that will load the plugin and play some sound etc.
 
@@ -83,8 +82,7 @@ The plugin loader uses es6 dynamic imports to load the plugins through HTTP.
 Thus every plugin code (descriptor.json, audio module, gui) must be available through a Web server.
 
 The host package provides a simple utility that make a plugin avaiable through a web server.
-In order to make your plugin available, it must be listed in the `webaudiomodules` field
-of the `package.json` of the host.
+In order to make your plugin available, it must be listed in the `webaudiomodules` field of the `package.json` of the host.
 
 Example :
 ```json
@@ -103,31 +101,13 @@ If your plugin code is at the root, just set the buildDirectory value to the emp
 
 ### Writing a plugin
 
-A plugin is composed of three main files :
-- `descriptor.json`: a JSON file to describe the plugin
+A plugin is composed of (at least) two files :
 - `index.js`: an ES module that implements the _WebAudioModule_ class from the sdk
 - `gui.js`: an ES module that exports a function to create a DOM node containing the plugin GUI
 
-__descriptor.json__
-Firstly create a file `descriptor.json`. The descriptor must contain at list the name of the plugin.
-Example:
-```json
-# descriptor.json
-{
-	"name": "SimpleGain",
-	"params": {
-		"gain": {
-			"defaultValue": 1,
-			"maxValue": 1,
-			"minValue": 0
-		}
-	}
-}
-```
-See [descriptor.json](#descriptorjson) in the following for more details.
 
 __index.js__
-Then create the WebAudioModule **ES module**.
+First create the WebAudioModule **ES module**.
 This module must export as default a class that extends the sdk WebAudioModule class.
 The only method that must be implemented is `async createAudioNode(options)`.
 Example:
@@ -143,9 +123,10 @@ export default class SimpleGainPlugin extends WebAudioModule {
 	}
 }
 ```
+More complex plugins can return a CompositeNode (i.e a graph of WebAudio nodes seen as a single node. See examples pingpongdelay or quadrafuzz in the src/packages folder) or an AudioWorkletNode...
 
 __gui.js__
-If you want your plugin to export a gui. Create a es module file named gui.js.
+If you want your plugin to export a gui, create a es module file named gui.js.
 The module must export a named export createElement: `async function createElement(plugin)`.
 
 The plugin parameter is the instance of the WebAudioModule that can be used by the GUI for example
@@ -179,23 +160,27 @@ export async function createElement(plugin) {
 ```
 
 ### Loading a plugin
-
-__loadPluginFromUrl(descriptorUrl)__
-Back to the host ! Now that we have a plugin ready, we have to load it in the host.
-The sdk offers the function `async loadPluginFromUrl(descriptorUrl)` that will load the plugin
-code from the descriptor.json file of the plugin.
-
-Example:
 ```js
-import { Loader } from 'sdk';
+    const { default: pluginFactory } = await import('./index.js'); // load main plugin file
 
-const SimpleGainPlugin = await Loader.loadPluginFromUrl('./simplegain/descriptor.json');
+	// Create a new instance of the plugin
+	// You can can optionnally give more options such as the initial state of the 
+	// plugin
+	const pluginInstance = await pluginFactory.createInstance(audioContext, {});
+
+	// instance.audioNode is the plugin WebAudio node (native, AudioWorklet or 
+	// Composite). It can then be connected to the WebAudio graph.
+
+	...
+	// for example...
+	mediaElementSource.connect(pluginInstance.audioNode);
+	audioNode.connect(audioContext.destination);
+
+	// then create the GUI
+	const pluginDomNode = await pluginInstance.createGui();
+	// for example
+	document.appendChild(pluginDomNode);
 ```
-
-If you use the host package, the descriptorUrl must be in the following format:
-`./<packageName>/descriptor.json`. Replace `<packageName>` with the name of your plugin package.
-
-In other hosts, `descriptorUrl` can be any url (assuming that CORS headers are correctly configured in the server of the plugin).
 
 __WebAudioModule.createInstance()__
 
@@ -224,15 +209,6 @@ __Show the GUI__
 We now have to create the HTMLElement that hosts the plugin GUI thanks to the plugin method `async instance.createGui()`.
 The methods loads the GUI module if it was not loaded before and then call its exported method `async createElement()`.
 
-_About GUI module lazy loading:_
-If you do not want to load the GUI directly when loading a plugin, you can call the `Loader.loadPluginFromUrl` method
-with an extra option `{ noGui: true }`.
-Example:
-```js
-const SimpleGainPlugin = await Loader.loadPluginFromUrl('./simplegain/descriptor.json', { noGui: true });
-```
-
-If the option noGui is present, then the createGui method will load the plugin GUI module once before.
 
 Now that you have an HTML element, append it to the host DOM.
 
@@ -245,47 +221,5 @@ body.appendChild(domNode);
 ```
 
 ## sdk
-
-### descriptor.json
-
-_if you copy the following, mind to remove comments ;-)_
-```js
-{
-	// Name of the plugin
-	"name": "PluginName",
-	"params": {
-		// A map of every param available in the plugin
-		"paramVariableName": {
-			"defaultValue": 0.5,
-			"minValue": 0,
-			"maxValue": 1
-		},
-	},
-	"banks": {
-		// A map of every bank available in the plugin
-		"bank1": {
-			"label": "Bank 1",
-			"patches": [
-				"patch1"
-			]
-		}
-	},
-	"patches" : {
-		// A map of every patch available in the plugin
-		"patch1": {
-			"label": "Patch 1",
-			"params": {
-				"paramVariableName": 0.6,
-			}
-		}
-	},
-	// the relative path to WebAudioModule module (default: index.js)
-	"entry": "./index.js",
-	// the relative path to WebAudioModule module (default: gui.js)
-	"gui": "./Gui/index.js"
-}
-```
-
-### Loader
 
 ### WebAudioModule

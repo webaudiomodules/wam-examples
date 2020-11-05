@@ -1,3 +1,6 @@
+// https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
+import '../utils/webaudio-controls.js';
+
 // This works when youuse a bundler such as rollup
 // If you do no wan to use a bundler, then  look at other examples
 // that build in pure JS the syles and html template directly
@@ -163,8 +166,6 @@ let template = `<div id="wc-quadrafuzz" class="wrapper">
 </div>
 `;
 
-// https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
-import '../utils/webaudio-controls.js';
 
 let backgroundImg = './assets/background.png';
 let knobImg = './assets/MiniMoog_Main.png';
@@ -274,8 +275,8 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 	// with the plugin. Will appear in the DOM if
 	// the plugin is visible
 	static is() {
-		return 'wasabi-quadrafuzz';
-	}
+        return 'wasabi-quadrafuzz-without-builder';
+    } 
 }
 
 if (!customElements.get(QuadrafuzzHTMLElement.is())) {

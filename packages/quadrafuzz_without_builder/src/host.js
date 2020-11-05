@@ -32,24 +32,24 @@ const mountPlugin = (domNode) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const { default: Quadrafuzz } = await import('./index.js');
+	const { default: pluginFactory } = await import('./index.js');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await Quadrafuzz.createInstance(audioContext, {});
+	const pluginInstance = await pluginFactory.createInstance(audioContext, {});
 
-	window.instance = instance;
+	window.instance = pluginInstance;
 	// instance.enable();
 
 	// Connect the audionode to the host
-	connectPlugin(instance.audioNode);
+	connectPlugin(pluginInstance.audioNode);
 
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
-	const pluginDomNode = await instance.createGui();
+	const pluginDomNode = await pluginInstance.createGui();
 
 	mountPlugin(pluginDomNode);
-
+ 
 	player.onplay = () => {
 		let state;
 		audioContext.resume(); // audio context must be resumed because browser restrictions

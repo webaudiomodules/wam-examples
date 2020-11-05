@@ -5,19 +5,22 @@
 /* eslint-disable no-underscore-dangle */
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
 
-// name is not so important here, the file Node.js is imported
-// Normally the class does no need to be exported as
-// an async mehod createNode is expored at the end of this
-// file.
+// name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class QuadrafuzzNode extends CompositeAudioNode {
 	/**
 	 * @type {ParamMgrNode}
 	 */
 	_wamNode = undefined;
-	// plugin is an instance of he class that exends WebAudioModule
-	// this instance is he plugin as an Observable
-	// options is an extra container that could be ussed to indicate
-	// the number of inputs and outputs...
+
+	/**
+	 * @param {ParamMgrNode} wamNode
+	 */
+	// Mandatory.
+	setup(wamNode) {
+		this._wamNode = wamNode;
+		this.createNodes();
+		this.connectNodes();
+	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
 	createNodes() {
@@ -67,30 +70,18 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 			this.highpassLeft,
 		];
 		for (let i = 0; i < filters.length; i++) {
-			//this.wetGainNode.connect(this._output)
 			this.wetGainNode.connect(filters[i]);
-			//this.wetGainNode.connect(this.overdrives[i]);
-			//filters[i].connect(this._output);
 			filters[i].connect(this.overdrives[i]);
 			this.overdrives[i].connect(this._output);
-			//filters[i].connect(this._output);
 		}
 	}
 
-	/**
-	 * @param {ParamMgrNode} wamNode
-	 */
-	setup(wamNode) {
-		this._wamNode = wamNode;
-		this.createNodes();
-		this.connectNodes();
-	}
 
 	/**
 	 * Tools to build sounds
 	 */
 	getDistortionCurve(k) {
-		console.log(`GET DISTORSION CURVE k = ${k}`);
+		//console.log(`GET DISTORSION CURVE k = ${k}`);
 		const { sampleRate } = this.context;
 		const curve = new Float32Array(sampleRate);
 		const deg = Math.PI / 180;
@@ -119,36 +110,24 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 
 	// Setter part, it is here that you define the link between the params and the nodes values.
 	set lowGain(_lowGain) {
-		console.log(`set lowGain : ${_lowGain}`);
 		if (!this.isInRange(_lowGain, 0, 1)) return;
-		//this.params.lowgain = _lowGain;
 		this.overdrives[0].curve = this.getDistortionCurve(this.normalize(_lowGain, 0, 150));
 	}
 
 	set midLowGain(_midLowGain) {
-		console.log('midLowGain');
-
 		if (!this.isInRange(_midLowGain, 0, 1)) return;
-		// this.params.midlowgain = _midLowGain;
 		this.overdrives[1].curve = this.getDistortionCurve(this.normalize(_midLowGain, 0, 150));
 	}
 
 	set midHighGain(_midHighGain) {
-		console.log('midHighGain');
-
 		if (!this.isInRange(_midHighGain, 0, 1)) return;
-		// this.params.midhighgain = _midHighGain;
 		this.overdrives[2].curve = this.getDistortionCurve(this.normalize(_midHighGain, 0, 150));
 	}
 
 	set highGain(_highGain) {
-		console.log('highGain');
-
 		if (!this.isInRange(_highGain, 0, 1)) return;
-		//this.params.highgain = _highGain;
 		this.overdrives[3].curve = this.getDistortionCurve(this.normalize(_highGain, 0, 150));
 	}
-
 
 	isEnabled = true;
 
@@ -157,19 +136,35 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 
 		this.isEnabled = _sig;
 		if (_sig) {
-			console.log('BYPASS MODE OFF FX RUNNING');
+			//console.log('BYPASS MODE OFF FX RUNNING');
 			this.wetGainNode.gain.linearRampToValueAtTime(1, this.context.currentTime + 0.5);
 			this.dryGainNode.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.5);
 		} else {
-			console.log('BYPASS MODE ON');
+			//console.log('BYPASS MODE ON');
 			this.wetGainNode.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.5);
 			this.dryGainNode.gain.linearRampToValueAtTime(1, this.context.currentTime + 0.5);
 		}
 	}
 
-	// delay tools
-	// Tools to build sounds
+	// MANDATORY : redefine these methods
 	// eslint-disable-next-line class-methods-use-this
+	getParamValue(name) {
+		return this._wamNode.getParamValue(name);
+	}
+ 
+	setParamValue(name, value) {
+		return this._wamNode.setParamValue(name, value);
+	}
+
+	getParamsValues() {
+		return this._wamNode.getParamsValues();
+	}
+
+	setParamsValues(values) {
+		return this._wamNode.setParamsValues(values);
+	}
+    // -----------------------------------
+	// Utility internal methods
 	isNumber(arg) {
 		return toString.call(arg) === '[object Number]' && arg === +arg;
 	}
@@ -184,21 +179,5 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 		if (!this.isNumber(mix) || mix > 1 || mix < 0) return 0;
 		if (mix >= 0.5) return 1;
 		return 1 - (0.5 - mix) * 2;
-	}
-
-	getParamValue(name) {
-		return this._wamNode.getParamValue(name);
-	}
-
-	setParamValue(name, value) {
-		return this._wamNode.setParamValue(name, value);
-	}
-
-	getParamsValues() {
-		return this._wamNode.getParamsValues();
-	}
-
-	setParamsValues(values) {
-		return this._wamNode.setParamsValues(values);
 	}
 }
