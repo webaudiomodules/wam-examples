@@ -413,6 +413,7 @@ export default class PingPongDelayFaustGui extends HTMLElement {
 			);
 	}
 
+	// Utile ?
 	setInactive() {
 		let switches = this._root.querySelectorAll('.switch webaudio-switch');
 		switches.forEach((s) => {
