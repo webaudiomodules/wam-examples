@@ -275,8 +275,8 @@ export default class QuadrafuzzHTMLElement extends HTMLElement {
 	// with the plugin. Will appear in the DOM if
 	// the plugin is visible
 	static is() {
-		return 'wasabi-quadrafuzz';
-	}
+        return 'wasabi-quadrafuzz-without-builder';
+    } 
 }
 
 if (!customElements.get(QuadrafuzzHTMLElement.is())) {

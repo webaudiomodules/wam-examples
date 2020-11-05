@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable object-curly-newline */
 import { TypedAudioWorkletNode, MessagePortResponse, ParamMgrCallToProcessor, MessagePortRequest, ParamMgrCallFromProcessor, ParamMgrOptions, InternalParametersDescriptor } from './types';
-import { WebAudioModule, WamNode } from '../api/types';
+import { WebAudioModule, WamNode, WamEventMap } from '../api/types';
 
 interface MsgIn extends MessagePortResponse<ParamMgrCallToProcessor>, MessagePortRequest<ParamMgrCallFromProcessor> {}
 interface MsgOut extends MessagePortRequest<ParamMgrCallToProcessor>, MessagePortResponse<ParamMgrCallFromProcessor> {}
@@ -9,7 +9,7 @@ interface MsgOut extends MessagePortRequest<ParamMgrCallToProcessor>, MessagePor
 /**
  * Parameter Manager Class
  */
-declare interface ParamMgrNode<Params extends string = string, InternalParams extends string = Params> extends TypedAudioWorkletNode<MsgIn, MsgOut, Params>, Omit<WamNode, keyof AudioWorkletNode>, ParamMgrCallFromProcessor {
+declare interface ParamMgrNode<Params extends string = string, InternalParams extends string = Params> extends TypedAudioWorkletNode<MsgIn, MsgOut, Params, WamEventMap>, Omit<WamNode, keyof AudioWorkletNode>, ParamMgrCallFromProcessor {
     /**
      * The `WebAudioModule` this lives in.
      */
