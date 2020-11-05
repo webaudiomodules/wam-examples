@@ -100,7 +100,9 @@
 		flex-shrink: 0;
 		width: 180px;
 		height: 300px;
-		display: block;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
 		border-radius: var(--spacing-xs);
@@ -111,7 +113,6 @@
 		&Thumbnail {
 			padding-right: 10px;
 			cursor: grab;	
-			max-width: 80px;
 			max-height: 90px;	
 		}
 
