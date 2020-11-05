@@ -368,7 +368,7 @@ class PingPongDelayFaustNode extends AudioWorkletNode {
 }
 
 // Factory class
-export default class PingPongDelayFaust {
+class PingPongDelayFaust {
 
     /**
      * Factory constructor.

@@ -57,7 +57,8 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 	_PluginFactory;
 
 	async initialize(state) {
-		this._PluginFactory = (await fetchModule('./Node.js'));
+		const imported = await fetchModule('./Node.js');
+		this._PluginFactory = imported[Object.keys(imported)[0]];
 		return super.initialize(state);
 	}
 
