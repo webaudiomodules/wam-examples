@@ -4,7 +4,7 @@ import crossIcon from '../../../demo/public/cross.png';
 
 import css from './index.scss';
 
-const PLUGIN_HEIGHT = 350;
+const PLUGIN_HEIGHT = 200;
 
 const Plugin = ({
 	plugin,
@@ -23,17 +23,21 @@ const Plugin = ({
 			plugginWrapperRef.current.appendChild(pluginGui);
 			const parent = plugginWrapperRef.current.parentNode;
 			const instanceRect = plugginWrapperRef.current.getBoundingClientRect();
+			const parentRect = plugginWrapperRef.current.parentNode.getBoundingClientRect();
+
+			const widthRatio = parentRect.width / parentRect.height;
 			const scale = PLUGIN_HEIGHT / instanceRect.height;
 			const translateX = (scale - 1) * 100 / 2;
 			const translateY = (scale - 1) * 100 / 2;
-
+		
 			plugginWrapperRef.current.style.transform =
 				`translate(${translateX}%, ${translateY}%)
-			 	scale(${scale})`;
-
+				scale(${scale})`;
+			
 			const pluginSize = plugginWrapperRef.current.getBoundingClientRect();
-			parent.style.width = pluginSize.width + 'px';
-			parent.style.height = pluginSize.height + 'px';
+			parent.style.width = (pluginSize.height * widthRatio) + 'px';
+			parent.style.height = pluginSize.height + 'px';			
+			
 		})();
 
 		return () => {

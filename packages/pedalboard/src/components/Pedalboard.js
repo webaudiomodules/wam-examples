@@ -23,11 +23,10 @@ const PedalboardBoard = SortableContainer(({
 	plugins,
 	handleClickRemove,
 }) => {
-	const sortedPlugins = plugins.sort((a, b) => a.position - b.position);
 	return (
 		<main className={css.PedalboardBoard}>
 			{
-				sortedPlugins.map((plugin, index) => {
+				plugins.map((plugin, index) => {
 					return (<PluginWrapper
 						key={index}
 						index={index}
