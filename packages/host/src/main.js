@@ -91,7 +91,19 @@ form.addEventListener('submit', (event) => {
 // ------- LIVE INPUT ------
 // live input
 var liveInputActivated = false;
-let inputStreamNode, liveInputGainNode;
+let inputStreamNode, inputStreamNodeMono, liveInputGainNode;
+
+function convertToMono(input) {
+    var splitter = audioContext.createChannelSplitter(2);
+    var merger = audioContext.createChannelMerger(2);
+
+    input.connect(splitter);
+    splitter.connect(merger, 0, 0);
+    splitter.connect(merger, 0, 1);
+    splitter.connect(merger, 1, 0);
+    splitter.connect(merger, 1, 1);
+    return merger;
+}
 
 var defaultConstraints = {
 	audio: {
@@ -104,9 +116,11 @@ var defaultConstraints = {
 function setLiveInputToNewStream(stream, constraints) {
 	window.stream = stream;
 	 inputStreamNode = audioContext.createMediaStreamSource(stream);
+	 let inputinputStreamNodeMono = convertToMono(inputStreamNode);
+
 	 liveInputGainNode = audioContext.createGain();
 	 liveInputGainNode.gain.value = 0;
-	 inputStreamNode.connect(liveInputGainNode);
+	 inputinputStreamNodeMono.connect(liveInputGainNode);
 
 	console.log("Live Input node created...")
 }
