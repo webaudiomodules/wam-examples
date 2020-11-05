@@ -282,6 +282,10 @@ const processor = (processorId, paramsConfig) => {
 			this.port.close();
 		}
 	}
-	registerProcessor(processorId, ParamMgrProcessor);
+	try {
+		registerProcessor(processorId, ParamMgrProcessor);
+	} catch (error) {
+		console.warn(error);
+	}
 };
 export default processor;
