@@ -20,8 +20,13 @@ import { createElement } from './Gui/index.js';
 
 
 class FaustPingPongDelayNode extends CompositeAudioNode {
+	/**
+	 * @param {AudioWorkletNode} output
+	 * @param {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} paramMgr
+	 */
 	setup(output, paramMgr) {
 		this.connect(output, 0, 0);
+		paramMgr.addEventListener("midi", e => output.midiMessage(e.detail.data.bytes));
 		this._wamNode = paramMgr;
 		this._output = output;
 	}

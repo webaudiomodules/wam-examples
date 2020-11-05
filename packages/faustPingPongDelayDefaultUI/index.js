@@ -19,9 +19,14 @@ import createElement from './gui.js';
 import fetchModule from './fetchModule.js';
 
 
-class FaustPingPongDelayNode extends CompositeAudioNode {
+class FaustCompositeAudioNode extends CompositeAudioNode {
+	/**
+	 * @param {AudioWorkletNode} output
+	 * @param {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} paramMgr
+	 */
 	setup(output, paramMgr) {
 		this.connect(output, 0, 0);
+		paramMgr.addEventListener("midi", e => output.midiMessage(e.detail.data.bytes));
 		this._wamNode = paramMgr;
 		this._output = output;
 	}
@@ -70,7 +75,7 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		const factory = new this._PluginFactory(this.audioContext, baseURL);
 		const faustNode = await factory.load();
 		const paramMgrNode = await ParamMgrFactory.create(this, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
-		const node = new FaustPingPongDelayNode(this.audioContext);
+		const node = new FaustCompositeAudioNode(this.audioContext);
 		node.setup(faustNode, paramMgrNode);
 		if (initialState) node.setState(initialState);
 		return node;
