@@ -52,9 +52,15 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 
 	async addPlugin(pluginURL, paramsConfig) {
 		console.log('ADDING: ', pluginURL);
-		const { default: WAM } = await import(pluginURL);
-		const instance = await WAM.createInstance(this.audioContext);
-
+		let instance;
+		try {
+			const { default: WAM } = await import(pluginURL);
+			instance = await WAM.createInstance(this.audioContext);
+		} catch (e) {
+			console.error(`Error while importing: "${pluginURL}"`);
+			console.error(e);
+			return;
+		}
 		if (paramsConfig !== undefined) {
 			instance.audioNode.setState(paramsConfig);
 		}
