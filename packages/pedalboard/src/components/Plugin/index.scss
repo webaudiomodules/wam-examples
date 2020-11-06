@@ -4,13 +4,20 @@
     .Icon {
         margin-top: 10px;
         margin-left: auto;
-        margin-right: auto;        
+        margin-right: auto;
         width: 25px;
         cursor: grab;
         visibility: hidden;
     }
 
-    &:hover {        
+    &_Name {
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis; 
+    }
+
+    &:hover {
+        overflow: visible;
         .Icon {
             visibility: visible;
             display: flex;

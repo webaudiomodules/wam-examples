@@ -37,6 +37,9 @@ const Plugin = ({
 			parent.style.width = `${pluginSize.height * widthRatio}px`;
 			parent.style.height = `${pluginSize.height}px`;
 
+			parent.parentNode.style.width = `${pluginSize.height * widthRatio}px`;
+			parent.parentNode.style.height = `${pluginSize.height}px`;
+
 			return pluginGui;
 		})();
 
@@ -51,6 +54,7 @@ const Plugin = ({
 			<div className={css.PluginContainer}>
 				<div ref={plugginWrapperRef} />
 			</div>
+			<p title={plugin.instance.name} className={css.PluginWrapper_Name}>{plugin.instance.name}</p>
 			<img className={css.Icon} src={crossIcon} onClick={() => onClickRemove(plugin.id)} />
 		</div>
 	);
