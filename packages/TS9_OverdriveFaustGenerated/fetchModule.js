@@ -1,4 +1,7 @@
+const cache = new Map();
+
 const fetchModule = async (url) => {
+	if (cache.has(url)) return cache.get(url);
 	let exported;
 	const toExport = {};
 	window.exports = toExport;
@@ -9,6 +12,7 @@ const fetchModule = async (url) => {
 	else exported = window.module.exports;
 	delete window.exports;
 	delete window.module;
+	cache.set(url, exported);
 	return exported;
 };
 export default fetchModule;
