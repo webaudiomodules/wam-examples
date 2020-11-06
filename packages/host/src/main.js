@@ -48,6 +48,7 @@ Array.from(examples).forEach((example) => {
 	});
 });
 
+
 const setPlugin = async (pluginUrl) => {
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
@@ -80,6 +81,13 @@ const setPlugin = async (pluginUrl) => {
 	const pluginDomNode = await instance.createGui();
 
 	mountPlugin(pluginDomNode);
+
+	const saveStateButton = document.querySelector('#saveStateButton');
+
+	saveStateButton.onclick = () => {
+		console.log("Saving state...");
+		instance.getState();
+	};
 };
 
 form.addEventListener('submit', (event) => {
