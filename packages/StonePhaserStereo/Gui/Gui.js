@@ -1,19 +1,18 @@
-import '../utils/webaudio-controls.js'
+import '../utils/webaudio-controls.js';
 
-    const getBaseURL = () => {
-      const base = new URL('.', import.meta.url);
-      return `${base}`;
-    };
-    export default class StonePhaserStereoGui extends HTMLElement {
-            constructor(plug) {
-               
-      super();
-		  this._plug = plug;
-		  this._plug.gui = this;
-      console.log(this._plug);
-        
-      this._root = this.attachShadow({ mode: 'open' });
-      this._root.innerHTML = `<style>	
+const getBaseURL = () => {
+	const base = new URL('.', import.meta.url);
+	return `${base}`;
+};
+export default class StonePhaserStereoGui extends HTMLElement {
+	constructor(plug) {
+		super();
+		this._plug = plug;
+		this._plug.gui = this;
+		console.log(this._plug);
+
+		this._root = this.attachShadow({ mode: 'open' });
+		this._root.innerHTML = `<style>	
                         .pedal{
                             display: block;
                             background:null;
@@ -283,37 +282,35 @@ import '../utils/webaudio-controls.js'
     <!-- <div class="text-block" id="froala-editor"></div> -->
   <div class="knob       " id="LFO"><webaudio-knob src="./img/knobs/Jambalaya.png" height="50" width="50" sprites="100" min="0.01" max="5" step="0.01" midilearn="true" value="0.2" id="/StonePhaserStereo/LFO"></webaudio-knob><div style="text-align:center">LFO</div></div><div class="knob         " id="Feedback"><webaudio-knob src="./img/knobs/Jambalaya.png" height="50" width="50" sprites="100" min="0" max="99" step="1" midilearn="true" value="75" id="/StonePhaserStereo/Feedback"></webaudio-knob><div style="text-align:center">Feedback</div></div><div class="knob     " id="Lo-cut"><webaudio-knob src="./img/knobs/Jambalaya.png" height="50" width="50" sprites="100" min="10" max="5000" step="1" midilearn="true" value="500" id="/StonePhaserStereo/Lo-cut"></webaudio-knob><div style="text-align:center">Lo-cut</div></div><div class="knob                " id="Mix"><webaudio-knob src="./img/knobs/Jambalaya.png" height="50" width="50" sprites="100" min="0" max="100" step="1" midilearn="true" value="50" id="/StonePhaserStereo/Mix"></webaudio-knob><div style="text-align:center">Mix</div></div><div class="knob        " id="Stereo_phase"><webaudio-knob src="./img/knobs/Jambalaya.png" height="50" width="50" sprites="100" min="-180" max="180" step="1" midilearn="true" value="0" id="/StonePhaserStereo/Stereo_phase"></webaudio-knob><div style="text-align:center">Stereo</div></div><div class="switch    " id="Bypass"><webaudio-switch src="./img/switches/switch_1.png" height="50" width="96" midilearn="true" id="/StonePhaserStereo/Bypass"></webaudio-switch><div></div></div><div class="switch" id="Color"><webaudio-switch src="./img/switches/switch_2.png" height="50" width="80" midilearn="true" id="/StonePhaserStereo/Color"></webaudio-switch><div>Color</div></div><div class="label pedalLabelName      " id="label_79">Stone Phaser</div></div>`;
 
-      this.isOn;
-		  this.state = new Object();
-		  this.setKnobs();
-		  this.setSliders();
-	  	this.setSwitches();
-		  //this.setSwitchListener();
-		  this.setInactive();
-	  	this._root.querySelector('#pedal').style.transform = 'none';
-		  //this._root.querySelector("#test").style.fontFamily = window.getComputedStyle(this._root.querySelector("#test")).getPropertyValue('font-family');
+		this.isOn;
+		this.state = new Object();
+		this.setKnobs();
+		this.setSliders();
+		this.setSwitches();
+		//this.setSwitchListener();
+		this.setInactive();
+		this._root.querySelector('#pedal').style.transform = 'none';
+		//this._root.querySelector("#test").style.fontFamily = window.getComputedStyle(this._root.querySelector("#test")).getPropertyValue('font-family');
 
-		  // Compute base URI of this main.html file. This is needed in order
-		  // to fix all relative paths in CSS, as they are relative to
-		  // the main document, not the plugin's main.html
-		  this.basePath = getBaseURL();
-		  console.log("basePath = " + this.basePath)
+		// Compute base URI of this main.html file. This is needed in order
+		// to fix all relative paths in CSS, as they are relative to
+		// the main document, not the plugin's main.html
+		this.basePath = getBaseURL();
+		console.log('basePath = ' + this.basePath);
 
-		  // Fix relative path in WebAudio Controls elements
-		  this.fixRelativeImagePathsInCSS();
+		// Fix relative path in WebAudio Controls elements
+		this.fixRelativeImagePathsInCSS();
 
-		  // optionnal : set image background using a relative URI (relative
-		  // to this file)
-      //this.setImageBackground("/img/BigMuffBackground.png");
-        
-      // Monitor param changes in order to update the gui
-      window.requestAnimationFrame(this.handleAnimationFrame);
-    
-            }
-        
-            fixRelativeImagePathsInCSS() {
-               
-    // change webaudiocontrols relative paths for spritesheets to absolute
+		// optionnal : set image background using a relative URI (relative
+		// to this file)
+		//this.setImageBackground("/img/BigMuffBackground.png");
+
+		// Monitor param changes in order to update the gui
+		window.requestAnimationFrame(this.handleAnimationFrame);
+	}
+
+	fixRelativeImagePathsInCSS() {
+		// change webaudiocontrols relative paths for spritesheets to absolute
 		let webaudioControls = this._root.querySelectorAll(
 			'webaudio-knob, webaudio-slider, webaudio-switch, img'
 		);
@@ -339,126 +336,170 @@ import '../utils/webaudio-controls.js'
 				);
 			}
 		});
-        
-            }
-        
-            setImageBackground() {
-               
-    // check if the shadowroot host has a background image
+	}
+
+	setImageBackground() {
+		// check if the shadowroot host has a background image
 		let mainDiv = this._root.querySelector('#main');
 		mainDiv.style.backgroundImage =
 			'url(' + this.basePath + '/' + imageRelativeURI + ')';
 
 		//console.log("background =" + mainDiv.style.backgroundImage);
 		//this._root.style.backgroundImage = "toto.png";
-    
-            }
-        
-            attributeChangedCallback() {
-               
-		  console.log('Custom element attributes changed.');
-		  this.state = JSON.parse(this.getAttribute('state'));
-      let tmp = '/PingPongDelayFaust/bypass';
-      
-      if (this.state[tmp] == 1) {
-        this._root.querySelector('#switch1').value = 0;
-        this.isOn = false;
-      } else if (this.state[tmp] == 0) {
-        this._root.querySelector('#switch1').value = 1;
-        this.isOn = true;
-      }
+	}
 
-      this.knobs = this._root.querySelectorAll('.knob');
-      console.log(this.state);
+	attributeChangedCallback() {
+		console.log('Custom element attributes changed.');
+		this.state = JSON.parse(this.getAttribute('state'));
+		let tmp = '/PingPongDelayFaust/bypass';
 
-      for (var i = 0; i < this.knobs.length; i++) {
-        this.knobs[i].setValue(this.state[this.knobs[i].id], false);
-        console.log(this.knobs[i].value);
-      }
-    
-            }
-        handleAnimationFrame = () => {
-      this._root.getElementById('/StonePhaserStereo/LFO').value = this._plug.audioNode.getParamValue('/StonePhaserStereo/LFO');
-      
+		if (this.state[tmp] == 1) {
+			this._root.querySelector('#switch1').value = 0;
+			this.isOn = false;
+		} else if (this.state[tmp] == 0) {
+			this._root.querySelector('#switch1').value = 1;
+			this.isOn = true;
+		}
 
-      this._root.getElementById('/StonePhaserStereo/Feedback').value = this._plug.audioNode.getParamValue('/StonePhaserStereo/Feedback');
-      
+		this.knobs = this._root.querySelectorAll('.knob');
+		console.log(this.state);
 
-      this._root.getElementById('/StonePhaserStereo/Lo-cut').value = this._plug.audioNode.getParamValue('/StonePhaserStereo/Lo-cut');
-      
+		for (var i = 0; i < this.knobs.length; i++) {
+			this.knobs[i].setValue(this.state[this.knobs[i].id], false);
+			console.log(this.knobs[i].value);
+		}
+	}
+	handleAnimationFrame = () => {
+		this._root.getElementById(
+			'/StonePhaserStereo/LFO'
+		).value = this._plug.audioNode.getParamValue('/StonePhaserStereo/LFO');
 
-      this._root.getElementById('/StonePhaserStereo/Mix').value = this._plug.audioNode.getParamValue('/StonePhaserStereo/Mix');
-      
+		this._root.getElementById(
+			'/StonePhaserStereo/Feedback'
+		).value = this._plug.audioNode.getParamValue(
+			'/StonePhaserStereo/Feedback'
+		);
 
-      this._root.getElementById('/StonePhaserStereo/Stereo_phase').value = this._plug.audioNode.getParamValue('/StonePhaserStereo/Stereo_phase');
-      
+		this._root.getElementById(
+			'/StonePhaserStereo/Lo-cut'
+		).value = this._plug.audioNode.getParamValue(
+			'/StonePhaserStereo/Lo-cut'
+		);
 
-        this._root.getElementById('/StonePhaserStereo/Bypass').value = 1 - this._plug.audioNode.getParamValue('/StonePhaserStereo/Bypass');
-       
+		this._root.getElementById(
+			'/StonePhaserStereo/Mix'
+		).value = this._plug.audioNode.getParamValue('/StonePhaserStereo/Mix');
 
-        this._root.getElementById('/StonePhaserStereo/Color').value = 1 - this._plug.audioNode.getParamValue('/StonePhaserStereo/Color');
-       
-window.requestAnimationFrame(this.handleAnimationFrame);
-       }
-    
-            get properties() {
-               
-      this.boundingRect = {
-          dataWidth: {
-            type: Number,
-            value: 286.953125
-          },
-          dataHeight: {
-            type: Number,
-            value: 353.3046875
-          }
-      };
-      return this.boundingRect;
-    
-            }
-        
-            static get observedAttributes() {
-               
-      return ['state'];
-    
-            }
-        
-            setKnobs() {
-               this._root.getElementById("/StonePhaserStereo/LFO").addEventListener("input", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/LFO", e.target.value));
-this._root.getElementById("/StonePhaserStereo/Feedback").addEventListener("input", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Feedback", e.target.value));
-this._root.getElementById("/StonePhaserStereo/Lo-cut").addEventListener("input", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Lo-cut", e.target.value));
-this._root.getElementById("/StonePhaserStereo/Mix").addEventListener("input", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Mix", e.target.value));
-this._root.getElementById("/StonePhaserStereo/Stereo_phase").addEventListener("input", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Stereo_phase", e.target.value));
+		this._root.getElementById(
+			'/StonePhaserStereo/Stereo_phase'
+		).value = this._plug.audioNode.getParamValue(
+			'/StonePhaserStereo/Stereo_phase'
+		);
 
-            }
-        
-            setSliders() {
-               
-            }
-        
-            setSwitches() {
-               this._root.getElementById("/StonePhaserStereo/Bypass").addEventListener("change", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Bypass", 1 - e.target.value));
-this._root.getElementById("/StonePhaserStereo/Color").addEventListener("change", (e) =>this._plug.audioNode.setParamValue("/StonePhaserStereo/Color", 1 - e.target.value));
+		this._root.getElementById('/StonePhaserStereo/Bypass').value =
+			1 - this._plug.audioNode.getParamValue('/StonePhaserStereo/Bypass');
 
-            }
-        
-            setInactive() {
-               
-      let switches = this._root.querySelectorAll(".switch webaudio-switch");
+		this._root.getElementById('/StonePhaserStereo/Color').value =
+			1 - this._plug.audioNode.getParamValue('/StonePhaserStereo/Color');
 
-      switches.forEach(s => {
-        console.log("### SWITCH ID = " + s.id);
-        this._plug.audioNode.setParamValue(s.id, 0);
-      });
-    
-            }
-        }
-    try {
-        customElements.define('wap-stonephaserstereo', 
-                              StonePhaserStereoGui);
-        console.log("Element defined");
-    } catch(error){
-        console.log(error);
-        console.log("Element already defined");      
-    }
-    
+		window.requestAnimationFrame(this.handleAnimationFrame);
+	};
+
+	get properties() {
+		this.boundingRect = {
+			dataWidth: {
+				type: Number,
+				value: 286.953125,
+			},
+			dataHeight: {
+				type: Number,
+				value: 353.3046875,
+			},
+		};
+		return this.boundingRect;
+	}
+
+	static get observedAttributes() {
+		return ['state'];
+	}
+
+	setKnobs() {
+		this._root
+			.getElementById('/StonePhaserStereo/LFO')
+			.addEventListener('input', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/LFO',
+					e.target.value
+				)
+			);
+		this._root
+			.getElementById('/StonePhaserStereo/Feedback')
+			.addEventListener('input', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Feedback',
+					e.target.value
+				)
+			);
+		this._root
+			.getElementById('/StonePhaserStereo/Lo-cut')
+			.addEventListener('input', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Lo-cut',
+					e.target.value
+				)
+			);
+		this._root
+			.getElementById('/StonePhaserStereo/Mix')
+			.addEventListener('input', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Mix',
+					e.target.value
+				)
+			);
+		this._root
+			.getElementById('/StonePhaserStereo/Stereo_phase')
+			.addEventListener('input', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Stereo_phase',
+					e.target.value
+				)
+			);
+	}
+
+	setSliders() {}
+
+	setSwitches() {
+		this._root
+			.getElementById('/StonePhaserStereo/Bypass')
+			.addEventListener('change', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Bypass',
+					1 - e.target.value
+				)
+			);
+		this._root
+			.getElementById('/StonePhaserStereo/Color')
+			.addEventListener('change', (e) =>
+				this._plug.audioNode.setParamValue(
+					'/StonePhaserStereo/Color',
+					1 - e.target.value
+				)
+			);
+	}
+
+	setInactive() {
+		let switches = this._root.querySelectorAll('.switch webaudio-switch');
+
+		switches.forEach((s) => {
+			console.log('### SWITCH ID = ' + s.id);
+			this._plug.audioNode.setParamValue(s.id, 0);
+		});
+	}
+}
+try {
+	customElements.define('wap-stonephaserstereo', StonePhaserStereoGui);
+	console.log('Element defined');
+} catch (error) {
+	console.log(error);
+	console.log('Element already defined');
+}
