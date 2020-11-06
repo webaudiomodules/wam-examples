@@ -13,39 +13,9 @@
       "url": "/packages/faustPingPongDelay/plugin/index.js",
       "thumbnail": "faustPingPongDelay.png",
       "type": "Echo"
-    },    
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
     },
     {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
-    },
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
-    },
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
-    },
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
-    },
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "test_pedal_horizon.png",
-      "type": "Amplificateur"
-    },
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
+      "url": "",
       "thumbnail": "test_pedal_horizon.png",
       "type": "Amplificateur"
     }

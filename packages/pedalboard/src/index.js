@@ -1,9 +1,10 @@
+// eslint-disable-next-line no-use-before-define
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { WebAudioModule } from 'sdk';
 
-import Pedalboard from './components/Pedalboard';
-import PedalboardAudioNode from './audio/PedalboardAudioNode';
+import Pedalboard from './components/Pedalboard.js';
+import PedalboardAudioNode from './audio/PedalboardAudioNode.js';
 
 export default class PedalboardPlugin extends WebAudioModule {
 	static descriptor = {
@@ -18,21 +19,14 @@ export default class PedalboardPlugin extends WebAudioModule {
 	async createAudioNode(initialState) {
 		const pedalboardAudioNode = new PedalboardAudioNode(this.audioContext);
 
-		const paramsConfig = {
-		};
-		const internalParamsConfig = {
-		};
-		const paramsMapping = {
-		};
-		
-		if (initialState) pedalboardAudioNode.setState(initialState);		
+		if (initialState) pedalboardAudioNode.setState(initialState);
 		return pedalboardAudioNode;
 	}
 
 	// eslint-disable-next-line class-methods-use-this
-	createGui() {		
+	createGui() {
 		const root = document.createElement('div');
-		ReactDOM.render(<Pedalboard audioNode={this.audioNode}/>, root);
+		ReactDOM.render(<Pedalboard audioNode={this.audioNode} />, root);
 		return root;
 	}
 }
