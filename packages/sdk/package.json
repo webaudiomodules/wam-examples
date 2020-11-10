@@ -17,6 +17,7 @@
     "babel-loader": "^8.1.0",
     "del-cli": "^3.0.1",
     "jest": "^26.1.0",
+    "regenerator-runtime": "^0.13.7",
     "rollup": "^2.27.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-node-builtins": "^2.1.2",
