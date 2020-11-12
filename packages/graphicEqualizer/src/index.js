@@ -32,16 +32,8 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		const graphicEQNode = new GraphicEQNode(this.audioContext);
 		graphicEQNode.createNodes();
 
+		console.log("paramConfig setup")
 		// Defined exposed parameters
-		/*
-		this.addFilter("highpass", 0.00001, 40, 12, "red");
-        this.addFilter("lowshelf", 0, 80, 0, "yellow");
-        this.addFilter("peaking", 1, 230, 0, "green");
-        this.addFilter("peaking", 1, 2500, 0, "turquoise");
-        this.addFilter("peaking", 1, 5000, 0, "blue");
-        this.addFilter("highshelf", 1, 10000, 0, "violet");
-		this.addFilter("lowpass", 0.00001, 18000, 12, "red");
-		*/
 		const paramsConfig = {
 			enabled: {
 				defaultValue: 1,
@@ -49,28 +41,13 @@ export default class GraphicEQPlugin extends WebAudioModule {
 				maxValue: 1,
 			},
 		};
+		// let's generate one param per filter property
+		
 		// if some of the exposed parameters correspond to native WebAudio nodes, we will be
 		// able to benefit from the WebAudio API implementation of automation
 		const internalParamsConfig = {
-			/*
-			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
-			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
-			// I guess this is the case of a developer who is gonna do custom automation
-			lowGain: { onChange: (value) => { quadrafuzzNode.lowGain = value; } },
-			// and we do have other "params"
-			midLowGain: { onChange: (value) => { quadrafuzzNode.midLowGain = value; } },
-			midHighGain: { onChange: (value) => { quadrafuzzNode.midHighGain = value; } },
-			highGain: { onChange: (value) => { quadrafuzzNode.highGain = value; } },
-			*/
 			enabled: { onChange: (value) => { graphicEQNode.status = !!value; } },
 		};
-		graphicEQNode.filters.forEach((filter) => {
-			const { type, Q, detune, frequency, gain } = filter;
-			paramsConfig[`${type}_Q`] = Q;
-			paramsConfig[`${type}_detune`] = detune;
-			paramsConfig[`${type}_frequency`] = frequency;
-			paramsConfig[`${type}_gain`] = gain;
-		})
 
 		// hmmm no mapping...
 		// const paramsMapping = {};
