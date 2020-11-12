@@ -11,6 +11,9 @@ export default class GraphicEQNode extends CompositeAudioNode {
 	 * @type {ParamMgrNode}
 	 */
 	_wamNode = undefined;
+	/**
+	 * @type {(BiquadFilterNode & { type: string })[]}
+	 */
 	filters = [];
 
 	/**
@@ -19,7 +22,6 @@ export default class GraphicEQNode extends CompositeAudioNode {
 	// Mandatory.
 	setup(wamNode) {
 		this._wamNode = wamNode;
-		this.createNodes();
 		this.connectNodes();
 
 	}

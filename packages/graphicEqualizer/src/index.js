@@ -30,39 +30,16 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		// and shares the connect/disconnect methods, but it can be a graph
 		// of nodes.
 		const graphicEQNode = new GraphicEQNode(this.audioContext);
+		graphicEQNode.createNodes();
 
 		// Defined exposed parameters
 		const paramsConfig = {
-					/*
-
-			lowGain: {
-				defaultValue: 0.6,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midLowGain: {
-				defaultValue: 0.8,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midHighGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			highGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			*/
 			enabled: {
 				defaultValue: 1,
 				minValue: 0,
 				maxValue: 1,
 			},
 		};
-
 		// if some of the exposed parameters correspond to native WebAudio nodes, we will be
 		// able to benefit from the WebAudio API implementation of automation
 		const internalParamsConfig = {
@@ -78,6 +55,14 @@ export default class GraphicEQPlugin extends WebAudioModule {
 			*/
 			enabled: { onChange: (value) => { graphicEQNode.status = !!value; } },
 		};
+		graphicEQNode.filters.forEach((filter) => {
+			const { type, Q, detune, frequency, gain } = filter;
+			paramsConfig[`${type}_Q`] = Q;
+			paramsConfig[`${type}_detune`] = detune;
+			paramsConfig[`${type}_frequency`] = frequency;
+			paramsConfig[`${type}_gain`] = gain;
+		})
+
 		// hmmm no mapping...
 		// const paramsMapping = {};
 
