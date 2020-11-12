@@ -32,30 +32,16 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		const graphicEQNode = new GraphicEQNode(this.audioContext);
 
 		// Defined exposed parameters
+		/*
+		this.addFilter("highpass", 0.00001, 40, 12, "red");
+        this.addFilter("lowshelf", 0, 80, 0, "yellow");
+        this.addFilter("peaking", 1, 230, 0, "green");
+        this.addFilter("peaking", 1, 2500, 0, "turquoise");
+        this.addFilter("peaking", 1, 5000, 0, "blue");
+        this.addFilter("highshelf", 1, 10000, 0, "violet");
+		this.addFilter("lowpass", 0.00001, 18000, 12, "red");
+		*/
 		const paramsConfig = {
-					/*
-
-			lowGain: {
-				defaultValue: 0.6,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midLowGain: {
-				defaultValue: 0.8,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midHighGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			highGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			*/
 			enabled: {
 				defaultValue: 1,
 				minValue: 0,
