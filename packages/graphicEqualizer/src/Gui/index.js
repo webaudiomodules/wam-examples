@@ -10,7 +10,7 @@ export { GraphicEQHTMLElement };
  * @param {WebAudioModule} plugin - the plugin instance
  * @returns {Promise<Element>} - the plugin root node that is inserted in the DOM of the host
  */
-export async function createElement(plugin, ...args) {
+export async function createElement(plugin, ...args) { 
 	// here we return the WebComponent GUI but it could be
 // any DOM node
 	return new GraphicEQHTMLElement(plugin, ...args);

@@ -50,7 +50,7 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		};
 		/**
 		 * @param {AudioParam} param
-		 */
+		 */ 
 		const getParamConfigFromAudioParam = (param) => {
 			const { minValue, maxValue, value: defaultValue } = param;
 			return { minValue, maxValue, defaultValue };
