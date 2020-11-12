@@ -756,38 +756,47 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		let f = this.xToF(x);
 		//console.log("f = " + f + " db = " + db);
 
-		filter.frequency.value = f;
+		const index = this.plugin.audioNode.filters.indexOf(filter);
+		this.plugin.audioNode.setParamValue(`${filter.type}_${index}_frequency`, f);
+		// filter.frequency.value = f;
 
 		switch (filter.type) {
 			case "lowpass":
 			case "highpass":
-				filter.Q.value = db;
+				this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, db);
+				// filter.Q.value = db;
 				this.draw();
 				break;
 			case "lowshelf":
 			case "highshelf":
-				filter.gain.value = 2 * db;
+				this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, 2 * db);
+				// filter.gain.value = 2 * db;
 				this.draw();
 				break;
 			case "peaking":
 				if (!shiftPressed)
-					filter.gain.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, db);
+					// filter.gain.value = db;
 				else {
-					filter.Q.value = this.dyToQ(dy);
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, this.dyToQ(dy));
+					// filter.Q.value = this.dyToQ(dy);
 				}
 				this.draw();
 				break;
 			case "notch":
 				if (!shiftPressed)
-					filter.gain.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, db);
+					// filter.gain.value = db;
 				else {
-					filter.Q.value = this.dyToQ(dy);
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, this.dyToQ(dy));
+					// filter.Q.value = this.dyToQ(dy);
 				}
 				this.draw();
 				break;
 			case "bandpass":
 				if (db >= 0.16)
-					filter.Q.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, db);
+					// filter.Q.value = db;
 				this.draw();
 				break;
 		}
