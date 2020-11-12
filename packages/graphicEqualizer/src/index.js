@@ -55,12 +55,23 @@ export default class GraphicEQPlugin extends WebAudioModule {
 			*/
 			enabled: { onChange: (value) => { graphicEQNode.status = !!value; } },
 		};
-		graphicEQNode.filters.forEach((filter) => {
+		/**
+		 * @param {AudioParam} param
+		 */
+		const getParamConfigFromAudioParam = (param) => {
+			const { minValue, maxValue, value: defaultValue } = param;
+			return { minValue, maxValue, defaultValue };
+		};
+		graphicEQNode.filters.forEach((filter, index) => {
 			const { type, Q, detune, frequency, gain } = filter;
-			paramsConfig[`${type}_Q`] = Q;
-			paramsConfig[`${type}_detune`] = detune;
-			paramsConfig[`${type}_frequency`] = frequency;
-			paramsConfig[`${type}_gain`] = gain;
+			paramsConfig[`${type}_${index}_Q`] = getParamConfigFromAudioParam(Q);
+			paramsConfig[`${type}_${index}_detune`] = getParamConfigFromAudioParam(detune);
+			paramsConfig[`${type}_${index}_frequency`] = getParamConfigFromAudioParam(frequency);
+			paramsConfig[`${type}_${index}_gain`] = getParamConfigFromAudioParam(gain);
+			internalParamsConfig[`${type}_${index}_Q`] = { onChange: (value) => { Q.value = value; } };
+			internalParamsConfig[`${type}_${index}_detune`] = { onChange: (value) => { detune.value = value; } };
+			internalParamsConfig[`${type}_${index}_frequency`] = { onChange: (value) => { frequency.value = value; } };
+			internalParamsConfig[`${type}_${index}_gain`] = { onChange: (value) => { gain.value = value; } };
 		})
 
 		// hmmm no mapping...
