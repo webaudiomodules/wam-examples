@@ -763,6 +763,8 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		switch (filter.type) {
 			case "lowpass":
 			case "highpass":
+				// Here important! Do not code with this.plugin.audioNode.Q = but instead use the exposed param names
+				// and setParamValue from CompositeAudioNode if you want getState/setState + automation to work
 				this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, db);
 				// filter.Q.value = db;
 				this.draw();
