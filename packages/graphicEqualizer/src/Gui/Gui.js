@@ -312,7 +312,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.drawTooltip();
 
 
-		ctx.restore();
+		ctx.restore(); 
 	}
 
 	//TODO: how to manipulate this function about the zoom of pedalboard

@@ -44,7 +44,7 @@ export default class GraphicEQNode extends CompositeAudioNode {
 
         // connect also to an analyser node
         // Create an analyser node
-        this.analyser = this.context.createAnalyser();
+        this.analyser = this.context.createAnalyser(); 
 
         // Try changing for lower values: 512, 256, 128, 64...
         this.analyser.fftSize = 512;
