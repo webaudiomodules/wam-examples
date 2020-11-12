@@ -6,7 +6,18 @@ import PropTypes from 'prop-types';
 import crossIcon from '../../../demo/public/cross.png';
 import css from './index.scss';
 
-const PLUGIN_HEIGHT = 200;
+//Used to remove the 'px' part of the string
+const parseCSSPropertyToInt = (valueStr) => parseInt(valueStr.slice(0, valueStr.length - 2), 10);
+
+const getHeight = (element, cumulate = false) => {
+	const multiplier = cumulate ? 1 : -1;
+	const height = element.clientHeight;
+	const marginTop = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('margin-top'));
+	const marginBottom = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('margin-bottom'));
+	const paddingTop = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('padding-top'));
+	const paddingBottom = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('padding-bottom'));
+	return height - Math.ceil((marginTop + marginBottom + paddingBottom + paddingTop) * multiplier);
+};
 
 const Plugin = ({
 	plugin,
@@ -21,13 +32,16 @@ const Plugin = ({
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			pluginGui = await plugin.instance.createGui();
 
+			const boardHeight = getHeight(document.querySelector('#board'), true);
+			const nameHeight = getHeight(document.querySelector('#nameAndIcon'));
+
 			pluginWrapper.current.appendChild(pluginGui);
 			const parent = pluginWrapper.current.parentNode;
 			const instanceRect = pluginWrapper.current.getBoundingClientRect();
 			const parentRect = pluginWrapper.current.parentNode.getBoundingClientRect();
 
 			const widthRatio = parentRect.width / parentRect.height;
-			const scale = PLUGIN_HEIGHT / instanceRect.height;
+			const scale = (boardHeight - nameHeight - 1) / instanceRect.height;
 			const translateX = ((scale - 1) * 100) / 2;
 			const translateY = ((scale - 1) * 100) / 2;
 
@@ -36,9 +50,6 @@ const Plugin = ({
 			const pluginSize = pluginWrapper.current.getBoundingClientRect();
 			parent.style.width = `${pluginSize.height * widthRatio}px`;
 			parent.style.height = `${pluginSize.height}px`;
-
-			parent.parentNode.style.width = `${pluginSize.height * widthRatio}px`;
-			parent.parentNode.style.height = `${pluginSize.height}px`;
 
 			return pluginGui;
 		})();
@@ -54,8 +65,19 @@ const Plugin = ({
 			<div className={css.PluginContainer}>
 				<div ref={plugginWrapperRef} />
 			</div>
-			<p title={plugin.instance.name} className={css.PluginWrapper_Name}>{plugin.instance.name}</p>
-			<img className={css.Icon} src={crossIcon} onClick={() => onClickRemove(plugin.id)} />
+			<div className={css.PluginWrapper_Footer} id="nameAndIcon">
+				<p
+					title={plugin.instance.name}
+					className={css.PluginWrapper_Footer_Name}
+				>
+					{plugin.instance.name}
+				</p>
+				<img
+					className={css.PluginWrapper_Footer_Icon}
+					src={crossIcon}
+					onClick={() => onClickRemove(plugin.id)}
+				/>
+			</div>
 		</div>
 	);
 };

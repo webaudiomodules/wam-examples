@@ -1,26 +1,31 @@
 .PluginWrapper {
-    margin-right: 10px;
+    margin-right: 4px;
+    overflow: hidden;
 
-    .Icon {
-        margin-top: 10px;
-        margin-left: auto;
-        margin-right: auto;
-        width: 25px;
-        cursor: grab;
-        visibility: hidden;
-    }
+    &_Footer {
+        background-color: black;
+        border-radius: 20px;
+        margin-top: 8px;
+        display: flow-root;
 
-    &_Name {
-        text-align: center;
-        overflow: hidden;
-        text-overflow: ellipsis; 
-    }
+        p {
+            font-size: 0.6rem;            
+        }
 
-    &:hover {
-        overflow: visible;
-        .Icon {
-            visibility: visible;
-            display: flex;
+        &_Icon {
+            width: 15px;
+            cursor: grab;  
+            margin-right: 4px;   
+            margin-top: 2px;                   
+            float: right;
+        }
+
+        &_Name {
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis; 
+            display: inline;   
+            padding: 4px;     
         }
     }
 }

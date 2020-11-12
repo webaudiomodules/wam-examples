@@ -14,101 +14,106 @@
 	--spacing-md: 16px;
 
 	width: 100%;
-	height: 450px;
 	display: flex;
 	flex-direction: column;
 	padding: var(--spacing-sm);
 	color: var(--color-white);
-	border-radius: var(--spacing-xs);
-	font-family: 'Kumbh Sans', sans-serif;
+	border-radius: var(--spacing-md);
+	font-family: sans-serif;
 	background: var(--color-dark); 
 
-	&_content {
-		display: flex;
-		width: 100%;
+	&_Body {
 		height: 100%;
-	}	
+		&_Content {
+			width: auto;					
+			overflow: auto;	
+			height: 100%;
+			&_Board {											
+				margin-right: 8px;
+			}
+		}	
+	}
 
 	&_contentScroll {
-		display: flex;
+		display: block;
 		overflow-x: auto;	
 		width: 100%;
 		height: 100%;
 	}
-
-	&_contentButton {
-		cursor: grab;
-		display: inline-block;
-		border: 2px solid darkgray;
-		box-shadow: -1px -1px darkgray;		
-		margin-right: 3px;
-		padding-right: 3px;
-		margin-bottom: 3px;
-
-		input {
-			display: none;
-		}
-
-		p {
-			display: inline;
-			color: black;
-		}
-	}
 	
-	&Header {
-		margin-bottom: var(--spacing-sm);
+	&_Header {
+		margin-bottom: var(--spacing-xs);
+		font-family: sans-serif;
+		display: flex;
+		align-items: baseline;
 
 		h1 {
-			font-size: .8rem;
-			margin: 0;
+			font-size: 1rem;
+			font-weight: normal;
+			margin-top: 5px;
+			display: inline;
+		}
+
+		&_Selector {
+			border-radius: 25px;
+			padding: 4px;
+			margin-left: 10px;
+			width: 180px;
+		}
+
+		&_ContentButtonWrapper {
+			margin-left: auto;
+
+			button {
+				font-family: sans-serif;
+				font-size: 0.8rem;
+				background-color: black;
+				border-color: black;
+				color: white;
+				margin-left: 3px;
+				padding: 4px;				
+			}
+
+			&_Import {
+				border-radius: 10px 0px 0px 10px;				
+			}
+
+			&_Export {
+				border-radius: 0px 10px 10px 0px;
+				margin-right: 3px;
+			}
+
+			display: inline-flex;
+			margin-bottom: 5px;
 		}
 	}
 
 	&Board {
-		width: 100%;  
-		min-width: max-content;	
-		height: fit-content;
-		min-height: 400px;
-		margin-top: auto;
-		margin-bottom: auto;
-		margin-right: var(--spacing-sm);
+		width: 100%; 
+		min-width: max-content;		
+		height: 100%;
+		margin-right: 4px;
+		min-height: 300px;	
+		max-height: max-content;					
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
-		border-radius: var(--spacing-xs);				
-		display: flex;
-	}
-
-	&_contentButtonWrapper {
-		display: flex;
-		margin-bottom: 5px;
-	}
-
-	&_contentSelectWrapper {
-		width: 100%;
-		margin-bottom: 5px;
-	}
-
-	&_SelectorWrapper {
-		height: auto;	
-		min-width: 200px;	
-		margin-top: auto;
-		margin-bottom: auto;
-		margin-left: 10px;	
+		border-radius: var(--spacing-sm);	
+		display: flex;			
 	}
 
 	&Selector {
-		flex-shrink: 0;
 		width: 180px;
-		height: 300px;
-		display: flex;
+		height: 100%;		
+		margin-left: 4px;	
 		flex-wrap: wrap;
 		justify-content: center;
 		padding: var(--spacing-sm);
 		background: var(--color-darker);
-		border-radius: var(--spacing-xs);
+		border-radius: var(--spacing-sm);
 		overflow-y: auto;
 		text-align: center;
-		margin-bottom: 10px;
+		float: right;
+		display: block;
 
 		&Thumbnail {
 			padding-right: 10px;
