@@ -562,8 +562,8 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 	processMouseMove(e) {
 		this.mousePos = this.getMousePos(e);
 		e.stopPropagation();
-		console.log(this.mousePos);
-	console.log(this.canvasParent.clientWidth);
+		//console.log(this.mousePos);
+		//console.log(this.canvasParent.clientWidth);
 		switch (this.mode) {
 			case "none":
 				// color each control point in red
@@ -596,7 +596,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.drawTooltip();
 
 		}
-		console.log("mode=START DRAGGING");
+		// console.log("mode=START DRAGGING");
 
 	}
 
@@ -645,7 +645,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 
 	getMousePos(e) {
 		let rect = this.canvas.getBoundingClientRect();
-		console.log("cx= " + e.clientX  + " lx= " + e.layerX);
+		//console.log("cx= " + e.clientX  + " lx= " + e.layerX);
 		let mouseX = e.clientX - rect.left;
 		let mouseY = e.clientY - rect.top;
 		return {
@@ -662,8 +662,8 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 				// mouse cursor is over a control point
 				return f;
 			}
-			console.log(x, y);
-			 console.log(cp.x, cp.y);
+			//console.log(x, y);
+			 //console.log(cp.x, cp.y);
 		};
 		return null;
 	}
