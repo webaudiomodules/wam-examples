@@ -26,6 +26,8 @@ export default class GraphicEQNode extends CompositeAudioNode {
 
 	}
 	createNodes() {
+		console.log("create nodes")
+
 		// for dry/wet route
 		this.outputNode = this.context.createGain();
 		this.dryGainNode = this.context.createGain();
