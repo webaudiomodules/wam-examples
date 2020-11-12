@@ -197,6 +197,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#knob4').value = highGain;
 		this.shadowRoot.querySelector('#switch1').value = enabled;
 		*/
+		this.draw();
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
