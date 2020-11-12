@@ -56,8 +56,8 @@ export default class GraphicEQNode extends CompositeAudioNode {
 
         var analyserRange = this.analyser.maxDecibels - this.analyser.minDecibels;
         // ration between analyser range and our range
-        var range = this.dbScale * 2;
-        this.dbRatio = range / analyserRange;
+        //var range = this.dbScale * 2;
+        //this.dbRatio = range / analyserRange;
         //console.log("arange = " + analyserRange);
         //console.log("range = " + range);
         //console.log("ratio = " + this.dbRatio);
