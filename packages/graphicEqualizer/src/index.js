@@ -42,12 +42,30 @@ export default class GraphicEQPlugin extends WebAudioModule {
 			},
 		};
 		// let's generate one param per filter property
-		
+
 		// if some of the exposed parameters correspond to native WebAudio nodes, we will be
 		// able to benefit from the WebAudio API implementation of automation
 		const internalParamsConfig = {
 			enabled: { onChange: (value) => { graphicEQNode.status = !!value; } },
 		};
+		/**
+		 * @param {AudioParam} param
+		 */
+		const getParamConfigFromAudioParam = (param) => {
+			const { minValue, maxValue, value: defaultValue } = param;
+			return { minValue, maxValue, defaultValue };
+		};
+		graphicEQNode.filters.forEach((filter, index) => {
+			const { type, Q, detune, frequency, gain } = filter;
+			paramsConfig[`${type}_${index}_Q`] = getParamConfigFromAudioParam(Q);
+			paramsConfig[`${type}_${index}_detune`] = getParamConfigFromAudioParam(detune);
+			paramsConfig[`${type}_${index}_frequency`] = getParamConfigFromAudioParam(frequency);
+			paramsConfig[`${type}_${index}_gain`] = getParamConfigFromAudioParam(gain);
+			internalParamsConfig[`${type}_${index}_Q`] = { onChange: (value) => { Q.value = value; } };
+			internalParamsConfig[`${type}_${index}_detune`] = { onChange: (value) => { detune.value = value; } };
+			internalParamsConfig[`${type}_${index}_frequency`] = { onChange: (value) => { frequency.value = value; } };
+			internalParamsConfig[`${type}_${index}_gain`] = { onChange: (value) => { gain.value = value; } };
+		})
 
 		// hmmm no mapping...
 		// const paramsMapping = {};
@@ -56,11 +74,11 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		// with the param configs
 		const optionsIn = { internalParamsConfig, paramsConfig };
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
-		// Link the param manager to the DSP code of the plugin. 
+		// Link the param manager to the DSP code of the plugin.
 		// Remember that the param manager will provide automation, etc.
-		graphicEQNode.setup(paramMgrNode); 
+		graphicEQNode.setup(paramMgrNode);
 
-		// If there is  an initial state at construction for this plugin, 
+		// If there is  an initial state at construction for this plugin,
 		if (initialState) graphicEQNode.setState(initialState);
 		//----
 		return graphicEQNode;
