@@ -14,13 +14,15 @@ import css from './Pedalboard.scss';
 const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 	const inputRef = useRef('0');
 
-	const handleImport = (file) => {
+	const handleImport = (e) => {
+		const file = e.target.files[0];
 		const fileReader = new FileReader();
 		fileReader.onloadend = () => {
 			audioNode.clearPlugins();
 			audioNode.setState(JSON.parse(fileReader.result));
 		};
 		fileReader.readAsText(file);
+		e.target.value = '';
 	};
 
 	const handleExport = async () => {
@@ -45,7 +47,7 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 						ref={inputRef}
 						type="file"
 						accept=".json"
-						onChange={(e) => handleImport(e.target.files[0])}
+						onChange={(e) => handleImport(e)}
 					/>
 				</button>
 				<button
