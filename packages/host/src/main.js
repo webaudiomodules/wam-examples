@@ -148,7 +148,7 @@ async function showPluginInfo(instance, gui) {
 // live input
 var liveInputActivated = false;
 let inputStreamNode;
-
+ 
 function convertToMono(input) {
 	var splitter = audioContext.createChannelSplitter(2);
 	var merger = audioContext.createChannelMerger(2);
