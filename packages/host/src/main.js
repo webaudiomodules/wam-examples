@@ -86,6 +86,8 @@ const setPlugin = async (pluginUrl) => {
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
 
+	populateParamSelector(instance);
+
 	mountPlugin(pluginDomNode);
 
 	const saveStateButton = document.querySelector('#saveStateButton');
@@ -304,4 +306,40 @@ function buildAudioDeviceMenu() {
 			setPlugin(pluginUrl);
 		});
 	}
+}
+
+/** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
+/** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
+/** @type {HTMLInputElement} */ const pluginAutomationApplyButton = document.querySelector('#pluginAutomationApply');
+/** @type {import("./bpf").default} */ const bpf = document.querySelector('webaudiomodules-host-bpf');
+
+pluginParamSelector.addEventListener('input', async (e) => {
+	if (!instance) return;
+	const info = await instance.audioNode.getParameterInfo(e.target.value);
+	const { minValue, maxValue } = info[e.target.value];
+	bpf.setAttribute('min', minValue);
+	bpf.setAttribute('max', maxValue);
+});
+pluginAutomationLengthInput.addEventListener('input', (e) => {
+	bpf.setAttribute("domain", +e.target.value);
+});
+pluginAutomationApplyButton.addEventListener('click', () => {
+	if (!instance) return;
+	const paramId = pluginParamSelector.value;
+	bpf.apply(instance.audioNode, paramId);
+});
+
+/**
+ * @param {import('sdk/src/api/types').WebAudioModule} instance
+ */
+async function populateParamSelector(instance) {
+	pluginParamSelector.innerHTML = '';
+	const wamNode = instance.audioNode;
+	const info = await wamNode.getParameterInfo();
+	for (const paramId in info) {
+		const { minValue, maxValue } = info[paramId];
+		const option = new Option(`${paramId}: ${minValue} - ${maxValue}`, paramId);
+		pluginParamSelector.add(option);
+	}
+	pluginParamSelector.selectedIndex = 0;
 }

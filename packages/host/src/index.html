@@ -8,6 +8,9 @@
 	<script
 		src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js">
 	</script>
+	<script
+		src="./bpf.js">
+	</script>
 	<style>
 		#wrapper {
 			display: flex;
@@ -36,6 +39,20 @@
 			width: 700px;
 			height: 300px;
 
+		}
+
+		#pluginAutomationContainer {
+			display: flex;
+		}
+
+		#pluginAutomationEditor {
+			flex: 0 0 auto;
+			width: 400px;
+			height: 300px;
+		}
+		#pluginParamSelectorContainer {
+			display: flex;
+			flex-direction: column;
 		}
 
 	</style>
@@ -74,7 +91,7 @@
 						</div>
 						<p></p>
 						<div>
-							<ul id="examples">
+							<ul id="examples"> 
 								<p>Pure JavaScript</p>
 								<li data-plugin-url="quadrafuzz/dist">Quadrafuzz</li>
 								<li data-plugin-url="quadrafuzz_without_builder/src">Quadrafuzz without builder</li>
@@ -96,7 +113,7 @@
 								<li data-plugin-url="csoundPitchShifter/dist">Csound PitchShifter</li>
 							</ul>
 						</div>
-
+						
 				</form>
 			</div>
 			<div id="right">
@@ -108,6 +125,16 @@
 				</div>
 				<div id="pluginInfoContainer">
 					<div id="pluginInfoDiv"></div>
+				</div>
+				<div id="pluginAutomationContainer">
+					<div id="pluginParamSelectorContainer">
+						<select name="pluginParamSelector" id="pluginParamSelector"></select>
+						<input id="pluginAutomationLength" type="number" min="1" step="0.1" value="1" />
+						<input id="pluginAutomationApply" type="button" value="Apply" />
+					</div>
+					<div id="pluginAutomationEditor">
+						<webaudiomodules-host-bpf />
+					</div>
 				</div>
 			</div>
 		</div>

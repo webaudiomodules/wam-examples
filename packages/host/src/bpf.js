@@ -1,27 +1,216 @@
 /**
  * @typedef {{ points: TBPFPoint[]; ghostPoint: TBPFPoint; domain: number; range: [number, number] }} State
  * @typedef {[number, number, number]} TBPFPoint
+ * @typedef {import("sdk/src/api/types").WamNode} WamNode
+ * @typedef {import("sdk/src/api/types").WamParameter} WamParameter
  */
 
-import { WamNode, WamParameter } from "sdk/src/api/types";
-
-export const round = (x, to) => (Math.abs(to) < 1 ? Math.round(x * (1 / to)) / (1 / to) : Math.round(x / to) * to);
-export const normExp = (x, e) => Math.max(0, x) ** (1.5 ** e);
-export const scale = (x, l1, h1, l2, h2) => {
+const round = (x, to) => (Math.abs(to) < 1 ? Math.round(x * (1 / to)) / (1 / to) : Math.round(x / to) * to);
+const normExp = (x, e) => Math.max(0, x) ** (1.5 ** e);
+const scale = (x, l1, h1, l2, h2) => {
     const r1 = h1 - l1;
     const r2 = h2 - l2;
     return (x - l1) / r1 * r2 + l2;
 };
-export const scaleClip = (x, l1, h1, l2, h2) => Math.max(l2, Math.min(h2, scale(x, l1, h1, l2, h2)));
+const scaleClip = (x, l1, h1, l2, h2) => Math.max(l2, Math.min(h2, scale(x, l1, h1, l2, h2)));
 
 
-export default class BPF extends HTMLElement {
+class BPF extends HTMLElement {
     static get observedAttributes() {
         return ["min", "max", "domain"];
     }
     constructor() {
         super();
+        /**
+         * @type {State}
+         */
+        this.state = { points: [], ghostPoint: undefined, domain: 1, range: [-1, 1] };
+        this.dragged = false;
+        this.mouseDown = false;
+        /**
+         * @type {{ texts: SVGTextElement[], ghostCircle: SVGCircleElement, lines: SVGLineElement[], linesEvents: SVGLineElement[], circles: SVGCircleElement[] }}
+         */
+        this.rendered = { texts: [], ghostCircle: undefined, lines: [], linesEvents: [], circles: [] };
         
+        this.handleMouseMove = () => {
+            this.setState({ ghostPoint: undefined });
+        };
+        /**
+         * @param {MouseEvent} e
+         */
+        this.handleDoubleClick = (e) => {
+            if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+            this.dragged = false;
+            const { points } = this.state;
+            /** @type {SVGSVGElement} */
+            const svg = e.currentTarget;
+            let { left, top, width, height } = svg.getBoundingClientRect();
+            left += 0.025 * width;
+            top += 0.025 * height;
+            width *= 0.95;
+            height *= 0.95;
+            const normalizedX = (e.clientX - left) / width;
+            const normalizedY = 1 - (e.clientY - top) / height;
+            const [x, y] = this.denormalizePoint(normalizedX, normalizedY);
+            const { index: $point, point } = this.getInsertPoint(x, y);
+            points.splice($point, 0, point);
+            this.setState({ points: points.slice() });
+        };
+        /**
+         * @param {MouseEvent} e
+         */
+        this.handleMouseMoveLine = (e) => {
+            if (this.mouseDown) return;
+            e.stopPropagation();
+            /** @type {SVGLineElement} */
+            const line = e.currentTarget;
+            if (e.altKey) {
+                line.style.cursor = "ns-resize";
+                return;
+            }
+            line.style.cursor = "unset";
+            const { domain } = this.state;
+            const svg = line.parentElement.parentElement;
+            let { left, width } = svg.getBoundingClientRect();
+            left += 0.025 * width;
+            width *= 0.95;
+            const normalizedX = (e.clientX - left) / width;
+            const { point } = this.getInsertPoint(normalizedX * domain);
+            this.setState({ ghostPoint: point });
+        };
+        /**
+         * @param {MouseEvent} e
+         */
+        this.handleMouseDownLine = (e) => {
+            e.stopPropagation();
+            this.dragged = false;
+            this.mouseDown = true;
+            /** @type {SVGLineElement} */
+            const line = e.currentTarget;
+            const { points, domain, range } = this.state;
+            const svg = line.parentElement.parentElement;
+            let { left, top, width, height } = svg.getBoundingClientRect();
+            left += 0.025 * width;
+            top += 0.025 * height;
+            width *= 0.95;
+            height *= 0.95;
+            if (e.altKey) {
+                const i = +line.getAttribute("values");
+                const prev = points[i];
+                const next = points[i + 1];
+                const { clientY } = e;
+                /**
+                 * @param {MouseEvent} e
+                 */
+                const handleMouseMove = (e) => {
+                    this.dragged = true;
+                    let [rangeMin, rangeMax] = range;
+                    if (rangeMin > rangeMax) [rangeMin, rangeMax] = [rangeMax, rangeMin];
+                    const rangeInterval = rangeMax - rangeMin;
+                    if (!rangeInterval) return;
+                    const delta = (e.clientY - clientY) / height * rangeInterval;
+                    points[i] = prev.slice();
+                    points[i][1] = Math.min(rangeMax, Math.max(rangeMin, prev[1] - delta));
+                    if (next) {
+                        points[i + 1] = next.slice();
+                        points[i + 1][1] = Math.min(rangeMax, Math.max(rangeMin, next[1] - delta));
+                    }
+                    this.setState({ points: points.slice() });
+                };
+                const handleMouseUp = () => {
+                    this.mouseDown = false;
+                    document.removeEventListener("mousemove", handleMouseMove);
+                    document.removeEventListener("mouseup", handleMouseUp);
+                };
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+            } else {
+                const normalizedX = (e.clientX - left) / width;
+                const { index: $point, point } = this.getInsertPoint(normalizedX * domain);
+                const limits = [
+                    points[$point - 1][0] / domain * width + left,
+                    points[$point] ? points[$point][0] / domain * width + left : left + width
+                ];
+                points.splice($point, 0, point);
+                this.setState({ points: points.slice() });
+                /**
+                 * @param {MouseEvent} e
+                 */
+                const handleMouseMove = (e) => {
+                    this.dragged = true;
+                    const clientX = Math.max(limits[0], Math.min(limits[1], e.clientX));
+                    const clientY = Math.max(top, Math.min(top + height, e.clientY));
+                    const normalized = [(clientX - left) / width, 1 - (clientY - top) / height];
+                    const [x, y] = this.denormalizePoint(...normalized);
+                    const point = [x, y, 0];
+                    points[$point] = point;
+                    this.setState({ points: points.slice() });
+                };
+                const handleMouseUp = () => {
+                    this.mouseDown = false;
+                    document.removeEventListener("mousemove", handleMouseMove);
+                    document.removeEventListener("mouseup", handleMouseUp);
+                };
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+            }
+        };
+        /**
+         * @param {MouseEvent} e
+         */
+        this.handleMouseDownCircle = (e) => {
+            e.stopPropagation();
+            this.dragged = false;
+            const { points, domain } = this.state;
+            /** @type {SVGCircleElement} */
+            const circle = e.currentTarget;
+            /** @type {SVGSVGElement} */
+            const svg = circle.parentElement.parentElement;
+            let { left, top, width, height } = svg.getBoundingClientRect();
+            left += 0.05 * width;
+            top += 0.05 * height;
+            width *= 0.9;
+            height *= 0.9;
+            const i = +circle.getAttribute("values");
+            const limits = [
+                points[i - 1] ? points[i - 1][0] / domain * width + left : left,
+                points[i + 1] ? points[i + 1][0] / domain * width + left : left + width
+            ];
+            const [x, y] = this.normalizePoint(points[i][0], points[i][1]);
+            const circleX = left + x * width;
+            const circleY = top + (1 - y) * height;
+            /**
+             * @param {MouseEvent} e
+             */
+            const handleMouseMove = (e) => {
+                this.dragged = true;
+                const clientX = Math.max(limits[0], Math.min(limits[1], e.shiftKey || Math.abs(circleX - e.clientX) > 5 ? e.clientX : circleX));
+                const clientY = Math.max(top, Math.min(top + height, e.shiftKey || Math.abs(circleY - e.clientY) > 5 ? e.clientY : circleY));
+                const normalized = [(clientX - left) / width, 1 - (clientY - top) / height];
+                const [x, y] = this.denormalizePoint(...normalized);
+                const point = [x, y, 0];
+                points[i] = point;
+                this.setState({ points: points.slice() });
+            };
+            const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+            };
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        };
+        /**
+         * @param {MouseEvent} e
+         */
+        this.handleDoubleClickCircle = (e) => {
+            e.stopPropagation();
+            if (this.dragged) return;
+            const circle = e.currentTarget;
+            const i = +circle.getAttribute("values");
+            const { points } = this.state;
+            points.splice(i, 1);
+            this.setState({ points: points.slice() });
+        };
         this._root = this.attachShadow({ mode: 'open' });
         this._svg = this._root.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "svg");
         this._svg.setAttribute("width", "100%");
@@ -52,16 +241,6 @@ export default class BPF extends HTMLElement {
         }
     }
     
-    /**
-     * @type {State}
-     */
-    state = { points: [], ghostPoint: undefined, domain: 4, range: [-1, 1] };
-    dragged = false;
-    mouseDown = false;
-    /**
-     * @type {{ texts: SVGTextElement[], ghostCircle: SVGCircleElement, lines: SVGLineElement[], linesEvents: SVGLineElement[], circles: SVGCircleElement[] }}
-     */
-    rendered = { texts: [], ghostCircle: undefined, lines: [], linesEvents: [], circles: [] };
     get points() {
         return this.state.points;
     }
@@ -83,12 +262,8 @@ export default class BPF extends HTMLElement {
         const currentValue = (await wamNode.getParameterValues(false, wamParamId))[wamParamId].value;
         wamNode.scheduleEvent({ type: "automation", data: { id: wamParamId, value: currentValue }, time: currentTime });
         this.points.forEach((a) => {
-            if (a.length === 1) {
-                wamNode.scheduleEvent({ type: "automation", data: { id: wamParamId, value: a[0] }, time: currentTime + t });
-            } else if (a.length > 1) {
-                t += a[1];
-                wamNode.scheduleEvent({ type: "automation", data: { id: wamParamId, value: a[0] }, time: currentTime + t });
-            }
+            t += a[0];
+            wamNode.scheduleEvent({ type: "automation", data: { id: wamParamId, value: a[1] }, time: currentTime + t });
         });
     }
 
@@ -286,185 +461,6 @@ export default class BPF extends HTMLElement {
         }
     }
 
-    handleMouseMove = () => {
-        this.setState({ ghostPoint: undefined });
-    };
-    /**
-     * @param {MouseEvent} e
-     */
-    handleDoubleClick = (e) => {
-        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
-        this.dragged = false;
-        const { points } = this.state;
-        /** @type {SVGSVGElement} */
-        const svg = e.currentTarget;
-        let { left, top, width, height } = svg.getBoundingClientRect();
-        left += 0.025 * width;
-        top += 0.025 * height;
-        width *= 0.95;
-        height *= 0.95;
-        const normalizedX = (e.clientX - left) / width;
-        const normalizedY = 1 - (e.clientY - top) / height;
-        const [x, y] = this.denormalizePoint(normalizedX, normalizedY);
-        const { index: $point, point } = this.getInsertPoint(x, y);
-        points.splice($point, 0, point);
-        this.setState({ points: points.slice() });
-    };
-    /**
-     * @param {MouseEvent} e
-     */
-    handleMouseMoveLine = (e) => {
-        if (this.mouseDown) return;
-        e.stopPropagation();
-        /** @type {SVGLineElement} */
-        const line = e.currentTarget;
-        if (e.altKey) {
-            line.style.cursor = "ns-resize";
-            return;
-        }
-        line.style.cursor = "unset";
-        const { domain } = this.state;
-        const svg = line.parentElement.parentElement;
-        let { left, width } = svg.getBoundingClientRect();
-        left += 0.025 * width;
-        width *= 0.95;
-        const normalizedX = (e.clientX - left) / width;
-        const { point } = this.getInsertPoint(normalizedX * domain);
-        this.setState({ ghostPoint: point });
-    };
-    /**
-     * @param {MouseEvent} e
-     */
-    handleMouseDownLine = (e) => {
-        e.stopPropagation();
-        this.dragged = false;
-        this.mouseDown = true;
-        /** @type {SVGLineElement} */
-        const line = e.currentTarget;
-        const { points, domain, range } = this.state;
-        const svg = line.parentElement.parentElement;
-        let { left, top, width, height } = svg.getBoundingClientRect();
-        left += 0.025 * width;
-        top += 0.025 * height;
-        width *= 0.95;
-        height *= 0.95;
-        if (e.altKey) {
-            const i = +line.getAttribute("values");
-            const prev = points[i];
-            const next = points[i + 1];
-            const { clientY } = e;
-            /**
-             * @param {MouseEvent} e
-             */
-            const handleMouseMove = (e) => {
-                this.dragged = true;
-                let [rangeMin, rangeMax] = range;
-                if (rangeMin > rangeMax) [rangeMin, rangeMax] = [rangeMax, rangeMin];
-                const rangeInterval = rangeMax - rangeMin;
-                if (!rangeInterval) return;
-                const delta = (e.clientY - clientY) / height * rangeInterval;
-                points[i] = prev.slice();
-                points[i][1] = Math.min(rangeMax, Math.max(rangeMin, prev[1] - delta));
-                if (next) {
-                    points[i + 1] = next.slice();
-                    points[i + 1][1] = Math.min(rangeMax, Math.max(rangeMin, next[1] - delta));
-                }
-                this.setState({ points: points.slice() });
-            };
-            const handleMouseUp = () => {
-                this.mouseDown = false;
-                document.removeEventListener("mousemove", handleMouseMove);
-                document.removeEventListener("mouseup", handleMouseUp);
-            };
-            document.addEventListener("mousemove", handleMouseMove);
-            document.addEventListener("mouseup", handleMouseUp);
-        } else {
-            const normalizedX = (e.clientX - left) / width;
-            const { index: $point, point } = this.getInsertPoint(normalizedX * domain);
-            const limits = [
-                points[$point - 1][0] / domain * width + left,
-                points[$point] ? points[$point][0] / domain * width + left : left + width
-            ];
-            points.splice($point, 0, point);
-            this.setState({ points: points.slice() });
-            /**
-             * @param {MouseEvent} e
-             */
-            const handleMouseMove = (e) => {
-                this.dragged = true;
-                const clientX = Math.max(limits[0], Math.min(limits[1], e.clientX));
-                const clientY = Math.max(top, Math.min(top + height, e.clientY));
-                const normalized = [(clientX - left) / width, 1 - (clientY - top) / height];
-                const [x, y] = this.denormalizePoint(...normalized);
-                const point = [x, y, 0];
-                points[$point] = point;
-                this.setState({ points: points.slice() });
-            };
-            const handleMouseUp = () => {
-                this.mouseDown = false;
-                document.removeEventListener("mousemove", handleMouseMove);
-                document.removeEventListener("mouseup", handleMouseUp);
-            };
-            document.addEventListener("mousemove", handleMouseMove);
-            document.addEventListener("mouseup", handleMouseUp);
-        }
-    };
-    /**
-     * @param {MouseEvent} e
-     */
-    handleMouseDownCircle = (e) => {
-        e.stopPropagation();
-        this.dragged = false;
-        const { points, domain } = this.state;
-        /** @type {SVGCircleElement} */
-        const circle = e.currentTarget;
-        /** @type {SVGSVGElement} */
-        const svg = circle.parentElement.parentElement;
-        let { left, top, width, height } = svg.getBoundingClientRect();
-        left += 0.05 * width;
-        top += 0.05 * height;
-        width *= 0.9;
-        height *= 0.9;
-        const i = +circle.getAttribute("values");
-        const limits = [
-            points[i - 1] ? points[i - 1][0] / domain * width + left : left,
-            points[i + 1] ? points[i + 1][0] / domain * width + left : left + width
-        ];
-        const [x, y] = this.normalizePoint(points[i][0], points[i][1]);
-        const circleX = left + x * width;
-        const circleY = top + (1 - y) * height;
-        /**
-         * @param {MouseEvent} e
-         */
-        const handleMouseMove = (e) => {
-            this.dragged = true;
-            const clientX = Math.max(limits[0], Math.min(limits[1], e.shiftKey || Math.abs(circleX - e.clientX) > 5 ? e.clientX : circleX));
-            const clientY = Math.max(top, Math.min(top + height, e.shiftKey || Math.abs(circleY - e.clientY) > 5 ? e.clientY : circleY));
-            const normalized = [(clientX - left) / width, 1 - (clientY - top) / height];
-            const [x, y] = this.denormalizePoint(...normalized);
-            const point = [x, y, 0];
-            points[i] = point;
-            this.setState({ points: points.slice() });
-        };
-        const handleMouseUp = () => {
-            document.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseup", handleMouseUp);
-        };
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-    };
-    /**
-     * @param {MouseEvent} e
-     */
-    handleDoubleClickCircle = (e) => {
-        e.stopPropagation();
-        if (this.dragged) return;
-        const circle = e.currentTarget;
-        const i = +circle.getAttribute("values");
-        const { points } = this.state;
-        points.splice(i, 1);
-        this.setState({ points: points.slice() });
-    };
     /**
      * @param {number} x
      * @param {number} [yIn]
