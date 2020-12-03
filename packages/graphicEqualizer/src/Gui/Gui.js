@@ -197,6 +197,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#knob4').value = highGain;
 		this.shadowRoot.querySelector('#switch1').value = enabled;
 		*/
+		this.draw();
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
@@ -311,7 +312,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.drawTooltip();
 
 
-		ctx.restore();
+		ctx.restore(); 
 	}
 
 	//TODO: how to manipulate this function about the zoom of pedalboard
@@ -562,8 +563,8 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 	processMouseMove(e) {
 		this.mousePos = this.getMousePos(e);
 		e.stopPropagation();
-		console.log(this.mousePos);
-	console.log(this.canvasParent.clientWidth);
+		//console.log(this.mousePos);
+		//console.log(this.canvasParent.clientWidth);
 		switch (this.mode) {
 			case "none":
 				// color each control point in red
@@ -596,7 +597,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.drawTooltip();
 
 		}
-		console.log("mode=START DRAGGING");
+		// console.log("mode=START DRAGGING");
 
 	}
 
@@ -645,7 +646,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 
 	getMousePos(e) {
 		let rect = this.canvas.getBoundingClientRect();
-		console.log("cx= " + e.clientX  + " lx= " + e.layerX);
+		//console.log("cx= " + e.clientX  + " lx= " + e.layerX);
 		let mouseX = e.clientX - rect.left;
 		let mouseY = e.clientY - rect.top;
 		return {
@@ -662,8 +663,8 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 				// mouse cursor is over a control point
 				return f;
 			}
-			console.log(x, y);
-			 console.log(cp.x, cp.y);
+			//console.log(x, y);
+			 //console.log(cp.x, cp.y);
 		};
 		return null;
 	}
@@ -755,38 +756,49 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		let f = this.xToF(x);
 		//console.log("f = " + f + " db = " + db);
 
-		filter.frequency.value = f;
+		const index = this.plugin.audioNode.filters.indexOf(filter);
+		this.plugin.audioNode.setParamValue(`${filter.type}_${index}_frequency`, f);
+		// filter.frequency.value = f;
 
 		switch (filter.type) {
 			case "lowpass":
 			case "highpass":
-				filter.Q.value = db;
+				// Here important! Do not code with this.plugin.audioNode.Q = but instead use the exposed param names
+				// and setParamValue from CompositeAudioNode if you want getState/setState + automation to work
+				this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, db);
+				// filter.Q.value = db;
 				this.draw();
 				break;
 			case "lowshelf":
 			case "highshelf":
-				filter.gain.value = 2 * db;
+				this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, 2 * db);
+				// filter.gain.value = 2 * db;
 				this.draw();
 				break;
 			case "peaking":
 				if (!shiftPressed)
-					filter.gain.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, db);
+					// filter.gain.value = db;
 				else {
-					filter.Q.value = this.dyToQ(dy);
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, this.dyToQ(dy));
+					// filter.Q.value = this.dyToQ(dy);
 				}
 				this.draw();
 				break;
 			case "notch":
 				if (!shiftPressed)
-					filter.gain.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_gain`, db);
+					// filter.gain.value = db;
 				else {
-					filter.Q.value = this.dyToQ(dy);
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, this.dyToQ(dy));
+					// filter.Q.value = this.dyToQ(dy);
 				}
 				this.draw();
 				break;
 			case "bandpass":
 				if (db >= 0.16)
-					filter.Q.value = db;
+					this.plugin.audioNode.setParamValue(`${filter.type}_${index}_Q`, db);
+					// filter.Q.value = db;
 				this.draw();
 				break;
 		}

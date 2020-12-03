@@ -54,10 +54,12 @@ export default class BigMuffGui extends HTMLElement {
     }
 
     .led {
-        position: absolute;
+		position: absolute;
+		left:52px;
+		top:44px;
         margin: 0 auto;
-        width: 12px;
-        height: 12px;
+        width: 13px;
+        height: 13px;
         background-color: red;
         border-radius: 50%;
         box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
@@ -66,10 +68,9 @@ export default class BigMuffGui extends HTMLElement {
 
     #bypass {
         /*background: rgb(31, 30, 30);*/
-        width: 80%;
         position: absolute;
-        top: 195px;
-        left: 18px;
+        top: 193px;
+        left: 71px;
         /*border-radius: 10px;*/
     }
                         }</style>
@@ -78,7 +79,7 @@ export default class BigMuffGui extends HTMLElement {
                             <webaudio-knob src="./img/knobs/greenish_sloped.png" midilearn="true" height="50" width="50" sprites="100"
                                 min="-24" max="12" step="0.1" value="0" id="/BigMuff/Input" style="height: 50px; ">
                             </webaudio-knob>
-                            <div id="powerLed" class="led" style="left:53px; top:45px;"></div>
+                            <div id="powerLed" class="led"></div>
                         </div>
                 
                         <div class="knob" id="Tone" style="top:5px; left:63px;">
@@ -94,7 +95,7 @@ export default class BigMuffGui extends HTMLElement {
                         </div>
                 
                         <div class="switch" id="bypass">
-                            <webaudio-switch src="./img/switches/switch_1.png" midilearn="true" height="32" width="50" id="/BigMuff/bypass">
+                            <webaudio-switch src="./img/switches/switch_1.png" midilearn="true" height="32" width="55" id="/BigMuff/bypass">
                             </webaudio-switch>
                         </div>
                     </div>

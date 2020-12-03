@@ -11,6 +11,9 @@ export default class GraphicEQNode extends CompositeAudioNode {
 	 * @type {ParamMgrNode}
 	 */
 	_wamNode = undefined;
+	/**
+	 * @type {(BiquadFilterNode & { type: string })[]}
+	 */
 	filters = [];
 
 	/**
@@ -19,11 +22,12 @@ export default class GraphicEQNode extends CompositeAudioNode {
 	// Mandatory.
 	setup(wamNode) {
 		this._wamNode = wamNode;
-		this.createNodes();
 		this.connectNodes();
 
 	}
 	createNodes() {
+		console.log("create nodes")
+
 		// for dry/wet route
 		this.outputNode = this.context.createGain();
 		this.dryGainNode = this.context.createGain();
@@ -40,7 +44,7 @@ export default class GraphicEQNode extends CompositeAudioNode {
 
         // connect also to an analyser node
         // Create an analyser node
-        this.analyser = this.context.createAnalyser();
+        this.analyser = this.context.createAnalyser(); 
 
         // Try changing for lower values: 512, 256, 128, 64...
         this.analyser.fftSize = 512;
@@ -52,8 +56,8 @@ export default class GraphicEQNode extends CompositeAudioNode {
 
         var analyserRange = this.analyser.maxDecibels - this.analyser.minDecibels;
         // ration between analyser range and our range
-        var range = this.dbScale * 2;
-        this.dbRatio = range / analyserRange;
+        //var range = this.dbScale * 2;
+        //this.dbRatio = range / analyserRange;
         //console.log("arange = " + analyserRange);
         //console.log("range = " + range);
         //console.log("ratio = " + this.dbRatio);
@@ -112,11 +116,11 @@ setParam(key, value) {
 
 		this.isEnabled = _sig;
 		if (_sig) {
-			//console.log('BYPASS MODE OFF FX RUNNING');
+			console.log('BYPASS MODE OFF FX RUNNING');
 			this.wetGainNode.gain.linearRampToValueAtTime(1, this.context.currentTime + 0.5);
 			this.dryGainNode.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.5);
 		} else {
-			//console.log('BYPASS MODE ON');
+			console.log('BYPASS MODE ON');
 			this.wetGainNode.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.5);
 			this.dryGainNode.gain.linearRampToValueAtTime(1, this.context.currentTime + 0.5);
 		}
