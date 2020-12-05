@@ -1,5 +1,5 @@
 /**
- * @typedef {{ points: TBPFPoint[]; ghostPoint: TBPFPoint; domain: number; range: [number, number] }} State
+ * @typedef {{ points: TBPFPoint[]; ghostPoint: TBPFPoint; domain: number; range: [number, number]; defaultValue: number }} State
  * @typedef {[number, number, number]} TBPFPoint
  * @typedef {import("sdk/src/api/types").WamNode} WamNode
  * @typedef {import("sdk/src/api/types").WamParameter} WamParameter
@@ -17,20 +17,20 @@ const scaleClip = (x, l1, h1, l2, h2) => Math.max(l2, Math.min(h2, scale(x, l1, 
 
 class BPF extends HTMLElement {
     static get observedAttributes() {
-        return ["min", "max", "domain"];
+        return ["min", "max", "domain", "default"];
     }
     constructor() {
         super();
         /**
          * @type {State}
          */
-        this.state = { points: [], ghostPoint: undefined, domain: 1, range: [-1, 1] };
+        this.state = { points: [], ghostPoint: undefined, domain: 1, range: [-1, 1], defaultValue: 0 };
         this.dragged = false;
         this.mouseDown = false;
         /**
-         * @type {{ texts: SVGTextElement[], ghostCircle: SVGCircleElement, lines: SVGLineElement[], linesEvents: SVGLineElement[], circles: SVGCircleElement[] }}
+         * @type {{ texts: SVGTextElement[]; ghostText: SVGTextElement; circles: SVGCircleElement[]; ghostCircle: SVGCircleElement; lines: SVGLineElement[]; linesEvents: SVGLineElement[] }}
          */
-        this.rendered = { texts: [], ghostCircle: undefined, lines: [], linesEvents: [], circles: [] };
+        this.rendered = { texts: [], ghostText: undefined, circles: [], ghostCircle: undefined, lines: [], linesEvents: [] };
         
         this.handleMouseMove = () => {
             this.setState({ ghostPoint: undefined });
@@ -40,6 +40,7 @@ class BPF extends HTMLElement {
          */
         this.handleDoubleClick = (e) => {
             if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+            e.stopPropagation();
             this.dragged = false;
             const { points } = this.state;
             /** @type {SVGSVGElement} */
@@ -99,10 +100,12 @@ class BPF extends HTMLElement {
                 const prev = points[i];
                 const next = points[i + 1];
                 const { clientY } = e;
+                if (!prev) return;
                 /**
                  * @param {MouseEvent} e
                  */
                 const handleMouseMove = (e) => {
+                    e.stopPropagation();
                     this.dragged = true;
                     let [rangeMin, rangeMax] = range;
                     if (rangeMin > rangeMax) [rangeMin, rangeMax] = [rangeMax, rangeMin];
@@ -118,6 +121,7 @@ class BPF extends HTMLElement {
                     this.setState({ points: points.slice() });
                 };
                 const handleMouseUp = () => {
+                    e.stopPropagation();
                     this.mouseDown = false;
                     document.removeEventListener("mousemove", handleMouseMove);
                     document.removeEventListener("mouseup", handleMouseUp);
@@ -128,7 +132,7 @@ class BPF extends HTMLElement {
                 const normalizedX = (e.clientX - left) / width;
                 const { index: $point, point } = this.getInsertPoint(normalizedX * domain);
                 const limits = [
-                    points[$point - 1][0] / domain * width + left,
+                    (points.length ? points[$point - 1][0] / domain : 0) * width + left,
                     points[$point] ? points[$point][0] / domain * width + left : left + width
                 ];
                 points.splice($point, 0, point);
@@ -137,6 +141,8 @@ class BPF extends HTMLElement {
                  * @param {MouseEvent} e
                  */
                 const handleMouseMove = (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
                     this.dragged = true;
                     const clientX = Math.max(limits[0], Math.min(limits[1], e.clientX));
                     const clientY = Math.max(top, Math.min(top + height, e.clientY));
@@ -147,6 +153,8 @@ class BPF extends HTMLElement {
                     this.setState({ points: points.slice() });
                 };
                 const handleMouseUp = () => {
+                    e.stopPropagation();
+                    e.preventDefault();
                     this.mouseDown = false;
                     document.removeEventListener("mousemove", handleMouseMove);
                     document.removeEventListener("mouseup", handleMouseUp);
@@ -183,6 +191,8 @@ class BPF extends HTMLElement {
              * @param {MouseEvent} e
              */
             const handleMouseMove = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 this.dragged = true;
                 const clientX = Math.max(limits[0], Math.min(limits[1], e.shiftKey || Math.abs(circleX - e.clientX) > 5 ? e.clientX : circleX));
                 const clientY = Math.max(top, Math.min(top + height, e.shiftKey || Math.abs(circleY - e.clientY) > 5 ? e.clientY : circleY));
@@ -193,6 +203,7 @@ class BPF extends HTMLElement {
                 this.setState({ points: points.slice() });
             };
             const handleMouseUp = () => {
+                e.stopPropagation();
                 document.removeEventListener("mousemove", handleMouseMove);
                 document.removeEventListener("mouseup", handleMouseUp);
             };
@@ -204,6 +215,7 @@ class BPF extends HTMLElement {
          */
         this.handleDoubleClickCircle = (e) => {
             e.stopPropagation();
+            e.preventDefault();
             if (this.dragged) return;
             const circle = e.currentTarget;
             const i = +circle.getAttribute("values");
@@ -223,6 +235,7 @@ class BPF extends HTMLElement {
         this._g.setAttribute("transform", "scale(0.95, 0.95)");
         this._g.style.transformOrigin = "center";
         this._svg.appendChild(this._g);
+        this.setState(this.state);
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -238,6 +251,8 @@ class BPF extends HTMLElement {
             const domain = value;
             const points = this.state.points.map(p => [scaleClip(p[0], 0, prevDomain, 0, domain), p[1], p[2]]);
             this.setState({ points, domain });
+        } else if (name === "default") {
+            this.setState({ defaultValue: newValue });
         }
     }
     
@@ -281,6 +296,17 @@ class BPF extends HTMLElement {
             const point = this.normalizePoint(ghostPoint[0], ghostPoint[1]);
             const x = point[0] * 100 + "%";
             const y = (1 - point[1]) * 100 + "%";
+            const textAnchor = point[0] < 0.5 ? "start" : "end";
+            const textX = point[0] * 100 + (point[0] < 0.5 ? 2 : -2) + "%";
+            const textY = (1 - point[1]) * 100 + (point[1] < 0.5 ? -2 : 8) + "%";
+            /** @type {CSSStyleDeclaration} */
+            const textStyle = {
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                pointerEvents: "none",
+                font: "Arial",
+                fill: "white"
+            };
             if (this.rendered.ghostCircle) {
                 this.rendered.ghostCircle.setAttribute("cx", x);
                 this.rendered.ghostCircle.setAttribute("cy", y);
@@ -293,12 +319,33 @@ class BPF extends HTMLElement {
                 ghostCircle.setAttribute("cx", x);
                 ghostCircle.setAttribute("cy", y);
                 this.rendered.ghostCircle = ghostCircle;
-                this._g.appendChild(ghostCircle);
+                this._g.insertBefore(ghostCircle, this._g.firstElementChild);
+            }
+            if (this.rendered.ghostText) {
+                this.rendered.ghostText.setAttribute("x", textX);
+                this.rendered.ghostText.setAttribute("y", textY);
+                this.rendered.ghostText.setAttribute("text-anchor", textAnchor);
+                this.rendered.ghostText.textContent = `${round(point[0], 0.01)}, ${round(point[1], 0.01)}`;
+            } else {
+                const text = this._root.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", textX);
+                text.setAttribute("y", textY);
+                text.setAttribute("text-anchor", textAnchor);
+                text.textContent = `${round(point[0], 0.01)}, ${round(point[1], 0.01)}`;
+                for (const key in textStyle) {
+                    text.style[key] = textStyle[key];
+                }
+                this.rendered.ghostText = text;
+                this._g.insertBefore(text, this._g.firstElementChild);
             }
         } else {
             if (this.rendered.ghostCircle) {
                 this.rendered.ghostCircle.remove();
                 this.rendered.ghostCircle = undefined;
+            }
+            if (this.rendered.ghostText) {
+                this.rendered.ghostText.remove();
+                this.rendered.ghostText = undefined;
             }
         }
         let prevX;
@@ -310,7 +357,7 @@ class BPF extends HTMLElement {
             const y = (1 - point[1]) * 100 + "%";
             const textAnchor = point[0] < 0.5 ? "start" : "end";
             const textX = point[0] * 100 + (point[0] < 0.5 ? 2 : -2) + "%";
-            const textY = (1 - point[1]) * 100 + (point[1] < 0.5 ? -1 : 4) + "%";
+            const textY = (1 - point[1]) * 100 + (point[1] < 0.5 ? -2 : 8) + "%";
             /** @type {CSSStyleDeclaration} */
             const textStyle = {
                 userSelect: "none",
@@ -337,7 +384,7 @@ class BPF extends HTMLElement {
             if (this.rendered.texts[i]) {
                 this.rendered.texts[i].setAttribute("x", textX);
                 this.rendered.texts[i].setAttribute("y", textY);
-                this.rendered.texts[i].setAttribute("text-anchor", textY);
+                this.rendered.texts[i].setAttribute("text-anchor", textAnchor);
                 this.rendered.texts[i].textContent = `${round(points[i][0], 0.01)}, ${round(points[i][1], 0.01)}`;
             } else {
                 const text = this._root.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -407,6 +454,7 @@ class BPF extends HTMLElement {
                 line.setAttribute("y2", prevY);
                 line.setAttribute("stroke", "white");
                 line.setAttribute("stroke-width", 2);
+                line.style.pointerEvents = "none";
                 this.rendered.lines[i] = line;
                 this._g.insertBefore(line, this._g.firstElementChild);
             }
@@ -421,6 +469,47 @@ class BPF extends HTMLElement {
                 line.setAttribute("y1", prevY);
                 line.setAttribute("x2", "100%");
                 line.setAttribute("y2", prevY);
+                line.setAttribute("stroke", "transparent");
+                line.setAttribute("stroke-width", 10);
+                line.setAttribute("values", i);
+                line.addEventListener("mousedown", this.handleMouseDownLine);
+                line.addEventListener("mousemove", this.handleMouseMoveLine);
+                this.rendered.linesEvents[i] = line;
+                this._g.insertBefore(line, this._g.firstElementChild);
+            }
+            lines++;
+        }
+        if (!points.length) {
+            const i = 0;
+            const y = (1 - this.normalizedDefault) * 100 + "%";
+            if (this.rendered.lines[i]) {
+                this.rendered.lines[i].setAttribute("x1", "0%");
+                this.rendered.lines[i].setAttribute("y1", y);
+                this.rendered.lines[i].setAttribute("x2", "100%");
+                this.rendered.lines[i].setAttribute("y2", y);
+            } else {
+                const line = this._root.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", "0%");
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", "100%");
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "white");
+                line.setAttribute("stroke-width", 2);
+                line.style.pointerEvents = "none";
+                this.rendered.lines[i] = line;
+                this._g.insertBefore(line, this._g.firstElementChild);
+            }
+            if (this.rendered.linesEvents[i]) {
+                this.rendered.linesEvents[i].setAttribute("x1", "0%");
+                this.rendered.linesEvents[i].setAttribute("y1", y);
+                this.rendered.linesEvents[i].setAttribute("x2", "100%");
+                this.rendered.linesEvents[i].setAttribute("y2", y);
+            } else {
+                const line = this._root.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", "0%");
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", "100%");
+                line.setAttribute("y2", y);
                 line.setAttribute("stroke", "transparent");
                 line.setAttribute("stroke-width", 10);
                 line.setAttribute("values", i);
@@ -459,6 +548,21 @@ class BPF extends HTMLElement {
                 delete this.rendered.linesEvents[i];
             }
         }
+        if (true) {
+            const i = +!points.length;
+            const line = this.rendered.lines[i];
+            if (line) {
+                line.remove();
+                delete this.rendered.lines[i];
+            }
+            const lineEvent = this.rendered.linesEvents[i];
+            if (lineEvent) {
+                lineEvent.removeEventListener("mousedown", this.handleMouseDownLine);
+                lineEvent.removeEventListener("mousemove", this.handleMouseMoveLine);
+                lineEvent.remove();
+                delete this.rendered.linesEvents[i];
+            }
+        }
     }
 
     /**
@@ -467,7 +571,7 @@ class BPF extends HTMLElement {
      * @returns {{ index: number; point: [number, number, number] }}
      */
     getInsertPoint(x, yIn, e = 0) {
-        const { points } = this.state;
+        const { points, defaultValue } = this.state;
         let $point = 0;
         let prev = points[0];
         /** @type {[number, number, number]} */
@@ -478,7 +582,7 @@ class BPF extends HTMLElement {
             prev = next;
             $point++;
         }
-        if (prev === next) return { index: $point, point: [x, typeof yIn === "number" ? yIn : prev[1], e] };
+        if (prev === next) return { index: $point, point: [x, typeof yIn === "number" ? yIn : prev ? prev[1] : defaultValue, e] };
         if (typeof yIn === "number") return { index: $point, point: [x, yIn, e] };
         const exponent = prev[2] || 0;
         const normalizedX = (x - prev[0]) / (next[0] - prev[0]);
@@ -492,6 +596,13 @@ class BPF extends HTMLElement {
         if (rangeMin > rangeMax) [rangeMin, rangeMax] = [rangeMax, rangeMin];
         const rangeInterval = rangeMax - rangeMin;
         return points.map(point => [point[0] / domain, rangeInterval ? (point[1] - rangeMin) / rangeInterval : 0.5]);
+    }
+    get normalizedDefault() {
+        const { domain, range, points, defaultValue } = this.state;
+        let [rangeMin, rangeMax] = range;
+        if (rangeMin > rangeMax) [rangeMin, rangeMax] = [rangeMax, rangeMin];
+        const rangeInterval = rangeMax - rangeMin;
+        return rangeInterval ? (defaultValue - rangeMin) / rangeInterval : 0.5;
     }
     /**
      * @param {number} x
@@ -524,3 +635,5 @@ try {
 	console.log(error);
 	console.log('Element already defined');
 }
+
+export default BPF;

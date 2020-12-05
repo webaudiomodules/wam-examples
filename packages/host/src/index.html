@@ -43,16 +43,24 @@
 
 		#pluginAutomationContainer {
 			display: flex;
+			flex-direction: column;
 		}
 
 		#pluginAutomationEditor {
 			flex: 0 0 auto;
-			width: 400px;
-			height: 300px;
 		}
 		#pluginParamSelectorContainer {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
+		}
+		#pluginParamSelectorContainer label {
+			padding: 0px 6px;
+		}
+		#pluginParamSelector {
+			flex: 1 1 auto;
+		}
+		#pluginAutomationLength {
+    		width: 50px;
 		}
 
 	</style>
@@ -128,12 +136,14 @@
 				</div>
 				<div id="pluginAutomationContainer">
 					<div id="pluginParamSelectorContainer">
-						<select name="pluginParamSelector" id="pluginParamSelector"></select>
-						<input id="pluginAutomationLength" type="number" min="1" step="0.1" value="1" />
+						<select name="pluginParamSelector" id="pluginParamSelector">
+							<option value="-1" disabled selected>Add Automation...</option>
+						</select>
+						<label for="pluginAutomationLength">Duration (sec):</label>
+						<input name="pluginAutomationLength" id="pluginAutomationLength" type="number" min="1" step="0.1" value="1" />
 						<input id="pluginAutomationApply" type="button" value="Apply" />
 					</div>
 					<div id="pluginAutomationEditor">
-						<webaudiomodules-host-bpf />
 					</div>
 				</div>
 			</div>
