@@ -354,6 +354,7 @@ pluginAutomationApplyButton.addEventListener('click', () => {
  * @param {import('sdk/src/api/types').WebAudioModule} instance
  */
 async function populateParamSelector(instance) {
+	bpfContainer.innerHTML = '';
 	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
 	const wamNode = instance.audioNode;
 	const info = await wamNode.getParameterInfo();
