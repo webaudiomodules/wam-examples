@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import { WamNode } from '../api/types';
 
 interface CompositeAudioNode extends Omit<GainNode, keyof EventTarget>, WamNode {

@@ -1,35 +1,28 @@
 /* eslint-disable no-underscore-dangle */
-import MgrAudioParam from './MgrAudioParam.js';
-
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable prefer-destructuring */
 
-/** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
-/** @typedef { import('../api/types').WamNode } WamNode */
-/** @typedef { import('../api/types').WamParameterDataMap } WamParameterValueMap */
-/** @typedef { import('../api/types').WamEvent } WamEvent */
-/** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
-/** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
-/** @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
-/** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
-/** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
+import MgrAudioParam from './MgrAudioParam.js';
 
-/** @type {typeof import('./types').TypedAudioWorkletNode} */
+/** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
+/** @typedef {import('../api/types').WamParameterDataMap} WamParameterValueMap */
+/** @typedef {import('../api/types').WamEvent} WamEvent */
+/** @typedef {import('./types').ParamMgrOptions} ParamMgrOptions */
+/** @typedef {import('./types').ParamMgrCallFromProcessor} ParamMgrCallFromProcessor */
+/** @typedef {import('./types').ParamMgrCallToProcessor} ParamMgrCallToProcessor */
+/** @typedef {import('./types').ParamMgrNodeMsgIn} ParamMgrNodeMsgIn */
+/** @typedef {import('./types').ParamMgrNodeMsgOut} ParamMgrNodeMsgOut */
+/** @typedef {import('./types').ParamMgrNode} IParamMgrNode */
+
+/** @type {typeof import('./TypedAudioWorklet').TypedAudioWorkletNode} */
 // @ts-ignore
 const AudioWorkletNode = globalThis.AudioWorkletNode;
 
 /**
- * @typedef {MessagePortResponse<ParamMgrCallToProcessor> & MessagePortRequest<ParamMgrCallFromProcessor>} MsgIn
- * @typedef {MessagePortRequest<ParamMgrCallToProcessor> & MessagePortResponse<ParamMgrCallFromProcessor>} MsgOut
- */
-/**
- * @export
- * @class ParamMgrNode
- * @extends {AudioWorkletNode<MsgIn, MsgOut>}
- * @implements {WamNode}
- * @implements {ParamMgrCallFromProcessor}
+ * @extends {AudioWorkletNode<ParamMgrNodeMsgIn, ParamMgrNodeMsgOut>}
+ * @implements {IParamMgrNode}
  */
 export default class ParamMgrNode extends AudioWorkletNode {
 	/**
@@ -115,7 +108,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	async initialize() {
-		/** @type {{ lock: Int32Array, paramsBuffer: Float32Array }} */
+		/** @type {ReturnType<ParamMgrCallToProcessor['getBuffer']>} */
 		const response = await this.call('getBuffer');
 		const { lock, paramsBuffer } = response;
 		this.$lock = lock;
@@ -142,7 +135,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {{ lock: Int32Array, paramsBuffer: Float32Array }} buffer
+	 * @param {ReturnType<ParamMgrCallToProcessor['getBuffer']>} buffer
 	 */
 	setBuffer({ lock, paramsBuffer }) {
 		this.$lock = lock;
@@ -306,6 +299,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	getIParamsValues() {
+		/** @type {Record<string, number>} */
 		const values = {};
 		this.internalParams.forEach((name, i) => {
 			values[name] = this.$paramsBuffer[i];
@@ -335,6 +329,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	getParamsValues() {
+		/** @type {Record<string, number>} */
 		const values = {};
 		this.parameters.forEach((v, k) => {
 			values[k] = v.value;

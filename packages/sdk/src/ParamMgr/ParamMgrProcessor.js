@@ -4,19 +4,19 @@
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
-/** @typedef { import('../api/types').WamProcessor } WamProcessor */
-/** @typedef { import('../api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../api/types').WamParameterDataMap } WamParameterValueMap */
-/** @typedef { import('../api/types').WamEvent } WamEvent */
-/** @typedef { import('./types').ParamMgrOptions } ParamMgrProcessorOptions */
-/** @typedef { import('./types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
-/** @typedef { import('./types').TypedAudioWorkletProcessor } AudioWorkletProcessor */
-/** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
-/** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
-/** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
-/** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
-/** @typedef { import('./types').ParamMgrAudioWorkletOptions } ParamMgrAudioWorkletOptions */
-/** @typedef { import('./types').ParametersMapping } ParametersMapping */
+/** @typedef {import('../api/types').WamProcessor} WamProcessor */
+/** @typedef {import('../api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../api/types').WamParameterDataMap} WamParameterValueMap */
+/** @typedef {import('../api/types').WamEvent} WamEvent */
+/** @typedef {import('./types').ParamMgrOptions} ParamMgrProcessorOptions */
+/** @typedef {import('./TypedAudioWorklet').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./TypedAudioWorklet').TypedAudioWorkletProcessor} AudioWorkletProcessor */
+/** @template M @typedef {import('./types').MessagePortRequest<M>} MessagePortRequest */
+/** @template M @typedef {import('./types').MessagePortResponse<M>} MessagePortResponse */
+/** @typedef {import('./types').ParamMgrCallFromProcessor} ParamMgrCallFromProcessor */
+/** @typedef {import('./types').ParamMgrCallToProcessor} ParamMgrCallToProcessor */
+/** @typedef {import('./types').ParamMgrAudioWorkletOptions} ParamMgrAudioWorkletOptions */
+/** @typedef {import('./types').ParametersMapping} ParametersMapping */
 
 /**
  * Main function to stringify as a worklet.
@@ -285,6 +285,7 @@ const processor = (processorId, paramsConfig) => {
 	try {
 		registerProcessor(processorId, ParamMgrProcessor);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn(error);
 	}
 };

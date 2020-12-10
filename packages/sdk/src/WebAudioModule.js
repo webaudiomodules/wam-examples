@@ -1,7 +1,7 @@
 /** @typedef {import('./api/types').WamDescriptor} WamDescriptor */
 /** @typedef {import('./api/types').WamNode} WamNode */
 
-import AbstractWebAudioModule from './api/AbstractWebAudioModule';
+import AbstractWebAudioModule from './api/AbstractWebAudioModule.js';
 
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
@@ -25,7 +25,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
 		super(audioContext);
-		this.audioContext = audioContext;
+		this._audioContext = audioContext;
 	}
 
 	isWebAudioModule = true;
@@ -50,7 +50,17 @@ class WebAudioModule extends AbstractWebAudioModule {
 	_descriptorUrl = undefined;
 
 	/** @type {WamDescriptor} */
-	_descriptor = undefined;
+	_descriptor = {
+		name: `WebAudioModule_${this.constructor.name}`,
+		vendor: 'WebAudioModuleVendor',
+		description: '',
+		version: '0.0.0',
+		sdkVersion: '1.0.0',
+		thumbnail: '',
+		keywords: [],
+		isInstrument: false,
+		website: '',
+	};
 
 	get moduleId() { return this.vendor + this.name; }
 
@@ -61,6 +71,10 @@ class WebAudioModule extends AbstractWebAudioModule {
 	get name() { return this.descriptor.name; }
 
 	get vendor() { return this.descriptor.vendor; }
+
+	get audioContext() {
+		return this._audioContext;
+	}
 
 	get audioNode() {
 		if (!this.initialized) console.warn('WAM should be initialized before getting the audioNode');
@@ -85,7 +99,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 	 * @returns {Promise<WebAudioModule>}
 	 */
 	async initialize(state) {
-		await this._loadDescriptor();
+		// await this._loadDescriptor();
 		if (!this._audioNode) this.audioNode = await this.createAudioNode();
 		this.initialized = true;
 		return this;
@@ -100,7 +114,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 
 	async _loadDescriptor() {
 		const url = this._descriptorUrl;
-		if (!url) throw new TypeError('Gui module not found');
+		if (!url) throw new TypeError('Descriptor not found');
 		const response = await fetch(url);
 		this._descriptor = await response.json();
 		return this._descriptor;

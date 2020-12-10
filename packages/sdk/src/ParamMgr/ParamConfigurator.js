@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
-/** @typedef { import('../api/types').WamParameterConfiguration } WamParameterConfiguration */
-/** @typedef { import('../api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./types').ParametersMapping } ParametersMapping */
-/** @typedef { import('./types').InternalParametersDescriptor } InternalParametersDescriptor */
-/** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */
+/** @typedef {import('../api/types').WamParameterConfiguration} WamParameterConfiguration */
+/** @typedef {import('../api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./types').ParametersMapping} ParametersMapping */
+/** @typedef {import('./types').InternalParametersDescriptor} InternalParametersDescriptor */
+/** @typedef {import('./types').ParametersMappingConfiguratorOptions} ParametersMappingConfiguratorOptions */
 
 import WamParameterInfo from '../WamParameterInfo.js';
 
@@ -26,6 +26,12 @@ export default class ParamMappingConfigurator {
 	_paramsConfig = undefined;
 
 	/**
+	 * Auto-completed `paramsConfig`:
+	 *
+	 * if no `paramsConfig` is defined while initializing, this will be be filled from the internalParamsConfig;
+	 *
+	 * if a parameter is not fully configured, the incompleted properties will have the same value as in the internalParamsConfig.
+	 *
 	 * @type {WamParameterInfoMap}
 	 */
 	get paramsConfig() {
@@ -50,6 +56,13 @@ export default class ParamMappingConfigurator {
 	_internalParamsConfig = undefined;
 
 	/**
+	 * Auto-completed configuration of the `internalParamsConfig`
+	 *
+	 * Internal Parameters Config contains all the automatable parameters' information.
+	 *
+	 * An automatable parameter could be a `WebAudio` `AudioParam`
+	 * or a config with an `onChange` callback that will be called while the value has been changed.
+	 *
 	 * @type {InternalParametersDescriptor}
 	 */
 	get internalParamsConfig() {
@@ -76,6 +89,14 @@ export default class ParamMappingConfigurator {
 	_paramsMapping = {}
 
 	/**
+	 * Auto-completed `paramsMapping`,
+	 * the mapping can be omitted while initialized,
+	 * but is useful when an exposed param (in the `paramsConfig`) should automate
+	 * several internal params (in the `internalParamsConfig`) or has a different range there.
+	 *
+	 * If a parameter is present in both `paramsConfig` and `internalParamsConfig` (or the `paramsConfig` is not configured),
+	 * a map of this parameter will be there automatically, if not declared explicitly.
+	 *
 	 * @type {ParametersMapping}
 	 */
 	get paramsMapping() {

@@ -1,12 +1,13 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
-import AudioWorkletRegister from './AudioWorkletRegister.js';
+import './AudioWorkletRegister.js';
 import processor from './ParamMgrProcessor.js';
 import ParamMappingConfigurator from './ParamConfigurator.js';
 import ParamMgrNode from './ParamMgrNode.js';
-/** @typedef { import('../api/types').WebAudioModule } WebAudioModule */
-/** @typedef { import('./types').ParametersMappingConfiguratorOptions } ParametersMappingConfiguratorOptions */
-/** @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
+/** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
+/** @typedef {import('./types').ParametersMappingConfiguratorOptions} ParametersMappingConfiguratorOptions */
+/** @typedef {import('./types').ParamMgrOptions} ParamMgrOptions */
+/** @typedef {import('./types').AudioWorkletRegister} AudioWorkletRegister */
 
 export default class ParamMgrFactory {
 	/**
@@ -26,6 +27,10 @@ export default class ParamMgrFactory {
 				currentParams[name] = { id, label, type, defaultValue, minValue, maxValue, discreteStep, exponent, choices, units };
 				return currentParams;
 			}, {});
+		/** @type {typeof AudioWorkletRegister} */
+		// @ts-ignore
+		// eslint-disable-next-line prefer-destructuring
+		const AudioWorkletRegister = window.AudioWorkletRegister;
 		await AudioWorkletRegister.register(processorId, processor, audioContext.audioWorklet, serializableParamsConfig);
 		/** @type {ParamMgrOptions} */
 		const options = {

@@ -1,10 +1,10 @@
-/** @typedef { import('./api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('./api/types').WamParameterInfo } WamParameterInfo */
-/** @typedef { import('./api/types').WamParameterDataMap } WamParameterDataMap */
-/** @typedef { import('./api/types').WamParameterData } WamParameterData */
-/** @typedef { import('./api/types').WamParameterMap } WamParameterMap */
-/** @typedef { import('./api/types').WamEvent } WamEvent */
-/** @typedef { import('./api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
+/** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('./api/types').WamParameterData} WamParameterData */
+/** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
+/** @typedef {import('./api/types').WamEvent} WamEvent */
+/** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */

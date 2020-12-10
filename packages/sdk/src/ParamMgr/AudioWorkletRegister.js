@@ -49,3 +49,6 @@ export default class AudioWorkletRegister {
 		return promise;
 	}
 }
+
+// @ts-ignore
+if (!window.AudioWorkletRegister) window.AudioWorkletRegister = AudioWorkletRegister;
