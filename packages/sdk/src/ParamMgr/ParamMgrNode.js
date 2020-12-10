@@ -12,7 +12,7 @@ import MgrAudioParam from './MgrAudioParam.js';
 /** @typedef { import('../api/types').WamEvent } WamEvent */
 /** @template M @typedef { import('./types').MessagePortRequest<M> } MessagePortRequest */
 /** @template M @typedef { import('./types').MessagePortResponse<M> } MessagePortResponse */
-/**  @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
+/** @typedef { import('./types').ParamMgrOptions } ParamMgrOptions */
 /** @typedef { import('./types').ParamMgrCallFromProcessor } ParamMgrCallFromProcessor */
 /** @typedef { import('./types').ParamMgrCallToProcessor } ParamMgrCallToProcessor */
 
