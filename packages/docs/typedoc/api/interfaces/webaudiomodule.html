@@ -1,0 +1,529 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>WebAudioModule | sdk</title>
+	<meta name="description" content="Documentation for sdk">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">sdk</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="webaudiomodule.html">WebAudioModule</a>
+				</li>
+			</ul>
+			<h1>Interface WebAudioModule&lt;Node&gt;</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Main <code>WebAudioModule</code> interface,
+						its constructor should be the <code>export default</code> of the ESM of each WAM.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-type-parameters">
+				<h3>Type parameters</h3>
+				<ul class="tsd-type-parameters">
+					<li>
+						<h4>Node<span class="tsd-signature-symbol">: </span><a href="wamnode.html" class="tsd-signature-type">WamNode</a> = <span class="tsd-signature-type">WamNode</span></h4>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>type of the <code>audioNode</code> property, could be any <code>AudioNode</code> that implements <code>WamNode</code></p>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">WebAudioModule</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#audiocontext" class="tsd-kind-icon">audio<wbr>Context</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#audionode" class="tsd-kind-icon">audio<wbr>Node</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#descriptor" class="tsd-kind-icon">descriptor</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#initialized" class="tsd-kind-icon">initialized</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#instanceid" class="tsd-kind-icon">instance<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#iswebaudiomodule" class="tsd-kind-icon">is<wbr>Web<wbr>Audio<wbr>Module</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#moduleid" class="tsd-kind-icon">module<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="webaudiomodule.html#vendor" class="tsd-kind-icon">vendor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="webaudiomodule.html#createaudionode" class="tsd-kind-icon">create<wbr>Audio<wbr>Node</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="webaudiomodule.html#creategui" class="tsd-kind-icon">create<wbr>Gui</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="webaudiomodule.html#initialize" class="tsd-kind-icon">initialize</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="audiocontext" class="tsd-anchor"></a>
+					<h3>audio<wbr>Context</h3>
+					<div class="tsd-signature tsd-kind-icon">audio<wbr>Context<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BaseAudioContext</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L12">packages/sdk/src/api/types.d.ts:12</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <code>AudioContext</code> where the plugin&#39;s node lives in</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="audionode" class="tsd-anchor"></a>
+					<h3>audio<wbr>Node</h3>
+					<div class="tsd-signature tsd-kind-icon">audio<wbr>Node<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Node</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L14">packages/sdk/src/api/types.d.ts:14</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <code>AudioNode</code> that handles audio in the plugin where the host can connect to/from</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="descriptor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> descriptor</h3>
+					<div class="tsd-signature tsd-kind-icon">descriptor<span class="tsd-signature-symbol">:</span> <a href="wamdescriptor.html" class="tsd-signature-type">WamDescriptor</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L22">packages/sdk/src/api/types.d.ts:22</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The values from <code>descriptor.json</code></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="initialized" class="tsd-anchor"></a>
+					<h3>initialized</h3>
+					<div class="tsd-signature tsd-kind-icon">initialized<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L16">packages/sdk/src/api/types.d.ts:16</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will return true after calling <code>initialize()</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="instanceid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> instance<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">instance<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L20">packages/sdk/src/api/types.d.ts:20</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The unique identifier of the current WAM instance.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="iswebaudiomodule" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> is<wbr>Web<wbr>Audio<wbr>Module</h3>
+					<div class="tsd-signature tsd-kind-icon">is<wbr>Web<wbr>Audio<wbr>Module<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L10">packages/sdk/src/api/types.d.ts:10</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>should return <code>true</code></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="moduleid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> module<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">module<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L18">packages/sdk/src/api/types.d.ts:18</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The identifier of the current WAM, composed of vender + name</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="name" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L24">packages/sdk/src/api/types.d.ts:24</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The WAM&#39;s name</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="vendor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> vendor</h3>
+					<div class="tsd-signature tsd-kind-icon">vendor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L26">packages/sdk/src/api/types.d.ts:26</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The WAM Vendor&#39;s name</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="createaudionode" class="tsd-anchor"></a>
+					<h3>create<wbr>Audio<wbr>Node</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Audio<wbr>Node<span class="tsd-signature-symbol">(</span>initialState<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="wamnode.html" class="tsd-signature-type">WamNode</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L33">packages/sdk/src/api/types.d.ts:33</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>This async method must be redefined to get <code>AudioNode</code> that
+										will connected to the host.
+									It can be any object that extends <code>AudioNode</code> and implements <code>WamNode</code></p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> initialState: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="wamnode.html" class="tsd-signature-type">WamNode</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="creategui" class="tsd-anchor"></a>
+					<h3>create<wbr>Gui</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Gui<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L48">packages/sdk/src/api/types.d.ts:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Redefine this method to get the WAM&#39;s GUI as an HTML <code>Element</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="initialize" class="tsd-anchor"></a>
+					<h3>initialize</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">initialize<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="webaudiomodule.html" class="tsd-signature-type">WebAudioModule</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/a9f5f82/packages/sdk/src/api/types.d.ts#L46">packages/sdk/src/api/types.d.ts:46</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The host will call this method to initialize the WAM with an initial state.</p>
+								</div>
+								<p>In this method, WAM devs should call <code>createAudioNode()</code>
+									and store its return <code>AudioNode</code> to <code>this.audioNode</code>,
+									then set <code>initialized</code> to <code>true</code> to ensure that
+								the <code>audioNode</code> property is available after initialized.</p>
+								<p>These two behaviors are implemented by default in the SDK.</p>
+								<p>The WAM devs can also fetch and preload the GUI Element in while initializing.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> state: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="webaudiomodule.html" class="tsd-signature-type">WebAudioModule</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-interface">
+						<a href="audioworkletglobalscope.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Global<wbr>Scope</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="audioworkletprocessor.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamdescriptor.html" class="tsd-kind-icon">Wam<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="wameventbase.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wameventmap.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wammididata.html" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamnode.html" class="tsd-kind-icon">Wam<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamnodeoptions.html" class="tsd-kind-icon">Wam<wbr>Node<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamparameter.html" class="tsd-kind-icon">Wam<wbr>Parameter</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamparameterconfiguration.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamparameterdata.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamparameterinfo.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamprocessor.html" class="tsd-kind-icon">Wam<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="wamsysexdata.html" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Data</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-has-type-parameter">
+						<a href="webaudiomodule.html" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#audiocontext" class="tsd-kind-icon">audio<wbr>Context</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#audionode" class="tsd-kind-icon">audio<wbr>Node</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#descriptor" class="tsd-kind-icon">descriptor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#initialized" class="tsd-kind-icon">initialized</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#instanceid" class="tsd-kind-icon">instance<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#iswebaudiomodule" class="tsd-kind-icon">is<wbr>Web<wbr>Audio<wbr>Module</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#moduleid" class="tsd-kind-icon">module<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#vendor" class="tsd-kind-icon">vendor</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#createaudionode" class="tsd-kind-icon">create<wbr>Audio<wbr>Node</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#creategui" class="tsd-kind-icon">create<wbr>Gui</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="webaudiomodule.html#initialize" class="tsd-kind-icon">initialize</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamautomationevent" class="tsd-kind-icon">Wam<wbr>Automation<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamevent" class="tsd-kind-icon">Wam<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../globals.html#wameventcallback" class="tsd-kind-icon">Wam<wbr>Event<wbr>Callback</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wameventtype" class="tsd-kind-icon">Wam<wbr>Event<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamlistenertype" class="tsd-kind-icon">Wam<wbr>Listener<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wammidievent" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wammpeevent" class="tsd-kind-icon">Wam<wbr>Mpe<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamoscevent" class="tsd-kind-icon">Wam<wbr>Osc<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamparameterdatamap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamparameterinfomap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamparametermap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamparametertype" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#wamsysexevent" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#audioworkletprocessor" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#wamnode" class="tsd-kind-icon">Wam<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#wamparameter" class="tsd-kind-icon">Wam<wbr>Parameter</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#wamparameterinfo" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#wamprocessor" class="tsd-kind-icon">Wam<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#webaudiomodule" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
