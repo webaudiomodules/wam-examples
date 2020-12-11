@@ -135,8 +135,7 @@ async function showPluginInfo(instance, gui) {
 	}
 
 	pluginInfoDiv.innerHTML = `
-	<li><b>instance.name :</b> ${instance.name}</li>
-	<li><b>instance.vendor :</b> ${instance.vendor}</li>
+	<li><b>instance.descriptor :</b> ${JSON.stringify(instance.descriptor)}</li>
 	<li><b>gui.properties.dataWidth.value</b> : ${guiWidth}</li>
 	<li><b>gui.properties.dataHeight.value</b> : ${guiHeight}</li>
 	<li><b>instance.audioNode.getParameterInfo() :</b>

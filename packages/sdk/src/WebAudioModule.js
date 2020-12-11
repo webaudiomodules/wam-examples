@@ -47,7 +47,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 	 * Url to load the plugin's `descriptor.json`
 	 * @type {string}
 	 */
-	_descriptorUrl = undefined;
+	_descriptorUrl = './descriptor.json';
 
 	/** @type {WamDescriptor} */
 	_descriptor = {
@@ -116,7 +116,8 @@ class WebAudioModule extends AbstractWebAudioModule {
 		const url = this._descriptorUrl;
 		if (!url) throw new TypeError('Descriptor not found');
 		const response = await fetch(url);
-		this._descriptor = await response.json();
+		const descriptor = await response.json();
+		Object.assign(this._descriptor, descriptor);
 		return this._descriptor;
 	}
 
