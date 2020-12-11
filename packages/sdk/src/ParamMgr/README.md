@@ -1,44 +1,42 @@
 # Parameter Manager
 
-This document provides a description of the parameter manager used in the `WebAudioModule` [SDK](https://github.com/53js/webaudioplugin/tree/master/packages/sdk), and a guide to handle parameters in an `WebAudioModule`.
+This document provides a description of the Parameter Manager used in the `WebAudioModule` [SDK](https://github.com/53js/webaudiomodule/tree/master/packages/sdk), and a guide to handle parameters in an `WebAudioModule` with the Parameter Manager.
 
 ### Motivation
 
 It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its `AtTime` methods, to allow developers to schedule sample-accurate `a-rate` or buffer-accurate `k-rate` automations in several ways.
 
-It is important for an `WebAudioModule` to control its parameters sample-accurately. However, the `AudioParam`s exist only inside `AudioNode`s, they are not constructable independently. In order to have customizable `AudioParam`s that control different parameters, we designed the Parameter Manager, which is mainly an `AudioWorkletNode` that creates user defined `AudioParam`s, then transform them to `AudioNode` outputs.
+It is important for an `WebAudioModule` to control its parameters sample-accurately. However, the `AudioParam`s exist only inside `AudioNode`s, they are not constructable independently, and they do not exist in the audio thread. This is reason that `WebAudioModule` API provides another interface `WamParameter` for automatable parameters both in the main thread and in the audio thread. The Parameter Manager provides an implementation of the `WamParameter` that uses native but customized `AudioParam` to handle automation scheduling. In fact, Parameter Manager is mainly an `AudioWorkletNode` that creates user defined `AudioParam`s, then transform them to `AudioNode` outputs or funcion calls.
 
 ### Plugin Design Patterns
 
-The `WebAudioModule` developer should declare every parameters that are controllable by the host application in the `descriptor.json`. These are the plugin's *exposed parameters*. (see [`ParametersDescriptor`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts)), accessible under the plugin's `paramsConfig` field.
+As described in the `WebAudioModule` API, the developer should declare and configure every parameters as `WamParameterInfo` that are controllable and automatable by the host application, and let them accessible via `WamNode`'s methods, such as `getParameterInfo()`. In the Parameter Manager, we consider these parameters are the WAM's *exposed parameters*. (see [`ParametersMappingConfiguratorOptions.paramsConfig`](https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L60)).
 
-It is possible to control different variables in the plugin. These variables, we call them *internal parameters*, can be `AudioParam`s or an event handler that will be called while the values change, under a certain fire rate. A config of these parameters is accessible under the plugin's `internalParamsConfig` field. (see [`InternalParametersDescriptor`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts))
+In a host, by automating or controlling these *exposed parameters*, it will as a result change the WAM's internal state. The variables to be changed in the internal state, which we call *internal parameters*, can be an `AudioParam` or an event handler that will be called while the values change, under a certain fire rate. (see [`InternalParametersDescriptor`](https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L46))
 
-In some use cases, the plugin need to control multiple *internal parameters* with one single *exposed parameters*, and with different value scalings or mappings. For example, an *exposed parameter* `mix` need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an *internal parameter* `dry`; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an *internal parameter* `wet`. This can be done easily by declaring a `paramsMapping`. (see [`ParametersMapping`](https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts))
+In some use cases, the plugin need to control multiple *internal parameters* with one single *exposed parameters*, and with different value scalings or mappings. For example, an *exposed parameter* `mix` need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an *internal parameter* `dry`; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an *internal parameter* `wet`. This can be done easily by declaring a `paramsMapping`. (see [`ParametersMapping`](https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L57))
 
-There are four main design patterns to link the *exposed parameters* to the *internal parameters*.
+By using `ParamMgrFactory.create` static method, the developer will create an instance of the Parameter Manager that will automatically handle the parameters. It depends on the configuration provided with `paramsConfig`, `internalParamsConfig` and `paramsMapping` properties of the `optionsIn` argument. There are three main design patterns to declare and link the *exposed parameters* to the *internal parameters* using the Parameter Manager.
 
-0. Direct + event listener pattern, no need to declare the `internalParamsConfig` and the `paramsMapping`
+0. Direct to `AudioParam`, no need to declare the `paramsConfig` and the `paramsMapping`, declare only the `internalParamsConfig`.
 
-> ![Direct + event listener pattern](media://paramMgr_0.png)
+![Direct to AudioParam](media://paramMgr_0.png)
 
-> If the developer leaves the `internalParamsConfig` and the `paramsMapping` unset, the SDK will derive the `internalParamsConfig` from the `paramsConfig`, which means they are containing same parameter names and values. The `paramsMapping` will be filled with peer to peer mappings with no value mapping.
-
-> In this case, the developer can listen to the `change:internalParam:${paramName}` event to handle the *internal parameters* value changes, up to 30 times per second. The developer can also connect manually outputs of the `paramMgr` to `AudioParam`s.
+> If the developer leaves the `paramsConfig` and the `paramsMapping` undefined, the SDK will derive the `paramsConfig` from the `internalParamsConfig`, which means they are containing same parameter names and values. The `paramsMapping` will be filled with peer to peer mappings with no value mapping.
 
 > For example:
 ```JavaScript
-plugin.on('change:internalParam:enabled', (value, prevValue) => {
-    console.log(`Param "enabled" has been changed from ${prevValue} to ${value}`);
-});
-// audioNode.gain is an AudioParam
-if (plugin.initialized) plugin.paramMgr.connectIParam('gain', audioNode.gain);
+// if audioNode.gain and audioNode.freq are AudioParams
+const internalParamsConfig = {
+    gain: audioNode.gain,
+    freq: audioNode.freq
+};
+const paramMgr = await ParamMgrFactory.create(wam, { internalParamsConfig });
 ```
-**Be aware: the `paramMgr` is only availble after initialized.**
 
-1. Direct + default event listeners or `AudioParam`s pattern, need to declare the `internalParamsConfig`
+1. Direct + default event listeners or `AudioParam`s, no need to declare the `paramsConfig` and the `paramsMapping`, declare only the `internalParamsConfig`.
 
-> ![Direct + default event listeners or `AudioParam`s pattern](media://paramMgr_1.png)
+> ![Direct + default event listeners or `AudioParam`s](media://paramMgr_1.png)
 
 > If the developer declared the `internalParamsConfig` and leaves the `paramsMapping` unset, the SDK will automatically make links between the *exposed parameters* and the *internal parameters*, taking account of the giving `AudioParam`, or the `onChange` callback with the `automationRate`.
 
@@ -46,7 +44,7 @@ if (plugin.initialized) plugin.paramMgr.connectIParam('gain', audioNode.gain);
 
 > For example:
 ```JavaScript
-plugin.internalParamsConfig = {
+const internalParamsConfig = {
     enabled: {
         onChange: (value, prevValue) => {
             console.log(`Param "enabled" has been changed from ${prevValue} to ${value}`);
@@ -55,9 +53,10 @@ plugin.internalParamsConfig = {
     },
     gain: audioNode.gain // AudioParam
 };
+const paramMgr = await ParamMgrFactory.create(wam, { internalParamsConfig });
 ```
 
-2. Mapping + default event listeners or `AudioParam`s pattern, need to declare the `internalParamsConfig` and the `paramsMapping`
+2. Mapping + default event listeners or `AudioParam`s pattern, need to declare the `paramsConfig`, `internalParamsConfig` and the `paramsMapping`
 
 > ![Mapping + default event listeners or `AudioParam`s pattern](media://paramMgr_2.png)
 
@@ -67,30 +66,22 @@ plugin.internalParamsConfig = {
 
 > If one parameter name appears in both `paramsConfig` and `internalParamsConfig`, the mapping will be created automatically if it is not declared explicitly in the `paramsMapping`.
 
-> Dynamically change the `paramsMapping` is possible using the setter.
+> Dynamically change the `paramsMapping` is possible using the `setParamsMapping` method.
 
 > For example:
-```JSON
-// in the descriptor.json
-{
-    //...
-	"params": {
-		"mix": {
-            "defaultValue": 0.5,
-            "minValue": 0,
-            "maxValue": 1
-		}
-    },
-    //...
-}
-```
 ```JavaScript
-// in the JavaScript code
-plugin.internalParamsConfig = {
+const paramsConfig = {
+    mix: {
+        defaultValue: 0.5,
+        minValue: 0,
+        maxValue: 1
+    }
+}
+const internalParamsConfig = {
     dryGain: dryGainNode.gain,
     wetGain: wetGainNode.gain,
 };
-plugin.paramsMapping = {
+const paramsMapping = {
     mix: {
         dryGain: {
             sourceRange: [0.5, 1],
@@ -102,72 +93,52 @@ plugin.paramsMapping = {
         },
     },
 };
+const option = {
+    paramsConfig,
+    internalParamsConfig,
+    paramsMapping
+};
+const paramMgr = await ParamMgrFactory.create(wam, option);
 ```
 
-3. Handle automations alternatively pattern, no need to declare the `internalParamsConfig` and the `paramsMapping`
+### Creating a Composite `AudioNode` using the Parameter Manager
 
-> ![Handle automations alternatively pattern](media://paramMgr_3.png)
+`WebAudioModule` API requires that the module's `audioNode` is connectable as audio I/O, and implements the `WamNode` interface. As a developer, one can use the Parameter Manager to act as the `WamNode` interface, and use another `AudioNode` to act as the audio I/O by creating a `CompositeAudioNode`. We provide a [prototype](https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/CompositeAudioNode.d.ts) of the `CompositeAudioNode` in the Parameter Manager folder.
 
-> If the developer need to handle automation in another way, just listen to the `automation` events. For example:
+To get it work with the Parameter Manager, see this example:
 
 ```JavaScript
-plugin.on('automation', (methodType, paramName, ...args) => {
-    console.log(`The host just called the method ${methodType} on param ${paramName} with args ${JSON.stringify(args)}`)
-});
-```
+import WebAudioModule from 'sdk/src/WebAudioModule';
+import ParamMgrFactory from 'sdk/src/ParamMgr/ParamMgrFactory';
+import CompositeAudioNode from 'sdk/src/ParamMgr/CompositeAudioNode';
 
-### Normalized, Exponent and Time Conversion
-It is possible to schedule parameter automations with a normalized value, or get normalized parameter values. If an `exponent` factor is declared in the `descriptor.json`, it will be aware when the normalized value is converted to the parameter value.
-All `AudioParam` methods are exposed in the Parameter Manager with their normalized version. The list is under the [ParamMgrNode interface](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/ParamMgrNode.d.ts), including time conversion methods `convertTimeToFrame` and `convertFrameToTime`.
-
-### Need to go deeper?
-Sample-accurate *internal parameters* and *exposed parameters* values, with a frame stamp, are accessible in the `AudioWorkletGlobalScope`. The developer can get them by getting `globalThis.WebAudioModuleParams[instanceId]`, the instance identifier `instanceId` is unique to each `WebAudioModule` instance. See [AudioWorkletGlobalScope](https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/types.d.ts).
-
-### Use a Plugin from a Host
-
-A host usually deals with exposed parameters of a plugin, set or get the values instantly or schedule automations. These operations are available using the parameter manager.
-
-For example, to get the values / normalized values of all the exposed parameters:
-
-```JavaScript
-const values = plugin.paramMgr.getParamsValues();
-const normalizedValues = plugin.paramMgr.getNormalizedParamsValues();
-```
-
-It is possible to manipulate parameters with their AudioParam instance:
-
-```JavaScript
-let audioParam;
-const audioParamsMap = plugin.paramMgr.getParams();
-audioParam = audioParamsMap["mix"];
-// or
-audioParam = plugin.paramMgr.getParam("mix");
-// or
-audioParam = plugin.paramMgr.parameters.get("mix");
-```
-
-The AudioParam got is an extended version of native one, having all the normalized version of native methods, emitting the `automation` events.
-
-```JavaScript
-audioParam.value = 0.5;
-audioParam.normalizedValue = 0.5;
-```
-Methods:
-```TypeScript
-interface MgrAudioParam extends AudioParam {
-    normalize(value: number): number;
-    denormalize(value: number): number;
-    cancelAndHoldAtTime(cancelTime: number): MgrAudioParam;
-    cancelScheduledValues(cancelTime: number): MgrAudioParam;
-    exponentialRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
-    exponentialRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
-    linearRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
-    linearRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
-    setTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
-    setNormalizedTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
-    setValueAtTime(value: number, startTime: number): MgrAudioParam;
-    setNormalizedValueAtTime(valueIn: string, startTime: number): MgrAudioParam;
-    setValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
-    setNormalizedValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
+class MyCompositeAudioNode extends CompositeAudioNode {
+	setup(output, paramMgr) {
+		this.connect(output, 0, 0);
+		this._wamNode = paramMgr;
+		this._output = output;
+	}
 }
+
+export default class MyWam extends WebAudioModule {
+    //... other settings
+	async createAudioNode(initialState) {
+        const gainNode = new GainNode(this.audioContext);
+        
+        const compositeNode = new MyCompositeAudioNode(this.audioContext);
+
+		const internalParamsConfig = {
+            gain: gainNode.gain
+		};
+
+        const paramMgrNode = await ParamMgrFactory.create(this, { internalParamsConfig });
+
+        compositeNode.setup(gainNode, paramMgrNode);
+
+        if (initialState) compositeNode.setState(initialState);
+
+		return compositeNode;
+	}
+}
+
 ```

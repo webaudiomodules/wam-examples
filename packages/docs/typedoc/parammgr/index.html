@@ -65,45 +65,40 @@
 				<a href="#parameter-manager" id="parameter-manager" style="color: inherit; text-decoration: none;">
 					<h1>Parameter Manager</h1>
 				</a>
-				<p>This document provides a description of the parameter manager used in the <code>WebAudioModule</code> <a href="https://github.com/53js/webaudioplugin/tree/master/packages/sdk">SDK</a>, and a guide to handle parameters in an <code>WebAudioModule</code>.</p>
+				<p>This document provides a description of the Parameter Manager used in the <code>WebAudioModule</code> <a href="https://github.com/53js/webaudiomodule/tree/master/packages/sdk">SDK</a>, and a guide to handle parameters in an <code>WebAudioModule</code> with the Parameter Manager.</p>
 				<a href="#motivation" id="motivation" style="color: inherit; text-decoration: none;">
 					<h3>Motivation</h3>
 				</a>
 				<p>It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its <code>AtTime</code> methods, to allow developers to schedule sample-accurate <code>a-rate</code> or buffer-accurate <code>k-rate</code> automations in several ways.</p>
-				<p>It is important for an <code>WebAudioModule</code> to control its parameters sample-accurately. However, the <code>AudioParam</code>s exist only inside <code>AudioNode</code>s, they are not constructable independently. In order to have customizable <code>AudioParam</code>s that control different parameters, we designed the Parameter Manager, which is mainly an <code>AudioWorkletNode</code> that creates user defined <code>AudioParam</code>s, then transform them to <code>AudioNode</code> outputs.</p>
+				<p>It is important for an <code>WebAudioModule</code> to control its parameters sample-accurately. However, the <code>AudioParam</code>s exist only inside <code>AudioNode</code>s, they are not constructable independently, and they do not exist in the audio thread. This is reason that <code>WebAudioModule</code> API provides another interface <code>WamParameter</code> for automatable parameters both in the main thread and in the audio thread. The Parameter Manager provides an implementation of the <code>WamParameter</code> that uses native but customized <code>AudioParam</code> to handle automation scheduling. In fact, Parameter Manager is mainly an <code>AudioWorkletNode</code> that creates user defined <code>AudioParam</code>s, then transform them to <code>AudioNode</code> outputs or funcion calls.</p>
 				<a href="#plugin-design-patterns" id="plugin-design-patterns" style="color: inherit; text-decoration: none;">
 					<h3>Plugin Design Patterns</h3>
 				</a>
-				<p>The <code>WebAudioModule</code> developer should declare every parameters that are controllable by the host application in the <code>descriptor.json</code>. These are the plugin&#39;s <em>exposed parameters</em>. (see <a href="https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts"><code>ParametersDescriptor</code></a>), accessible under the plugin&#39;s <code>paramsConfig</code> field.</p>
-				<p>It is possible to control different variables in the plugin. These variables, we call them <em>internal parameters</em>, can be <code>AudioParam</code>s or an event handler that will be called while the values change, under a certain fire rate. A config of these parameters is accessible under the plugin&#39;s <code>internalParamsConfig</code> field. (see <a href="https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts"><code>InternalParametersDescriptor</code></a>)</p>
-				<p>In some use cases, the plugin need to control multiple <em>internal parameters</em> with one single <em>exposed parameters</em>, and with different value scalings or mappings. For example, an <em>exposed parameter</em> <code>mix</code> need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an <em>internal parameter</em> <code>dry</code>; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an <em>internal parameter</em> <code>wet</code>. This can be done easily by declaring a <code>paramsMapping</code>. (see <a href="https://github.com/53js/webaudioplugin/tree/master/packages/sdk/src/types.d.ts"><code>ParametersMapping</code></a>)</p>
-				<p>There are four main design patterns to link the <em>exposed parameters</em> to the <em>internal parameters</em>.</p>
+				<p>As described in the <code>WebAudioModule</code> API, the developer should declare and configure every parameters as <code>WamParameterInfo</code> that are controllable and automatable by the host application, and let them accessible via <code>WamNode</code>&#39;s methods, such as <code>getParameterInfo()</code>. In the Parameter Manager, we consider these parameters are the WAM&#39;s <em>exposed parameters</em>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L60"><code>ParametersMappingConfiguratorOptions.paramsConfig</code></a>).</p>
+				<p>In a host, by automating or controlling these <em>exposed parameters</em>, it will as a result change the WAM&#39;s internal state. The variables to be changed in the internal state, which we call <em>internal parameters</em>, can be an <code>AudioParam</code> or an event handler that will be called while the values change, under a certain fire rate. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L46"><code>InternalParametersDescriptor</code></a>)</p>
+				<p>In some use cases, the plugin need to control multiple <em>internal parameters</em> with one single <em>exposed parameters</em>, and with different value scalings or mappings. For example, an <em>exposed parameter</em> <code>mix</code> need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an <em>internal parameter</em> <code>dry</code>; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an <em>internal parameter</em> <code>wet</code>. This can be done easily by declaring a <code>paramsMapping</code>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L57"><code>ParametersMapping</code></a>)</p>
+				<p>By using <code>ParamMgrFactory.create</code> static method, the developer will create an instance of the Parameter Manager that will automatically handle the parameters. It depends on the configuration provided with <code>paramsConfig</code>, <code>internalParamsConfig</code> and <code>paramsMapping</code> properties of the <code>optionsIn</code> argument. There are three main design patterns to declare and link the <em>exposed parameters</em> to the <em>internal parameters</em> using the Parameter Manager.</p>
 				<ol start="0">
-					<li>Direct + event listener pattern, no need to declare the <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
+					<li>Direct to <code>AudioParam</code>, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
 				</ol>
+				<p><img src="media/paramMgr_0.png" alt="Direct to AudioParam"></p>
 				<blockquote>
-					<p><img src="media/paramMgr_0.png" alt="Direct + event listener pattern"></p>
-				</blockquote>
-				<blockquote>
-					<p>If the developer leaves the <code>internalParamsConfig</code> and the <code>paramsMapping</code> unset, the SDK will derive the <code>internalParamsConfig</code> from the <code>paramsConfig</code>, which means they are containing same parameter names and values. The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
-				</blockquote>
-				<blockquote>
-					<p>In this case, the developer can listen to the <code>change:internalParam:${paramName}</code> event to handle the <em>internal parameters</em> value changes, up to 30 times per second. The developer can also connect manually outputs of the <code>paramMgr</code> to <code>AudioParam</code>s.</p>
+					<p>If the developer leaves the <code>paramsConfig</code> and the <code>paramsMapping</code> undefined, the SDK will derive the <code>paramsConfig</code> from the <code>internalParamsConfig</code>, which means they are containing same parameter names and values. The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
 				</blockquote>
 				<blockquote>
 					<p>For example:</p>
 				</blockquote>
-				<pre><code class="language-JavaScript">plugin.on(<span class="hljs-string">&#x27;change:internalParam:enabled&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">value, prevValue</span>) =&gt;</span> {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Param &quot;enabled&quot; has been changed from <span class="hljs-subst">${prevValue}</span> to <span class="hljs-subst">${value}</span>`</span>);
-});
-<span class="hljs-comment">// audioNode.gain is an AudioParam</span>
-<span class="hljs-keyword">if</span> (plugin.initialized) plugin.paramMgr.connectIParam(<span class="hljs-string">&#x27;gain&#x27;</span>, audioNode.gain);</code></pre>
-				<p><strong>Be aware: the <code>paramMgr</code> is only availble after initialized.</strong></p>
+				<pre><code class="language-JavaScript"><span class="hljs-comment">// if audioNode.gain and audioNode.freq are AudioParams</span>
+<span class="hljs-keyword">const</span> internalParamsConfig = {
+    <span class="hljs-attr">gain</span>: audioNode.gain,
+    <span class="hljs-attr">freq</span>: audioNode.freq
+};
+<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, { internalParamsConfig });</code></pre>
 				<ol>
-					<li>Direct + default event listeners or <code>AudioParam</code>s pattern, need to declare the <code>internalParamsConfig</code></li>
+					<li>Direct + default event listeners or <code>AudioParam</code>s, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
 				</ol>
 				<blockquote>
-					<p><img src="media/paramMgr_1.png" alt="Direct + default event listeners or `AudioParam`s pattern"></p>
+					<p><img src="media/paramMgr_1.png" alt="Direct + default event listeners or `AudioParam`s"></p>
 				</blockquote>
 				<blockquote>
 					<p>If the developer declared the <code>internalParamsConfig</code> and leaves the <code>paramsMapping</code> unset, the SDK will automatically make links between the <em>exposed parameters</em> and the <em>internal parameters</em>, taking account of the giving <code>AudioParam</code>, or the <code>onChange</code> callback with the <code>automationRate</code>.</p>
@@ -114,7 +109,7 @@
 				<blockquote>
 					<p>For example:</p>
 				</blockquote>
-				<pre><code class="language-JavaScript">plugin.internalParamsConfig = {
+				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> internalParamsConfig = {
     <span class="hljs-attr">enabled</span>: {
         <span class="hljs-attr">onChange</span>: <span class="hljs-function">(<span class="hljs-params">value, prevValue</span>) =&gt;</span> {
             <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Param &quot;enabled&quot; has been changed from <span class="hljs-subst">${prevValue}</span> to <span class="hljs-subst">${value}</span>`</span>);
@@ -122,9 +117,10 @@
         <span class="hljs-attr">automationRate</span>: <span class="hljs-number">10</span> <span class="hljs-comment">// 10 times/sec</span>
     },
     <span class="hljs-attr">gain</span>: audioNode.gain <span class="hljs-comment">// AudioParam</span>
-};</code></pre>
+};
+<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, { internalParamsConfig });</code></pre>
 				<ol start="2">
-					<li>Mapping + default event listeners or <code>AudioParam</code>s pattern, need to declare the <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
+					<li>Mapping + default event listeners or <code>AudioParam</code>s pattern, need to declare the <code>paramsConfig</code>, <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
 				</ol>
 				<blockquote>
 					<p><img src="media/paramMgr_2.png" alt="Mapping + default event listeners or `AudioParam`s pattern"></p>
@@ -139,29 +135,23 @@
 					<p>If one parameter name appears in both <code>paramsConfig</code> and <code>internalParamsConfig</code>, the mapping will be created automatically if it is not declared explicitly in the <code>paramsMapping</code>.</p>
 				</blockquote>
 				<blockquote>
-					<p>Dynamically change the <code>paramsMapping</code> is possible using the setter.</p>
+					<p>Dynamically change the <code>paramsMapping</code> is possible using the <code>setParamsMapping</code> method.</p>
 				</blockquote>
 				<blockquote>
 					<p>For example:</p>
 				</blockquote>
-				<pre><code class="language-JSON"><span class="hljs-comment">// in the descriptor.json</span>
-{
-    <span class="hljs-comment">//...</span>
-    <span class="hljs-attr">&quot;params&quot;</span>: {
-        <span class="hljs-attr">&quot;mix&quot;</span>: {
-            <span class="hljs-attr">&quot;defaultValue&quot;</span>: <span class="hljs-number">0.5</span>,
-            <span class="hljs-attr">&quot;minValue&quot;</span>: <span class="hljs-number">0</span>,
-            <span class="hljs-attr">&quot;maxValue&quot;</span>: <span class="hljs-number">1</span>
-        }
-    },
-    <span class="hljs-comment">//...</span>
-}</code></pre>
-				<pre><code class="language-JavaScript"><span class="hljs-comment">// in the JavaScript code</span>
-plugin.internalParamsConfig = {
+				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> paramsConfig = {
+    <span class="hljs-attr">mix</span>: {
+        <span class="hljs-attr">defaultValue</span>: <span class="hljs-number">0.5</span>,
+        <span class="hljs-attr">minValue</span>: <span class="hljs-number">0</span>,
+        <span class="hljs-attr">maxValue</span>: <span class="hljs-number">1</span>
+    }
+}
+<span class="hljs-keyword">const</span> internalParamsConfig = {
     <span class="hljs-attr">dryGain</span>: dryGainNode.gain,
     <span class="hljs-attr">wetGain</span>: wetGainNode.gain,
 };
-plugin.paramsMapping = {
+<span class="hljs-keyword">const</span> paramsMapping = {
     <span class="hljs-attr">mix</span>: {
         <span class="hljs-attr">dryGain</span>: {
             <span class="hljs-attr">sourceRange</span>: [<span class="hljs-number">0.5</span>, <span class="hljs-number">1</span>],
@@ -172,63 +162,51 @@ plugin.paramsMapping = {
             <span class="hljs-attr">targetRange</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
         },
     },
-};</code></pre>
-				<ol start="3">
-					<li>Handle automations alternatively pattern, no need to declare the <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
-				</ol>
-				<blockquote>
-					<p><img src="media/paramMgr_3.png" alt="Handle automations alternatively pattern"></p>
-				</blockquote>
-				<blockquote>
-					<p>If the developer need to handle automation in another way, just listen to the <code>automation</code> events. For example:</p>
-				</blockquote>
-				<pre><code class="language-JavaScript">plugin.on(<span class="hljs-string">&#x27;automation&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">methodType, paramName, ...args</span>) =&gt;</span> {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`The host just called the method <span class="hljs-subst">${methodType}</span> on param <span class="hljs-subst">${paramName}</span> with args <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(args)}</span>`</span>)
-});</code></pre>
-				<a href="#normalized-exponent-and-time-conversion" id="normalized-exponent-and-time-conversion" style="color: inherit; text-decoration: none;">
-					<h3>Normalized, Exponent and Time Conversion</h3>
+};
+<span class="hljs-keyword">const</span> option = {
+    paramsConfig,
+    internalParamsConfig,
+    paramsMapping
+};
+<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, option);</code></pre>
+				<a href="#creating-a-composite-audionode-using-the-parameter-manager" id="creating-a-composite-audionode-using-the-parameter-manager" style="color: inherit; text-decoration: none;">
+					<h3>Creating a Composite <code>AudioNode</code> using the Parameter Manager</h3>
 				</a>
-				<p>It is possible to schedule parameter automations with a normalized value, or get normalized parameter values. If an <code>exponent</code> factor is declared in the <code>descriptor.json</code>, it will be aware when the normalized value is converted to the parameter value.
-				All <code>AudioParam</code> methods are exposed in the Parameter Manager with their normalized version. The list is under the <a href="https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/ParamMgrNode.d.ts">ParamMgrNode interface</a>, including time conversion methods <code>convertTimeToFrame</code> and <code>convertFrameToTime</code>.</p>
-				<a href="#need-to-go-deeper" id="need-to-go-deeper" style="color: inherit; text-decoration: none;">
-					<h3>Need to go deeper?</h3>
-				</a>
-				<p>Sample-accurate <em>internal parameters</em> and <em>exposed parameters</em> values, with a frame stamp, are accessible in the <code>AudioWorkletGlobalScope</code>. The developer can get them by getting <code>globalThis.WebAudioModuleParams[instanceId]</code>, the instance identifier <code>instanceId</code> is unique to each <code>WebAudioModule</code> instance. See <a href="https://github.com/53js/webaudioplugin/blob/master/packages/sdk/src/ParamMgr/types.d.ts">AudioWorkletGlobalScope</a>.</p>
-				<a href="#use-a-plugin-from-a-host" id="use-a-plugin-from-a-host" style="color: inherit; text-decoration: none;">
-					<h3>Use a Plugin from a Host</h3>
-				</a>
-				<p>A host usually deals with exposed parameters of a plugin, set or get the values instantly or schedule automations. These operations are available using the parameter manager.</p>
-				<p>For example, to get the values / normalized values of all the exposed parameters:</p>
-				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> values = plugin.paramMgr.getParamsValues();
-<span class="hljs-keyword">const</span> normalizedValues = plugin.paramMgr.getNormalizedParamsValues();</code></pre>
-				<p>It is possible to manipulate parameters with their AudioParam instance:</p>
-				<pre><code class="language-JavaScript"><span class="hljs-keyword">let</span> audioParam;
-<span class="hljs-keyword">const</span> audioParamsMap = plugin.paramMgr.getParams();
-audioParam = audioParamsMap[<span class="hljs-string">&quot;mix&quot;</span>];
-<span class="hljs-comment">// or</span>
-audioParam = plugin.paramMgr.getParam(<span class="hljs-string">&quot;mix&quot;</span>);
-<span class="hljs-comment">// or</span>
-audioParam = plugin.paramMgr.parameters.get(<span class="hljs-string">&quot;mix&quot;</span>);</code></pre>
-				<p>The AudioParam got is an extended version of native one, having all the normalized version of native methods, emitting the <code>automation</code> events.</p>
-				<pre><code class="language-JavaScript">audioParam.value = <span class="hljs-number">0.5</span>;
-audioParam.normalizedValue = <span class="hljs-number">0.5</span>;</code></pre>
-				<p>Methods:</p>
-				<pre><code class="language-TypeScript"><span class="hljs-keyword">interface</span> MgrAudioParam <span class="hljs-keyword">extends</span> AudioParam {
-    normalize(value: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">number</span>;
-    denormalize(value: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">number</span>;
-    cancelAndHoldAtTime(cancelTime: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    cancelScheduledValues(cancelTime: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    exponentialRampToValueAtTime(value: <span class="hljs-built_in">number</span>, <span class="hljs-attr">endTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    exponentialRampToNormalizedValueAtTime(value: <span class="hljs-built_in">number</span>, <span class="hljs-attr">endTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    linearRampToValueAtTime(value: <span class="hljs-built_in">number</span>, <span class="hljs-attr">endTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    linearRampToNormalizedValueAtTime(value: <span class="hljs-built_in">number</span>, <span class="hljs-attr">endTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setTargetAtTime(target: <span class="hljs-built_in">number</span>, <span class="hljs-attr">startTime</span>: <span class="hljs-built_in">number</span>, <span class="hljs-attr">timeConstant</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setNormalizedTargetAtTime(target: <span class="hljs-built_in">number</span>, <span class="hljs-attr">startTime</span>: <span class="hljs-built_in">number</span>, <span class="hljs-attr">timeConstant</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setValueAtTime(value: <span class="hljs-built_in">number</span>, <span class="hljs-attr">startTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setNormalizedValueAtTime(valueIn: <span class="hljs-built_in">string</span>, <span class="hljs-attr">startTime</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setValueCurveAtTime(values: <span class="hljs-built_in">number</span>[] | <span class="hljs-built_in">Float32Array</span> | Iterable&lt;<span class="hljs-built_in">number</span>&gt;, startTime: <span class="hljs-built_in">number</span>, <span class="hljs-attr">duration</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-    setNormalizedValueCurveAtTime(values: <span class="hljs-built_in">number</span>[] | <span class="hljs-built_in">Float32Array</span> | Iterable&lt;<span class="hljs-built_in">number</span>&gt;, startTime: <span class="hljs-built_in">number</span>, <span class="hljs-attr">duration</span>: <span class="hljs-built_in">number</span>): MgrAudioParam;
-}</code></pre>
+				<p><code>WebAudioModule</code> API requires that the module&#39;s <code>audioNode</code> is connectable as audio I/O, and implements the <code>WamNode</code> interface. As a developer, one can use the Parameter Manager to act as the <code>WamNode</code> interface, and use another <code>AudioNode</code> to act as the audio I/O by creating a <code>CompositeAudioNode</code>. We provide a <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/CompositeAudioNode.d.ts">prototype</a> of the <code>CompositeAudioNode</code> in the Parameter Manager folder.</p>
+				<p>To get it work with the Parameter Manager, see this example:</p>
+				<pre><code class="language-JavaScript"><span class="hljs-keyword">import</span> WebAudioModule <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/WebAudioModule&#x27;</span>;
+<span class="hljs-keyword">import</span> ParamMgrFactory <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/ParamMgr/ParamMgrFactory&#x27;</span>;
+<span class="hljs-keyword">import</span> CompositeAudioNode <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/ParamMgr/CompositeAudioNode&#x27;</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyCompositeAudioNode</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CompositeAudioNode</span> </span>{
+    <span class="hljs-function"><span class="hljs-title">setup</span>(<span class="hljs-params">output, paramMgr</span>)</span> {
+        <span class="hljs-built_in">this</span>.connect(output, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+        <span class="hljs-built_in">this</span>._wamNode = paramMgr;
+        <span class="hljs-built_in">this</span>._output = output;
+    }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWam</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebAudioModule</span> </span>{
+    <span class="hljs-comment">//... other settings</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-title">createAudioNode</span>(<span class="hljs-params">initialState</span>)</span> {
+        <span class="hljs-keyword">const</span> gainNode = <span class="hljs-keyword">new</span> GainNode(<span class="hljs-built_in">this</span>.audioContext);
+
+        <span class="hljs-keyword">const</span> compositeNode = <span class="hljs-keyword">new</span> MyCompositeAudioNode(<span class="hljs-built_in">this</span>.audioContext);
+
+        <span class="hljs-keyword">const</span> internalParamsConfig = {
+            <span class="hljs-attr">gain</span>: gainNode.gain
+        };
+
+        <span class="hljs-keyword">const</span> paramMgrNode = <span class="hljs-keyword">await</span> ParamMgrFactory.create(<span class="hljs-built_in">this</span>, { internalParamsConfig });
+
+        compositeNode.setup(gainNode, paramMgrNode);
+
+        <span class="hljs-keyword">if</span> (initialState) compositeNode.setState(initialState);
+
+        <span class="hljs-keyword">return</span> compositeNode;
+    }
+}
+</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
