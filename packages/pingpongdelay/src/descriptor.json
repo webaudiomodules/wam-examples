@@ -1,0 +1,11 @@
+{
+    "name": "PingPongDelay",
+    "vendor": "WebAudioModule",
+    "description": "A PingPongDelay written in native WebAudio nodes",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": ["delay"],
+    "isInstrument": false,
+    "website": ""
+}

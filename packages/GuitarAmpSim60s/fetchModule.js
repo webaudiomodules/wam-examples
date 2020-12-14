@@ -4,7 +4,8 @@ const globalThis = window;
 const cache = globalThis.fetchModuleCache || new Map();
 
 const fetchModule = async (url) => {
-	if (cache.has(url)) return cache.get(url);
+	const absoluteUrl = new URL(url, import.meta.url).href;
+	if (cache.has(absoluteUrl)) return cache.get(absoluteUrl);
 	let exported;
 	const toExport = {};
 	window.exports = toExport;
@@ -15,7 +16,7 @@ const fetchModule = async (url) => {
 	else exported = window.module.exports;
 	delete window.exports;
 	delete window.module;
-	cache.set(url, exported);
+	cache.set(absoluteUrl, exported);
 	return exported;
 };
 
