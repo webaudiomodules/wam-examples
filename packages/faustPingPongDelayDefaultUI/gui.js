@@ -6,8 +6,17 @@ import { FaustUI } from './faust-ui/index.js';
  */
 
 class FaustDefaultGui extends HTMLElement {
-	constructor(faustNode, ui, style) {
+	/**
+	 * @param {WebAudioModule['audioNode']} wamNode
+	 * @param {AudioWorkletNode} faustNode
+	 * @param {any} ui
+	 * @param {string} style
+	 * @memberof FaustDefaultGui
+	 */
+	constructor(wamNode, faustNode, ui, style) {
 		super();
+		this.wamNode = wamNode;
+		this.faustNode = faustNode;
 		this.root = this.attachShadow({ mode: 'open' });
 		const $style = document.createElement('style');
 		$style.innerHTML = style;
@@ -25,12 +34,22 @@ class FaustDefaultGui extends HTMLElement {
 			listenWindowResize: false,
 		});
 		this.faustUI.paramChangeByUI = (path, value) => {
-			faustNode.setParamValue(path, value);
+			wamNode.setParamValue(path, value);
 		};
 		faustNode.output_handler = (path, value) => this.faustUI.paramChangeByDSP(path, value);
 		$container.style.width = `${this.faustUI.minWidth}px`;
 		$container.style.height = `${this.faustUI.minHeight}px`;
 		this.root.appendChild($container);
+
+		window.requestAnimationFrame(this.handleAnimationFrame);
+	}
+	handleAnimationFrame = async () => {
+		const values = await this.wamNode.getParameterValues();
+		for (const key in values) {
+			const { value } = values[key];
+			this.faustUI.paramChangeByDSP(key, value);
+		}
+		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	connectedCallback() {
@@ -49,9 +68,10 @@ try {
  * @returns {Node} - the plugin root node that is inserted in the DOM of the host
  */
 const createElement = async (plugin) => {
-	const faustNode = plugin.audioNode._output;
+	const wamNode = plugin.audioNode;
+	const faustNode = wamNode._output;
 	const { ui } = faustNode.json_object;
 	const style = await (await fetch(new URL('./faust-ui/index.css', import.meta.url))).text();
-	return new FaustDefaultGui(faustNode, ui, style);
+	return new FaustDefaultGui(wamNode, faustNode, ui, style);
 };
 export default createElement;
