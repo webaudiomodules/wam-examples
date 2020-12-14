@@ -11,7 +11,9 @@ import AbstractWebAudioModule from './api/AbstractWebAudioModule.js';
 /* eslint-disable no-console */
 
 class WebAudioModule extends AbstractWebAudioModule {
-	static isWebAudioModuleConstructor = true;
+	static get isWebAudioModuleConstructor() {
+		return true;
+	}
 
 	/**
 	 * @param {BaseAudioContext} audioContext
@@ -28,9 +30,11 @@ class WebAudioModule extends AbstractWebAudioModule {
 		this._audioContext = audioContext;
 	}
 
-	isWebAudioModule = true;
+	get isWebAudioModule() {
+		return true;
+	}
 
-	initialized = false;
+	_initialized = false;
 
 	/** @type {WamNode} */
 	_audioNode = undefined;
@@ -83,6 +87,14 @@ class WebAudioModule extends AbstractWebAudioModule {
 
 	set audioNode(node) {
 		this._audioNode = node;
+	}
+
+	get initialized() {
+		return this._initialized;
+	}
+
+	set initialized(value) {
+		this._initialized = value;
 	}
 
 	/**
