@@ -1,4 +1,4 @@
-/** @typedef { import('./api/types').WamParameterInfo } WamParameterInfo */
+/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */

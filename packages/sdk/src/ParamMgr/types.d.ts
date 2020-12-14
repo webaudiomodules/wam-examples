@@ -1,6 +1,9 @@
+/* eslint-disable no-undef */
 /* eslint-disable max-len */
+
 // eslint-disable-next-line object-curly-newline
-import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent, WamProcessor, WamEventMap } from '../api/types';
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent, WebAudioModule, WamEventMap, WamParameter } from '../api/types';
+import { TypedAudioWorkletNode, TypedAudioWorkletNodeOptions } from './TypedAudioWorklet';
 
 export class AudioWorkletRegister {
 	/**
@@ -98,85 +101,239 @@ export interface ParamMgrOptions extends TypedAudioWorkletNodeOptions<ParamMgrAu
 	internalParamsConfig: InternalParametersDescriptor;
 }
 
-// AudioWorkletProcessor
+/**
+ * A `WamParameter` API-compatible `AudioParam` class/interface.
+ * All `AudioParam`s generated from the `ParamMgr` will inherit this class
+ */
+export interface MgrAudioParam extends AudioParam, WamParameter {
+    // normalized version of methods
+    cancelAndHoldAtTime(cancelTime: number): MgrAudioParam;
+    cancelScheduledValues(cancelTime: number): MgrAudioParam;
+    exponentialRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
+    exponentialRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
+    linearRampToValueAtTime(value: number, endTime: number): MgrAudioParam;
+    linearRampToNormalizedValueAtTime(value: number, endTime: number): MgrAudioParam;
+    setTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
+    setNormalizedTargetAtTime(target: number, startTime: number, timeConstant: number): MgrAudioParam;
+    setValueAtTime(value: number, startTime: number): MgrAudioParam;
+    setNormalizedValueAtTime(value: number, startTime: number): MgrAudioParam;
+    setValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
+    setNormalizedValueCurveAtTime(values: number[] | Float32Array | Iterable<number>, startTime: number, duration: number): MgrAudioParam;
+}
 
-export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
-	processorOptions?: T;
-}
-export interface TypedMessageEvent<T = any> extends MessageEvent {
-	data: T;
-}
-export interface TypedMessagePortEventMap<T = any> extends MessagePortEventMap {
-	'message': TypedMessageEvent<T>;
-}
-
-export interface TypedEventListener<EventDetail = any> {
-    (evt: CustomEvent<EventDetail>): void;
-}
-
-export interface TypedEventListenerObject<EventDetail = any> {
-    handleEvent(evt: CustomEvent<EventDetail>): void;
-}
-
-export type TypedEventListenerOrEventListenerObject<EventDetail = any> = TypedEventListener<EventDetail> | TypedEventListenerObject<EventDetail>;
-
-export interface TypedEventTarget<EventMap extends Record<string, any> = any> extends EventTarget {
-	addEventListener<K extends keyof EventMap>(type: K, listener: TypedEventListenerOrEventListenerObject<EventMap[K]> | null, options?: boolean | AddEventListenerOptions): void;
-	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-    dispatchEvent(event: Event): boolean;
-    removeEventListener<K extends keyof EventMap>(type: K, listener: TypedEventListenerOrEventListenerObject<EventMap[K]> | null, options?: EventListenerOptions | boolean): void;
-	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-}
-export interface TypedMessagePort<In = any, Out = any> extends MessagePort {
-	onmessage: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
-	onmessageerror: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
-	postMessage(message: Out, transfer: Transferable[]): void;
-	postMessage(message: Out, options?: PostMessageOptions): void;
-	addEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | AddEventListenerOptions): void;
-	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-	removeEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | EventListenerOptions): void;
-	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-}
-export interface TypedAudioParamDescriptor<Par extends string = string> extends AudioParamDescriptor {
-	automationRate?: AutomationRate;
-	defaultValue?: number;
-	maxValue?: number;
-	minValue?: number;
-	name: Par;
-}
-export interface TypedAudioWorkletProcessor<MsgIn = any, MsgOut = any, Par extends string = string> {
-	port: TypedMessagePort<MsgIn, MsgOut>;
-	process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<Par, Float32Array>): boolean;
-}
-export const TypedAudioWorkletProcessor: {
-	parameterDescriptors: TypedAudioParamDescriptor[];
-	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(options: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletProcessor<MsgIn, MsgOut, Par>;
+export const MgrAudioParam: {
+    prototype: MgrAudioParam;
 };
 
-export interface AudioWorkletGlobalScope {
-	registerProcessor: (name: string, constructor: new (options: any) => TypedAudioWorkletProcessor) => void;
-	currentFrame: number;
-	currentTime: number;
-	sampleRate: number;
-	AudioWorkletProcessor: typeof TypedAudioWorkletProcessor;
-	WamProcessors: Record<string, WamProcessor>;
-}
+// ParamMgrNode
 
-export type TypedAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
+export interface ParamMgrNodeMsgIn extends MessagePortResponse<ParamMgrCallToProcessor>, MessagePortRequest<ParamMgrCallFromProcessor> {}
+export interface ParamMgrNodeMsgOut extends MessagePortRequest<ParamMgrCallToProcessor>, MessagePortResponse<ParamMgrCallFromProcessor> {}
 
-export interface TypedAudioWorkletNode<MsgIn = any, MsgOut = any, Par extends string = string, EventMap extends Record<string, any> = any> extends AudioWorkletNode {
-	readonly port: TypedMessagePort<MsgIn, MsgOut>;
-	readonly parameters: TypedAudioParamMap<Par>;
-	destroyed: boolean;
-	destroy(): void;
-    addEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener<K extends keyof EventMap>(type: K, listener: (this: AudioWorkletNode, ev: CustomEvent<EventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener<K extends keyof EventMap>(type: K, listener: (this: AudioWorkletNode, ev: CustomEvent<EventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+/**
+ * Parameter Manager is an implementation of `WamNode`,
+ * it uses native `WebAudio` `AudioParam` to adapt `WamParameter` API for automations.
+ * It can be used to create automatable values that will be changed with two methods:
+ *
+ * 1. if the automated value is an `AudioParam`:
+ *
+ *      According to the `WebAudio` [Spec](https://webaudio.github.io/web-audio-api/#computation-of-value),
+ * the `computedValue` of the automated `AudioParam` is the sum of its `paramIntrinsicValue` (`value` attribute) and its audio input.
+ * The `ParamMgr` uses this property to automate `AudioParam`s.
+ * It will create corresponding audio output that is connected to the automated `AudioParam`.
+ *
+ *      Meanwhile, the `paramIntrinsicValue` will be set to its `minValue`.
+ *
+ *      Note: as the automated `AudioParam` value is fixed, to get its actual value, please use `getIParamValue()` method.
+ * `BiquadFilterNode.getFrequencyResponse()` will not work if its `AudioParam`s are automated in this case.
+ *
+ * 2. if the automated value is not an `AudioParam`
+ *
+ *      While setting up the `ParamMgr`, user can provide an `onChange` callback for any furthur opertion
+ * along with an `automationRate` in milliseconds as the frequency of calling the callback if the value has been changed.
+ *
+ *      The rate cannot succeed `k-rate` as the function call on the main thread.
+ */
+export interface ParamMgrNode<Params extends string = string, InternalParams extends string = Params> extends TypedAudioWorkletNode<ParamMgrNodeMsgIn, ParamMgrNodeMsgOut, Params, WamEventMap>, Omit<WamNode, keyof AudioWorkletNode>, ParamMgrCallFromProcessor {
+    readonly module: WebAudioModule;
+    /**
+     * The state of the initialization.
+     */
+    readonly initialized: boolean;
+    /**
+     * An array that contains ordered internal params names.
+     * The order is important for the output connections and for the parameters' values buffer
+     * @deprecated
+     */
+    readonly internalParams: InternalParams[];
+    /**
+     * The plugin's internal parameters description.
+     * Used for denormalize normalized exposed parameters values
+     */
+    readonly internalParamsConfig: InternalParametersDescriptor<InternalParams>;
+    /**
+     * The lock will be true if the `$paramsBuffer` is changing by the processor.
+     * This is a view of a `SharedArrayBuffer`
+     * @deprecated
+     */
+    readonly $lock: Int32Array;
+    /**
+     * The values of internal parameters,
+     * contains one value for each param,
+     * will be updated each `AudioWorklet` buffer.
+     * This is a view of a `SharedArrayBuffer`
+     * @deprecated
+     */
+    readonly $paramsBuffer: Float32Array;
+    /**
+     * Previous params value since last event dispatch of any
+     * non-AudioParam internal parameters
+     * @deprecated
+     */
+    readonly $prevParamsBuffer: Float32Array;
+    /**
+     * A set for internal parameters names.
+     * These params is ready for next change event dispatch.
+     * (to throttle event dispatch rate for the non-AudioParam internal parameters)
+     * @deprecated
+     */
+    readonly paramsChangeCanDispatch: Set<InternalParams>;
+    /**
+     * Event dispatch callbacks reference of the `setTimeout` calls.
+     * Used to clear the callbacks while destroying the plugin.
+     * @deprecated
+     */
+    readonly paramsUpdateCheckFnRef: number[];
+    /**
+     * waiting for the processor that gives the `paramsBuffer` `SharedArrayBuffer`
+     */
+    initialize(): Promise<ParamMgrNode>;
+    /**
+     * convert an WebAudio time stamp to frame index
+     */
+    convertTimeToFrame(time: number): number;
+    /**
+     * convert a frame index to WebAudio time stamp
+     */
+    convertFrameToTime(frame: number): number;
+    /**
+     * Force to check if an internal param is updated to dispatch immediately value change event if necessary.
+     * Note that the event will also be throttled to the automation rate.
+     */
+    requestDispatchIParamChange(name: InternalParams): void;
+    /**
+     * get the output index of an internal parameter from its name,
+     * null if not exist
+     */
+    getIParamIndex(name: InternalParams): number | null;
+    /**
+     * connect an internal parameter audio output to an AudioParam or an AudioNode.
+     * Note that if the destination is declared in the `internalParamsConfig`,
+     * there is no need to reconnect it.
+     */
+    connectIParam(name: InternalParams, dest: AudioParam | AudioNode, index?: number): void;
+    /**
+     * disonnect an internal parameter audio output to an AudioParam or an AudioNode.
+     */
+    disconnectIParam(name: InternalParams, dest?: AudioParam | AudioNode, index?: number): void;
+    /**
+     * get the current value of an internal parameter
+     */
+    getIParamValue(name: InternalParams): number;
+    /**
+     * get the current value of every internal parameters
+     */
+    getIParamsValues(): Record<InternalParams, number>;
+    /**
+     * get the `AudioParam` instance of an exposed parameter
+     */
+    getParam(name: Params): AudioParam;
+    /**
+     * get the `AudioParam` instance of every exposed parameters
+     */
+    getParams(): Record<Params, AudioParam>;
+    /**
+     * get the current value of an exposed parameter,
+     * shorthand for `AudioParam.prototype.value`
+     */
+    getParamValue(name: Params): number;
+    /**
+     * get the current value of an exposed parameter,
+     * shorthand for `AudioParam.prototype.value = value`
+     */
+    setParamValue(name: Params, value: number): void;
+    /**
+     * get the current value of every exposed parameters
+     */
+    getParamsValues(): Record<Params, number>;
+    /**
+     * set the current value of every exposed parameters
+     */
+    setParamsValues(values: Partial<Record<Params, number>>): void;
+    /**
+     * normalized value version of `getParamValue()`
+     */
+    getNormalizedParamValue(name: Params): number;
+    /**
+     * normalized value version of `setParamValue()`
+     */
+    setNormalizedParamValue(name: Params, value: number): void;
+    /**
+     * normalized value version of `getParamsValues()`
+     */
+    getNormalizedParamsValues(): Partial<Record<Params, number>>;
+    /**
+     * normalized value version of `setParamsValues()`
+     */
+    setNormalizedParamsValues(values: Record<Params, number>): void;
+    // `AudioParam.prototype` methods with there normlized value version
+    setParamValueAtTime(name: Params, value: number, startTime: number): AudioParam;
+    setNormalizedParamValueAtTime(name: Params, value: number, startTime: number): AudioParam;
+    linearRampToParamValueAtTime(name: Params, value: number, endTime: number): AudioParam;
+    linearRampToNormalizedParamValueAtTime(name: Params, value: number, endTime: number): AudioParam;
+    exponentialRampToParamValueAtTime(name: Params, value: number, endTime: number): AudioParam;
+    exponentialRampToNormalizedParamValueAtTime(name: Params, value: number, endTime: number): AudioParam;
+    setParamTargetAtTime(name: Params, target: number, startTime: number, timeConstant: number): AudioParam;
+    setNormalizedParamTargetAtTime(name: Params, target: number, startTime: number, timeConstant: number): AudioParam;
+    setParamValueCurveAtTime(name: Params, values: Iterable<number> | number[] | Float32Array, startTime: number, duration: number): AudioParam;
+    setNormalizedParamValueCurveAtTime(name: Params, values: Iterable<number> | number[] | Float32Array, startTime: number, duration: number): AudioParam;
+    cancelScheduledParamValues(name: Params, cancelTime: number): AudioParam;
+    cancelAndHoldParamAtTime(name: Params, cancelTime: number): AudioParam;
 }
-export const TypedAudioWorkletNode: {
-	prototype: TypedAudioWorkletNode;
-	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par>;
+export const ParamMgrNode: {
+    prototype: ParamMgrNode;
+	/**
+     * Creates an instance of ParamMgrNode.
+     *
+     * @param {WebAudioModule} module WebAudioModule
+     * @param {ParamMgrOptions} options AudioWorkletNode options
+     */
+    new <Params extends string = string, InternalParams extends string = string>(
+        module: WebAudioModule,
+        options: ParamMgrOptions
+    ): ParamMgrNode<Params, InternalParams>;
+};
+
+/**
+ * Use `create` static method to create a new `ParamMgr` instance
+ */
+export const ParamMgrFactory: {
+	/**
+	 * Get a ParamManager as an AudioWorkletNode instance
+	 *
+	 * The second argument `optionsIn` decides how `ParamMgr` should automate parameters and generate `WamParameter`-compatible `AudioParam`s.
+	 *
+	 * The option could have three possible properties: `paramsConfig`, `paramsMapping` and `internalParamsConfig`.
+	 *
+	 * If you do not have to configure one-to-many parameters, please declare `internalParamsConfig` only,
+	 * where you can put an `AudioParam` or an object that contains default, min, max values, automation rate with the `onChange` callback.
+	 * The factory will generate automatically automatable `AudioParam`s for you.
+	 *
+	 * Else, you can declare `paramsConfig` with exposed parameters' configs.
+	 * The omitted properties will be filled according the internal parameter with the same name.
+	 * In the `paramsMapping`, you can declare how one-to-many parameters maps values to the internal parameters.
+     * @param {WebAudioModule} module the module instance
+	 * @param {ParametersMappingConfiguratorOptions} [optionsIn = {}] config of the parameters
+	 */
+	create<Params extends string = string, InternalParams extends string = string>(module: WebAudioModule, optionsIn?: ParametersMappingConfiguratorOptions<Params, InternalParams>): Promise<ParamMgrNode<Params, InternalParams>>;
 };

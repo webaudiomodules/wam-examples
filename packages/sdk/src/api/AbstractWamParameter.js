@@ -1,12 +1,13 @@
+/** @typedef {import('./types').WamParameter} IWamParameter */
+
 /**
  * WebAudioModule v2 Parameter API,
  * see d.ts file for more information.
  * @abstract
- * @typedef {import('./types').WamParameter} IWamParameter
  * @implements {IWamParameter}
  */
 export default class WamParameter {
-	constructor(info) { throw new Error('Not Implemented.'); }
+	constructor(info) {}
 
 	get info() { throw new Error('Not Implemented.'); return null; }
 

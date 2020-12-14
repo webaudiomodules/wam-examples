@@ -9,10 +9,12 @@
     "build:livegain": "lerna run build --stream --scope livegain",
     "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
     "build:quadrafuzz": "lerna run build --stream --scope quadrafuzz",
+    "build:csoundpitchshifter": "lerna run build --stream --scope csoundPitchShifter",
     "build:sdk": "lerna run build --stream --scope sdk",
     "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain",
     "start": "lerna run start --stream --scope host -- --color",
-    "doc:api": "typedoc --out packages/docs/typedoc/ packages/sdk/src/api/ --includeDeclarations --excludeExternals --exclude **/*.js --mode file"
+    "doc:api": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --out ./packages/docs/typedoc/api ./packages/sdk/src/api/",
+    "doc:parammgr": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr ./packages/sdk/src/ParamMgr/"
   },
   "workspaces": [
     "packages/*"

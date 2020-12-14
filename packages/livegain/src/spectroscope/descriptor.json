@@ -1,0 +1,11 @@
+{
+    "name": "Spectroscope",
+    "vendor": "Shihong Ren",
+    "description": "TypeScript/React Spectroscope WebAudioModule",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": ["visualization"],
+    "isInstrument": false,
+    "website": ""
+}

@@ -135,8 +135,7 @@ async function showPluginInfo(instance, gui) {
 	}
 
 	pluginInfoDiv.innerHTML = `
-	<li><b>instance.name :</b> ${instance.name}</li>
-	<li><b>instance.vendor :</b> ${instance.vendor}</li>
+	<li><b>instance.descriptor :</b> ${JSON.stringify(instance.descriptor)}</li>
 	<li><b>gui.properties.dataWidth.value</b> : ${guiWidth}</li>
 	<li><b>gui.properties.dataHeight.value</b> : ${guiHeight}</li>
 	<li><b>instance.audioNode.getParameterInfo() :</b>
@@ -311,29 +310,51 @@ function buildAudioDeviceMenu() {
 /** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
 /** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
 /** @type {HTMLInputElement} */ const pluginAutomationApplyButton = document.querySelector('#pluginAutomationApply');
-/** @type {import("./bpf").default} */ const bpf = document.querySelector('webaudiomodules-host-bpf');
+/** @type {HTMLDivElement} */ const bpfContainer = document.querySelector('#pluginAutomationEditor');
 
 pluginParamSelector.addEventListener('input', async (e) => {
 	if (!instance) return;
-	const info = await instance.audioNode.getParameterInfo(e.target.value);
-	const { minValue, maxValue } = info[e.target.value];
+	const paramId = e.target.value;
+	if (paramId === '-1') return;
+	if (Array.from(bpfContainer.querySelectorAll('.pluginAutomationParamId')).find(span => span.textContent === paramId)) return;
+	const div = document.createElement('div');
+	div.classList.add('pluginAutomation');
+	const span = document.createElement('span');
+	span.textContent = paramId;
+	span.classList.add('pluginAutomationParamId');
+	div.appendChild(span);
+	const bpf = document.createElement('webaudiomodules-host-bpf');
+	const info = await instance.audioNode.getParameterInfo(paramId);
+	const { minValue, maxValue, defaultValue } = info[paramId];
 	bpf.setAttribute('min', minValue);
 	bpf.setAttribute('max', maxValue);
+	bpf.setAttribute('default', defaultValue);
+	div.appendChild(bpf);
+	bpfContainer.appendChild(div);
+	pluginParamSelector.selectedIndex = 0;
 });
 pluginAutomationLengthInput.addEventListener('input', (e) => {
-	bpf.setAttribute("domain", +e.target.value);
+	const domain = +e.target.value;
+	if (!domain) return;
+	bpfContainer.querySelectorAll('webaudiomodules-host-bpf').forEach(/** @param {import("./bpf").default} bpf */(bpf) => {
+		bpf.setAttribute("domain", domain);
+	});
 });
 pluginAutomationApplyButton.addEventListener('click', () => {
 	if (!instance) return;
-	const paramId = pluginParamSelector.value;
-	bpf.apply(instance.audioNode, paramId);
+	bpfContainer.querySelectorAll('.pluginAutomation').forEach(/** @param {HTMLDivElement} div */(div) => {
+		const paramId = div.querySelector('.pluginAutomationParamId').textContent;
+		/** @type {import("./bpf").default} */ const bpf = div.querySelector('webaudiomodules-host-bpf');
+		bpf.apply(instance.audioNode, paramId);
+	});
 });
 
 /**
  * @param {import('sdk/src/api/types').WebAudioModule} instance
  */
 async function populateParamSelector(instance) {
-	pluginParamSelector.innerHTML = '';
+	bpfContainer.innerHTML = '';
+	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
 	const wamNode = instance.audioNode;
 	const info = await wamNode.getParameterInfo();
 	for (const paramId in info) {

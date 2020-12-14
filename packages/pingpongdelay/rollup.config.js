@@ -20,7 +20,7 @@ const common = {
 		copy({
 			targets: [
 				{ src: 'src/descriptor.json', dest: 'dist/' },
-			]
+			],
 		}),
 		postcss({
 			extract: false,

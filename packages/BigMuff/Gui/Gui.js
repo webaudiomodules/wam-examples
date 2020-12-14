@@ -1,10 +1,24 @@
+/* eslint-disable no-console */
+/* eslint-disable no-shadow */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable max-len */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-underscore-dangle */
 import '../utils/webaudio-controls.js';
+
+/**
+ * @typedef {import('../../sdk/src/ParamMgr/types').ParamMgrNode} ParamMgrNode
+ * @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule
+ */
 
 const getBaseURL = () => {
 	const base = new URL('.', import.meta.url);
 	return `${base}`;
 };
 export default class BigMuffGui extends HTMLElement {
+	/**
+	 * @param {WebAudioModule<ParamMgrNode>} plug
+	 */
 	constructor(plug) {
 		super();
 		this._plug = plug;
@@ -101,21 +115,21 @@ export default class BigMuffGui extends HTMLElement {
                     </div>
                     `;
 
-		this.isOn;
-		this.state = new Object();
+		// this.isOn;
+		this.state = {};
 		this.setKnobs();
 		this.setSliders();
 		this.setSwitches();
 		//this.setSwitchListener();
 		this.setInactive();
 		this._root.querySelector('#pedal').style.transform = 'none';
-		//this._root.querySelector("#test").style.fontFamily = window.getComputedStyle(this._root.querySelector("#test")).getPropertyValue('font-family');
+		// this._root.querySelector("#test").style.fontFamily = window.getComputedStyle(this._root.querySelector("#test")).getPropertyValue('font-family');
 
 		// Compute base URI of this main.html file. This is needed in order
 		// to fix all relative paths in CSS, as they are relative to
 		// the main document, not the plugin's main.html
 		this.basePath = getBaseURL();
-		console.log('basePath = ' + this.basePath);
+		console.log(`basePath = ${this.basePath}`);
 
 		// Fix relative path in WebAudio Controls elements
 		this.fixRelativeImagePathsInCSS();
@@ -130,28 +144,28 @@ export default class BigMuffGui extends HTMLElement {
 
 	fixRelativeImagePathsInCSS() {
 		// change webaudiocontrols relative paths for spritesheets to absolute
-		let webaudioControls = this._root.querySelectorAll(
-			'webaudio-knob, webaudio-slider, webaudio-switch, img'
+		const webaudioControls = this._root.querySelectorAll(
+			'webaudio-knob, webaudio-slider, webaudio-switch, img',
 		);
 		webaudioControls.forEach((e) => {
-			let currentImagePath = e.getAttribute('src');
+			const currentImagePath = e.getAttribute('src');
 			if (currentImagePath !== undefined) {
 				//console.log("Got wc src as " + e.getAttribute("src"));
-				let imagePath = e.getAttribute('src');
-				e.setAttribute('src', this.basePath + '/' + imagePath);
+				const imagePath = e.getAttribute('src');
+				e.setAttribute('src', `${this.basePath}/${imagePath}`);
 				//console.log("After fix : wc src as " + e.getAttribute("src"));
 			}
 		});
 
-		let sliders = this._root.querySelectorAll('webaudio-slider');
+		const sliders = this._root.querySelectorAll('webaudio-slider');
 		sliders.forEach((e) => {
-			let currentImagePath = e.getAttribute('knobsrc');
+			const currentImagePath = e.getAttribute('knobsrc');
 			if (currentImagePath !== undefined) {
-				console.log('Got img src as ' + e.getAttribute('src'));
-				let imagePath = e.getAttribute('knobsrc');
-				e.setAttribute('knobsrc', this.basePath + '/' + imagePath);
+				console.log(`Got img src as ${e.getAttribute('src')}`);
+				const imagePath = e.getAttribute('knobsrc');
+				e.setAttribute('knobsrc', `${this.basePath}/${imagePath}`);
 				console.log(
-					'After fix : slider knobsrc as ' + e.getAttribute('knobsrc')
+					`After fix : slider knobsrc as ${e.getAttribute('knobsrc')}`,
 				);
 			}
 		});
@@ -159,9 +173,8 @@ export default class BigMuffGui extends HTMLElement {
 
 	setImageBackground(imageRelativeURI) {
 		// check if the shadowroot host has a background image
-		let mainDiv = this._root.querySelector('#pedal');
-		mainDiv.style.backgroundImage =
-			'url(' + this.basePath + imageRelativeURI + ')';
+		const mainDiv = this._root.querySelector('#pedal');
+		mainDiv.style.backgroundImage =	`url(${this.basePath}${imageRelativeURI})`;
 
 		//console.log("background =" + mainDiv.style.backgroundImage);
 		//this._root.style.backgroundImage = "toto.png";
@@ -170,12 +183,12 @@ export default class BigMuffGui extends HTMLElement {
 	attributeChangedCallback() {
 		console.log('Custom element attributes changed.');
 		this.state = JSON.parse(this.getAttribute('state'));
-		let tmp = '/PingPongDelayFaust/bypass';
+		const tmp = '/PingPongDelayFaust/bypass';
 
-		if (this.state[tmp] == 1) {
+		if (this.state[tmp] === 1) {
 			this._root.querySelector('#switch1').value = 0;
 			this.isOn = false;
-		} else if (this.state[tmp] == 0) {
+		} else if (this.state[tmp] === 0) {
 			this._root.querySelector('#switch1').value = 1;
 			this.isOn = true;
 		}
@@ -183,18 +196,19 @@ export default class BigMuffGui extends HTMLElement {
 		this.knobs = this._root.querySelectorAll('.knob');
 		console.log(this.state);
 
-		for (var i = 0; i < this.knobs.length; i++) {
+		for (let i = 0; i < this.knobs.length; i++) {
 			this.knobs[i].setValue(this.state[this.knobs[i].id], false);
 			console.log(this.knobs[i].value);
 		}
 	}
+
 	handleAnimationFrame = () => {
 		this._root.getElementById(
-			'/BigMuff/Drive'
+			'/BigMuff/Drive',
 		).value = this._plug.audioNode.getParamValue('/BigMuff/Drive');
 
 		this._root.getElementById(
-			'/BigMuff/Input'
+			'/BigMuff/Input',
 		).value = this._plug.audioNode.getParamValue('/BigMuff/Input');
 
 		/*
@@ -203,11 +217,10 @@ export default class BigMuffGui extends HTMLElement {
 		).value = this._plug.audioNode.getParamValue('/BigMuff/Output');
         */
 		this._root.getElementById(
-			'/BigMuff/Tone'
+			'/BigMuff/Tone',
 		).value = this._plug.audioNode.getParamValue('/BigMuff/Tone');
 
-		this._root.getElementById('/BigMuff/bypass').value =
-			1 - this._plug.audioNode.getParamValue('/BigMuff/bypass');
+		this._root.getElementById('/BigMuff/bypass').value =			1 - this._plug.audioNode.getParamValue('/BigMuff/bypass');
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	};
@@ -233,20 +246,16 @@ export default class BigMuffGui extends HTMLElement {
 	setKnobs() {
 		this._root
 			.getElementById('/BigMuff/Drive')
-			.addEventListener('input', (e) =>
-				this._plug.audioNode.setParamValue(
-					'/BigMuff/Drive',
-					e.target.value
-				)
-			);
+			.addEventListener('input', (e) => this._plug.audioNode.setParamValue(
+				'/BigMuff/Drive',
+				e.target.value,
+			));
 		this._root
 			.getElementById('/BigMuff/Input')
-			.addEventListener('input', (e) =>
-				this._plug.audioNode.setParamValue(
-					'/BigMuff/Input',
-					e.target.value
-				)
-			);
+			.addEventListener('input', (e) => this._plug.audioNode.setParamValue(
+				'/BigMuff/Input',
+				e.target.value,
+			));
 		/*
 		this._root
 			.getElementById('/BigMuff/Output')
@@ -259,42 +268,39 @@ export default class BigMuffGui extends HTMLElement {
             */
 		this._root
 			.getElementById('/BigMuff/Tone')
-			.addEventListener('input', (e) =>
-				this._plug.audioNode.setParamValue(
-					'/BigMuff/Tone',
-					e.target.value
-				)
-			);
+			.addEventListener('input', (e) => this._plug.audioNode.setParamValue(
+				'/BigMuff/Tone',
+				e.target.value,
+			));
 	}
 
 	setSliders() {}
 
 	setSwitches() {
-        let led = this._root.querySelector('#powerLed');
-        led.style.backgroundColor = 'red';
-        
+		const led = this._root.querySelector('#powerLed');
+		led.style.backgroundColor = 'red';
+
 		this._root
 			.getElementById('/BigMuff/bypass')
 			.addEventListener('change', (e) => {
 				this._plug.audioNode.setParamValue(
 					'/BigMuff/bypass',
-					1 - e.target.value
+					1 - e.target.value,
 				);
 
 				// change color of power led
-				let led = this._root.querySelector('#powerLed');
-		
-				if (led.style.backgroundColor === 'red')
-					led.style.backgroundColor = 'grey';
+				const led = this._root.querySelector('#powerLed');
+
+				if (led.style.backgroundColor === 'red') led.style.backgroundColor = 'grey';
 				else led.style.backgroundColor = 'red';
 			});
 	}
 
 	setInactive() {
-		let switches = this._root.querySelectorAll('.switch webaudio-switch');
+		const switches = this._root.querySelectorAll('.switch webaudio-switch');
 
 		switches.forEach((s) => {
-			console.log('### SWITCH ID = ' + s.id);
+			console.log(`### SWITCH ID = ${s.id}`);
 			this._plug.audioNode.setParamValue(s.id, 0);
 		});
 	}

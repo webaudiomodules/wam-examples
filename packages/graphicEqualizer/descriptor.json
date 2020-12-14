@@ -1,8 +1,11 @@
 {
-    "documentation": "TODO", 
     "name": "Equalizer",
-    "thumbnail": "assets/equal.png",
     "vendor": "Wasabi",
-    "category":"Mixing",
-    "version": "1.0"
+    "description": "TODO",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "assets/equal.png",
+    "keywords": ["equalizer", "mixing"],
+    "isInstrument": false,
+    "website": ""
   }

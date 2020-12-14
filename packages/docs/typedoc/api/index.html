@@ -1,0 +1,389 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>sdk</title>
+	<meta name="description" content="Documentation for sdk">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">sdk</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>sdk</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#webaudiomodule" id="webaudiomodule" style="color: inherit; text-decoration: none;">
+					<h1>webaudiomodule</h1>
+				</a>
+				<a href="#structure" id="structure" style="color: inherit; text-decoration: none;">
+					<h2>Structure</h2>
+				</a>
+				<p>This is a monorepo with multiple packages located under the directory <code>packages/</code>.</p>
+				<p>List of (relevant) packages</p>
+				<ul>
+					<li><code>host</code>: a very simple host built with parceljs</li>
+					<li><code>sdk</code>: draft of the new sdk</li>
+					<li><code>pingpongdelay</code>: a simple PingPongDelay plugin based on the previous version from Michel</li>
+					<li><code>livegain</code>: LiveGain plugin from Shihong</li>
+				</ul>
+				<a href="#main-dependencies" id="main-dependencies" style="color: inherit; text-decoration: none;">
+					<h2>Main dependencies</h2>
+				</a>
+				<p>The projet mainly uses the following packages for development :</p>
+				<ul>
+					<li><a href="https://www.npmjs.com/package/yarn">yarn</a> : replacement of npm</li>
+					<li><a href="https://www.npmjs.com/package/lerna">lerna</a> : monorepo (multiple packages repository) manager</li>
+					<li><a href="https://www.npmjs.com/package/@babel/core">babel</a> : ES6 transpiler</li>
+					<li><a href="https://www.npmjs.com/package/rollup">rollup</a> : Module bundler (compatible es6 modules ouput)</li>
+				</ul>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<ol>
+					<li>Install dependencies</li>
+				</ol>
+				<pre><code class="language-sh">yarn install</code></pre>
+				<ol start="2">
+					<li>Initliaze monorepo dependencies using lerna</li>
+				</ol>
+				<pre><code class="language-sh">yarn lerna bootstrap</code></pre>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting started</h2>
+				</a>
+				<a href="#commands" id="commands" style="color: inherit; text-decoration: none;">
+					<h3>Commands</h3>
+				</a>
+				<p>Available scripts :</p>
+				<ul>
+					<li><code>yarn build</code>: builds sdk and plugins (you may also use scripts <code>build:sdk</code>, <code>build:pingpongdelay</code> etc..)</li>
+					<li><code>yarn start</code>: starts the host example (for development only). Open <a href="http://localhost:1234">http://localhost:1234</a></li>
+					<li><code>yarn clean</code>: deletes built code</li>
+				</ul>
+				<p>(other scripts can be found in /package.json)</p>
+				<a href="#create-a-plugin" id="create-a-plugin" style="color: inherit; text-decoration: none;">
+					<h3>Create a plugin</h3>
+				</a>
+				<p>For this example we will create a very simple plugin named simplegain</p>
+				<ol>
+					<li>Create a plugin package</li>
+				</ol>
+				<p>Create a package under packages directory using <a href="https://github.com/lerna/lerna/tree/master/commands/create">lerna create</a></p>
+				<p>Plugin creation is explained in the following section <a href="#writing-a-plugin">Writing a plugin</a>.</p>
+				<p>Example:</p>
+				<pre><code class="language-sh">yarn lerna create simplegain</code></pre>
+				<ol start="2">
+					<li>Test your plugin in a host</li>
+				</ol>
+				<p>In order to test your plugin, you have to create a new html file in the src folder inside the package <code>host</code>.
+				The html file may also link a JavaScript file that will load the plugin and play some sound etc.</p>
+				<p><strong>lerna dependency</strong>
+					lerna allows to symlinks monorepo packages between each other as regular package dependencies.
+					In order to use a plugin in the host, you must install the dependency.
+					Using lerna:
+				(replace &quot;simplegain&quot; with your own plugin module name)</p>
+				<pre><code class="language-sh">yarn lerna add simplegain --scope host</code></pre>
+				<p><strong>Parcel</strong>
+					The host is built with parcel which allows to write modern JavaScript with no efforts.
+				Parcel allows for example to use ES6 static imports, loading assets from JavaScript etc.</p>
+				<p><strong>sdk plugin loader</strong>
+					The plugin loader uses es6 dynamic imports to load the plugins through HTTP.
+				Thus every plugin code (descriptor.json, audio module, gui) must be available through a Web server.</p>
+				<p>The host package provides a simple utility that make a plugin avaiable through a web server.
+				In order to make your plugin available, it must be listed in the <code>webaudiomodules</code> field of the <code>package.json</code> of the host.</p>
+				<p>Example :</p>
+				<pre><code class="language-json">...
+  &quot;webaudiomodules&quot;: {
+    &quot;livegain&quot;: &quot;dist&quot;,
+    &quot;pingpongdelay&quot;: &quot;dist&quot;
+  }
+...</code></pre>
+				<p><code>webaudiomodules</code> field is a map of [packageName, buildDirectory].
+					buildDirectory is the directory where is located the built code of the plugin.
+					In this example, pingpongdelay and livegain build scripts produce files in their dist directory.
+				If your plugin code is at the root, just set the buildDirectory value to the empty string &quot;&quot;.</p>
+				<a href="#writing-a-plugin" id="writing-a-plugin" style="color: inherit; text-decoration: none;">
+					<h3>Writing a plugin</h3>
+				</a>
+				<p>A plugin is composed of (at least) two files :</p>
+				<ul>
+					<li><code>index.js</code>: an ES module that implements the <em>WebAudioModule</em> class from the sdk</li>
+					<li><code>gui.js</code>: an ES module that exports a function to create a DOM node containing the plugin GUI</li>
+				</ul>
+				<p><strong>index.js</strong>
+					First create the WebAudioModule <strong>ES module</strong>.
+					This module must export as default a class that extends the sdk WebAudioModule class.
+					The only method that must be implemented is <code>async createAudioNode(options)</code>.
+				Example:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">import</span> { WebAudioModule } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleGainPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebAudioModule</span> </span>{
+    <span class="hljs-comment">// The plugin redefines the async method createAudionode()</span>
+    <span class="hljs-comment">// that must return an &lt;Audionode&gt;</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-title">createAudioNode</span>(<span class="hljs-params">options</span>)</span> {
+        <span class="hljs-keyword">const</span> gainNode = <span class="hljs-keyword">new</span> GainNode(<span class="hljs-built_in">this</span>.audioContext, options);
+        <span class="hljs-keyword">return</span> gainNode;
+    }
+}</code></pre>
+				<p>More complex plugins can return a CompositeNode (i.e a graph of WebAudio nodes seen as a single node. See examples pingpongdelay or quadrafuzz in the src/packages folder) or an AudioWorkletNode...</p>
+				<p><strong>gui.js</strong>
+					If you want your plugin to export a gui, create a es module file named gui.js.
+				The module must export a named export createElement: <code>async function createElement(plugin)</code>.</p>
+				<p>The plugin parameter is the instance of the WebAudioModule that can be used by the GUI for example
+				to get a reference to the AudioNode etc..</p>
+				<p>The function must return a <code>HTMLElement</code>.</p>
+				<p>Example using native DOM :</p>
+				<pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createElement</span>(<span class="hljs-params">plugin</span>) </span>{
+    <span class="hljs-keyword">const</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">&#x27;div&#x27;</span>);
+    div.textContent = <span class="hljs-string">`WebAudioModule[<span class="hljs-subst">${plugin.name}</span>]`</span>;
+    <span class="hljs-keyword">return</span> div;
+}</code></pre>
+				<p>Example using React :
+					This example requires more build configuration in the plugin. The plugin must be passed to babel with jsx transform.
+				The <code>livegain</code> plugin is an example that uses React and TypeScript.</p>
+				<pre><code class="language-js"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-dom&#x27;</span>;
+<span class="hljs-keyword">import</span> SimpleGainComponent <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./SimpleGainComponent&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createElement</span>(<span class="hljs-params">plugin</span>) </span>{
+    <span class="hljs-keyword">const</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">&#x27;div&#x27;</span>);
+    ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">SimpleGainComponent</span> <span class="hljs-attr">plugin</span>=<span class="hljs-string">{plugin}</span> /&gt;</span></span>, div);
+    <span class="hljs-keyword">return</span> div;
+}</code></pre>
+				<a href="#loading-a-plugin" id="loading-a-plugin" style="color: inherit; text-decoration: none;">
+					<h3>Loading a plugin</h3>
+				</a>
+				<pre><code class="language-js">    <span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: pluginFactory } = <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">&#x27;./index.js&#x27;</span>); <span class="hljs-comment">// load main plugin file</span>
+
+    <span class="hljs-comment">// Create a new instance of the plugin</span>
+    <span class="hljs-comment">// You can can optionnally give more options such as the initial state of the </span>
+    <span class="hljs-comment">// plugin</span>
+    <span class="hljs-keyword">const</span> pluginInstance = <span class="hljs-keyword">await</span> pluginFactory.createInstance(audioContext, {});
+
+    <span class="hljs-comment">// instance.audioNode is the plugin WebAudio node (native, AudioWorklet or </span>
+    <span class="hljs-comment">// Composite). It can then be connected to the WebAudio graph.</span>
+
+    ...
+    <span class="hljs-comment">// for example...</span>
+    mediaElementSource.connect(pluginInstance.audioNode);
+    audioNode.connect(audioContext.destination);
+
+    <span class="hljs-comment">// then create the GUI</span>
+    <span class="hljs-keyword">const</span> pluginDomNode = <span class="hljs-keyword">await</span> pluginInstance.createGui();
+    <span class="hljs-comment">// for example</span>
+    <span class="hljs-built_in">document</span>.appendChild(pluginDomNode);</code></pre>
+				<p><strong>WebAudioModule.createInstance()</strong></p>
+				<p>Now that your plugin is available, you can create an instance of it using <code>WebAudioModule.createInstance(audioContext)</code>.</p>
+				<p>Example:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> audioContext = <span class="hljs-keyword">new</span> AudioContext();
+<span class="hljs-comment">// The code part relative to the audio source and destination is not covered here.</span>
+<span class="hljs-comment">// If you want a complete example, see the host code in host/src/index.js or host/src/livegain.js</span>
+<span class="hljs-keyword">const</span> simpleGainPluginInstance = <span class="hljs-keyword">await</span> SimpleGain.createInstance(audioContext);
+simpleGainPluginInstance.setState({ <span class="hljs-attr">enabled</span>: <span class="hljs-literal">true</span> }); <span class="hljs-comment">// plugins audionodes are bypassed by default.</span></code></pre>
+				<p><strong>Connect the audionode</strong>
+				Now that we have an instance of our plugin we can connect its audionode to ours.</p>
+				<p>Example:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> simpleGainPluginAudioNode = simpleGainPluginInstance.getAudioNode();
+mediaElementSource.connect(simpleGainPluginAudioNode);
+simpleGainPluginAudioNode.connect(audioContext.destination);</code></pre>
+				<p><strong>Show the GUI</strong>
+					We now have to create the HTMLElement that hosts the plugin GUI thanks to the plugin method <code>async instance.createGui()</code>.
+				The methods loads the GUI module if it was not loaded before and then call its exported method <code>async createElement()</code>.</p>
+				<p>Now that you have an HTML element, append it to the host DOM.</p>
+				<p>Example:</p>
+				<pre><code class="language-js"><span class="hljs-comment">// For this very simple example, we just insert the SimpleGain Gui directly at the end of the body</span>
+<span class="hljs-keyword">const</span> { body } = <span class="hljs-built_in">document</span>;
+<span class="hljs-keyword">const</span> simpleGainPluginGui = simpleGainPluginInstance.createGui();
+body.appendChild(domNode);</code></pre>
+				<a href="#sdk" id="sdk" style="color: inherit; text-decoration: none;">
+					<h2>sdk</h2>
+				</a>
+				<a href="#webaudiomodule-1" id="webaudiomodule-1" style="color: inherit; text-decoration: none;">
+					<h3>WebAudioModule</h3>
+				</a>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/audioworkletglobalscope.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Global<wbr>Scope</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/audioworkletprocessor.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamdescriptor.html" class="tsd-kind-icon">Wam<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/wameventbase.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wameventmap.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wammididata.html" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamnode.html" class="tsd-kind-icon">Wam<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamnodeoptions.html" class="tsd-kind-icon">Wam<wbr>Node<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamparameter.html" class="tsd-kind-icon">Wam<wbr>Parameter</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamparameterconfiguration.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamparameterdata.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamparameterinfo.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamprocessor.html" class="tsd-kind-icon">Wam<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/wamsysexdata.html" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/webaudiomodule.html" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamautomationevent" class="tsd-kind-icon">Wam<wbr>Automation<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamevent" class="tsd-kind-icon">Wam<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#wameventcallback" class="tsd-kind-icon">Wam<wbr>Event<wbr>Callback</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wameventtype" class="tsd-kind-icon">Wam<wbr>Event<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamlistenertype" class="tsd-kind-icon">Wam<wbr>Listener<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wammidievent" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wammpeevent" class="tsd-kind-icon">Wam<wbr>Mpe<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamoscevent" class="tsd-kind-icon">Wam<wbr>Osc<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamparameterdatamap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamparameterinfomap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamparametermap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamparametertype" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#wamsysexevent" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#audioworkletprocessor" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#wamnode" class="tsd-kind-icon">Wam<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#wamparameter" class="tsd-kind-icon">Wam<wbr>Parameter</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#wamparameterinfo" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#wamprocessor" class="tsd-kind-icon">Wam<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#webaudiomodule" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

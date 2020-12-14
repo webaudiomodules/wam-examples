@@ -1,21 +1,16 @@
+/** @typedef {import('./types').WamNode} IWamNode */
+
 /**
  * WebAudioModule v2 Main AudioNode API,
  * can be used to build a CompositeNode, see d.ts file for more information.
  * @abstract
- * @typedef {import('./types').WamNode} IWamNode
  * @implements {IWamNode}
  */
 export default class WamNode extends AudioWorkletNode {
 	static generateWamParameters() { throw new Error('Not Implemented.'); return null; }
 
-	/**
-	 * @param {import('./types').WebAudioModule} module
-	 * @param {AudioWorkletNodeOptions} options
-	 * @memberof WamNode
-	 */
 	constructor(module, options) {
 		super(module.audioContext, module.moduleId, options);
-		throw new Error('Not Implemented.');
 	}
 
 	get processorId() { throw new Error('Not Implemented.'); return null; }
@@ -33,7 +28,6 @@ export default class WamNode extends AudioWorkletNode {
 	async setParameterValues(parameterValues) { throw new Error('Not Implemented.'); }
 
 	async getState() { throw new Error('Not Implemented.'); return null; }
-
 	async setState(state) { throw new Error('Not Implemented.'); }
 
 	scheduleEvent(event) { throw new Error('Not Implemented.'); }
