@@ -1,0 +1,11 @@
+{
+    "name": "Faust PingPongDelay",
+    "vendor": "Shihong Ren",
+    "description": "A PingPongDelay written in Faust with its default UI",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": ["delay", "faust"],
+    "isInstrument": false,
+    "website": ""
+}

@@ -9,10 +9,19 @@ import ParamMgrFactory from '../sdk/src/ParamMgr/ParamMgrFactory.js';
 import createElement from './gui.js';
 import fetchModule from './fetchModule.js';
 
+/**
+ * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
+ */
+
 class FaustCompositeAudioNode extends CompositeAudioNode {
 	/**
+	 * @type {ParamMgrNode}
+	 */
+	_wamNode;
+
+	/**
 	 * @param {AudioWorkletNode} output
-	 * @param {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} paramMgr
+	 * @param {ParamMgrNode} paramMgr
 	 */
 	setup(output, paramMgr) {
 		this.connect(output, 0, 0);
@@ -26,20 +35,31 @@ class FaustCompositeAudioNode extends CompositeAudioNode {
 		if (this._output) this._output.destroy();
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	getParamValue(name) {
 		return this._wamNode.getParamValue(name);
 	}
 
+	/**
+	 * @param {string} name
+	 * @param {number} value
+	 */
 	setParamValue(name, value) {
 		return this._wamNode.setParamValue(name, value);
 	}
 }
 
+/**
+ * @param {URL} relativeURL
+ * @returns {string}
+ */
 const getBasetUrl = (relativeURL) => {
 	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
 	return baseURL;
 };
-// Definition of a new plugin
+
 export default class FaustPingPongDelayPlugin extends WebAudioModule {
 	/**
 	 * Faust generated WebAudio AudioWorkletNode Constructor
@@ -55,8 +75,7 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 		if (!url) throw new TypeError('Descriptor not found');
 		const response = await fetch(url);
 		const descriptor = await response.json();
-		Object.assign(this._descriptor, descriptor);
-		return this._descriptor;
+		Object.assign(this.descriptor, descriptor);
 	}
 
 	async initialize(state) {

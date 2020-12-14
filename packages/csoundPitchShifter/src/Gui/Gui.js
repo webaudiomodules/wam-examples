@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable camelcase */
 // This works when youuse a bundler such as rollup
 // If you do no wan to use a bundler, then  look at other examples
 // that build in pure JS the syles and html template directly
@@ -8,9 +10,7 @@ import template from './Gui.template.html';
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
 import '../utils/webaudio-controls.js';
 
-import backgroundImg from './assets/background.png';
 import knobImg from './assets/MiniMoog_Main.png';
-import switchImg from './assets/switch_1.png';
 
 const getAssetUrl = (asset) => {
 	const base = new URL('.', import.meta.url);
@@ -38,14 +38,14 @@ export default class CsoundPitchShifterHTMLElement extends HTMLElement {
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
-
+	/*
 	updateStatus = (status) => {
 		// this.shadowRoot.querySelector('#switch1').value = status;
-	}
+	} */
 
 	handleAnimationFrame = () => {
-		const pitch_shift = this.plugin.audioNode.getParamValue("pitch_shift");
-		const formant_shift = this.plugin.audioNode.getParamValue("formant_shift");
+		const pitch_shift = this.plugin.audioNode.getParamValue('pitch_shift');
+		const formant_shift = this.plugin.audioNode.getParamValue('formant_shift');
 		this.shadowRoot.querySelector('#formantknob').value = formant_shift;
 		this.shadowRoot.querySelector('#pitchknob').value = pitch_shift;
 		window.requestAnimationFrame(this.handleAnimationFrame);
@@ -57,8 +57,8 @@ export default class CsoundPitchShifterHTMLElement extends HTMLElement {
 	setResources() {
 		// Set up the background img & style
 		// Setting up the knobs imgs, those are loaded from the assets
-		this.root.querySelectorAll(".knob").forEach((knob) => {
-			knob.querySelector("webaudio-knob").setAttribute('src', getAssetUrl(knobImg));
+		this.root.querySelectorAll('.knob').forEach((knob) => {
+			knob.querySelector('webaudio-knob').setAttribute('src', getAssetUrl(knobImg));
 		});
 	}
 
@@ -66,12 +66,12 @@ export default class CsoundPitchShifterHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#formantknob')
 			.addEventListener('input', (e) => {
-		 		this.plugin.audioNode.setParamValue( "formant_shift", e.target.value );
+				this.plugin.audioNode.setParamValue('formant_shift', e.target.value);
 			});
 		this.shadowRoot
 			.querySelector('#pitchknob')
 			.addEventListener('input', (e) => {
-		 		this.plugin.audioNode.setParamValue( "pitch_shift", e.target.value );
+				this.plugin.audioNode.setParamValue('pitch_shift', e.target.value);
 			});
 	}
 

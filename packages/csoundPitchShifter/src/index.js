@@ -1,3 +1,7 @@
+/* eslint-disable no-console */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable max-classes-per-file */
 import { WebAudioModule, ParamMgrFactory, CompositeAudioNode } from 'sdk';
 import CsoundObj from '@kunstmusik/csound';
 import { createElement } from './Gui/index.js';
@@ -25,25 +29,42 @@ class CsoundPitchShifterNode extends CompositeAudioNode {
 	}
 }
 
-// Definition of a new plugin
+/**
+ * @param {URL} relativeURL
+ * @returns {string}
+ */
+const getBasetUrl = (relativeURL) => {
+	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
+	return baseURL;
+};
+
 export default class CsoundPitchShifterPlugin extends WebAudioModule {
-	static descriptor = {
-		name: 'CsoundPitchShifter',
-		vendor: 'WebAudioModule',
-	};
+	_baseURL = getBasetUrl(new URL('..', import.meta.url));
 
-	// The plugin redefines the async method createAudionode()
-	// that must return an <Audionode>
-	// It also listen to plugin state change event to update the audionode internal state
+	_descriptorUrl = `${this._baseURL}/descriptor.json`;
+
+	async _loadDescriptor() {
+		const url = this._descriptorUrl;
+		if (!url) throw new TypeError('Descriptor not found');
+		const response = await fetch(url);
+		const descriptor = await response.json();
+		Object.assign(this.descriptor, descriptor);
+	}
+
+	async initialize(state) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
+
 	async createAudioNode(initialState) {
-    await CsoundObj.initialize(this.audioContext);
+		await CsoundObj.initialize(this.audioContext);
 
-		let cs = new CsoundObj();
+		const cs = new CsoundObj();
 		this.csound = cs;
 		//cs.getNode().resetIfNeeded();
-		cs.setMessageCallback(msg => console.log(msg));
-		cs.setOption("-odac");
-		cs.setOption("-+msg_color=false");
+		cs.setMessageCallback((msg) => console.log(msg));
+		cs.setOption('-odac');
+		cs.setOption('-+msg_color=false');
 		cs.compileOrc(`
 		sr=48000
 		ksmps=32
@@ -71,29 +92,29 @@ export default class CsoundPitchShifterPlugin extends WebAudioModule {
 			out(aout1, aout2)
 		endin
 		schedule(1, 0, -1)
-		`)
+		`);
 		cs.start();
 
-		const node = cs.getNode();	
+		const node = cs.getNode();
 
 		const paramsConfig = {
-		  formant_shift: {
-		    defaultValue: 0,
-		    minValue: -12,
-		    maxValue: 12,
-		  },
-		  pitch_shift: {
-		    defaultValue: 0,
-		    minValue: -12,
-		    maxValue: 12,
-		  },
+			formant_shift: {
+				defaultValue: 0,
+				minValue: -12,
+				maxValue: 12,
+			},
+			pitch_shift: {
+				defaultValue: 0,
+				minValue: -12,
+				maxValue: 12,
+			},
 		};
 
 		const internalParamsConfig = {
-			formant_shift: { onChange: (v) => cs.setControlChannel("formant_shift", v)},
-			pitch_shift: { onChange: (v) => cs.setControlChannel("pitch_shift", v)},
+			formant_shift: { onChange: (v) => cs.setControlChannel('formant_shift', v) },
+			pitch_shift: { onChange: (v) => cs.setControlChannel('pitch_shift', v) },
 		};
-		
+
 
 		const paramMgrNode = await ParamMgrFactory.create(this, { paramsConfig, internalParamsConfig });
 		const pitchShifterNode = new CsoundPitchShifterNode(this.audioContext);
