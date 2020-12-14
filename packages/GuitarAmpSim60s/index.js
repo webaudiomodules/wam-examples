@@ -1,74 +1,96 @@
+/* eslint-disable max-len */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable max-classes-per-file */
 
-    import WebAudioModule from './utils/sdk/src/WebAudioModule.js';
-    import CompositeAudioNode from './utils/sdk/src/ParamMgr/CompositeAudioNode.js';
-    import ParamMgrFactory from './utils/sdk/src/ParamMgr/ParamMgrFactory.js';
-    import fetchModule from './fetchModule.js';
-    import { createElement } from './Gui/index.js';
+import WebAudioModule from '../sdk/src/WebAudioModule.js';
+import CompositeAudioNode from '../sdk/src/ParamMgr/CompositeAudioNode.js';
+import ParamMgrFactory from '../sdk/src/ParamMgr/ParamMgrFactory.js';
+import fetchModule from './fetchModule.js';
+import { createElement } from './Gui/index.js';
 
+/**
+ * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
+ */
 
-    class GuitarAmpSim60sNode extends CompositeAudioNode {
-	    setup(output, paramMgr) {
-		    this.connect(output, 0, 0);
-		    this._wamNode = paramMgr;
-		    this._output = output;
-	    }
+class GuitarAmpSim60sNode extends CompositeAudioNode {
+	/**
+	 * @type {ParamMgrNode}
+	 */
+	_wamNode;
 
-	    destroy() {
-		    super.destroy();
-		    if (this._output) this._output.destroy();
-	    }
+	/**
+	 * @param {AudioWorkletNode} output
+	 * @param {ParamMgrNode} paramMgr
+	 */
+	setup(output, paramMgr) {
+		this.connect(output, 0, 0);
+		paramMgr.addEventListener('midi', (e) => output.midiMessage(e.detail.data.bytes));
+		this._wamNode = paramMgr;
+		this._output = output;
+	}
 
-	    getParamValue(name) {
-		    return this._wamNode.getParamValue(name);
-	    }
+	destroy() {
+		super.destroy();
+		if (this._output) this._output.destroy();
+	}
 
-	    setParamValue(name, value) {
-		    return this._wamNode.setParamValue(name, value);
-	    }
-  }
+	/**
+	 * @param {string} name
+	 */
+	getParamValue(name) {
+		return this._wamNode.getParamValue(name);
+	}
 
-  const getBasetUrl = (relativeURL) => {
-	    const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
-	    return baseURL;
-  };
+	/**
+	 * @param {string} name
+	 * @param {number} value
+	 */
+	setParamValue(name, value) {
+		return this._wamNode.setParamValue(name, value);
+	}
+}
 
-  // Definition of a new plugin
-  export default class GuitarAmpSim60sPlugin extends WebAudioModule {
-	    static descriptor = {
-		    name: 'GuitarAmpSim60s',
-		    vendor: 'WebAudioModule',
-      };
-      
-      /**
-       * Faust generated WebAudio AudioWorkletNode Constructor
-       */
-      _PluginFactory;
-    
-      async initialize(state) {
-        const imported = await fetchModule('./Node.js');
-        this._PluginFactory = imported[Object.keys(imported)[0]];
-        return super.initialize(state);
-      }
+const getBasetUrl = (relativeURL) => {
+	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
+	return baseURL;
+};
 
-	    // The plugin redefines the async method createAudionode()
-	    // that must return an <Audionode>
-	    // It also listen to plugin state change event to update the audionode internal state
-	    async createAudioNode(initialState) {
-		    const baseURL = getBasetUrl(new URL('.', import.meta.url));
-        const factory = new this._PluginFactory(this.audioContext, baseURL);
-		    const faustNode = await factory.load();
-        const paramMgrNode = await ParamMgrFactory.create(this, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
-		    const node = new GuitarAmpSim60sNode(this.audioContext);
-        node.setup(faustNode, paramMgrNode);
-        
-        if (initialState) 
-          node.setState(initialState);
+export default class GuitarAmpSim60sPlugin extends WebAudioModule {
+	/**
+	 * Faust generated WebAudio AudioWorkletNode Constructor
+	 */
+	_PluginFactory;
 
-		    return node;
-	    }
+	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
-	    createGui() {
-		    return createElement(this);
-	    }
-  }
-  
+	_descriptorUrl = `${this._baseURL}/descriptor.json`;
+
+	async _loadDescriptor() {
+		const url = this._descriptorUrl;
+		if (!url) throw new TypeError('Descriptor not found');
+		const response = await fetch(url);
+		const descriptor = await response.json();
+		Object.assign(this.descriptor, descriptor);
+	}
+
+	async initialize(state) {
+		await this._loadDescriptor();
+		const imported = await fetchModule('./Node.js');
+		this._PluginFactory = imported[Object.keys(imported)[0]];
+		return super.initialize(state);
+	}
+
+	async createAudioNode(initialState) {
+		const factory = new this._PluginFactory(this.audioContext, this._baseURL);
+		const faustNode = await factory.load();
+		const paramMgrNode = await ParamMgrFactory.create(this, { internalParamsConfig: Object.fromEntries(faustNode.parameters) });
+		const node = new GuitarAmpSim60sNode(this.audioContext);
+		node.setup(faustNode, paramMgrNode);
+		if (initialState) node.setState(initialState);
+		return node;
+	}
+
+	createGui() {
+		return createElement(this);
+	}
+}

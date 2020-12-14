@@ -53,7 +53,6 @@ export default class GraphicEQPlugin extends WebAudioModule {
 		const graphicEQNode = new GraphicEQNode(this.audioContext);
 		graphicEQNode.createNodes();
 
-		console.log('paramConfig setup');
 		// No need to define exposed parameters
 		// let's generate one param per filter property
 

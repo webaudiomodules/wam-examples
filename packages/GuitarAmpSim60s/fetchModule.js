@@ -1,4 +1,7 @@
-const cache = new Map();
+/** @type {Window & { fetchModuleCache?: Map }} */
+const globalThis = window;
+
+const cache = globalThis.fetchModuleCache || new Map();
 
 const fetchModule = async (url) => {
 	if (cache.has(url)) return cache.get(url);
@@ -15,4 +18,7 @@ const fetchModule = async (url) => {
 	cache.set(url, exported);
 	return exported;
 };
+
+if (!globalThis.fetchModuleCache) globalThis.fetchModuleCache = cache;
+
 export default fetchModule;

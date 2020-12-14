@@ -4,6 +4,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
 import omt from "@surma/rollup-plugin-off-main-thread";
 import builtins from "rollup-plugin-node-builtins";
+import copy from 'rollup-plugin-copy';
 
 const common = {
 
@@ -46,17 +47,20 @@ const common = {
 const liveGain = {
     ...common,
     input: "./src/livegain/index.tsx",
-    output: [{ ...common.output[0], dir: "./dist/livegain" }]
+    output: [{ ...common.output[0], dir: "./dist/livegain" }],
+    plugins: [...common.plugins, copy({ targets: [{ src: "./src/livegain/descriptor.json", dest: "./dist/livegain" }] })]
 };
 const oscilloscope = {
     ...common,
     input: "./src/oscilloscope/index.tsx",
-    output: { ...common.output[0], dir: "./dist/oscilloscope" }
+    output: { ...common.output[0], dir: "./dist/oscilloscope" },
+    plugins: [...common.plugins, copy({ targets: [{ src: "./src/oscilloscope/descriptor.json", dest: "./dist/oscilloscope" }] })]
 };
 const spectroscope = {
     ...common,
     input: "./src/spectroscope/index.tsx",
     output: { ...common.output[0], dir: "./dist/spectroscope" },
+    plugins: [...common.plugins, copy({ targets: [{ src: "./src/spectroscope/descriptor.json", dest: "./dist/spectroscope" }] })],
     onwarn(warning, warn) {
         // suppress eval warnings
         if (warning.code === "EVAL") return;
@@ -67,6 +71,7 @@ const spectrogram = {
     ...common,
     input: "./src/spectrogram/index.tsx",
     output: { ...common.output[0], dir: "./dist/spectrogram" },
+    plugins: [...common.plugins, copy({ targets: [{ src: "./src/spectrogram/descriptor.json", dest: "./dist/spectrogram" }] })],
     onwarn(warning, warn) {
         // suppress eval warnings
         if (warning.code === "EVAL") return;
