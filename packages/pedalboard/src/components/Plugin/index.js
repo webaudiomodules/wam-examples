@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
 
-import crossIcon from '../../../demo/public/cross.png';
+import crossIcon from './cross.png';
 import css from './index.scss';
 
 //Used to remove the 'px' part of the string

@@ -1,11 +1,13 @@
 // rollup.config.js
-import babel from 'rollup-plugin-babel';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import babel from '@rollup/plugin-babel';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import postcss from 'rollup-plugin-postcss';
-import html from 'rollup-plugin-html';
+import html from '@rollup/plugin-html';
 import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
+import url from '@rollup/plugin-url';
 
 const common = {
 	output: [
@@ -17,14 +19,16 @@ const common = {
 		},
 	],
 	plugins: [
+		json(),
+		url(),
 		postcss({
 			extract: false,
 			use: ['sass'],
 			modules: true,
 		}),
 		babel({
+			babelHelpers: 'bundled',
 			exclude: 'node_modules/**',
-			runtimeHelpers: true,
 		}),
 		resolve({
 			browser: true,
