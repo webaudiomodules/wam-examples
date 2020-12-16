@@ -21,6 +21,8 @@
 	border-radius: var(--spacing-md);
 	font-family: sans-serif;
 	background: var(--color-dark); 
+	resize: both;
+	overflow: auto;
 
 	&_Body {
 		height: 100%;
@@ -28,7 +30,8 @@
 			width: auto;					
 			overflow: auto;	
 			height: 100%;
-			&_Board {											
+			&_Board {		
+				height: 100%;									
 				margin-right: 8px;
 			}
 		}	
