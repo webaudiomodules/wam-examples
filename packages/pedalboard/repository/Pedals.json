@@ -2,7 +2,7 @@
     {
       "url": "/packages/quadrafuzz/dist/index.js",
       "thumbnail": "quadrafuzz.png",
-      "type": "Amplificateur"
+      "type": "Amplifier"
     },
     {
       "url": "/packages/pingpongdelay/dist/index.js",
@@ -17,6 +17,6 @@
     {
       "url": "",
       "thumbnail": "test_pedal_horizon.png",
-      "type": "Amplificateur"
+      "type": "Amplifier"
     }
 ]

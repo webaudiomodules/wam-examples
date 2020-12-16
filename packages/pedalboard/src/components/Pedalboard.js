@@ -26,7 +26,7 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 					className={css.Pedalboard_Header_Selector}
 					onChange={(e) => handleImport(e.target.value)}
 				>
-					<option value="">Pacthes</option>
+					<option value="">Patches</option>
 					{
 						PatchesJSON?.length > 0
 						&& [...new Set(PatchesJSON)].map((patch) => (
@@ -43,7 +43,7 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 					className={css.Pedalboard_Header_Selector}
 					onChange={(e) => setSelectedType(e.target.value)}
 				>
-					<option value="default">Toutes les pédales</option>
+					<option value="default">All plugins</option>
 					{
 						PedalsJSON?.length > 0
 						&& [...new Set(PedalsJSON.map((p) => p.type))].map((type) => (
