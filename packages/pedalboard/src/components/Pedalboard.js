@@ -1,62 +1,44 @@
 // eslint-disable-next-line no-use-before-define
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
-import download from 'downloadjs';
 import { Draggable, DragDropContainer, Droppable } from 'react-draggable-hoc';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import Plugin from './Plugin/index.js';
 
 import PedalsJSON from '../../repository/Pedals.json';
+import PatchesJSON from '../../repository/Patches.json';
 import css from './Pedalboard.scss';
 
 const PedalboardHeader = ({ audioNode, setSelectedType }) => {
-	const inputRef = useRef('0');
-
 	const handleImport = (e) => {
-		const file = e.target.files[0];
-		const fileReader = new FileReader();
-		fileReader.onloadend = () => {
-			audioNode.clearPlugins();
-			audioNode.setState(JSON.parse(fileReader.result));
-		};
-		fileReader.readAsText(file);
-		e.target.value = '';
-	};
-
-	const handleExport = async () => {
-		const pedalBoard = await audioNode.getState();
-		download(JSON.stringify(pedalBoard), 'exports.json', 'text/plain');
+		if (e) {
+			audioNode.setState(JSON.parse(e));
+		}
 	};
 
 	return (
 		<header className={css.Pedalboard_Header}>
 			<h1>Pedalboard</h1>
 			<div className={css.Pedalboard_Header_ContentButtonWrapper}>
-				<button
-					type="submit"
-					className={css.Pedalboard_Header_ContentButtonWrapper_Import}
-					onClick={() => {
-						inputRef.current.click();
-					}}
+				<select
+					className={css.Pedalboard_Header_Selector}
+					onChange={(e) => handleImport(e.target.value)}
 				>
-					Importer
-					<input
-						style={{ display: 'none' }}
-						ref={inputRef}
-						type="file"
-						accept=".json"
-						onChange={(e) => handleImport(e)}
-					/>
-				</button>
-				<button
-					type="submit"
-					className={css.Pedalboard_Header_ContentButtonWrapper_Export}
-					onClick={handleExport}
-				>
-					Exporter
-				</button>
+					<option value="">Pacthes</option>
+					{
+						PatchesJSON?.length > 0
+						&& [...new Set(PatchesJSON)].map((patch) => (
+							<option
+								key={patch.name}
+								value={JSON.stringify(patch.plugins)}
+							>
+								{patch.name}
+							</option>
+						))
+					}
+				</select>
 				<select
 					className={css.Pedalboard_Header_Selector}
 					onChange={(e) => setSelectedType(e.target.value)}

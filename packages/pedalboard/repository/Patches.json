@@ -1,0 +1,96 @@
+[
+    {
+        "name": "patch test 1",
+        "plugins": [
+            {
+                "url": "/packages/pingpongdelay/dist/index.js",
+                "params": {
+                "feedback": {
+                    "id": "feedback",
+                    "value": 0.05000000074505806
+                },
+                "time": {
+                    "id": "time",
+                    "value": 0.14000000059604645
+                },
+                "mix": {
+                    "id": "mix",
+                    "value": 0.9200000166893005
+                },
+                "enabled": {
+                    "id": "enabled",
+                    "value": 1
+                }
+                }
+            },
+            {
+                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "params": {
+                "/PingPongDelayFaust/bypass": {
+                    "id": "/PingPongDelayFaust/bypass",
+                    "value": 0
+                },
+                "/PingPongDelayFaust/time": {
+                    "id": "/PingPongDelayFaust/time",
+                    "value": 1
+                },
+                "/PingPongDelayFaust/feedback": {
+                    "id": "/PingPongDelayFaust/feedback",
+                    "value": 0
+                },
+                "/PingPongDelayFaust/mix": {
+                    "id": "/PingPongDelayFaust/mix",
+                    "value": 1
+                }
+                }
+            }
+        ]
+    },
+    {
+        "name": "patch test 2",
+        "plugins": [
+            {
+                "url": "/packages/pingpongdelay/dist/index.js",
+                "params": {
+                "feedback": {
+                    "id": "feedback",
+                    "value": 0.95000000074505806
+                },
+                "time": {
+                    "id": "time",
+                    "value": 0.94000000059604645
+                },
+                "mix": {
+                    "id": "mix",
+                    "value": 0.0200000166893005
+                },
+                "enabled": {
+                    "id": "enabled",
+                    "value": 1
+                }
+                }
+            },
+            {
+                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "params": {
+                "/PingPongDelayFaust/bypass": {
+                    "id": "/PingPongDelayFaust/bypass",
+                    "value": 1
+                },
+                "/PingPongDelayFaust/time": {
+                    "id": "/PingPongDelayFaust/time",
+                    "value": 0
+                },
+                "/PingPongDelayFaust/feedback": {
+                    "id": "/PingPongDelayFaust/feedback",
+                    "value": 1
+                },
+                "/PingPongDelayFaust/mix": {
+                    "id": "/PingPongDelayFaust/mix",
+                    "value": 0
+                }
+                }
+            }
+        ]
+    }
+]
