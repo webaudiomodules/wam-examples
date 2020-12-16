@@ -1,0 +1,11 @@
+{
+    "name": "Quadrafuzz",
+    "vendor": "WebAudioModule",
+    "description": "Quadrafuzz written in native WebAudio nodes",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

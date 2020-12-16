@@ -14,7 +14,7 @@ class FaustDefaultGui extends HTMLElement {
 		this.root.appendChild($style);
 		const $container = document.createElement('div');
 		$container.style.margin = '0';
-		$container.style.position = 'absolute';
+		$container.style.position = 'relative';
 		$container.style.overflow = 'auto';
 		$container.style.display = 'flex';
 		$container.style.flexDirection = 'column';

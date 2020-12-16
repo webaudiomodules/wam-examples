@@ -1,5 +1,11 @@
-export const registeredProcessors = new WeakMap();
-export const registeringProcessors = new WeakMap();
+/* eslint-disable max-len */
+/** @type {Window & { AudioWorkletRegister?: typeof AudioWorkletRegister }} */
+const globalThis = window;
+
+export const registeredProcessors = globalThis.AudioWorkletRegister?.registeredProcessors || new WeakMap();
+export const registeringProcessors = globalThis.AudioWorkletRegister?.registeringProcessors || new WeakMap();
+export const resolves = globalThis.AudioWorkletRegister?.resolves || {};
+export const rejects = globalThis.AudioWorkletRegister?.rejects || {};
 
 export default class AudioWorkletRegister {
 	static registeredProcessors = registeredProcessors;
@@ -49,3 +55,5 @@ export default class AudioWorkletRegister {
 		return promise;
 	}
 }
+
+if (!globalThis.AudioWorkletRegister) globalThis.AudioWorkletRegister = AudioWorkletRegister;

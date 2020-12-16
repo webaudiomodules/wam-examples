@@ -1,12 +1,13 @@
+/** @typedef {import('./types').WamParameterInfo} IWamParameterInfo */
+
 /**
  * WebAudioModule v2 ParameterInfo API,
  * see d.ts file for more information.
  * @abstract
- * @typedef {import('./types').WamParameterInfo} IWamParameterInfo
  * @implements {IWamParameterInfo}
  */
 export default class WamParameterInfo {
-	constructor(id, config) { throw new Error('Not Implemented.'); }
+    constructor(id, config) {}
 
 	get id() { throw new Error('Not Implemented.'); return null; }
 
@@ -20,7 +21,7 @@ export default class WamParameterInfo {
     get choices() { throw new Error('Not Implemented.'); return null; }
     get units() { throw new Error('Not Implemented.'); return null; }
 
-	normalize(value) { throw new Error('Not Implemented.'); return null; }
+    normalize(value) { throw new Error('Not Implemented.'); return null; }
 
 	denormalize(value) { throw new Error('Not Implemented.'); return null; }
 

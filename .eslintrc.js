@@ -1,5 +1,6 @@
 const airbnbBaseImports = require('eslint-config-airbnb-base/rules/imports');
 const airbnbBaseStyle = require('eslint-config-airbnb-base/rules/style');
+
 const airbnbNoExtraneousDependenciesRule = airbnbBaseImports.rules['import/no-extraneous-dependencies'];
 const airbnbNoUnderscoreDangleRule = airbnbBaseStyle.rules['no-underscore-dangle'];
 
@@ -37,23 +38,24 @@ module.exports = {
 	rules: {
 		'react/jsx-one-expression-per-line': 0, // Buggy
 		'import/no-extraneous-dependencies': noExtraneousDependenciesRule,
+		'no-redeclare': 'off',
 		'no-underscore-dangle': noUnderscoreDangleRule,
-        "@typescript-eslint/no-unused-vars": [
-            "warn",
-            {
-                args: "none",
-                ignoreRestSiblings: true
-            }
-        ],
-        'import/extensions': ['error', 'always', { pattern: { 'ts': 'never' } }],
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{
+				args: 'none',
+				ignoreRestSiblings: true,
+			},
+		],
+		'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
 	},
-    settings: {
-        'import/resolver': {
-            node: {
-                extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.d.ts']
-            }
-        },
-    },
-    parser: '@typescript-eslint/parser',
-    plugins: ['@typescript-eslint']
+	settings: {
+		'import/resolver': {
+			node: {
+				extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.d.ts'],
+			},
+		},
+	},
+	parser: '@typescript-eslint/parser',
+	plugins: ['@typescript-eslint'],
 };

@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-/** @typedef { import('../api/types').WamParameter } WamParameter */
-/** @typedef { import('../api/types').WamParameterInfo } WamParameterInfo */
+/** @typedef {import('../api/types').WamParameter} WamParameter */
+/** @typedef {import('../api/types').WamParameterInfo} WamParameterInfo */
 
 /**
  * @extends {AudioParam}

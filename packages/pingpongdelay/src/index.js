@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 // Double role for WebAudioModule :
 // 1 - Factory for providing the DSP/WebAudio node and GUI
 // 2 - This makes the instance of the current class an Observable
@@ -6,6 +7,16 @@
 import { WebAudioModule, ParamMgrFactory } from 'sdk';
 import PingPongDelayNode from './Node.js';
 import { createElement } from './Gui/index.js';
+
+/**
+ * @param {URL} relativeURL
+ * @returns {string}
+ */
+const getBasetUrl = (relativeURL) => {
+	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
+	return baseURL;
+};
+
 /**
  * Definition of a new plugin
  *
@@ -13,20 +24,30 @@ import { createElement } from './Gui/index.js';
  * @extends {WebAudioModule<PingPongDelayNode>}
  */
 export default class PingPongDelayPlugin extends WebAudioModule {
-	static descriptor = {
-		name: 'PingPongDelay',
-		vendor: 'WebAudioModule',
-	};
+	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
-	// The plugin redefines the async method createAudionode()
-	// that must return an <Audionode>
-	// It also listen to plugin state change event to update the audionode internal state
+	_descriptorUrl = `${this._baseURL}/descriptor.json`;
+
+	async _loadDescriptor() {
+		const url = this._descriptorUrl;
+		if (!url) throw new TypeError('Descriptor not found');
+		const response = await fetch(url);
+		const descriptor = await response.json();
+		Object.assign(this.descriptor, descriptor);
+	}
+
+	async initialize(state) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
 
 	async createAudioNode(initialState) {
 		const pingPongDelayNode = new PingPongDelayNode(this.audioContext);
 
 		const paramsConfig = {
 			feedback: {
+				minValue: 0,
+				maxValue: 1,
 				defaultValue: 0.5,
 			},
 			time: {
@@ -68,7 +89,6 @@ export default class PingPongDelayPlugin extends WebAudioModule {
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
 		pingPongDelayNode.setup(paramMgrNode);
 		if (initialState) pingPongDelayNode.setState(initialState);
-		//----
 		return pingPongDelayNode;
 	}
 

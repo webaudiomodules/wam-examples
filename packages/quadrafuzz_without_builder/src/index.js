@@ -4,71 +4,101 @@
 // 2 - This makes the instance of the current class an Observable
 //     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
+
+// IMPORT NECESSARY DSK FILES
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
+
+// DSP part
 import QuadrafuzzNode from './Node.js';
+// GUI part
 import { createElement } from './Gui/index.js';
 
+/**
+ * @param {URL} relativeURL
+ * @returns {string}
+ */
+const getBasetUrl = (relativeURL) => {
+	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
+	return baseURL;
+};
 
 // Definition of a new plugin
+// All plugins must inherit from WebAudioModule
 export default class QuadrafuzzPlugin extends WebAudioModule {
-	static descriptor = {
-		name: 'Quadrafuzz',
-		vendor: 'WebAudioModule',
-	};
+	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
-	// The plugin redefines the async method createAudionode()
-	// that must return an <Audionode>
-	// It also listen to plugin state change event to update the audionode internal state
+	_descriptorUrl = `${this._baseURL}/descriptor.json`;
+
+	async _loadDescriptor() {
+		const url = this._descriptorUrl;
+		if (!url) throw new TypeError('Descriptor not found');
+		const response = await fetch(url);
+		const descriptor = await response.json();
+		Object.assign(this.descriptor, descriptor);
+	}
+
+	async initialize(state) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
+
 	async createAudioNode(initialState) {
+		// this node implements the DSP code. It is seen as a single WebAudio node
+		// and shares the connect/disconnect methods, but it can be a graph
+		// of nodes.
 		const quadrafuzzNode = new QuadrafuzzNode(this.audioContext);
-		const paramsConfig = {
-			lowGain: {
-				defaultValue: 0.6,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midLowGain: {
-				defaultValue: 0.8,
-				minValue: 0,
-				maxValue: 1,
-			},
-			midHighGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			highGain: {
-				defaultValue: 0.5,
-				minValue: 0,
-				maxValue: 1,
-			},
-			enabled: {
-				defaultValue: 1,
-				minValue: 0,
-				maxValue: 1,
-			},
-		};
 
 		const internalParamsConfig = {
 			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
 			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
 			// I guess this is the case of a developer who is gonna do custom automation
-			lowGain: { onChange: (value) => { quadrafuzzNode.lowGain = value; } },
+			lowGain: {
+				defaultValue: 0.6,
+				minValue: 0,
+				maxValue: 1,
+				onChange: (value) => { quadrafuzzNode.lowGain = value; },
+			},
 			// and we do have other "params"
-			midLowGain: { onChange: (value) => { quadrafuzzNode.midLowGain = value; } },
-			midHighGain: { onChange: (value) => { quadrafuzzNode.midHighGain = value; } },
-			highGain: { onChange: (value) => { quadrafuzzNode.highGain = value; } },
-			enabled: { onChange: (value) => { quadrafuzzNode.status = !!value; } },
+			midLowGain: {
+				defaultValue: 0.8,
+				minValue: 0,
+				maxValue: 1,
+				onChange: (value) => { quadrafuzzNode.midLowGain = value; },
+			},
+			midHighGain: {
+				defaultValue: 0.5,
+				minValue: 0,
+				maxValue: 1,
+				onChange: (value) => { quadrafuzzNode.midHighGain = value; },
+			},
+			highGain: {
+				defaultValue: 0.5,
+				minValue: 0,
+				maxValue: 1,
+				onChange: (value) => { quadrafuzzNode.highGain = value; },
+			},
+			enabled: {
+				defaultValue: 1,
+				minValue: 0,
+				maxValue: 1,
+				onChange: (value) => { quadrafuzzNode.status = !!value; },
+			},
 		};
 		// hmmm no mapping...
 		// const paramsMapping = {};
 
-		const optionsIn = { internalParamsConfig, paramsConfig };
+		// Create a param manager instance (ParamMgr comes from the SDK)
+		// with the param configs
+		const optionsIn = { internalParamsConfig };
 		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
+		// Link the param manager to the DSP code of the plugin.
+		// Remember that the param manager will provide automation, etc.
 		quadrafuzzNode.setup(paramMgrNode);
+
+		// If there is an initial state at construction for this plugin,
 		if (initialState) quadrafuzzNode.setState(initialState);
-		//----
+
 		return quadrafuzzNode;
 	}
 

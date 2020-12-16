@@ -1,5 +1,5 @@
-/** @typedef { import('./api/types').WamParameter } WamParameter */
-/** @typedef { import('./api/types').WamParameterInfo } WamParameterInfo */
+/** @typedef {import('./api/types').WamParameter} WamParameter */
+/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
@@ -67,5 +67,10 @@ class WamParameterSab extends WamParameterNoSab {
 
 export { WamParameterNoSab, WamParameterSab };
 
-AudioWorkletGlobalScope.WamParameterNoSab = WamParameterNoSab;
-AudioWorkletGlobalScope.WamParameterSab = WamParameterSab;
+// @ts-ignore
+if (typeof AudioWorkletGlobalScope !== 'undefined') {
+	// @ts-ignore
+	AudioWorkletGlobalScope.WamParameterNoSab = WamParameterNoSab;
+	// @ts-ignore
+	AudioWorkletGlobalScope.WamParameterSab = WamParameterSab;
+}

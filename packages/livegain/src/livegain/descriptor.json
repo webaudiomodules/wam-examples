@@ -1,0 +1,11 @@
+{
+    "name": "LiveGain",
+    "vendor": "Shihong Ren",
+    "description": "TypeScript/React LiveGain WebAudioModule",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": ["gain", "visualization"],
+    "isInstrument": false,
+    "website": ""
+}
