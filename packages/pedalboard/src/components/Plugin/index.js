@@ -62,21 +62,21 @@ const Plugin = ({
 
 	return (
 		<div className={css.PluginWrapper}>
-			<div className={css.PluginContainer}>
-				<div ref={plugginWrapperRef} />
-			</div>
-			<div className={css.PluginWrapper_Footer} id="nameAndIcon">
+			<div className={css.PluginWrapper_Header} id="nameAndIcon">
 				<p
 					title={plugin.instance.name}
-					className={css.PluginWrapper_Footer_Name}
+					className={css.PluginWrapper_Header_Name}
 				>
 					{plugin.instance.name}
 				</p>
 				<img
-					className={css.PluginWrapper_Footer_Icon}
+					className={css.PluginWrapper_Header_Icon}
 					src={crossIcon}
 					onClick={() => onClickRemove(plugin.id)}
 				/>
+			</div>
+			<div className={css.PluginContainer}>
+				<div ref={plugginWrapperRef} />
 			</div>
 		</div>
 	);
