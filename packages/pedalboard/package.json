@@ -5,6 +5,7 @@
   "author": "53JS",
   "license": "UNLICENSED",
   "dependencies": {
+    "cross-env": "^7.0.3",
     "downloadjs": "^1.4.7",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -42,7 +43,7 @@
   "main": "dist",
   "scripts": {
     "clean": "del dist",
-    "build": "NODE_ENV=production rollup -c",
+    "build": "cross-env NODE_ENV=production rollup -c",
     "start": "node demo/server.js"
   },
   "browserslist": [

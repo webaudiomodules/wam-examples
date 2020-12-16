@@ -18,6 +18,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 	}
 
 	setState(pluginArray) {
+		this.clearPlugins();
 		pluginArray.reduce(async (memo, plugin) => {
 			await memo;
 			return this.addPlugin(plugin.url, plugin.params);

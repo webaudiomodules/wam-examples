@@ -91,6 +91,13 @@ const setPlugin = async (pluginUrl) => {
 	// And calls the method createElement of the Gui module
 	const pluginDomNode = await instance.createGui();
 
+	// For the pedalboard:
+	// When a plugin is added/removed, a custom event 'onchange' is triggered
+	// When we receive this event, we should display the plugin informations
+	instance.audioNode.addEventListener('onchange', () => {
+		showPluginInfo(instance, pluginDomNode);
+	});
+
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
 
@@ -125,7 +132,14 @@ form.addEventListener('submit', (event) => {
 // ----- DISPLAY PLUGIN INFO -----
 async function showPluginInfo(instance, gui) {
 	let pluginInfoDiv = document.querySelector('#pluginInfoDiv');
-	let paramInfos = await instance.audioNode.getParameterInfo();
+	let paramInfos = undefined;
+	try {
+		paramInfos = await instance.audioNode.getParameterInfo();
+	} catch (e) {
+		console.error(e, "Trying with getState()...");
+		paramInfos = await instance.audioNode.getState();
+	}
+
 	let guiWidth = undefined,
 		guiHeight = undefined;
 	try {
