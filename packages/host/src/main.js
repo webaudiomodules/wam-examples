@@ -307,6 +307,35 @@ function buildAudioDeviceMenu() {
 	}
 }
 
+// -------- select MIDI input device ---------
+/** @type {HTMLSelectElement} */const midiInputSelector = document.querySelector('#selectMidiInput');
+
+navigator.requestMIDIAccess().then((midiAccess) => {
+	let currentInput;
+	const handleMidiMessage = (e) => {
+		if (!instance) return;
+		instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
+	}
+	const handleStateChange = () => {
+		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
+		midiInputSelector.innerHTML = '<option value="-1" disabled selected>Select...</option>';
+		const { inputs } = midiAccess;
+		inputs.forEach((midiInput) => {
+			const { name, id } = midiInput;
+			const option = new Option(name, id);
+			midiInputSelector.add(option);
+		});
+	};
+	handleStateChange();
+	midiAccess.addEventListener('statechange', handleStateChange);
+	midiInputSelector.addEventListener('input', (e) => {
+		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
+		const id = e.target.value;
+		currentInput = midiAccess.inputs.get(id);
+		currentInput.addEventListener('midimessage', handleMidiMessage);
+	})
+});
+
 /** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
 /** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
 /** @type {HTMLInputElement} */ const pluginAutomationApplyButton = document.querySelector('#pluginAutomationApply');
