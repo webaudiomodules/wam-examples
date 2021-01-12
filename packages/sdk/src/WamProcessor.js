@@ -176,17 +176,17 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			response.content = 'error';
 			if (verb === 'get') {
 				if (noun === 'parameterInfo') {
-					let { parameterIdQuery } = content;
-					if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this._parameterInfo);
+					let { parameterIds } = content;
+					if (!parameterIds.length) parameterIds = Object.keys(this._parameterInfo);
 					const parameterInfo = {};
-					parameterIdQuery.forEach((parameterId) => {
+					parameterIds.forEach((parameterId) => {
 						parameterInfo[parameterId] = this._parameterInfo[parameterId];
 					});
 					response.content = parameterInfo;
 				} else if (noun === 'parameterValues') {
 					/*eslint-disable-next-line prefer-const */
-					let { normalized, parameterIdQuery } = content;
-					response.content = this._getParameterValues(normalized, parameterIdQuery);
+					let { normalized, parameterIds } = content;
+					response.content = this._getParameterValues(normalized, parameterIds);
 				} else if (noun === 'state') {
 					response.content = { parameterValues: this._getParameterValues(false) };
 					// ...additional state?
@@ -223,15 +223,15 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	/**
 	 * @param {boolean} normalized
-	 * @param {string[]=} parameterIdQuery
+	 * @param {string[]=} parameterIds
 	 * @returns {WamParameterDataMap}
 	 */
-	_getParameterValues(normalized, parameterIdQuery) {
+	_getParameterValues(normalized, parameterIds) {
 		/** @type {WamParameterDataMap} */
 		const parameterValues = {};
-		if (!parameterIdQuery) parameterIdQuery = [];
-		if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this._parameterState);
-		parameterIdQuery.forEach((id) => {
+		if (!parameterIds) parameterIds = [];
+		if (!parameterIds.length) parameterIds = Object.keys(this._parameterState);
+		parameterIds.forEach((id) => {
 			const parameter = this._parameterState[id];
 			if (!parameter) return;
 			parameterValues[id] = {
