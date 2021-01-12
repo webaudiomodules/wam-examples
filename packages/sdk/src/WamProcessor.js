@@ -323,7 +323,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			keys.unshift('0');
 			eventsBySampleIndex['0'] = [];
 		}
-		const lastIndex = keys.length;
+		const lastIndex = keys.length - 1;
 		keys.forEach((key, index) => {
 			const startSample = parseInt(key);
 			const endSample = (index < lastIndex) ? parseInt(keys[index + 1]) : samplesPerQuantum;
