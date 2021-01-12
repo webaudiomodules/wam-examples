@@ -5,6 +5,7 @@
 /** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
 /** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
 /* eslint-disable no-undef */
 /* eslint-disable no-empty-function */
