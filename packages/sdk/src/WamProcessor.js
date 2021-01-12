@@ -60,7 +60,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @returns {WamParameterInfoMap}
 	 */
 	static generateWamParameterInfo() {
-		return { gain: new WamParameterInfo('gain') };
+		return {};
+	}
 	}
 
 	/** @param {AudioWorkletNodeOptions} options */
@@ -339,12 +340,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		const input = inputs[0];
 		const output = outputs[0];
 		if (input.length !== output.length) return;
-		const gain = this._parameterInterpolators.gain.values;
+		// Per-sample parameter values
+		// const gain = this._parameterInterpolators.gain.values;
 		for (let c = 0; c < output.length; ++c) {
 			const x = input[c];
 			const y = output[c];
 			for (let n = startSample; n < endSample; ++n) {
-				y[n] = x[n] * gain[n];
+				// y[n] = x[n] * gain[n];
 			}
 		}
 	}
