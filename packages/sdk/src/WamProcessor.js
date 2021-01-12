@@ -133,10 +133,10 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		}
 
 		/*
-		 * TODO
-		 * Maybe this should all be refactored at some point to use a ringbuffer backed
-		 * by SAB. Relying heavily on MessagePort for now, but it would be possible to
-		 * handle automation / midi events etc without it.
+		* TODO
+		* Maybe this should all be refactored at some point to use a ringbuffer backed
+		* by SAB. Relying heavily on MessagePort for now, but it would be possible to
+		* handle automation / midi events etc without it.
 		*/
 		/** @property {PendingWamEvent[]} _eventQueue */
 		this._eventQueue = [];
@@ -355,9 +355,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		if (input.length !== output.length) return;
 		// Per-sample parameter values
 		// const gain = this._parameterInterpolators.gain.values;
+
+		// Each channel
 		for (let c = 0; c < output.length; ++c) {
 			const x = input[c];
 			const y = output[c];
+			// Each sample
 			for (let n = startSample; n < endSample; ++n) {
 				// y[n] = x[n] * gain[n];
 			}
