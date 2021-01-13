@@ -323,4 +323,6 @@ export default class WamParameterInterpolator {
 }
 
 // @ts-ignore
-if (typeof AudioWorkletGlobalScope !== 'undefined') { AudioWorkletGlobalScope.WamParameterInterpolator = WamParameterInterpolator; }
+if (globalThis instanceof AudioWorkletGlobalScope) {
+	globalThis.WamParameterInterpolator = WamParameterInterpolator;
+}

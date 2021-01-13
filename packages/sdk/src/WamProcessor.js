@@ -404,4 +404,6 @@ export default class WamProcessor extends AudioWorkletProcessor {
 }
 
 // @ts-ignore
-if (typeof AudioWorkletGlobalScope !== 'undefined') { AudioWorkletGlobalScope.WamProcessor = WamProcessor; }
+if (globalThis instanceof AudioWorkletGlobalScope) {
+	globalThis.WamProcessor = WamProcessor;
+}

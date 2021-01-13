@@ -179,4 +179,6 @@ export default class WamParameterInfo {
 }
 
 // @ts-ignore
-if (typeof AudioWorkletGlobalScope !== 'undefined') { AudioWorkletGlobalScope.WamParameterInfo = WamParameterInfo; }
+if (globalThis instanceof AudioWorkletGlobalScope) {
+	globalThis.WamParameterInfo = WamParameterInfo;
+}
