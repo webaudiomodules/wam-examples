@@ -1,11 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 
 // SDK
-// import AudioWorkletRegister from '../../sdk/src/ParamMgr/AudioWorkletRegister.js';
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 // DSP
 import WamExampleNode from './WamExampleNode.js';
-// import WamExampleProcessorImport from './WamExampleProcessor.js';
 // GUI
 import { createElement } from './Gui/index.js';
 
@@ -40,10 +38,11 @@ export default class WamExamplePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		// DSP is implemented in WamExampleProcessor.
-		// await AudioWorkletRegister.register('WebAudioModuleWamExample', WamExampleProcessorImport, this._audioContext.audioWorklet);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameter.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInfo.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInterpolator.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamProcessor.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleProcessor.js`);
-		// await this._audioContext.audioWorklet.addModule('../../sdk/src/WamProcessor.js');
-		// await this._audioContext.audioWorklet.addModule('./WamExampleProcessor.js');
 
 		const wamExampleNode = new WamExampleNode(this, {});
 

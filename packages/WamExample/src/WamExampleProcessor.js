@@ -1,6 +1,3 @@
-import WamProcessor from '../../sdk/src/WamProcessor.js';
-import WamParameterInfo from '../../sdk/src/WamParameterInfo.js';
-
 /* eslint-disable object-curly-newline */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
@@ -45,28 +42,14 @@ import WamParameterInfo from '../../sdk/src/WamParameterInfo.js';
 
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
-// const audioWorkletGlobalScope = globalThis;
-
-/**
- * Main function to stringify as a worklet.
- *
- * @param {string} processorId processor identifier
- */
-
-// THIS DOESN'T WORK!
-// const {
-// 	// @ts-ignore
-// 	WamProcessor,
-// 	// @ts-ignore
-// 	WamParameterInfo,
-// 	registerProcessor,
-// } = globalThis;//audioWorkletGlobalScope;
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const { registerProcessor } = globalThis;//audioWorkletGlobalScope;
+const {
+	// @ts-ignore
+	WamProcessor,
+	// @ts-ignore
+	WamParameterInfo,
+	registerProcessor,
+} = globalThis;
 const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
-// const SharedArrayBuffer = globalThis.SharedArrayBuffer || globalThis.ArrayBuffer;
 
 /**
  * `WamExample`'s `AudioWorkletProcessor`
@@ -117,8 +100,6 @@ class WamExampleProcessor extends WamProcessor {
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { [instanceId]: this };
-
-		// , , clearEvents, port, process
 
 		super.port.start();
 	}

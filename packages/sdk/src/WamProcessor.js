@@ -1,10 +1,3 @@
-// I know this isn't ideal but how else to get handles to the classes??
-// @ts-ignore
-import WamParameterInfo from './WamParameterInfo.js';
-import { WamParameterNoSab, WamParameterSab } from './WamParameter.js';
-// @ts-ignore
-import WamParameterInterpolator from './WamParameterInterpolator.js';
-
 /** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
@@ -47,22 +40,18 @@ import WamParameterInterpolator from './WamParameterInterpolator.js';
 
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
+const {
+	AudioWorkletProcessor,
+	// @ts-ignore
+	WamParameterInterpolator,
+	// @ts-ignore
+	WamParameterNoSab,
+	// @ts-ignore
+	WamParameterSab,
+	// @ts-ignore
+} = globalThis;
 
-// THIS DOESN'T WORK
-// const {
-// 	AudioWorkletProcessor,
-// 	// @ts-ignore
-// 	WamParameterInfo,
-// 	// @ts-ignore
-// 	WamParameterInterpolator,
-// 	// @ts-ignore
-// 	WamParameterNoSab,
-// 	// @ts-ignore
-// 	WamParameterSab,
-// 	// @ts-ignore
-// } = globalThis;
-
-const { AudioWorkletProcessor, registerProcessor } = globalThis;//audioWorkletGlobalScope;
+// const { , registerProcessor } = AudioWorkletGlobalScope;
 
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
