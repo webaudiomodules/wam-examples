@@ -1,10 +1,6 @@
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
 import '../utils/webaudio-controls.js';
 
-// This works when yo uuse a bundler such as rollup
-// If you do no wan to use a bundler, then  look at other examples
-// that build in pure JS the syles and html template directly
-// in the code...
 const style = `.pedal {
 	display: block;
 	background-color: #AB2E24;
@@ -20,7 +16,6 @@ const style = `.pedal {
 	0 2px 1px 0 rgba(0, 0, 0, 0.9),
 	1px 1px 1px 0px rgba(0, 0, 0, 0.9);
 }
-
 
 #background-image {
 	width: 120px;
@@ -42,80 +37,40 @@ const style = `.pedal {
 	font-size: 11px !important;
 }
 
-
 #switch1 {
-	bottom: 0px;
-	right: 28px;
+	bottom: 10px;
+	right: 36px;
 }
 
-#highgain {
-	left: 66px;
-	top: 70px;
+#gain {
+	left: 47px;
+	top: 78px;
 }
 
-#highgain div {
+#gain div {
 	color: #ffffff;
 	font-family: "Verdana";
 	font-size: 8px;
-
-}
-
-#midhighgain {
-	left: 12px;
-	top: 71px;
-}
-
-#midhighgain div {
-	color: #ffffff;
-	font-family: "Verdana";
-	font-size: 8px;
-
-}
-
-#midlowgain {
-	left: 65px;
-	top: 12px;
-}
-
-#midlowgain div {
-	color: #ffffff;
-	font-family: "Verdana";
-	font-size: 8px;
-
-}
-
-#lowgain {
-	left: 12px;
-	top: 12px;
-}
-
-#lowgain div {
-	color: #ffffff;
-	font-family: "Verdana";
-	font-size: 8px;
-
 }
 
 #label_413 {
-	left: 16px;
-	top: 130px;
-	color: #ffffff;
+	left: 8px;
+	top: 6px;
+	color: #333333;
 	font-family: "Arial Black";
 	font-size: 14px;
 }
 
-
-
 .pedalLabel {
 	position: absolute;
-	top: 225px;
-	font-size: 25px;
+	top: 24px;
+	font-size: 24px;
 	font-family: Sansita;
 	/*{font}*/
 	text-align: center;
 	line-height: 30px;
 	/*{pedalfontsize}*/
-	width: 150px;
+	width: 160px;
 	color: #6B0000;
 	/*{fontcolor}*/
 }
@@ -140,29 +95,17 @@ const style = `.pedal {
 	left: 43px;
 }`;
 
-const template = `<div id="wc-quadrafuzz" class="wrapper">
+const template = `<div id="wamsdk-wamexample" class="wrapper">
 <div class="pedal">
 	<img id="background-image">
 	<div class="switchCont">
-		<webaudio-switch class="switch" id="switch1" height="30" width="60"></webaudio-switch>
+		<webaudio-switch class="switch" id="switch1" height="24" width="48"></webaudio-switch>
 	</div>
-	<div class="knob" id="highgain">
-		<webaudio-knob id="knob4" height="40" width="40" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="High Frequency Gain %.2f"></webaudio-knob>
-		<div style="text-align:center">Highgain</div>
+	<div class="knob" id="gain">
+		<webaudio-knob id="knob1" height="24" width="24" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Gain %.2f"></webaudio-knob>
+		<!-- <div style="text-align:center">Gain</div> -->
 	</div>
-	<div class="knob" id="midhighgain">
-		<webaudio-knob  id="knob3" height="40" width="40" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Medium - High Frequency Gain %.2f"></webaudio-knob>
-		<div style="text-align:center">Midhighgain</div>
-	</div>
-	<div class="knob" id="midlowgain">
-		<webaudio-knob  id="knob2" height="40" width="40" sprites="100" min="0" max="1" step="0.01" value="0.8" midilearn="1" tooltip="Medium - Low Frequency Gain %.2f"></webaudio-knob>
-		<div style="text-align:center">Midlowgain</div>
-	</div>
-	<div class="knob" id="lowgain">
-		<webaudio-knob  id="knob1" height="40" width="40" sprites="100" min="0" max="1" step="0.01" value="0.6" midilearn="1" tooltip="Low Frequency Gain %.2f"></webaudio-knob>
-		<div style="text-align:center">Lowgain</div>
-	</div>
-	<div class="label" id="label_413">QuadraFuzz</div>
+	<div class="label" id="label_413">WamExample</div>
 </div>
 </div>
 `;
@@ -202,19 +145,13 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#switch1').value = status;
 	}
 
-	handleAnimationFrame = () => {
-		// const {
-		// 	lowGain,
-		// 	midLowGain,
-		// 	midHighGain,
-		// 	highGain,
-		// 	enabled,
-		// } = this.plugin.audioNode.getParamsValues();
-		// this.shadowRoot.querySelector('#knob1').value = lowGain;
-		// this.shadowRoot.querySelector('#knob2').value = midLowGain;
-		// this.shadowRoot.querySelector('#knob3').value = midHighGain;
-		// this.shadowRoot.querySelector('#knob4').value = highGain;
-		// this.shadowRoot.querySelector('#switch1').value = enabled;
+	handleAnimationFrame = async () => {
+		const {
+			gain,
+			bypass,
+		} = await this.plugin.audioNode.getParameterValues();
+		this.shadowRoot.querySelector('#knob1').value = gain.value;
+		this.shadowRoot.querySelector('#switch1').value = !bypass.value;
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
@@ -250,7 +187,6 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	setSwitchListener() {
-		console.log('WamExample : set switch listener');
 		const { plugin } = this;
 
 		plugin.audioNode.setParameterValues({
@@ -264,7 +200,6 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
-				plugin.audioNode.setParamsValues({ enabled: +!!this.checked });
 				plugin.audioNode.setParameterValues({
 					bypass: {
 						id: 'bypass',
