@@ -20,6 +20,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		super();
 
 		this.root = this.attachShadow({ mode: 'open' });
+		console.log("GUI CONSTRUCTOR", plugin);
 
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
