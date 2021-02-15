@@ -314,7 +314,7 @@ navigator.requestMIDIAccess().then((midiAccess) => {
 	let currentInput;
 	const handleMidiMessage = (e) => {
 		if (!instance) return;
-		instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
+		instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
 	}
 	const handleStateChange = () => {
 		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);

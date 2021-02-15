@@ -203,11 +203,11 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		/**
-		 * @param {WamEvent} event
+		 * @param {WamEvent[]} event
 		 */
-		scheduleEvent(event) {
-			this.eventQueue.push(event);
-			this.eventQueue.sort((a, b) => b.time - a.time).reverse();
+		scheduleEvents(...event) {
+			this.eventQueue.push(...event);
+			this.eventQueue.sort((a, b) => a.time - b.time);
 		}
 
 		clearEvents() {

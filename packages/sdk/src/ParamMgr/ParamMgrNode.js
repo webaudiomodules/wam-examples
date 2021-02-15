@@ -159,27 +159,29 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {WamEvent} event
+	 * @param {WamEvent[]} events
 	 */
-	scheduleEvent(event) {
-		if (event.type === 'automation') {
-			const { time } = event;
-			const { id, normalized, value } = event.data;
-			const audioParam = this.getParam(id);
-			if (!audioParam) return;
-			if (audioParam.info.type === 'float') {
-				if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
-				else audioParam.linearRampToValueAtTime(value, time);
-			} else {
-				// eslint-disable-next-line no-lonely-if
-				if (normalized) audioParam.setNormalizedValueAtTime(value, time);
-				else audioParam.setValueAtTime(value, time);
+	scheduleEvents(...events) {
+		for (const event of events) {
+			if (event.type === 'automation') {
+				const { time } = event;
+				const { id, normalized, value } = event.data;
+				const audioParam = this.getParam(id);
+				if (!audioParam) return;
+				if (audioParam.info.type === 'float') {
+					if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
+					else audioParam.linearRampToValueAtTime(value, time);
+				} else {
+					// eslint-disable-next-line no-lonely-if
+					if (normalized) audioParam.setNormalizedValueAtTime(value, time);
+					else audioParam.setValueAtTime(value, time);
+				}
 			}
 		}
-		this.call('scheduleEvent', event);
+		this.call('scheduleEvents', events);
 	}
 
-	async clearEvents() {
+	clearEvents() {
 		this.call('clearEvents');
 	}
 
