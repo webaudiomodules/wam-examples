@@ -106,7 +106,7 @@ export default class Synth101Node extends CompositeAudioNode {
         envRelease: 0,
         portamentoMode: 0,
         portamentoTime: 0,
-        }
+    }
 
     oscillator!: OscillatorNode;
     pulseGain!: GainNode;
