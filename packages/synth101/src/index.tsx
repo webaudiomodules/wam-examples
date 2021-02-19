@@ -31,7 +31,7 @@ let vcaSources = ["Env", "Gate"]
 let envTriggers = ["Gate", "Trig", "Both"]
 let portamentoModes = ["Off", "Auto", "On"]
 
-export default class Synth101 extends WebAudioModule {
+export default class Synth101 extends WebAudioModule<Synth101Node> {
 	//@ts-ignore
 	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
@@ -57,7 +57,7 @@ export default class Synth101 extends WebAudioModule {
             waveform: {
                 defaultValue: 0,
                 minValue: 0,
-                maxValue: waves.length-1
+                maxValue: waves.length-1,
             },
             detune: {
                 defaultValue: 0,
@@ -69,7 +69,7 @@ export default class Synth101 extends WebAudioModule {
                 minValue: 0,
                 maxValue: 1
             },
-            lfoWaves: {
+            lfoWaveform: {
                 defaultValue: 0,
                 minValue: 0,
                 maxValue: lfoWaves.length-1
@@ -195,7 +195,7 @@ export default class Synth101 extends WebAudioModule {
             lfoRate: {
 				onChange: (v: number) => { synthNode.parameters.lfoRate = v; synthNode.updateFromState() }
             },
-            lfoWaves: {
+            lfoWaveform: {
 				onChange: (v: number) => { synthNode.parameters.lfoWaveform = v; synthNode.updateFromState() }
             },
             oscMod: {
@@ -280,7 +280,7 @@ export default class Synth101 extends WebAudioModule {
 			// hack because h() is getting stripped for non-use despite it being what the JSX compiles to
 			h("div", {})
 
-    		render(<SynthView></SynthView>, div);
+    		render(<SynthView plugin={this}></SynthView>, div);
 
    			return div;
 		// })

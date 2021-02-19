@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /** @template P @template I @typedef { import('sdk').ParamMgrNode<P, I> } ParamMgrNode */
-import { CompositeAudioNode } from 'sdk';
+import { CompositeAudioNode, ParamMgrNode } from 'sdk';
 import { constantSource, noiseSource } from './util'
 
 const shaperLength = 44100;
@@ -35,7 +35,7 @@ export default class Synth101Node extends CompositeAudioNode {
 	 */
 	_wamNode = undefined;
 
-	get paramMgr() {
+	get paramMgr(): ParamMgrNode {
 		return this._wamNode;
 	}
 
