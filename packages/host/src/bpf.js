@@ -298,7 +298,6 @@ class BPF extends HTMLElement {
 		const audioCtx = wamNode.context;
 		const { currentTime } = audioCtx;
 		wamNode.clearEvents();
-		let t = 0;
 		const currentValue = (await wamNode.getParameterValues(false, wamParamId))[wamParamId].value;
 		wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
 		for (let t = 0; t < this.domain; t += 0.01) {
