@@ -167,11 +167,10 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		/**
-		 * @param {string | string[]} [parameterIdQuery]
+		 * @param {string[]} parameterIdQuery
 		 */
-		getParameterInfo(parameterIdQuery) {
-			if (!parameterIdQuery) parameterIdQuery = Object.keys(this.paramsConfig);
-			else if (typeof parameterIdQuery === 'string') parameterIdQuery = [parameterIdQuery];
+		getParameterInfo(...parameterIdQuery) {
+			if (parameterIdQuery.length === 0) parameterIdQuery = Object.keys(this.paramsConfig);
 			/** @type {WamParameterInfoMap} */
 			const parameterInfo = {};
 			parameterIdQuery.forEach((parameterId) => {
@@ -182,11 +181,10 @@ const processor = (processorId, paramsConfig) => {
 
 		/**
 		 * @param {boolean} [normalized]
-		 * @param {string | string[]} [parameterIdQuery]
+		 * @param {string[]} parameterIdQuery
 		 */
-		getParameterValues(normalized, parameterIdQuery) {
-			if (!parameterIdQuery) parameterIdQuery = Object.keys(this.paramsConfig);
-			else if (typeof parameterIdQuery === 'string') parameterIdQuery = [parameterIdQuery];
+		getParameterValues(normalized, ...parameterIdQuery) {
+			if (parameterIdQuery.length === 0) parameterIdQuery = Object.keys(this.paramsConfig);
 			/** @type {WamParameterValueMap} */
 			const parameterValues = {};
 			parameterIdQuery.forEach((parameterId) => {
@@ -203,10 +201,10 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		/**
-		 * @param {WamEvent[]} event
+		 * @param {WamEvent[]} events
 		 */
-		scheduleEvents(...event) {
-			this.eventQueue.push(...event);
+		scheduleEvents(...events) {
+			this.eventQueue.push(...events);
 			this.eventQueue.sort((a, b) => a.time - b.time);
 		}
 

@@ -150,19 +150,19 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		return this.call('getCompensationDelay');
 	}
 
-	getParameterInfo(parameterIdQuery) {
-		return this.call('getParameterInfo', parameterIdQuery);
+	getParameterInfo(...parameterIdQuery) {
+		return this.call('getParameterInfo', ...parameterIdQuery);
 	}
 
-	getParameterValues(normalized, parameterIdQuery) {
-		return this.call('getParameterValues', normalized, parameterIdQuery);
+	getParameterValues(normalized, ...parameterIdQuery) {
+		return this.call('getParameterValues', normalized, ...parameterIdQuery);
 	}
 
 	/**
 	 * @param {WamEvent[]} events
 	 */
 	scheduleEvents(...events) {
-		for (const event of events) {
+		events.forEach((event) => {
 			if (event.type === 'automation') {
 				const { time } = event;
 				const { id, normalized, value } = event.data;
@@ -177,7 +177,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 					else audioParam.setValueAtTime(value, time);
 				}
 			}
-		}
+		});
 		this.call('scheduleEvents', events);
 	}
 
