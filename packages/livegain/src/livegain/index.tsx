@@ -14,6 +14,10 @@ export class LiveGainModule extends WebAudioModule<Node> {
 
     async createAudioNode(initialState?: any) {
         const node = new Node(this.audioContext);
+        const inputGainNode = this.audioContext.createGain();
+        const outGainNode = this.audioContext.createGain();
+        await register(this.audioContext.audioWorklet);
+        const analyserNode = new TemporalAnalyserNode(this.audioContext);
         const paramsConfig = {
             gain: {
                 defaultValue: 0,
@@ -54,6 +58,9 @@ export class LiveGainModule extends WebAudioModule<Node> {
                 defaultValue: 0,
                 minValue: 0,
                 maxValue: 1
+            },
+            windowSize: {
+                ...analyserNode.parameters.get("windowSize")
             }
         };
         const internalParamsConfig = {
@@ -64,12 +71,9 @@ export class LiveGainModule extends WebAudioModule<Node> {
             max: {},
             step: {},
             orientation: {},
-            metering: { onChange: (v: number) => node.handleMeteringChanged(v) }
+            metering: { onChange: (v: number) => node.handleMeteringChanged(v) },
+            windowSize: analyserNode.parameters.get("windowSize")
         };
-        const inputGainNode = this.audioContext.createGain();
-        const outGainNode = this.audioContext.createGain();
-        await register(this.audioContext.audioWorklet);
-        const analyserNode = new TemporalAnalyserNode(this.audioContext);
         const paramMgrNode = await ParamMgrFactory.create<Parameters, Parameters>(this, { internalParamsConfig, paramsConfig });
         node.setup(inputGainNode, outGainNode, paramMgrNode, analyserNode);
         if (initialState) node.setState(initialState);

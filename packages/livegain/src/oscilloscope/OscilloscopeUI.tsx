@@ -69,7 +69,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
         const gridColor = "#404040";
         const seperatorColor = "white";
         const range = 1;
-        const autoRange = false;
+        const autoRange = true;
         const stablize = true;
         const {
             interleaved,
@@ -94,9 +94,10 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
 
         if (!buffer) return;
 
-        const { $, data: t } = buffer;
+        const { $: ui8$, data: t } = buffer;
         if (!t || !t.length || !t[0].length) return;
 
+        const $ = ui8$[0];
         const channels = t.length;
         const l = t[0].length;
         // Vertical Range
@@ -157,7 +158,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
             let $1 = l; // Draw End
             let $zerox = 0; // First Zero-crossing
             let drawL = l; // Length to draw
-            if (stablize && estimatedFreq[i] && estimatedFreq[i] < sampleRate / 2.5) { // Stablization
+            if (stablize && l < sampleRate && estimatedFreq[i] && estimatedFreq[i] < sampleRate / 2.5) { // Stablization
                 const thresh = (min + max) * 0.5 + 0.001; // the zero-crossing with "offset"
                 const period = sampleRate / estimatedFreq[i];
                 const times = Math.floor(l / period) - 1;
