@@ -18,8 +18,12 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 	// Mandatory.
 	setup(wamNode) {
 		this._wamNode = wamNode;
-		this.createNodes();
 		this.connectNodes();
+	}
+
+	constructor(context, options) {
+		super(context, options);
+		this.createNodes();
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
@@ -75,7 +79,6 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 			this.overdrives[i].connect(this._output);
 		}
 	}
-
 
 	/**
 	 * Tools to build sounds

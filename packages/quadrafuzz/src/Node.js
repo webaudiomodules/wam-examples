@@ -13,10 +13,20 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 	 * @type {ParamMgrNode}
 	 */
 	_wamNode = undefined;
-	// plugin is an instance of he class that exends WebAudioModule
-	// this instance is he plugin as an Observable
-	// options is an extra container that could be ussed to indicate
-	// the number of inputs and outputs...
+
+	/**
+	 * @param {ParamMgrNode} wamNode
+	 */
+	// Mandatory.
+	setup(wamNode) {
+		this._wamNode = wamNode;
+		this.connectNodes();
+	}
+
+	constructor(context, options) {
+		super(context, options);
+		this.createNodes();
+	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
 	createNodes() {
@@ -74,15 +84,6 @@ export default class QuadrafuzzNode extends CompositeAudioNode {
 			this.overdrives[i].connect(this._output);
 			//filters[i].connect(this._output);
 		}
-	}
-
-	/**
-	 * @param {ParamMgrNode} wamNode
-	 */
-	setup(wamNode) {
-		this._wamNode = wamNode;
-		this.createNodes();
-		this.connectNodes();
 	}
 
 	/**

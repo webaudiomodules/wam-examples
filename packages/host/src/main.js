@@ -196,7 +196,7 @@ navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
 function handleDeviceChange(event) {
 	console.log('### INPUT DEVICE LIST CHANGED');
 	// let's rebuild the menu
-	rebuildAudioDeviceMenu()();
+	rebuildAudioDeviceMenu();
 }
 
 let liveInputButton = document.querySelector('#toggleLiveInput');
@@ -314,12 +314,13 @@ navigator.requestMIDIAccess().then((midiAccess) => {
 	let currentInput;
 	const handleMidiMessage = (e) => {
 		if (!instance) return;
-		instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
+		instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
 	}
 	const handleStateChange = () => {
+		const { inputs } = midiAccess;
+		if (midiInputSelector.options.length === inputs.size + 1) return;
 		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
 		midiInputSelector.innerHTML = '<option value="-1" disabled selected>Select...</option>';
-		const { inputs } = midiAccess;
 		inputs.forEach((midiInput) => {
 			const { name, id } = midiInput;
 			const option = new Option(name, id);
