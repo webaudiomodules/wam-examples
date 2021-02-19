@@ -1,20 +1,22 @@
+/* eslint-disable no-undef */
 /* eslint-disable max-len */
 /** @type {Window & { AudioWorkletRegister?: typeof AudioWorkletRegister }} */
-const globalThis = window;
+// @ts-ignore
+const window = globalThis;
 
-export const registeredProcessors = globalThis.AudioWorkletRegister?.registeredProcessors || new WeakMap();
-export const registeringProcessors = globalThis.AudioWorkletRegister?.registeringProcessors || new WeakMap();
-export const resolves = globalThis.AudioWorkletRegister?.resolves || {};
-export const rejects = globalThis.AudioWorkletRegister?.rejects || {};
+export const registeredProcessors = window.AudioWorkletRegister?.registeredProcessors || new WeakMap();
+export const registeringProcessors = window.AudioWorkletRegister?.registeringProcessors || new WeakMap();
+export const resolves = window.AudioWorkletRegister?.resolves || {};
+export const rejects = window.AudioWorkletRegister?.rejects || {};
 
 export default class AudioWorkletRegister {
 	static registeredProcessors = registeredProcessors;
 
 	static registeringProcessors = registeringProcessors;
 
-	static resolves = {};
+	static resolves = resolves;
 
-	static rejects = {};
+	static rejects = rejects;
 
 	static async registerProcessor(processorId, processor, audioWorklet, ...injection) {
 		this.registeringProcessors.get(audioWorklet).add(processorId);
@@ -56,4 +58,4 @@ export default class AudioWorkletRegister {
 	}
 }
 
-if (!globalThis.AudioWorkletRegister) globalThis.AudioWorkletRegister = AudioWorkletRegister;
+if (!window.AudioWorkletRegister) window.AudioWorkletRegister = AudioWorkletRegister;

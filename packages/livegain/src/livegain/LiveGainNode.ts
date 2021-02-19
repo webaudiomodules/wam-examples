@@ -26,7 +26,7 @@ export default class LiveGainNode extends CompositeAudioNode {
     handleGainChanged = (v: number) => {
         this.gain.cancelScheduledValues(this.context.currentTime);
         this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
-        this.gain.linearRampToValueAtTime(dbtoa(v), this.context.currentTime + 0.01);
+        this.gain.linearRampToValueAtTime(v <= -69.99 ? 0 : dbtoa(v), this.context.currentTime + 0.01);
     };
     destroy() {
         window.clearTimeout(this._requestTimer);

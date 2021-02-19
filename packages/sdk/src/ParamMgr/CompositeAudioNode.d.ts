@@ -17,6 +17,7 @@ interface CompositeAudioNode extends Omit<GainNode, keyof EventTarget>, WamNode 
      * `undefined` by default, override it after calling every `this.connect()`
      */
     _output: AudioNode;
+    readonly gain: AudioParam;
 }
 declare const CompositeAudioNode: {
     prototype: CompositeAudioNode;
