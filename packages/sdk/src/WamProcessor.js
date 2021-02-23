@@ -95,6 +95,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 		/** @property {WamParameterMap} _parameterState */
 		this._parameterState = {};
+		/** @property {number} _samplesPerQuantum */
+		this._samplesPerQuantum = 128;
 
 		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
 		this._parameterInterpolators = {};
@@ -296,7 +298,6 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * */
 	_getProcessingSlices() {
 		const response = 'add/event';
-		const samplesPerQuantum = 128;
 		/** @ts-ignore */
 		const { currentTime, sampleRate } = globalThis;
 		/** @type {{[sampleIndex: number]: WamEvent[]}} */
@@ -305,7 +306,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		while (this._eventQueue.length) {
 			const { id, event } = this._eventQueue[0];
 			const sampleIndex = event.time ? Math.round((event.time - currentTime) * sampleRate) : 0;
-			if (sampleIndex < samplesPerQuantum) {
+			if (sampleIndex < this._samplesPerQuantum) {
 				if (eventsBySampleIndex[sampleIndex]) eventsBySampleIndex[sampleIndex].push(event);
 				else eventsBySampleIndex[sampleIndex] = [event];
 				// notify main thread
@@ -325,7 +326,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		const lastIndex = keys.length - 1;
 		keys.forEach((key, index) => {
 			const startSample = parseInt(key);
-			const endSample = (index < lastIndex) ? parseInt(keys[index + 1]) : samplesPerQuantum;
+			const endSample = (index < lastIndex) ? parseInt(keys[index + 1]) : this._samplesPerQuantum;
 			processingSlices.push({ range: [startSample, endSample], events: eventsBySampleIndex[key] });
 		});
 		return processingSlices;
