@@ -252,47 +252,47 @@ export default class WamParameterInterpolator {
 	}
 
 	/**
-	 * Compute per-sample value updates in the specified range `[startIndex, endIndex)`,
+	 * Compute per-sample value updates in the specified range `[startSample, endSample)`,
 	 * interpolating if applicable. Results are stored in `values`. Assumes this will be
 	 * called once per parameter per processing slice in `WamProcessor.process`.
-	 * @param {number} startIndex
-	 * @param {number} endIndex
+	 * @param {number} startSample
+	 * @param {number} endSample
 	 */
-	process(startIndex, endIndex) {
+	process(startSample, endSample) {
 		if (this.done) return;
-		const length = endIndex - startIndex;
+		const length = endSample - startSample;
 		let fill = 0;
 		const change = this._N - this._n;
 		if (this._discrete || !change) fill = length;
 		else {
 			if (change < length) {
 				fill = Math.min(length - change, samplesPerQuantum);
-				endIndex -= fill;
+				endSample -= fill;
 			}
-			if (endIndex > startIndex) { // interpolate
+			if (endSample > startSample) { // interpolate
 				if (this._inverted) {
-					for (let i = startIndex; i < endIndex; ++i) {
+					for (let i = startSample; i < endSample; ++i) {
 						const tableValue = 1.0 - this._table[this._N - ++this._n];
 						this.values[i] = this._startValue + tableValue * this._deltaValue;
 					}
 				} else {
-					for (let i = startIndex; i < endIndex; ++i) {
+					for (let i = startSample; i < endSample; ++i) {
 						const tableValue = this._table[++this._n];
 						this.values[i] = this._startValue + tableValue * this._deltaValue;
 					}
 				}
 			}
 			if (fill > 0) {
-				startIndex = endIndex;
-				endIndex += fill;
+				startSample = endSample;
+				endSample += fill;
 			}
 		}
 		if (fill > 0) {
 			// fill any remaining slots
-			this.values.fill(this._endValue, startIndex, endIndex);
+			this.values.fill(this._endValue, startSample, endSample);
 			this._filled += fill;
 		}
-		this._currentValue = this.values[endIndex - 1];
+		this._currentValue = this.values[endSample - 1];
 		if (this._n === this._N) {
 			if (!this._changed) this._changed = true;
 			else if (this._filled >= this.values.length) {
