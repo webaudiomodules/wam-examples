@@ -181,25 +181,27 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * From the main thread, schedule a WamEvent.
 	 * Listeners will be triggered when the event is processed.
-	 * @param {WamEvent} event
+	 * @param {WamEvent[]} events
 	 */
-	scheduleEvent(event) {
-		const request = 'add/event';
-		const id = this._generateMessageId();
-		let processed = false;
-		new Promise((resolve, reject) => {
-			this._pendingResponses[id] = resolve;
-			this._pendingEvents[id] = () => { if (!processed) reject(); };
-			this.port.postMessage({
-				id,
-				request,
-				content: { event },
-			});
-		}).then((resolved) => {
-			processed = true;
-			delete this._pendingEvents[id];
-			this._onEvent(event);
-		}).catch((rejected) => { delete this._pendingResponses[id]; });
+	scheduleEvents(...events) {
+		events.forEach((event) => {
+			const request = 'add/event';
+			const id = this._generateMessageId();
+			let processed = false;
+			new Promise((resolve, reject) => {
+				this._pendingResponses[id] = resolve;
+				this._pendingEvents[id] = () => { if (!processed) reject(); };
+				this.port.postMessage({
+					id,
+					request,
+					content: { event },
+				});
+			}).then((resolved) => {
+				processed = true;
+				delete this._pendingEvents[id];
+				this._onEvent(event);
+			}).catch((rejected) => { delete this._pendingResponses[id]; });
+		});
 	}
 
 	/** From the main thread, clear all pending WamEvents. */

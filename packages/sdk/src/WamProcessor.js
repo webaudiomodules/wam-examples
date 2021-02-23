@@ -163,11 +163,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	/**
 	 * From the audio thread, schedule a WamEvent.
 	 * Listeners will be triggered when the event is processed.
-	 * @param {WamEvent} event
+	 * @param {WamEvent[]} events
 	 */
-	scheduleEvent(event) {
-		// no need for ids if scheduled from audio thread
-		this._eventQueue.push({ id: 0, event });
+	scheduleEvents(...events) {
+		events.forEach((event) => {
+			// no need for ids if scheduled from audio thread
+			this._eventQueue.push({ id: 0, event });
+		});
 	}
 
 	/** From the audio thread, clear all pending WamEvents. */
