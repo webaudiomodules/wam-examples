@@ -360,23 +360,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {Float32Array[][]} outputs
 	 * @param {{[x: string]: Float32Array}} parameters
 	 */
-	_process(startSample, endSample, inputs, outputs, parameters) {
-		const input = inputs[0];
-		const output = outputs[0];
-		if (input.length !== output.length) return;
-		// Per-sample parameter values
-		// const gain = this._parameterInterpolators.gain.values;
-
-		// Each channel
-		for (let c = 0; c < output.length; ++c) {
-			const x = input[c];
-			const y = output[c];
-			// Each sample
-			for (let n = startSample; n < endSample; ++n) {
-				// y[n] = x[n] * gain[n];
-			}
-		}
-	}
+	_process(startSample, endSample, inputs, outputs, parameters) {}
 
 	/**
 	 * @param {Float32Array[][]} inputs
