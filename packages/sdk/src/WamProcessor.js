@@ -4,6 +4,7 @@
 /** @typedef {import('./api/types').WamParameterData} WamParameterData */
 /** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
+/** @typedef {import('./api/types').WamMidiData} WamMidiData */
 /** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
@@ -234,6 +235,14 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	}
 
 	/**
+	 *
+	 * @param {WamMidiData} midiData
+	 */
+	_onMidi(midiData) {
+		// Custom midi handling here
+	}
+
+	/**
 	 * @param {boolean} normalized
 	 * @param {string[]=} parameterIds
 	 * @returns {WamParameterDataMap}
@@ -336,7 +345,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_processEvent(event) {
 		switch (event.type) {
 		case 'automation': this._setParameterValue(event.data, true); break;
-		case 'midi': /*...*/ break;
+		case 'midi': this._onMidi(event.data); break;
 		default: break;
 		}
 	}
