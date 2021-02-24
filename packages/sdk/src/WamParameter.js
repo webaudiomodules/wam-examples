@@ -11,7 +11,24 @@ class WamParameterNoSab {
 	constructor(info) {
 		/** @readonly @property {WamParameter} info */
 		this.info = info;
-		this.value = info.defaultValue;
+		/** @private @property {number} _value */
+		this._value = info.defaultValue;
+	}
+
+	/**
+	 * Set current (denormalized) value
+	 * @param {number} value
+	*/
+	set value(value) {
+		this._value = value;
+	}
+
+	/**
+	 * Get current (denormalized) value
+	 * @returns {number}
+	 */
+	get value() {
+		return this._value;
 	}
 
 	/**

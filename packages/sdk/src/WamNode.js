@@ -1,3 +1,4 @@
+/** @typedef {import('./api/types').WamNode} IWamNode */
 /** @typedef {import('./api/types').WebAudioModule} WebAudioModule */
 /** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
@@ -11,6 +12,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
 
+/**
+ * @implements {IWamNode}
+ */
 export default class WamNode extends AudioWorkletNode {
 	/**
 	 * @param {WebAudioModule} module
@@ -47,18 +51,18 @@ export default class WamNode extends AudioWorkletNode {
 	get moduleId() { return this.module.moduleId; }
 	/** @returns {string} */
 	get instanceId() { return this.module.instanceId; }
+	/** @returns {string} */
+	get processorId() { return this.moduleId; }
 
 	/**
 	 * Get parameter info for the specified parameter ids,
 	 * or omit argument to get info for all parameters.
-	 * @param {string | string[]=} parameterIds
+	 * @param {string[]} parameterIds
 	 * @returns {Promise<WamParameterInfoMap>}
 	 */
-	async getParameterInfo(parameterIds) {
+	async getParameterInfo(...parameterIds) {
 		const request = 'get/parameterInfo';
 		const id = this._generateMessageId();
-		if (parameterIds === undefined) parameterIds = [];
-		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
 			this.port.postMessage({
@@ -73,14 +77,12 @@ export default class WamNode extends AudioWorkletNode {
 	 * Get parameter values for the specified parameter ids,
 	 * or omit argument to get values for all parameters.
 	 * @param {boolean} normalized
-	 * @param {string | string[]=} parameterIds
+	 * @param {string[]} parameterIds
 	 * @returns {Promise<WamParameterDataMap>}
 	 */
-	async getParameterValues(normalized, parameterIds) {
+	async getParameterValues(normalized, ...parameterIds) {
 		const request = 'get/parameterValues';
 		const id = this._generateMessageId();
-		if (parameterIds === undefined) parameterIds = [];
-		if (!Array.isArray(parameterIds)) parameterIds = [parameterIds];
 		return new Promise((resolve) => {
 			this._pendingResponses[id] = resolve;
 			this.port.postMessage({

@@ -1,3 +1,4 @@
+/** @typedef {import('./api/types').WamProcessor} IWamProcessor */
 /** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
@@ -54,6 +55,9 @@ const {
 
 // const { , registerProcessor } = AudioWorkletGlobalScope;
 
+/**
+ * @implements {IWamProcessor}
+ */
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
 	 * Override to fetch plugin's params via whatever means desired.
