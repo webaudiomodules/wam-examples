@@ -25,7 +25,8 @@
   "webaudiomodules": {
     "livegain": "dist",
     "pingpongdelay": "dist",
-    "quadrafuzz": "dist"
+    "quadrafuzz": "dist",
+    "wamexample": "dist"
   },
   "devDependencies": {
     "del-cli": "^3.0.1"

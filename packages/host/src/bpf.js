@@ -298,13 +298,12 @@ class BPF extends HTMLElement {
 		const audioCtx = wamNode.context;
 		const { currentTime } = audioCtx;
 		wamNode.clearEvents();
-		let t = 0;
 		const currentValue = (await wamNode.getParameterValues(false, wamParamId))[wamParamId].value;
-		wamNode.scheduleEvent({ type: 'automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
-		this.points.forEach((a) => {
-			t += a[0];
-			wamNode.scheduleEvent({ type: 'automation', data: { id: wamParamId, value: a[1] }, time: currentTime + t });
-		});
+		wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
+		for (let t = 0; t < this.domain; t += 0.01) {
+			const value = this.getYfromX(t);
+			wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value }, time: currentTime + t });
+		}
 	}
 
 	/**
@@ -592,14 +591,13 @@ class BPF extends HTMLElement {
 
 	/**
      * @param {number} x
-     * @param {number} [yIn]
-     * @returns {{ index: number; point: [number, number, number] }}
+     * @returns {number}
      */
-	getInsertPoint(x, yIn, e = 0) {
+	getYfromX(x) {
 		const { points, defaultValue } = this.state;
 		let $point = 0;
 		let prev = points[0];
-		/** @type {[number, number, number]} */
+		/** @type {TBPFPoint} */
 		let next;
 		while ($point < points.length) {
 			next = points[$point];
@@ -607,8 +605,33 @@ class BPF extends HTMLElement {
 			prev = next;
 			$point++;
 		}
-		if (prev === next) return { index: $point, point: [x, typeof yIn === 'number' ? yIn : prev ? prev[1] : defaultValue, e] };
+		if (prev === next) return prev ? prev[1] : defaultValue;
+		const exponent = prev[2] || 0;
+		const normalizedX = (x - prev[0]) / (next[0] - prev[0]);
+		const normalizedY = normExp(normalizedX, exponent);
+		const y = prev[1] + normalizedY * (next[1] - prev[1]);
+		return y;
+	}
+
+	/**
+     * @param {number} x
+     * @param {number} [yIn]
+     * @returns {{ index: number; point: TBPFPoint }}
+     */
+	getInsertPoint(x, yIn, e = 0) {
+		const { points, defaultValue } = this.state;
+		let $point = 0;
+		let prev = points[0];
+		/** @type {TBPFPoint} */
+		let next;
+		while ($point < points.length) {
+			next = points[$point];
+			if (next[0] > x) break;
+			prev = next;
+			$point++;
+		}
 		if (typeof yIn === 'number') return { index: $point, point: [x, yIn, e] };
+		if (prev === next) return { index: $point, point: [x, prev ? prev[1] : defaultValue, e] };
 		const exponent = prev[2] || 0;
 		const normalizedX = (x - prev[0]) / (next[0] - prev[0]);
 		const normalizedY = normExp(normalizedX, exponent);

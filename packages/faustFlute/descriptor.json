@@ -1,0 +1,11 @@
+{
+    "name": "Faust Flute MIDI",
+    "vendor": "Grame",
+    "description": "Faust MIDI Instrument",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": ["flute", "faust"],
+    "isInstrument": true,
+    "website": ""
+}
