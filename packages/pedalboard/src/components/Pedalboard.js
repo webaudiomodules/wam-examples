@@ -155,7 +155,7 @@ const Pedalboard = ({ audioNode }) => {
 	const onSortPlugin = (element, oldIndex, newIndex) => {
 		if (element.clone.tagName === 'IMG') {
 			handleClickThumbnail(element.clone.attributes['data-id'].value);
-		}	else {
+		} else {
 			audioNode.swapPlugins(oldIndex, newIndex);
 		}
 	};
@@ -169,23 +169,19 @@ const Pedalboard = ({ audioNode }) => {
 					setSelectedType={setSelectedType}
 				/>
 				<div className={css.Pedalboard_Body}>
+					<div className={css.Pedalboard_Body_Content}>
+						<PedalboardBoard
+							plugins={plugins}
+							handleClickRemove={handleClickRemove}
+							onDrop={handleClickThumbnail}
+							onSortPlugin={onSortPlugin}
+						/>
+					</div>
 					<PedalboardSelector
 						onClick={handleClickThumbnail}
 						audioNode={audioNode}
 						selectedType={selectedType}
 					/>
-					<div className={css.Pedalboard_Body_Content}>
-						<div
-							className={css.Pedalboard_Body_Content_Board}
-						>
-							<PedalboardBoard
-								plugins={plugins}
-								handleClickRemove={handleClickRemove}
-								onDrop={handleClickThumbnail}
-								onSortPlugin={onSortPlugin}
-							/>
-						</div>
-					</div>
 				</div>
 			</section>
 		</div>
