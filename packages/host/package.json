@@ -27,7 +27,8 @@
     "livegain": "dist",
     "pingpongdelay": "dist",
     "quadrafuzz": "dist",
-    "synth101": "dist"
+    "synth101": "dist",
+    "wamexample": "dist"
   },
   "devDependencies": {
     "del-cli": "^3.0.1"

@@ -199,7 +199,7 @@ navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
 function handleDeviceChange(event) {
 	console.log('### INPUT DEVICE LIST CHANGED');
 	// let's rebuild the menu
-	rebuildAudioDeviceMenu()();
+	rebuildAudioDeviceMenu();
 }
 
 let liveInputButton = document.querySelector('#toggleLiveInput');
@@ -318,7 +318,7 @@ if (navigator.requestMIDIAccess) {
 		let currentInput;
 		const handleMidiMessage = (e) => {
 			if (!instance) return;
-			instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
+			instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
 		}
 		const handleStateChange = () => {
 			if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
@@ -344,8 +344,8 @@ if (navigator.requestMIDIAccess) {
 // -------- generate MIDI note button ---------
 /** @type {HTMLButtonElement} */ const sendMIDINoteButton = document.querySelector('#sendMIDINoteButton');
 sendMIDINoteButton.onclick = async (e) => {
-	instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
-	instance.audioNode.scheduleEvent({ type: 'midi', time: instance.audioContext.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
+	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
+	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
 }
 
 /** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');

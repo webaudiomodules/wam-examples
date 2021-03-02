@@ -150,36 +150,38 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		return this.call('getCompensationDelay');
 	}
 
-	getParameterInfo(parameterIdQuery) {
-		return this.call('getParameterInfo', parameterIdQuery);
+	getParameterInfo(...parameterIdQuery) {
+		return this.call('getParameterInfo', ...parameterIdQuery);
 	}
 
-	getParameterValues(normalized, parameterIdQuery) {
-		return this.call('getParameterValues', normalized, parameterIdQuery);
+	getParameterValues(normalized, ...parameterIdQuery) {
+		return this.call('getParameterValues', normalized, ...parameterIdQuery);
 	}
 
 	/**
-	 * @param {WamEvent} event
+	 * @param {WamEvent[]} events
 	 */
-	scheduleEvent(event) {
-		if (event.type === 'automation') {
-			const { time } = event;
-			const { id, normalized, value } = event.data;
-			const audioParam = this.getParam(id);
-			if (!audioParam) return;
-			if (audioParam.info.type === 'float') {
-				if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
-				else audioParam.linearRampToValueAtTime(value, time);
-			} else {
-				// eslint-disable-next-line no-lonely-if
-				if (normalized) audioParam.setNormalizedValueAtTime(value, time);
-				else audioParam.setValueAtTime(value, time);
+	scheduleEvents(...events) {
+		events.forEach((event) => {
+			if (event.type === 'automation') {
+				const { time } = event;
+				const { id, normalized, value } = event.data;
+				const audioParam = this.getParam(id);
+				if (!audioParam) return;
+				if (audioParam.info.type === 'float') {
+					if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
+					else audioParam.linearRampToValueAtTime(value, time);
+				} else {
+					// eslint-disable-next-line no-lonely-if
+					if (normalized) audioParam.setNormalizedValueAtTime(value, time);
+					else audioParam.setValueAtTime(value, time);
+				}
 			}
-		}
-		this.call('scheduleEvent', event);
+		});
+		this.call('scheduleEvents', events);
 	}
 
-	async clearEvents() {
+	clearEvents() {
 		this.call('clearEvents');
 	}
 

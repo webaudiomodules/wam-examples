@@ -11,7 +11,24 @@ class WamParameterNoSab {
 	constructor(info) {
 		/** @readonly @property {WamParameter} info */
 		this.info = info;
-		this.value = info.defaultValue;
+		/** @private @property {number} _value */
+		this._value = info.defaultValue;
+	}
+
+	/**
+	 * Set current (denormalized) value
+	 * @param {number} value
+	*/
+	set value(value) {
+		this._value = value;
+	}
+
+	/**
+	 * Get current (denormalized) value
+	 * @returns {number}
+	 */
+	get value() {
+		return this._value;
 	}
 
 	/**
@@ -68,9 +85,7 @@ class WamParameterSab extends WamParameterNoSab {
 export { WamParameterNoSab, WamParameterSab };
 
 // @ts-ignore
-if (typeof AudioWorkletGlobalScope !== 'undefined') {
-	// @ts-ignore
-	AudioWorkletGlobalScope.WamParameterNoSab = WamParameterNoSab;
-	// @ts-ignore
-	AudioWorkletGlobalScope.WamParameterSab = WamParameterSab;
+if (globalThis instanceof AudioWorkletGlobalScope) {
+	globalThis.WamParameterNoSab = WamParameterNoSab;
+	globalThis.WamParameterSab = WamParameterSab;
 }
