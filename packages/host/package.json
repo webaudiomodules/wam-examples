@@ -14,7 +14,8 @@
     "parcel-bundler": "^1.12.4",
     "pingpongdelay": "^0.0.0",
     "quadrafuzz": "^0.0.0",
-    "sdk": "^0.0.0"
+    "sdk": "^0.0.0",
+    "synth101": "^0.0.0"
   },
   "browserslist": [
     "last 2 Chrome versions",
@@ -25,7 +26,8 @@
   "webaudiomodules": {
     "livegain": "dist",
     "pingpongdelay": "dist",
-    "quadrafuzz": "dist"
+    "quadrafuzz": "dist",
+    "synth101": "dist"
   },
   "devDependencies": {
     "del-cli": "^3.0.1"
