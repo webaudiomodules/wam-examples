@@ -36,6 +36,7 @@ const Plugin = ({
 			let resizeLoopEnabled = true;
 
 			const loop = () => {
+				if (!pluginContainerRef.current) return;
 				const containerRect = pluginContainerRef.current.getBoundingClientRect();
 				const { height } = containerRect;
 

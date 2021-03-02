@@ -84,7 +84,7 @@
 			width: 100%;
 			display: flex;
 			overflow-y: hidden;
-			overflow-x: auto;
+			overflow-x: scroll;
 			padding: var(--spacing-sm);
 			background: var(--color-darker);
 			border-radius: var(--spacing-sm);

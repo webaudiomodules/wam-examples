@@ -95,7 +95,12 @@ const PedalboardBoard = ({
 };
 
 const PedalboardSelector = ({ onClick, selectedType }) => {
-	const [pedals, setPedals] = useState(PedalsJSON.filter((pedal) => selectedType === 'default' || selectedType === pedal.type));
+	const [pedals, setPedals] = useState([]);
+
+	useEffect(() => {
+		setPedals(PedalsJSON.filter((pedal) => selectedType === 'default' || selectedType === pedal.type));
+	}, [selectedType]);
+
 	return (
 		<>
 			<aside className={css.PedalboardSelector}>
