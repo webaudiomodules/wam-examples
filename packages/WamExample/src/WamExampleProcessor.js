@@ -124,12 +124,12 @@ class WamExampleProcessor extends WamProcessor {
 		const output = outputs[0];
 		if (input.length !== output.length) return;
 
-		const bypass = this._parameterInterpolators.bypass.values;
+		const bypass = !!this._parameterInterpolators.bypass.values[startSample];
 		const gain = this._parameterInterpolators.gain.values;
 		for (let c = 0; c < output.length; ++c) {
 			const x = input[c];
 			const y = output[c];
-			if (bypass[startSample]) {
+			if (bypass) {
 				for (let n = startSample; n < endSample; ++n) {
 					y[n] = x[n];
 				}
