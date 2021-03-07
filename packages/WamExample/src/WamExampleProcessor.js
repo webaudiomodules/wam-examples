@@ -5,6 +5,8 @@
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
+/* eslint-disable no-bitwise */
+/* eslint-disable max-classes-per-file */
 
 /** @typedef { import('../../sdk/src/api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
 /** @typedef { import('../../sdk/src/api/types').AudioWorkletProcessor } AudioWorkletProcessor */
@@ -16,7 +18,8 @@
 /** @typedef { import('../../sdk/src/api/types').WamParameterDataMap } WamParameterDataMap */
 /** @typedef { import('../../sdk/src/api/types').WamParameterMap } WamParameterMap */
 /** @typedef { import('../../sdk/src/api/types').WamEvent } WamEvent */
-/** @typedef { import('.,/../sdk/src/WamParameterInterpolator') } WamParameterInterpolator */
+/** @typedef { import('../../sdk/src/api/types').WamMidiData } WamMidiData */
+/** @typedef { import('./WamExampleSynth').WamExampleSynth } WamExampleSynth */
 
 /**
  * A WamEvent and corresponding message id used to trigger callbacks
@@ -47,6 +50,8 @@ const {
 	WamProcessor,
 	// @ts-ignore
 	WamParameterInfo,
+	// @ts-ignore
+	WamExampleSynth,
 	registerProcessor,
 } = globalThis;
 const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
@@ -98,19 +103,41 @@ class WamExampleProcessor extends WamProcessor {
 			this._parameterInterpolators = {};
 		}
 
+		this._generator = new WamExampleSynth(8, this._samplesPerQuantum, globalThis.sampleRate);
+
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { [instanceId]: this };
 
 		super.port.start();
 	}
 
-	// /**
-	//  * @param {WamEvent} event
-	//  */
-	// scheduleEvent(event) {
-	// 	this.eventQueue.push(event);
-	// 	this.eventQueue.sort((a, b) => b.time - a.time).reverse();
-	// }
+	/**
+	 *
+	 * @param {WamMidiData} midiData
+	 */
+	_onMidi(midiData) {
+		/* eslint-disable no-lone-blocks */
+		const bytes = midiData.bytes;
+		const type = bytes[0] & 0xf0;
+		const channel = bytes[0] & 0x0f;
+		const data1 = bytes[1];
+		const data2 = bytes[2];
+		switch (type) {
+		case 0x80: { /* note off */
+			this._generator.noteOff(channel, data1, data2);
+		} break;
+		case 0x90: { /* note on */
+			this._generator.noteOn(channel, data1, data2);
+		} break;
+		case 0xa0: { /* aftertouch */ } break;
+		case 0xb0: { /* continuous controller */ } break;
+		case 0xc0: { /* patch change */ } break;
+		case 0xd0: { /* channel pressure */ } break;
+		case 0xe0: { /* pitch bend */ } break;
+		case 0xf0: { /* system */ } break;
+		default: { /* invalid */ } break;
+		}
+	}
 
 	/**
 	 * Implement custom DSP here.
@@ -125,6 +152,7 @@ class WamExampleProcessor extends WamProcessor {
 		if (input.length !== output.length) return;
 
 		const bypass = !!this._parameterInterpolators.bypass.values[startSample];
+		if (!bypass) this._generator.process(startSample, endSample, input, output);
 		const gain = this._parameterInterpolators.gain.values;
 		for (let c = 0; c < output.length; ++c) {
 			const x = input[c];
@@ -135,7 +163,7 @@ class WamExampleProcessor extends WamProcessor {
 				}
 			} else {
 				for (let n = startSample; n < endSample; ++n) {
-					y[n] = x[n] * gain[n];
+					y[n] = (x[n] + y[n]) * gain[n];
 				}
 			}
 		}
