@@ -170,10 +170,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {WamEvent[]} events
 	 */
 	scheduleEvents(...events) {
-		events.forEach((event) => {
+		let i = 0;
+		while (i < events.length) {
 			// no need for ids if scheduled from audio thread
-			this._eventQueue.push({ id: 0, event });
-		});
+			this._eventQueue.push({ id: 0, event: events[i] });
+			i++;
+		}
 	}
 
 	/** From the audio thread, clear all pending WamEvents. */
@@ -198,9 +200,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					let { parameterIds } = content;
 					if (!parameterIds.length) parameterIds = Object.keys(this._parameterInfo);
 					const parameterInfo = {};
-					parameterIds.forEach((parameterId) => {
+					let i = 0;
+					while (i < parameterIds.length) {
+						const parameterId = parameterIds[i];
 						parameterInfo[parameterId] = this._parameterInfo[parameterId];
-					});
+						i++;
+					}
 					response.content = parameterInfo;
 				} else if (noun === 'parameterValues') {
 					/*eslint-disable-next-line prefer-const */
@@ -258,15 +263,17 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		const parameterValues = {};
 		if (!parameterIds) parameterIds = [];
 		if (!parameterIds.length) parameterIds = Object.keys(this._parameterState);
-		parameterIds.forEach((id) => {
+		let i = 0;
+		while (i < parameterIds.length) {
+			const id = parameterIds[i];
 			const parameter = this._parameterState[id];
-			if (!parameter) return;
 			parameterValues[id] = {
 				id,
 				value: normalized ? parameter.normalizedValue : parameter.value,
 				normalized,
 			};
-		});
+			i++;
+		}
 		return parameterValues;
 	}
 
@@ -275,10 +282,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {boolean} interpolate
 	 */
 	_setParameterValues(parameterUpdates, interpolate) {
-		Object.keys(parameterUpdates).forEach((parameterId) => {
-			const parameterUpdate = parameterUpdates[parameterId];
-			this._setParameterValue(parameterUpdate, interpolate);
-		});
+		const parameterIds = Object.keys(parameterUpdates);
+		let i = 0;
+		while (i < parameterIds.length) {
+			this._setParameterValue(parameterUpdates[parameterIds[i]], interpolate);
+			i++;
+		}
 	}
 
 	/**
@@ -301,10 +310,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {number} endIndex
 	 */
 	_interpolateParameterValues(startIndex, endIndex) {
-		Object.keys(this._parameterInterpolators).forEach((parameterId) => {
-			const interpolator = this._parameterInterpolators[parameterId];
-			interpolator.process(startIndex, endIndex);
-		});
+		const parameterIds = Object.keys(this._parameterInterpolators);
+		let i = 0;
+		while (i < parameterIds.length) {
+			this._parameterInterpolators[parameterIds[i]].process(startIndex, endIndex);
+			i++;
+		}
 	}
 
 	/**
@@ -318,8 +329,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		/** @type {{[sampleIndex: number]: WamEvent[]}} */
 		const eventsBySampleIndex = {};
 		// assumes events arrive sorted by time
-		while (this._eventQueue.length) {
-			const { id, event } = this._eventQueue[0];
+		let i = 0;
+		while (i < this._eventQueue.length) {
+			const { id, event } = this._eventQueue[i];
 			const sampleIndex = event.time ? Math.round((event.time - currentTime) * sampleRate) : 0;
 			if (sampleIndex < this._samplesPerQuantum) {
 				if (eventsBySampleIndex[sampleIndex]) eventsBySampleIndex[sampleIndex].push(event);
@@ -328,7 +340,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				if (id) this.port.postMessage({ id, response });
 				else this.port.postMessage({ event });
 				this._eventQueue.shift();
+				i = -1;
 			} else break;
+			i++;
 		}
 
 		/** @type {ProcessingSlice[]} */
@@ -339,11 +353,14 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			eventsBySampleIndex['0'] = [];
 		}
 		const lastIndex = keys.length - 1;
-		keys.forEach((key, index) => {
+		i = 0;
+		while (i < keys.length) {
+			const key = keys[i];
 			const startSample = parseInt(key);
-			const endSample = (index < lastIndex) ? parseInt(keys[index + 1]) : this._samplesPerQuantum;
+			const endSample = (i < lastIndex) ? parseInt(keys[i + 1]) : this._samplesPerQuantum;
 			processingSlices.push({ range: [startSample, endSample], events: eventsBySampleIndex[key] });
-		});
+			i++;
+		}
 		return processingSlices;
 	}
 
@@ -374,15 +391,22 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	process(inputs, outputs, parameters) {
 		if (this._destroyed) return false;
 		const processingSlices = this._getProcessingSlices();
-		processingSlices.forEach(({ range, events }) => {
+		let i = 0;
+		while (i < processingSlices.length) {
+			const { range, events } = processingSlices[i];
 			const [startSample, endSample] = range;
 			// pause to process events at proper sample
-			events.forEach((event) => this._processEvent(event));
+			let j = 0;
+			while (j < events.length) {
+				this._processEvent(events[j]);
+				j++;
+			}
 			// perform parameter interpolation
 			this._interpolateParameterValues(startSample, endSample);
 			// continue processing
 			this._process(startSample, endSample, inputs, outputs, parameters);
-		});
+			i++;
+		}
 		return true;
 	}
 
