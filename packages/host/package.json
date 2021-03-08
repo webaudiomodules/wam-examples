@@ -14,7 +14,8 @@
     "parcel-bundler": "^1.12.4",
     "pingpongdelay": "^0.0.0",
     "quadrafuzz": "^0.0.0",
-    "sdk": "^0.0.0"
+    "sdk": "^0.0.0",
+    "synth101": "^0.0.0"
   },
   "browserslist": [
     "last 2 Chrome versions",
@@ -26,6 +27,7 @@
     "livegain": "dist",
     "pingpongdelay": "dist",
     "quadrafuzz": "dist",
+    "synth101": "dist",
     "wamexample": "dist"
   },
   "devDependencies": {

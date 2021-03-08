@@ -51,6 +51,7 @@ Array.from(examples).forEach((example) => {
 let state;
 
 const setPlugin = async (pluginUrl) => {
+	console.log("setPlugin start")
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
 	// IMPORTANT NOTICE :
@@ -78,6 +79,8 @@ const setPlugin = async (pluginUrl) => {
 
 	audioContext.resume();
 	//player.play();
+
+	console.log("setPlugin 4")
 
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
@@ -310,32 +313,41 @@ function buildAudioDeviceMenu() {
 // -------- select MIDI input device ---------
 /** @type {HTMLSelectElement} */const midiInputSelector = document.querySelector('#selectMidiInput');
 
-navigator.requestMIDIAccess().then((midiAccess) => {
-	let currentInput;
-	const handleMidiMessage = (e) => {
-		if (!instance) return;
-		instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
-	}
-	const handleStateChange = () => {
-		const { inputs } = midiAccess;
-		if (midiInputSelector.options.length === inputs.size + 1) return;
-		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
-		midiInputSelector.innerHTML = '<option value="-1" disabled selected>Select...</option>';
-		inputs.forEach((midiInput) => {
-			const { name, id } = midiInput;
-			const option = new Option(name, id);
-			midiInputSelector.add(option);
-		});
-	};
-	handleStateChange();
-	midiAccess.addEventListener('statechange', handleStateChange);
-	midiInputSelector.addEventListener('input', (e) => {
-		if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
-		const id = e.target.value;
-		currentInput = midiAccess.inputs.get(id);
-		currentInput.addEventListener('midimessage', handleMidiMessage);
-	})
-});
+if (navigator.requestMIDIAccess) {
+	navigator.requestMIDIAccess().then((midiAccess) => {
+		let currentInput;
+		const handleMidiMessage = (e) => {
+			if (!instance) return;
+			instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
+		}
+		const handleStateChange = () => {
+			const { inputs } = midiAccess;
+			if (midiInputSelector.options.length === inputs.size + 1) return;
+			if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
+			midiInputSelector.innerHTML = '<option value="-1" disabled selected>Select...</option>';
+			inputs.forEach((midiInput) => {
+				const { name, id } = midiInput;
+				const option = new Option(name, id);
+				midiInputSelector.add(option);
+			});
+		};
+		handleStateChange();
+		midiAccess.addEventListener('statechange', handleStateChange);
+		midiInputSelector.addEventListener('input', (e) => {
+			if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
+			const id = e.target.value;
+			currentInput = midiAccess.inputs.get(id);
+			currentInput.addEventListener('midimessage', handleMidiMessage);
+		})
+	});
+}
+
+// -------- generate MIDI note button ---------
+/** @type {HTMLButtonElement} */ const sendMIDINoteButton = document.querySelector('#sendMIDINoteButton');
+sendMIDINoteButton.onclick = async (e) => {
+	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
+	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
+}
 
 /** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
 /** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
