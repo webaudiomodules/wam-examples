@@ -274,7 +274,7 @@ class BPF extends HTMLElement {
 			const points = this.state.points.map((p) => [scaleClip(p[0], 0, prevDomain, 0, domain), p[1], p[2]]);
 			this.setState({ points, domain });
 		} else if (name === 'default') {
-			this.setState({ defaultValue: newValue });
+			this.setState({ defaultValue: value });
 		}
 	}
 

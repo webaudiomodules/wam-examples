@@ -1,0 +1,19 @@
+{
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "browsers": "Chrome >= 55, Firefox >= 53, Edge >= 15, Safari >= 11, iOS >= 11, Android >= 79"
+          }
+        }
+      ],
+      "@babel/typescript",
+      "@babel/preset-react",
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-syntax-import-meta",
+      ["@babel/transform-react-jsx", { "pragma": "h" }]
+    ]
+  }
