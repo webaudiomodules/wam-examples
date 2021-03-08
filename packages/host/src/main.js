@@ -321,9 +321,10 @@ if (navigator.requestMIDIAccess) {
 			instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
 		}
 		const handleStateChange = () => {
+			const { inputs } = midiAccess;
+			if (midiInputSelector.options.length === inputs.size + 1) return;
 			if (currentInput) currentInput.removeEventListener('midimessage', handleMidiMessage);
 			midiInputSelector.innerHTML = '<option value="-1" disabled selected>Select...</option>';
-			const { inputs } = midiAccess;
 			inputs.forEach((midiInput) => {
 				const { name, id } = midiInput;
 				const option = new Option(name, id);

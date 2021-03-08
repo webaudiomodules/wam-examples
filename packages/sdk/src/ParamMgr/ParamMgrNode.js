@@ -178,7 +178,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 				}
 			}
 		});
-		this.call('scheduleEvents', events);
+		this.call('scheduleEvents', ...events);
 	}
 
 	clearEvents() {

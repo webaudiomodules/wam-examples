@@ -11,7 +11,8 @@
     "build:quadrafuzz": "lerna run build --stream --scope quadrafuzz",
     "build:csoundpitchshifter": "lerna run build --stream --scope csoundPitchShifter",
     "build:sdk": "lerna run build --stream --scope sdk",
-    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain",
+    "build:synth101": "lerna run build --stream --scope synth101",
+    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101",
     "start": "lerna run start --stream --scope host -- --color",
     "doc:api": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --out ./packages/docs/typedoc/api ./packages/sdk/src/api/",
     "doc:parammgr": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr ./packages/sdk/src/ParamMgr/"
