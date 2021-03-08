@@ -18,5 +18,21 @@ export default class WamExampleNode extends WamNode {
 			outputChannelCount: [2],
 		};
 		super(module, options);
+
+		this.synthLevels = new Float32Array(2);
+		this.effectLevels = new Float32Array(2);
+	}
+
+	/**
+	 * Messages from audio thread
+	 * @param {MessageEvent} message
+	 * */
+	_onMessage(message) {
+		const { data } = message;
+		const { levels } = data;
+		if (levels) {
+			this.synthLevels = levels.synth;
+			this.effectLevels = levels.effect;
+		} else super._onMessage(message);
 	}
 }

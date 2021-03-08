@@ -42,6 +42,7 @@ export default class WamExamplePlugin extends WebAudioModule {
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInfo.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInterpolator.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamProcessor.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleSynth.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleProcessor.js`);
 
 		const wamExampleNode = new WamExampleNode(this, {});

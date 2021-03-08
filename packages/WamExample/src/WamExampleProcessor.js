@@ -108,6 +108,13 @@ class WamExampleProcessor extends WamProcessor {
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { [instanceId]: this };
 
+		this._synthLevels = new Float32Array(2);
+		this._effectLevels = new Float32Array(2);
+		this._levelSmoothA = 0.95;
+		this._levelSmoothB = 1.0 - this._levelSmoothA;
+		const levelUpdateRateSec = 0.1;
+		this._levelUpdateRateFrames = Math.round(levelUpdateRateSec * (globalThis.sampleRate / this._samplesPerQuantum));
+
 		super.port.start();
 	}
 
@@ -152,6 +159,9 @@ class WamExampleProcessor extends WamProcessor {
 		if (input.length !== output.length) return;
 
 		const bypass = !!this._parameterInterpolators.bypass.values[startSample];
+		const wasBypassed = this._parameterInterpolators.bypass.values[0]; // good enough most of the time
+		const updateLevels = bypass !== wasBypassed || this._levelUpdateRateFrames % globalThis.currentFrame;
+
 		if (!bypass) this._generator.process(startSample, endSample, input, output);
 		const gain = this._parameterInterpolators.gain.values;
 		for (let c = 0; c < output.length; ++c) {
@@ -161,11 +171,39 @@ class WamExampleProcessor extends WamProcessor {
 				for (let n = startSample; n < endSample; ++n) {
 					y[n] = x[n];
 				}
+				this._synthLevels[c] = 0.0;
+				this._effectLevels[c] = 0.0;
 			} else {
+				let synthLevel = 0.0;
+				let effectLevel = 0.0;
+				if (updateLevels) {
+					for (let n = startSample; n < endSample; ++n) {
+						synthLevel += Math.abs(y[n] * gain[n]);
+					}
+				}
+
 				for (let n = startSample; n < endSample; ++n) {
 					y[n] = (x[n] + y[n]) * gain[n];
 				}
+
+				if (updateLevels) {
+					for (let n = startSample; n < endSample; ++n) {
+						effectLevel += Math.abs(y[n]);
+					}
+					this._synthLevels[c] *= this._levelSmoothA;
+					this._synthLevels[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
+					if (Number.isNaN(this._synthLevels[c])) this._synthLevels[c] = 0.0;
+					else this._synthLevels[c] = Math.min(Math.max(this._synthLevels[c], 0.0), 1.0);
+
+					this._effectLevels[c] *= this._levelSmoothA;
+					this._effectLevels[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
+					if (Number.isNaN(this._effectLevels[c])) this._effectLevels[c] = 0.0;
+					else this._effectLevels[c] = Math.min(Math.max(this._effectLevels[c], 0.0), 1.0);
+				}
 			}
+		}
+		if (updateLevels) {
+			super.port.postMessage({ id: -1, levels: { synth: this._synthLevels, effect: this._effectLevels } });
 		}
 	}
 
