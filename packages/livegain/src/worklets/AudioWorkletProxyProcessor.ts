@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-import { AudioWorkletGlobalScope, MessagePortResponse, TypedMessageEvent } from "./AudioWorklet";
+import { AudioWorkletGlobalScope, MessagePortRequest, MessagePortResponse, TypedMessageEvent } from "./TypedAudioWorklet";
 import { AudioWorkletProxyProcessor } from "./AudioWorkletProxyProcessor.types";
 
 declare const globalThis: AudioWorkletGlobalScope;
@@ -9,12 +8,17 @@ const Processor = class extends AudioWorkletProcessor {
     static get fnNames(): string[] {
         return [];
     }
+    _disposed = false;
     constructor(options: AudioWorkletNodeOptions) {
         super(options);
         const resolves: Record<number, ((...args: any[]) => any)> = {};
         const rejects: Record<number, ((...args: any[]) => any)> = {};
         let messagePortRequestId = -1;
-        const handleMessage = async (e: TypedMessageEvent) => {
+        const handleDisposed = () => {
+            this.port.removeEventListener("message", handleMessage);
+            this.port.close();
+        };
+        const handleMessage = async (e: TypedMessageEvent<MessagePortResponse & MessagePortRequest>) => {
             const { id, call, args, value, error } = e.data;
             if (call) {
                 const r: MessagePortResponse = { id };
@@ -24,6 +28,7 @@ const Processor = class extends AudioWorkletProcessor {
                     r.error = e;
                 }
                 this.port.postMessage(r as any);
+                if (this._disposed) handleDisposed();
             } else {
                 if (error) {
                     if (rejects[id]) rejects[id](error);

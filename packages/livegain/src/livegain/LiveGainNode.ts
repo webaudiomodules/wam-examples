@@ -1,6 +1,6 @@
 /* eslint-disable import/no-duplicates */
 import { CompositeAudioNode, ParamMgrNode } from "sdk";
-import { TemporalAnalyserNode } from "../worklets/TemporalAnalyser";
+import TemporalAnalyserNode from "../worklets/TemporalAnalyser";
 import { atodb, dbtoa } from "../utils/math";
 import { Parameters } from ".";
 

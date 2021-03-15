@@ -1,18 +1,18 @@
 const globalThis: Window & { AudioWorkletRegister?: typeof AudioWorkletRegister } = window;
 
-export const registeredProcessors = globalThis.AudioWorkletRegister?.registeredProcessors || new WeakMap();
-export const registeringProcessors = globalThis.AudioWorkletRegister?.registeringProcessors || new WeakMap();
+export const registeredProcessors: WeakMap<AudioWorklet, Set<string>> = globalThis.AudioWorkletRegister?.registeredProcessors || new WeakMap();
+export const registeringProcessors: WeakMap<AudioWorklet, Set<string>> = globalThis.AudioWorkletRegister?.registeringProcessors || new WeakMap();
 export const resolves: Record<string, ((value?: void | PromiseLike<void>) => void)[]> = globalThis.AudioWorkletRegister?.resolves || {};
 export const rejects: Record<string, ((reason?: any) => void)[]> = globalThis.AudioWorkletRegister?.rejects || {};
 
 export default class AudioWorkletRegister {
-    static registeredProcessors: WeakMap<AudioWorklet, Set<string>> = registeredProcessors;
+    static registeredProcessors = registeredProcessors;
 
-    static registeringProcessors: WeakMap<AudioWorklet, Set<string>> = registeringProcessors;
+    static registeringProcessors = registeringProcessors;
 
-    static resolves: Record<string, ((value?: void | PromiseLike<void>) => void)[]> = {};
+    static resolves = resolves;
 
-    static rejects: Record<string, ((reason?: any) => void)[]> = {};
+    static rejects = rejects;
 
     private static async registerProcessor(audioWorklet: AudioWorklet, processorId: string, processor: string | ((id: string, ...injections: any[]) => void), ...injection: any[]) {
         this.registeringProcessors.get(audioWorklet).add(processorId);

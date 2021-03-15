@@ -1,6 +1,6 @@
 
 import { WebAudioModule, ParamMgrFactory } from "sdk";
-import { TemporalAnalyserNode, register } from "../worklets/TemporalAnalyser";
+import TemporalAnalyserNode from "../worklets/TemporalAnalyser";
 import { createElement } from "../gui";
 import Node from "./LiveGainNode";
 import UI from "./LiveGainUI";
@@ -16,7 +16,7 @@ export class LiveGainModule extends WebAudioModule<Node> {
         const node = new Node(this.audioContext);
         const inputGainNode = this.audioContext.createGain();
         const outGainNode = this.audioContext.createGain();
-        await register(this.audioContext.audioWorklet);
+        await TemporalAnalyserNode.register(this.audioContext.audioWorklet);
         const analyserNode = new TemporalAnalyserNode(this.audioContext);
         const paramsConfig = {
             gain: {
