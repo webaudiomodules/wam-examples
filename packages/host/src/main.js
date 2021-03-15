@@ -51,7 +51,6 @@ Array.from(examples).forEach((example) => {
 let state;
 
 const setPlugin = async (pluginUrl) => {
-	console.log("setPlugin start")
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
 	// IMPORTANT NOTICE :
@@ -79,8 +78,6 @@ const setPlugin = async (pluginUrl) => {
 
 	audioContext.resume();
 	//player.play();
-
-	console.log("setPlugin 4")
 
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
