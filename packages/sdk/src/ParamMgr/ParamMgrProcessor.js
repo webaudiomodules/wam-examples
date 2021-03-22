@@ -106,8 +106,7 @@ const processor = (processorId, paramsConfig) => {
 			/** @type {WamEvent[]} */
 			this.eventQueue = [];
 
-			if (audioWorkletGlobalScope.WamProcessors) audioWorkletGlobalScope.WamProcessors[instanceId] = this;
-			else audioWorkletGlobalScope.WamProcessors = { [instanceId]: this };
+			audioWorkletGlobalScope.webAudioModules.create(this);
 
 			this.messagePortRequestId = -1;
 			/** @type {Record<number, ((...args: any[]) => any)>} */
@@ -208,6 +207,26 @@ const processor = (processorId, paramsConfig) => {
 			this.eventQueue.sort((a, b) => a.time - b.time);
 		}
 
+		get downstream() {
+			const wams = new Set();
+			const { graph } = audioWorkletGlobalScope.webAudioModules;
+			if (!graph.has(this)) return wams;
+			const outputMap = graph.get(this);
+			outputMap.forEach((set) => {
+				if (set) set.forEach((wam) => wams.add(wam));
+			});
+			return wams;
+		}
+
+		emitEvents(...events) {
+			const { graph } = audioWorkletGlobalScope.webAudioModules;
+			if (!graph.has(this)) return;
+			const downstream = graph.get(this);
+			downstream.forEach((set) => {
+				if (set) set.forEach((wam) => wam.scheduleEvents(...events));
+			});
+		}
+
 		clearEvents() {
 			this.eventQueue = [];
 		}
@@ -276,6 +295,7 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		destroy() {
+			audioWorkletGlobalScope.webAudioModules.destroy(this);
 			this.destroyed = true;
 			this.port.close();
 		}
