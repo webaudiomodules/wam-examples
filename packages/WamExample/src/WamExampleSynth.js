@@ -105,6 +105,19 @@ class WamExampleDcBlockerFilter {
  */
 class WamExampleEnvelopeShaper {
 	/**
+	 * enum for envelope segments.
+	 * @readonly
+	 * @enum {string}
+	 */
+	Segments = Object.freeze({
+		IDLE: Symbol(''),
+		ATTACK: Symbol('attack'),
+		SUSTAIN: Symbol('sustain'),
+		RELEASE: Symbol('release'),
+		CEASE: Symbol('cease'),
+	});
+
+	/**
 	 * @param {number} maxAttackMs maximum duration of attack segment (ms)
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
@@ -127,8 +140,7 @@ class WamExampleEnvelopeShaper {
 
 		this._rampIdx = 0;
 		this._rampDurSamples = 0;
-		this._regularReleasing = false;
-		this._forceReleasing = false;
+		this._segment = this.Segments.IDLE;
 	}
 
 	/**
@@ -146,8 +158,7 @@ class WamExampleEnvelopeShaper {
 		this._targetLevel = intensity;
 		this._makeupGain = 1.0 + (2.0 * Math.exp(2.0 - intensity)) / Math.exp(intensity);
 		this._gainInc = this._targetLevel / this._rampDurSamples;
-		this._regularReleasing = false;
-		this._forceReleasing = false;
+		this._segment = this.Segments.ATTACK;
 	}
 
 	/**
@@ -156,8 +167,8 @@ class WamExampleEnvelopeShaper {
 	 */
 	stop(force) {
 		// allow ramp to finish if already underway
-		if (this._forceReleasing) return;
-		if (!force && this._regularReleasing) return;
+		if (this._segment === this.Segments.CEASE) return;
+		if (!force && this._segment === this.Segments.RELEASE) return;
 
 		this._rampIdx = 0;
 		this._targetLevel = 0.0;
@@ -165,19 +176,17 @@ class WamExampleEnvelopeShaper {
 		else {
 			if (force) { // fast release
 				this._rampDurSamples = this._minReleaseSamples;
-				this._regularReleasing = false;
-				this._forceReleasing = true;
+				this._segment = this.Segments.CEASE;
 			} else { // normal release
 				this._rampDurSamples *= 2;
-				this._regularReleasing = true;
-				this._forceReleasing = false;
+				this._segment = this.Segments.RELEASE;
 			}
 			this._gainInc = -this._currentLevel / this._rampDurSamples;
 		}
 	}
 
 	/**
-	 * Apply nonlinear scaling to the signal buffer
+	 * Apply envelope to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
 	 * @param {Float32Array[]} signal single-channel signal buffer
@@ -189,7 +198,6 @@ class WamExampleEnvelopeShaper {
 			ramping = true;
 			if ((this._gainInc < 0.0 && this._currentLevel <= this._thresholdLevel)
 				|| (this._gainInc > 0.0 && this._currentLevel >= this._targetLevel)) {
-				// this isn't supposed to happen but floats can be slipperly
 				this._currentLevel = this._targetLevel;
 				this._rampIdx = this._rampDurSamples;
 				ramping = false;
@@ -208,9 +216,11 @@ class WamExampleEnvelopeShaper {
 		}
 		if (!ramping) {
 			if (this._targetLevel === 0.0) {
+				this._segment = this.Segments.IDLE;
 				signal.fill(0.0, startSample, endSample);
 				return false;
 			}
+			this._segment = this.Segments.SUSTAIN;
 			this._envelope.fill(this._targetLevel, startSample, endSample);
 		}
 
