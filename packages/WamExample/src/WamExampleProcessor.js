@@ -175,30 +175,31 @@ class WamExampleProcessor extends WamProcessor {
 				this._effectLevels[c] = 0.0;
 			} else {
 				let synthLevel = 0.0;
-				let effectLevel = 0.0;
 				if (updateLevels) {
 					for (let n = startSample; n < endSample; ++n) {
 						synthLevel += Math.abs(y[n] * gain[n]);
 					}
+					if (Number.isNaN(synthLevel)) synthLevel = 0.0;
 				}
 
 				for (let n = startSample; n < endSample; ++n) {
 					y[n] = (x[n] + y[n]) * gain[n];
 				}
 
+				let effectLevel = 0.0;
 				if (updateLevels) {
 					for (let n = startSample; n < endSample; ++n) {
 						effectLevel += Math.abs(y[n]);
 					}
+					if (Number.isNaN(effectLevel)) effectLevel = 0.0;
+
 					this._synthLevels[c] *= this._levelSmoothA;
 					this._synthLevels[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
-					if (Number.isNaN(this._synthLevels[c])) this._synthLevels[c] = 0.0;
-					else this._synthLevels[c] = Math.min(Math.max(this._synthLevels[c], 0.0), 1.0);
+					this._synthLevels[c] = Math.min(Math.max(this._synthLevels[c], 0.0), 1.0);
 
 					this._effectLevels[c] *= this._levelSmoothA;
 					this._effectLevels[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
-					if (Number.isNaN(this._effectLevels[c])) this._effectLevels[c] = 0.0;
-					else this._effectLevels[c] = Math.min(Math.max(this._effectLevels[c], 0.0), 1.0);
+					this._effectLevels[c] = Math.min(Math.max(this._effectLevels[c], 0.0), 1.0);
 				}
 			}
 		}
