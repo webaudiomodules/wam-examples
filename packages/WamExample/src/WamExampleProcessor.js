@@ -103,7 +103,7 @@ class WamExampleProcessor extends WamProcessor {
 			this._parameterInterpolators = {};
 		}
 
-		this._generator = new WamExampleSynth(8, this._samplesPerQuantum, globalThis.sampleRate);
+		this._generator = new WamExampleSynth(16, this._samplesPerQuantum, globalThis.sampleRate);
 
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { [instanceId]: this };
