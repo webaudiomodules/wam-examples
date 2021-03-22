@@ -144,8 +144,6 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.setSwitchListener();
 		this.setTextListener();
 
-		this.triggerNotes(1.0);
-
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
