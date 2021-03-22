@@ -294,6 +294,30 @@ const processor = (processorId, paramsConfig) => {
 			return true;
 		}
 
+		/**
+		 * @param {string} wamInstanceId
+		 * @param {number} [output]
+		 */
+		connectEvents(wamInstanceId, output) {
+			const wam = audioWorkletGlobalScope.webAudioModules.processors[wamInstanceId];
+			if (!wam) return;
+			audioWorkletGlobalScope.webAudioModules.connectEvents(this, wam, output);
+		}
+
+		/**
+		 * @param {string} [wamInstanceId]
+		 * @param {number} [output]
+		 */
+		disconnectEvents(wamInstanceId, output) {
+			if (typeof wamInstanceId === 'undefined') {
+				audioWorkletGlobalScope.webAudioModules.disconnectEvents(this);
+				return;
+			}
+			const wam = audioWorkletGlobalScope.webAudioModules.processors[wamInstanceId];
+			if (!wam) return;
+			audioWorkletGlobalScope.webAudioModules.disconnectEvents(this, wam, output);
+		}
+
 		destroy() {
 			audioWorkletGlobalScope.webAudioModules.destroy(this);
 			this.destroyed = true;

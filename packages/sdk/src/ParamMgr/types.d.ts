@@ -84,6 +84,8 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
 }
 
 export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues' | 'scheduleEvents' | 'clearEvents'>> {
+    connectEvents(wamInstanceId: string, from: number): void;
+    disconnectEvents(wamInstanceId: string, from: number): void;
 	setParamsMapping(mapping: ParametersMapping): void;
 	getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
 }

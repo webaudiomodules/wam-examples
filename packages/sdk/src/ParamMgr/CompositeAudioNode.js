@@ -66,6 +66,20 @@ export default class CompositeAudioNode extends GainNode {
 		return this._wamNode.clearEvents();
 	}
 
+	/**
+	 * @param {Parameters<WamNode['connectEvents']>} args
+	 */
+	connectEvents(...args) {
+		return this._wamNode.connectEvents(...args);
+	}
+
+	/**
+	 * @param {Parameters<WamNode['disconnectEvents']>} args
+	 */
+	disconnectEvents(...args) {
+		return this._wamNode.disconnectEvents(...args);
+	}
+
 	destroy() {
 		return this._wamNode.destroy();
 	}
@@ -125,12 +139,16 @@ export default class CompositeAudioNode extends GainNode {
 
 	connect(...args) {
 		// @ts-ignore
+		this.connectEvents(...args);
+		// @ts-ignore
 		if (this._output) return this._output.connect(...args);
 		// @ts-ignore
 		return super.connect(...args);
 	}
 
 	disconnect(...args) {
+		// @ts-ignore
+		this.disconnectEvents(...args);
 		// @ts-ignore
 		if (this._output) return this._output.disconnect(...args);
 		// @ts-ignore

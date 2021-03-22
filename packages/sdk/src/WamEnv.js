@@ -12,8 +12,8 @@ export default class WamEnv {
 	constructor() {
 		/** @type {Map<WamProcessor, Set<WamProcessor>[]>} */
 		this._graph = new Map();
-		/** @type {Set<WamProcessor>} */
-		this._processors = new Set();
+		/** @type {Record<string, WamProcessor>} */
+		this._processors = {};
 	}
 
 	get graph() {
@@ -28,15 +28,15 @@ export default class WamEnv {
 	 * @param {WamProcessor} wam
 	 */
 	create(wam) {
-		this._processors.add(wam);
+		this._processors[wam.instanceId] = wam;
 	}
 
 	/**
 	 * @param {WamProcessor} from
-	 * @param {number} output
 	 * @param {WamProcessor} to
+	 * @param {number} [output]
 	 */
-	connectEvents(from, output, to) {
+	connectEvents(from, to, output = 0) {
 		/** @type {Set<WamProcessor>[]} */
 		let outputMap;
 		if (this._graph.has(from)) {
@@ -56,12 +56,24 @@ export default class WamEnv {
 
 	/**
 	 * @param {WamProcessor} from
-	 * @param {number} output
-	 * @param {WamProcessor} to
+	 * @param {WamProcessor} [to]
+	 * @param {number} [output]
 	 */
-	disconnectEvents(from, output, to) {
+	disconnectEvents(from, to, output) {
 		if (!this._graph.has(from)) return;
 		const outputMap = this._graph.get(from);
+		if (typeof to === 'undefined') {
+			outputMap.forEach((set) => {
+				if (set) set.clear();
+			});
+			return;
+		}
+		if (typeof output === 'undefined') {
+			outputMap.forEach((set) => {
+				if (set) set.delete(to);
+			});
+			return;
+		}
 		if (!outputMap[output]) return;
 		outputMap[output].delete(to);
 	}

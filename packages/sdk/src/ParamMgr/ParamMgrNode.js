@@ -7,6 +7,7 @@
 import MgrAudioParam from './MgrAudioParam.js';
 
 /** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
+/** @typedef {import('../api/types').WamNode} WamNode */
 /** @typedef {import('../api/types').WamParameterDataMap} WamParameterValueMap */
 /** @typedef {import('../api/types').WamEvent} WamEvent */
 /** @typedef {import('./types').ParamMgrOptions} ParamMgrOptions */
@@ -446,6 +447,24 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const param = this.parameters.get(name);
 		if (!param) return null;
 		return param.cancelAndHoldAtTime(cancelTime);
+	}
+
+	/**
+	 * @param {WamNode} to
+	 * @param {number} [output]
+	 */
+	connectEvents(to, output) {
+		if (!to.module?.isWebAudioModule) return;
+		this.call('connectEvents', to.instanceId, output);
+	}
+
+	/**
+	 * @param {WamNode} [to]
+	 * @param {number} [output]
+	 */
+	disconnectEvents(to, output) {
+		if (to && !to.module?.isWebAudioModule) return;
+		this.call('disconnectEvents', to?.instanceId, output);
 	}
 
 	async destroy() {
