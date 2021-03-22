@@ -112,17 +112,23 @@ class WamExampleEnvelopeShaper {
 	constructor(maxAttackMs, samplesPerQuantum, sampleRate) {
 		this._sampleRate = sampleRate;
 
+		this._thresholdLevel = 0.000001;
 		this._targetLevel = 0.0;
 		this._currentLevel = 0.0;
 		this._gainInc = 0.0;
 
 		this._maxAttackSec = maxAttackMs / 1000.0;
+		this._minAttackSamples = 32;
+		this._minReleaseSamples = 256;
 
+		this._samplesPerQuantum = samplesPerQuantum;
 		this._envelope = new Float32Array(samplesPerQuantum);
 		this._gain = 0.0;
 
 		this._rampIdx = 0;
 		this._rampDurSamples = 0;
+		this._regularReleasing = false;
+		this._forceReleasing = false;
 	}
 
 	/**
@@ -132,23 +138,42 @@ class WamExampleEnvelopeShaper {
 	 * @param {number} intensity controls amplitude and nonlinearity of envelope [0.0, 1.0]
 	 */
 	start(intensity) {
+		intensity = Math.min(1.0, intensity + this._thresholdLevel);
 		const rampSec = (1.0 - intensity) * this._maxAttackSec;
 		this._rampIdx = 0;
-		this._rampDurSamples = Math.round(32 + rampSec * this._sampleRate);
+		this._rampDurSamples = Math.max(this._minAttackSamples, Math.round(rampSec * this._sampleRate));
 		this._currentLevel = 0.0;
 		this._targetLevel = intensity;
 		this._makeupGain = 1.0 + (2.0 * Math.exp(2.0 - intensity)) / Math.exp(intensity);
 		this._gainInc = this._targetLevel / this._rampDurSamples;
+		this._regularReleasing = false;
+		this._forceReleasing = false;
 	}
 
 	/**
 	 * Trigger the release ramp
+	 * @param {boolean} force whether or not to force a fast release
 	 */
-	stop() {
-		this._targetLevel = 0.0;
+	stop(force) {
+		// allow ramp to finish if already underway
+		if (this._forceReleasing) return;
+		if (!force && this._regularReleasing) return;
+
 		this._rampIdx = 0;
-		this._rampDurSamples *= 2;
-		this._gainInc *= -0.5;
+		this._targetLevel = 0.0;
+		if (this._currentLevel < this._thresholdLevel) this._rampDurSamples = 0; // almost silent anyway, don't ramp
+		else {
+			if (force) { // fast release
+				this._rampDurSamples = this._minReleaseSamples;
+				this._regularReleasing = false;
+				this._forceReleasing = true;
+			} else { // normal release
+				this._rampDurSamples *= 2;
+				this._regularReleasing = true;
+				this._forceReleasing = false;
+			}
+			this._gainInc = -this._currentLevel / this._rampDurSamples;
+		}
 	}
 
 	/**
@@ -159,26 +184,35 @@ class WamExampleEnvelopeShaper {
 	 * @returns {boolean} whether or not the envelope is still active
 	 */
 	process(startSample, endSample, signal) {
+		let ramping = false;
 		if (this._rampIdx < this._rampDurSamples) {
-			const M = this._rampDurSamples - this._rampIdx;
-			let n = startSample;
-			const N = Math.min(startSample + M, endSample);
-			while (n < N) {
-				this._envelope[n] = this._currentLevel;
-				this._currentLevel += this._gainInc;
-				this._rampIdx++;
-				n++;
-			}
-			if ((this._gainInc < 0.0 && this._currentLevel <= 0.0)
-				|| (this._gain_inc > 0.0 && this._currentLevel >= this._targetLevel)) {
+			ramping = true;
+			if ((this._gainInc < 0.0 && this._currentLevel <= this._thresholdLevel)
+				|| (this._gainInc > 0.0 && this._currentLevel >= this._targetLevel)) {
+				// this isn't supposed to happen but floats can be slipperly
 				this._currentLevel = this._targetLevel;
 				this._rampIdx = this._rampDurSamples;
+				ramping = false;
+			} else {
+				const M = this._rampDurSamples - this._rampIdx;
+				let n = startSample;
+				const N = Math.min(startSample + M, endSample);
+				while (n < N) {
+					this._envelope[n] = this._currentLevel;
+					this._currentLevel += this._gainInc;
+					n++;
+				}
+				this._rampIdx += N - startSample;
+				if (N < endSample) this._envelope.fill(this._targetLevel, N, endSample);
 			}
-			if (N < endSample) this._envelope.fill(this._targetLevel, N, endSample);
-		} else if (this._targetLevel === 0.0) {
-			signal.fill(0.0, startSample, endSample);
-			return false;
-		} else this._envelope.fill(this._targetLevel, startSample, endSample);
+		}
+		if (!ramping) {
+			if (this._targetLevel === 0.0) {
+				signal.fill(0.0, startSample, endSample);
+				return false;
+			}
+			this._envelope.fill(this._targetLevel, startSample, endSample);
+		}
 
 		let n = startSample;
 		while (n < endSample) {
@@ -368,9 +402,10 @@ class WamExampleSynthPart {
 
 	/**
 	 * Trigger envelope release
+	 * @param {boolean} force whether or not to force a fast release
 	 */
-	stop() {
-		this._shaper.stop();
+	stop(force) {
+		this._shaper.stop(force);
 	}
 
 	/**
@@ -484,6 +519,7 @@ class WamExampleSynthVoice {
 		this.velocity = velocity;
 		this.timestamp = globalThis.currentTime;
 		this.active = true;
+		this.deactivating = 0;
 
 		const intensity = 0.5 + 0.5 * ((velocity + 1) / 128.0);
 
@@ -508,11 +544,14 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
+	 * @param {boolean} force whether or not to force a fast release
 	 */
 	// eslint-disable-next-line no-unused-vars
 	noteOff(channel, note, velocity) {
-		this._leftPart.stop();
-		this._rightPart.stop();
+		this._deactivating += 1;
+		const force = this._deactivating > 2;
+		this._leftPart.stop(force);
+		this._rightPart.stop(force);
 	}
 
 	/**
