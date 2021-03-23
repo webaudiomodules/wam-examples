@@ -19,6 +19,7 @@
 /** @typedef { import('../../sdk/src/api/types').WamParameterMap } WamParameterMap */
 /** @typedef { import('../../sdk/src/api/types').WamEvent } WamEvent */
 /** @typedef { import('../../sdk/src/api/types').WamMidiData } WamMidiData */
+/** @typedef { import('./WamExampleEffect').WamExampleEffect } WamExampleEffect */
 /** @typedef { import('./WamExampleSynth').WamExampleSynth } WamExampleSynth */
 
 /**
@@ -52,6 +53,8 @@ const {
 	WamParameterInfo,
 	// @ts-ignore
 	WamExampleSynth,
+	// @ts-ignore
+	WamExampleEffect,
 	registerProcessor,
 } = globalThis;
 const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
@@ -73,14 +76,8 @@ class WamExampleProcessor extends WamProcessor {
 				label: 'Bypass',
 				defaultValue: 1,
 			}),
-			gain: new WamParameterInfo('gain', {
-				type: 'float',
-				label: 'Gain',
-				defaultValue: 1.0,
-				minValue: 0.0,
-				maxValue: 2.0,
-				exponent: 0.5,
-			}),
+			...WamExampleSynth.generateWamParameterInfo(),
+			...WamExampleEffect.generateWamParameterInfo(),
 		};
 	}
 
@@ -98,19 +95,37 @@ class WamExampleProcessor extends WamProcessor {
 		this.moduleId = moduleId;
 		this.instanceId = instanceId;
 
-		if (!this._parameterInterpolators) {
-			/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
-			this._parameterInterpolators = {};
-		}
-
-		this._generator = new WamExampleSynth(16, this._samplesPerQuantum, globalThis.sampleRate);
-
 		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
 		else globalThis.WamProcessors = { [instanceId]: this };
 
-		this._synthLevels = new Float32Array(2);
-		this._effectLevels = new Float32Array(2);
-		this._levelSmoothA = 0.95;
+		const synthConfig = {
+			passInput: true,
+		};
+		/** @property {WamExampleSynth} _synth */
+		this._synth = new WamExampleSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
+			synthConfig);
+
+		const effectConfig = {
+			numChannels: 2,
+			inPlace: true,
+		};
+		/** @property {WamExampleEffect} _effect */
+		this._effect = new WamExampleEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
+			effectConfig);
+
+		/** @property {Float32Array} _synthLevel */
+		this._synthLevel = new Float32Array(2);
+
+		/** @property {Float32Array} _synthLevel */
+		this._synthLevel = new Float32Array(2);
+
+		/** @property {Float32Array} _synthLevel */
+		this._effectLevel = new Float32Array(2);
+
+		/** @property {number} _levelSmoothA coefficient for level smoothing */
+		this._levelSmoothA = 0.667;
+
+		/** @property {number} _levelSmoothB coefficient for level smoothing */
 		this._levelSmoothB = 1.0 - this._levelSmoothA;
 
 		const levelUpdatePeriodSec = 1.0 / 30.0;
@@ -136,10 +151,10 @@ class WamExampleProcessor extends WamProcessor {
 		const data2 = bytes[2];
 		switch (type) {
 		case 0x80: { /* note off */
-			this._generator.noteOff(channel, data1, data2);
+			this._synth.noteOff(channel, data1, data2);
 		} break;
 		case 0x90: { /* note on */
-			this._generator.noteOn(channel, data1, data2);
+			this._synth.noteOn(channel, data1, data2);
 		} break;
 		case 0xa0: { /* aftertouch */ } break;
 		case 0xb0: { /* continuous controller */ } break;
@@ -169,49 +184,55 @@ class WamExampleProcessor extends WamProcessor {
 		if (updateLevels) this._levelUpdateCounter = this._levelUpdateRateQuantums;
 		else this._levelUpdateCounter--;
 
-		if (!bypass) this._generator.process(startSample, endSample, input, output);
-		const gain = this._parameterInterpolators.gain.values;
+		// combine input signal and synth signal -> output
+		if (!bypass) this._synth.process(startSample, endSample, input, output);
 		for (let c = 0; c < output.length; ++c) {
 			const x = input[c];
 			const y = output[c];
+
 			if (bypass) {
-				for (let n = startSample; n < endSample; ++n) {
+				// pass input directly to output
+				let n = startSample;
+				while (n < endSample) {
 					y[n] = x[n];
+					n++;
 				}
-				this._synthLevels[c] = 0.0;
-				this._effectLevels[c] = 0.0;
-			} else {
+				this._synthLevel[c] = 0.0;
+				this._effectLevel[c] = 0.0;
+			} else if (updateLevels) {
 				let synthLevel = 0.0;
-				if (updateLevels) {
-					for (let n = startSample; n < endSample; ++n) {
-						synthLevel += Math.abs(y[n] * gain[n]);
-					}
-					if (Number.isNaN(synthLevel)) synthLevel = 0.0;
+				let n = startSample;
+				while (n < endSample) {
+					synthLevel += Math.abs(y[n] - x[n]);
+					n++;
 				}
-
-				for (let n = startSample; n < endSample; ++n) {
-					y[n] = (x[n] + y[n]) * gain[n];
-				}
-
-				let effectLevel = 0.0;
-				if (updateLevels) {
-					for (let n = startSample; n < endSample; ++n) {
+				if (Number.isNaN(synthLevel)) synthLevel = 0.0;
+				this._synthLevel[c] *= this._levelSmoothA;
+				this._synthLevel[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
+				this._synthLevel[c] = Math.min(Math.max(this._synthLevel[c], 0.0), 1.0);
+			}
+		}
+		if (!bypass) {
+			// apply effect to combination of input signal and synth signal
+			this._effect.process(startSample, endSample, input, output);
+			if (updateLevels) {
+				for (let c = 0; c < output.length; ++c) {
+					const y = output[c];
+					let effectLevel = 0.0;
+					let n = startSample;
+					while (n < endSample) {
 						effectLevel += Math.abs(y[n]);
+						n++;
 					}
 					if (Number.isNaN(effectLevel)) effectLevel = 0.0;
-
-					this._synthLevels[c] *= this._levelSmoothA;
-					this._synthLevels[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
-					this._synthLevels[c] = Math.min(Math.max(this._synthLevels[c], 0.0), 1.0);
-
-					this._effectLevels[c] *= this._levelSmoothA;
-					this._effectLevels[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
-					this._effectLevels[c] = Math.min(Math.max(this._effectLevels[c], 0.0), 1.0);
+					this._effectLevel[c] *= this._levelSmoothA;
+					this._effectLevel[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
+					this._effectLevel[c] = Math.min(Math.max(this._effectLevel[c], 0.0), 1.0);
 				}
 			}
 		}
 		if (updateLevels) {
-			super.port.postMessage({ id: -1, levels: { synth: this._synthLevels, effect: this._effectLevels } });
+			super.port.postMessage({ id: -1, levels: { synth: this._synthLevel, effect: this._effectLevel } });
 		}
 	}
 

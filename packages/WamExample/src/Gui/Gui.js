@@ -46,12 +46,12 @@ const style = `.pedal {
 	right: 36px;
 }
 
-#gain {
+#drive {
 	left: 47px;
 	top: 78px;
 }
 
-#gain div {
+#drive div {
 	color: #ffffff;
 	font-family: "Verdana";
 	font-size: 8px;
@@ -105,9 +105,9 @@ const template = `<div id="wamsdk-wamexample" class="wrapper">
 	<div class="switchCont">
 		<webaudio-switch class="switch" id="switch1" height="24" width="48"></webaudio-switch>
 	</div>
-	<div class="knob" id="gain">
-		<webaudio-knob id="knob1" height="24" width="24" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Gain %.2f"></webaudio-knob>
-		<!-- <div style="text-align:center">Gain</div> -->
+	<div class="knob" id="drive">
+		<webaudio-knob id="knob1" height="24" width="24" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Drive %.2f"></webaudio-knob>
+		<!-- <div style="text-align:center">Drive</div> -->
 	</div>
 	<div class="label" id="title">WamExample</div>
 </div>
@@ -211,10 +211,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 
 	handleAnimationFrame = async () => {
 		const {
-			gain,
+			drive,
 			bypass,
 		} = await this.plugin.audioNode.getParameterValues();
-		this.shadowRoot.querySelector('#knob1').value = gain.value;
+		this.shadowRoot.querySelector('#knob1').value = drive.value;
 		this.shadowRoot.querySelector('#switch1').value = !bypass.value;
 
 		const {
@@ -285,8 +285,8 @@ export default class WamExampleHTMLElement extends HTMLElement {
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParameterValues({
-					gain: {
-						id: 'gain',
+					drive: {
+						id: 'drive',
 						value: e.target.value,
 						interpolate: true,
 					},

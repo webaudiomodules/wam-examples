@@ -8,94 +8,21 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-const twoPi = 2.0 * Math.PI;
+/** @typedef { import('./WamExampleComponents').WamExampleComponents } WamExampleComponents */
+
+/** @type {AudioWorkletGlobalScope & globalThis} */
+// @ts-ignore
+const {
+	// @ts-ignore
+	WamExampleComponents,
+} = globalThis;
+
+const {
+	WamExampleLowpassFilter,
+	WamExampleDcBlockerFilter,
+} = WamExampleComponents;
+
 function noteToHz(note) { return 2.0 ** ((note - 69) / 12.0) * 440.0; }
-
-/**
- * Example lowpass filter
- *
- * @class
- */
-class WamExampleLowpassFilter {
-	constructor() {
-		this._memoryY = 0.0;
-		this._alpha = 0.0;
-		this._beta = 0.0;
-	}
-
-	/**
-	 * Prepare the filter by resetting internal memory and computing
-	 * coefficients based on the chosen frequency in Hz and sample rate
-	 * @param {number} frequencyHz
-	 * @param {number} sampleRate
-	 */
-	start(frequencyHz, sampleRate) {
-		this._memoryY = 0.0;
-		const wc = (twoPi * frequencyHz) / sampleRate;
-		const coswc = Math.cos(wc);
-		this._alpha = coswc - 1.0 + Math.sqrt(coswc * coswc - 4.0 * coswc + 3.0);
-		this._beta = 1.0 - this._alpha;
-	}
-
-	/**
-	 * Pass the signal buffer through the filter
-	 * @param {number} startSample beginning of processing slice
-	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
-	 */
-	process(startSample, endSample, signal) {
-		let n = startSample;
-		while (n < endSample) {
-			const x = signal[n];
-			const y = this._alpha * x + this._beta * this._memoryY;
-			this._memoryY = y;
-			signal[n] = y;
-			n++;
-		}
-	}
-}
-
-/**
- * Example DC-blocking filter with adjustable strength parameter
- *
- * @class
- */
-class WamExampleDcBlockerFilter {
-	/**
-	 * @param {number} alpha determines strength of filter [0.9, 0.999]
-	 */
-	constructor(alpha = 0.999) {
-		this._memoryX = 0.0;
-		this._memoryY = 0.0;
-		this._alpha = alpha;
-	}
-
-	/**
-	 * Prepare the filter by resetting internal memory
-	 */
-	start() {
-		this._memoryX = 0.0;
-		this._memoryY = 0.0;
-	}
-
-	/**
-	 * Pass the signal buffer through the filter
-	 * @param {number} startSample beginning of processing slice
-	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
-	 */
-	process(startSample, endSample, signal) {
-		let n = startSample;
-		while (n < endSample) {
-			const x = signal[n];
-			const y = x - this._memoryX + this._alpha * this._memoryY;
-			this._memoryX = x;
-			this._memoryY = y;
-			signal[n] = y;
-			n++;
-		}
-	}
-}
 
 /**
  * Example envelope/waveshaper which both applies an amplitude envelope and
@@ -321,6 +248,14 @@ class WamExampleSynthPart {
 	static numModes = 4;
 
 	/**
+	 * Fetch synth's params.
+	 * @returns {WamParameterInfoMap}
+	 */
+	static generateWamParameterInfo() {
+		return {};
+	}
+
+	/**
 	 * @param {number} maxAttackMs maximum duration of envelope attack segment (ms)
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
@@ -464,6 +399,9 @@ class WamExampleSynthVoice {
 	 * @param {number} sampleRate
 	 */
 	constructor(voiceIdx, samplesPerQuantum, sampleRate) {
+		/** @property {number} _numChannels just two (stereo) */
+		this._numChannels = 2;
+
 		/** @property {number} _sampleRate current sample rate */
 		this._sampleRate = sampleRate;
 
@@ -569,18 +507,15 @@ class WamExampleSynthVoice {
 	 * Add output from each part to the output buffers
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[][]} input
-	 * @param {Float32Array[][]} output
+	 * @param {Float32Array[]} inputs
+	 * @param {Float32Array[]} outputs
 	 * @returns {boolean} whether or not the voice is still active
 	 */
-	process(startSample, endSample, input, output) {
+	process(startSample, endSample, inputs, outputs) {
 		if (!this.active) return false;
 
-		const leftOutput = output[0];
-		const rightOutput = output[1];
-
-		const leftActive = this._leftPart.process(startSample, endSample, leftOutput);
-		const rightActive = this._rightPart.process(startSample, endSample, rightOutput);
+		const leftActive = this._leftPart.process(startSample, endSample, outputs[0]);
+		const rightActive = this._rightPart.process(startSample, endSample, outputs[1]);
 
 		this.active = (leftActive || rightActive);
 		return this.active;
@@ -593,17 +528,29 @@ class WamExampleSynthVoice {
  * @class
  */
 export default class WamExampleSynth {
+	static generateWamParameterInfo() {
+		return {};
+	}
+
 	/**
-	 * @param {number} numVoices how many voices to allocate
+	 * @param {WamParameterInterpolatorMap} parameterInterpolators
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
+	 * @param {Object} config optional config object
 	 */
-	constructor(numVoices, samplesPerQuantum, sampleRate) {
+	/* eslint-disable-next-line no-unused-vars */
+	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config = {}) {
+		/** @property {number} _numChannels just two (stereo) */
+		this._numChannels = 2;
+
 		/** @property {number} _numVoices number of voices allocated */
-		this._numVoices = numVoices;
+		this._numVoices = config.numVoices ?? 16;
+
+		/** @property {boolean} _passInput whether or not to add the input to the synth's output */
+		this._passInput = config.passInput ?? false;
 
 		/** @property {UInt8Array} _voiceStates array of voice state flags */
-		this._voiceStates = new Uint8Array(numVoices);
+		this._voiceStates = new Uint8Array(this._numVoices);
 		this._voiceStates.fill(0);
 
 		/** @property {WamExampleSynthVoice[]} _voices list of allocated voices */
@@ -681,11 +628,16 @@ export default class WamExampleSynth {
 	 * Add output from all active voices to the output buffers
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[][]} inputs
-	 * @param {Float32Array[][]} outputs
+	 * @param {Float32Array[]} inputs
+	 * @param {Float32Array[]} outputs
 	 */
 	process(startSample, endSample, inputs, outputs) {
 		let i = 0;
+		if (this._passInput) {
+			for (let c = 0; c < this._numChannels; ++c) {
+				outputs[c].set(inputs[c]);
+			}
+		}
 		while (i < this._numVoices) {
 			if (this._voiceStates[i] === 1) {
 				const stillActive = this._voices[i].process(startSample, endSample, inputs, outputs);
