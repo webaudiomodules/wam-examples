@@ -112,8 +112,13 @@ class WamExampleProcessor extends WamProcessor {
 		this._effectLevels = new Float32Array(2);
 		this._levelSmoothA = 0.95;
 		this._levelSmoothB = 1.0 - this._levelSmoothA;
-		const levelUpdateRateSec = 0.1;
-		this._levelUpdateRateFrames = Math.round(levelUpdateRateSec * (globalThis.sampleRate / this._samplesPerQuantum));
+
+		const levelUpdatePeriodSec = 1.0 / 30.0;
+		/** @property {number} _levelUpdateRateQuantums how often levels should be computed (quantums) */
+		this._levelUpdateRateQuantums = Math.round((levelUpdatePeriodSec * globalThis.sampleRate) / this._samplesPerQuantum);
+
+		/** @property {number} _levelUpdateCounter levels will be computed when this reaches 0 */
+		this._levelUpdateCounter = 0;
 
 		super.port.start();
 	}
@@ -159,8 +164,10 @@ class WamExampleProcessor extends WamProcessor {
 		if (input.length !== output.length) return;
 
 		const bypass = !!this._parameterInterpolators.bypass.values[startSample];
-		const wasBypassed = this._parameterInterpolators.bypass.values[0]; // good enough most of the time
-		const updateLevels = bypass !== wasBypassed || this._levelUpdateRateFrames % globalThis.currentFrame;
+		const wasBypassed = !!this._parameterInterpolators.bypass.values[0]; // good enough most of the time
+		const updateLevels = bypass !== wasBypassed || this._levelUpdateCounter === 0;
+		if (updateLevels) this._levelUpdateCounter = this._levelUpdateRateQuantums;
+		else this._levelUpdateCounter--;
 
 		if (!bypass) this._generator.process(startSample, endSample, input, output);
 		const gain = this._parameterInterpolators.gain.values;
