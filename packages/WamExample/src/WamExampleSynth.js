@@ -214,6 +214,7 @@ class WamExampleEnvelopeShaper {
 				if (N < endSample) this._envelope.fill(this._targetLevel, N, endSample);
 			}
 		}
+
 		if (!ramping) {
 			if (this._targetLevel === 0.0) {
 				this._segment = this.Segments.IDLE;
@@ -452,7 +453,7 @@ class WamExampleSynthPart {
 }
 
 /**
- * Example synth voice (stereo output)
+ * Example stereo synth voice
  *
  * @class
  */
@@ -587,7 +588,7 @@ class WamExampleSynthVoice {
 }
 
 /**
- * Example polyphonic synth
+ * Example polyphonic stereo synth.
  *
  * @class
  */
