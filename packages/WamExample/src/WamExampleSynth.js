@@ -356,7 +356,7 @@ class WamExampleSynthPart {
 		this._lowpass2 = new WamExampleLowpassFilter();
 
 		/** @property {WamExampleDcBlockerFilter} _dcblocker dc blocking filter component */
-		this._dcblocker = new WamExampleDcBlockerFilter(0.999);
+		this._dcblocker = new WamExampleDcBlockerFilter();
 	}
 
 	/**
