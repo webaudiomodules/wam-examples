@@ -253,7 +253,7 @@ class WamExampleOscillator {
 	 */
 	constructor(sampleRate) {
 		this._sampleRate = sampleRate;
-
+		this._mode = '';
 		this._alpha = 5 * Math.PI ** 2.0;
 		this._phase = 0.0;
 		this._phaseInc = 0.0;
