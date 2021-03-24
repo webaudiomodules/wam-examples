@@ -480,8 +480,10 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
+	 * @param {WamExampleSynthPart.Mode} leftMode mode for voice's left channel
+	 * @param {WamExampleSynthPart.Mode} rightMode mode for voice's right channel
 	 */
-	noteOn(channel, note, velocity) {
+	noteOn(channel, note, velocity, leftMode, rightMode) {
 		this.channel = channel;
 		this.note = note;
 		this.velocity = velocity;
@@ -499,9 +501,6 @@ class WamExampleSynthVoice {
 
 		let filterFreqHz = oscillatorFreqHz * (1.0 + (2.0 * intensity * intensity) * Math.log(nyquist / oscillatorFreqHz));
 		filterFreqHz = Math.max(Math.min(filterFreqHz, maxFrequencyHz), minFrequencyHz);
-
-		const leftMode = Math.floor(WamExampleSynthPart.numModes * Math.random());
-		const rightMode = Math.floor(WamExampleSynthPart.numModes * Math.random());
 
 		this._leftPart.start(leftMode, intensity, oscillatorFreqHz, filterFreqHz);
 		this._rightPart.start(rightMode, intensity, oscillatorFreqHz, filterFreqHz, 0.75);
@@ -579,6 +578,12 @@ export default class WamExampleSynth {
 			this._voices.push(new WamExampleSynthVoice(samplesPerQuantum, sampleRate, i));
 			i++;
 		}
+
+		/** @property {WamExampleSynthPart.Mode} _leftVoiceMode waveform mode for left channel */
+		this._leftVoiceMode = WamExampleSynthPart.Mode.IDLE;
+
+		/** @property {WamExampleSynthPart.Mode} _rightVoiceMode waveform mode for right channel */
+		this._rightVoiceMode = WamExampleSynthPart.Mode.IDLE;
 	}
 
 	/**
@@ -613,7 +618,7 @@ export default class WamExampleSynth {
 			allocatedIdx = oldestIdx;
 		}
 		this._voiceStates[allocatedIdx] = 1;
-		this._voices[allocatedIdx].noteOn(channel, note, velocity);
+		this._voices[allocatedIdx].noteOn(channel, note, velocity, this._leftVoiceMode, this._rightVoiceMode);
 	}
 
 	/**
