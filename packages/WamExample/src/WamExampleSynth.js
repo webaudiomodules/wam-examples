@@ -686,18 +686,22 @@ export default class WamExampleSynth {
 	 * @param {Float32Array[]} outputs
 	 */
 	process(startSample, endSample, inputs, outputs) {
-		let i = 0;
 		// update parameters
 		const leftVoiceModeValue = this._parameterInterpolators.leftVoiceMode.values[startSample];
 		this._leftVoiceMode = this._parameterInterpolators.leftVoiceMode.info.valueString(leftVoiceModeValue);
 
 		const rightVoiceModeValue = this._parameterInterpolators.rightVoiceMode.values[startSample];
 		this._rightVoiceMode = this._parameterInterpolators.rightVoiceMode.info.valueString(rightVoiceModeValue);
+
+		// copy input if applicable
 		if (this._passInput) {
 			for (let c = 0; c < this._numChannels; ++c) {
 				outputs[c].set(inputs[c]);
 			}
 		}
+
+		// render active voices
+		let i = 0;
 		while (i < this._numVoices) {
 			if (this._voiceStates[i] === 1) {
 				const stillActive = this._voices[i].process(startSample, endSample, inputs, outputs);
