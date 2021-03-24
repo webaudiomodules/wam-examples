@@ -546,8 +546,28 @@ class WamExampleSynthVoice {
  * @class
  */
 export default class WamExampleSynth {
+	static _VoiceModes = Object.keys(WamExampleSynthPart.Mode).reduce((list, mode) => {
+		if (mode !== 'IDLE') list.push(String(WamExampleSynthPart.Mode[mode]));
+		return list;
+	}, []);
+
+	/**
+	 * Fetch synth's params.
+	 * @returns {WamParameterInfoMap}
+	 */
 	static generateWamParameterInfo() {
-		return {};
+		return {
+			leftVoiceMode: new WamParameterInfo('leftVoiceMode', {
+				type: 'choice',
+				label: 'Left Channel Waveform',
+				choices: this._VoiceModes,
+			}),
+			rightVoiceMode: new WamParameterInfo('rightVoiceMode', {
+				type: 'choice',
+				label: 'Right Channel Waveform',
+				choices: this._VoiceModes,
+			}),
+		};
 	}
 
 	/**
@@ -566,6 +586,16 @@ export default class WamExampleSynth {
 
 		/** @property {boolean} _passInput whether or not to add the input to the synth's output */
 		this._passInput = config.passInput ?? false;
+
+		/** @property {WamParameterInfoMap} _parameterInfo */
+		// @ts-ignore
+		this._parameterInfo = this.constructor.generateWamParameterInfo();
+
+		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
+		this._parameterInterpolators = {};
+		Object.keys(this._parameterInfo).forEach((parameterId) => {
+			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
+		});
 
 		/** @property {UInt8Array} _voiceStates array of voice state flags */
 		this._voiceStates = new Uint8Array(this._numVoices);
@@ -657,6 +687,12 @@ export default class WamExampleSynth {
 	 */
 	process(startSample, endSample, inputs, outputs) {
 		let i = 0;
+		// update parameters
+		const leftVoiceModeValue = this._parameterInterpolators.leftVoiceMode.values[startSample];
+		this._leftVoiceMode = this._parameterInterpolators.leftVoiceMode.info.valueString(leftVoiceModeValue);
+
+		const rightVoiceModeValue = this._parameterInterpolators.rightVoiceMode.values[startSample];
+		this._rightVoiceMode = this._parameterInterpolators.rightVoiceMode.info.valueString(rightVoiceModeValue);
 		if (this._passInput) {
 			for (let c = 0; c < this._numChannels; ++c) {
 				outputs[c].set(inputs[c]);
