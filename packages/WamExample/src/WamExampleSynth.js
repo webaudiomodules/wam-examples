@@ -36,12 +36,12 @@ class WamExampleEnvelopeShaper {
 	 * @readonly
 	 * @enum {string}
 	 */
-	Segments = Object.freeze({
-		IDLE: Symbol(''),
-		ATTACK: Symbol('attack'),
-		SUSTAIN: Symbol('sustain'),
-		RELEASE: Symbol('release'),
-		CEASE: Symbol('cease'),
+	static Segment = Object.freeze({
+		IDLE: 'idle',
+		ATTACK: 'attack',
+		SUSTAIN: 'sustain',
+		RELEASE: 'release',
+		CEASE: 'cease',
 	});
 
 	/**
@@ -67,7 +67,7 @@ class WamExampleEnvelopeShaper {
 
 		this._rampIdx = 0;
 		this._rampDurSamples = 0;
-		this._segment = this.Segments.IDLE;
+		this._segment = this.constructor.Segment.IDLE;
 	}
 
 	/**
@@ -85,7 +85,7 @@ class WamExampleEnvelopeShaper {
 		this._targetLevel = intensity;
 		this._makeupGain = 1.0 + (2.0 * Math.exp(2.0 - intensity)) / Math.exp(intensity);
 		this._gainInc = this._targetLevel / this._rampDurSamples;
-		this._segment = this.Segments.ATTACK;
+		this._segment = this.constructor.Segment.ATTACK;
 	}
 
 	/**
@@ -94,8 +94,8 @@ class WamExampleEnvelopeShaper {
 	 */
 	stop(force) {
 		// allow ramp to finish if already underway
-		if (this._segment === this.Segments.CEASE) return;
-		if (!force && this._segment === this.Segments.RELEASE) return;
+		if (this._segment === this.constructor.Segment.CEASE) return;
+		if (!force && this._segment === this.constructor.Segment.RELEASE) return;
 
 		this._rampIdx = 0;
 		this._targetLevel = 0.0;
@@ -103,10 +103,10 @@ class WamExampleEnvelopeShaper {
 		else {
 			if (force) { // fast release
 				this._rampDurSamples = this._minReleaseSamples;
-				this._segment = this.Segments.CEASE;
+				this._segment = this.constructor.Segment.CEASE;
 			} else { // normal release
 				this._rampDurSamples *= 2;
-				this._segment = this.Segments.RELEASE;
+				this._segment = this.constructor.Segment.RELEASE;
 			}
 			this._gainInc = -this._currentLevel / this._rampDurSamples;
 		}
@@ -144,11 +144,11 @@ class WamExampleEnvelopeShaper {
 
 		if (!ramping) {
 			if (this._targetLevel === 0.0) {
-				this._segment = this.Segments.IDLE;
+				this._segment = this.constructor.Segment.IDLE;
 				signal.fill(0.0, startSample, endSample);
 				return false;
 			}
-			this._segment = this.Segments.SUSTAIN;
+			this._segment = this.constructor.Segment.SUSTAIN;
 			this._envelope.fill(this._targetLevel, startSample, endSample);
 		}
 
@@ -177,11 +177,22 @@ class WamExampleEnvelopeShaper {
  */
 class WamExampleOscillator {
 	/**
+	 * enum for oscillator modes.
+	 * @readonly
+	 * @enum {string}
+	 */
+	static Mode = Object.freeze({
+		IDLE: 'idle',
+		CLEAN: 'clean',
+		DIRTY: 'dirty',
+	});
+
+	/**
 	 * @param {number} sampleRate
 	 */
 	constructor(sampleRate) {
 		this._sampleRate = sampleRate;
-		this._mode = '';
+		this._mode = this.constructor.Mode.IDLE;
 		this._alpha = 5 * Math.PI ** 2.0;
 		this._phase = 0.0;
 		this._phaseInc = 0.0;
@@ -204,11 +215,12 @@ class WamExampleOscillator {
 
 		let frequencyNorm = frequencyHz / this._sampleRate;
 		this._mode = mode;
-		if (this._mode === 'dirty') {
+
+		if (this._mode === this.constructor.Mode.DIRTY) {
 			this._bias = -0.5;
 			this._flip = 1.0;
 			frequencyNorm *= 0.5;
-		} else if (this._mode === 'clean') {
+		} else if (this._mode === this.constructor.Mode.CLEAN) {
 			this._bias = 0.0;
 			this._flip = -1.0;
 		}
@@ -245,15 +257,17 @@ class WamExampleOscillator {
  * @class
  */
 class WamExampleSynthPart {
-	static numModes = 4;
-
 	/**
-	 * Fetch synth's params.
-	 * @returns {WamParameterInfoMap}
+	 * enum for synth part modes.
+	 * @readonly
+	 * @enum {string}
 	 */
-	static generateWamParameterInfo() {
-		return {};
-	}
+	static Mode = Object.freeze({
+		...WamExampleOscillator.Mode,
+		CLEANDIRTY: 'clean-dirty',
+		DIRTYDIRTY: 'dirty-dirty',
+		RANDOM: 'random',
+	});
 
 	/**
 	 * @param {number} maxAttackMs maximum duration of envelope attack segment (ms)
@@ -305,7 +319,7 @@ class WamExampleSynthPart {
 
 	/**
 	 * Trigger envelope attack and start oscillator(s)
-	 * @param {number} mode voice mode [0, 3]
+	 * @param {string} mode voice mode ['clean', 'dirty', 'clean-dirty', 'dirty-dirty']
 	 * @param {number} intensity voice intensity [0.0, 1.0]
 	 * @param {number} oscillatorFreqHz oscillator frequency
 	 * @param {number} filterFreqHz filter frequency
@@ -313,22 +327,27 @@ class WamExampleSynthPart {
 	 */
 	start(mode, intensity, oscillatorFreqHz, filterFreqHz, phaseOffsetNorm = 0.0) {
 		this._active = true;
-		let mode1 = null;
-		let mode2 = null;
+		let mode1 = this.constructor.Mode.IDLE;
+		let mode2 = this.constructor.Mode.IDLE;
+
+		if (mode === this.constructor.Mode.RANDOM) {
+			mode = Math.floor(Object.keys(this.constructor.Mode).length * Math.random());
+			if (mode === this.constructor.Mode.IDLE) mode = this.constructor.Mode.CLEAN;
+		}
 		switch (mode) {
-		case 0:
-			mode1 = 'clean';
+		case this.constructor.Mode.CLEAN:
+			mode1 = mode;
 			break;
-		case 1:
-			mode1 = 'dirty';
+		case this.constructor.Mode.DIRTY:
+			mode1 = mode;
 			break;
-		case 2:
-			mode1 = 'clean';
-			mode2 = 'dirty';
+		case this.constructor.Mode.CLEANDIRTY:
+			mode1 = this.constructor.Mode.CLEAN;
+			mode2 = this.constructor.Mode.DIRTY;
 			break;
-		case 3:
-			mode1 = 'dirty';
-			mode2 = 'dirty';
+		case this.constructor.Mode.DIRTYDIRTY:
+			mode1 = this.constructor.Mode.DIRTY;
+			mode2 = this.constructor.Mode.DIRTY;
 			break;
 		default: break;
 		}
@@ -336,7 +355,7 @@ class WamExampleSynthPart {
 		this._shaper.start(intensity, this._sampleRate);
 
 		this._oscillator1.start(mode1, oscillatorFreqHz, phaseOffsetNorm);
-		if (mode2) {
+		if (mode2 !== this.constructor.Mode.IDLE) {
 			this._oscillator2.start(mode2, oscillatorFreqHz, phaseOffsetNorm + 0.25);
 			this._oscillator2Active = true;
 		}
