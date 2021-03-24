@@ -413,11 +413,11 @@ class WamExampleSynthPart {
  */
 class WamExampleSynthVoice {
 	/**
-	 * @param {number} voiceIdx unique int to identify voice
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
+	 * @param {number} voiceIdx unique int to identify voice
 	 */
-	constructor(voiceIdx, samplesPerQuantum, sampleRate) {
+	constructor(samplesPerQuantum, sampleRate, voiceIdx) {
 		/** @property {number} _numChannels just two (stereo) */
 		this._numChannels = 2;
 
@@ -576,7 +576,7 @@ export default class WamExampleSynth {
 		this._voices = [];
 		let i = 0;
 		while (i < this._numVoices) {
-			this._voices.push(new WamExampleSynthVoice(i, samplesPerQuantum, sampleRate));
+			this._voices.push(new WamExampleSynthVoice(samplesPerQuantum, sampleRate, i));
 			i++;
 		}
 	}
