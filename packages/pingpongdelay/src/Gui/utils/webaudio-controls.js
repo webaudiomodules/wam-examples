@@ -340,6 +340,7 @@ webaudio-knob{
 				if (!this.hasOwnProperty("diameter")) Object.defineProperty(this, "diameter", { get: () => { return this._diameter }, set: (v) => { this._diameter = v; this.setupImage() } });
 				this._colors = this.getAttr("colors", opt.knobColors);
 				if (!this.hasOwnProperty("colors")) Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
+
 				this.outline = this.getAttr("outline", opt.outline);
 				this.sensitivity = this.getAttr("sensitivity", 1);
 				this.valuetip = this.getAttr("valuetip", 1);
