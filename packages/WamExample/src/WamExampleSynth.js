@@ -696,7 +696,11 @@ export default class WamExampleSynth {
 		// copy input if applicable
 		if (this._passInput) {
 			for (let c = 0; c < this._numChannels; ++c) {
-				outputs[c].set(inputs[c]);
+				let n = startSample;
+				while (n < endSample) {
+					outputs[c][n] = inputs[c][n];
+					n++;
+				}
 			}
 		}
 
