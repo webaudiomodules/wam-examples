@@ -191,19 +191,20 @@ export interface ParamMgrNode<Params extends string = string, InternalParams ext
      * @deprecated
      */
     readonly $prevParamsBuffer: Float32Array;
-    /**
-     * A set for internal parameters names.
-     * These params is ready for next change event dispatch.
-     * (to throttle event dispatch rate for the non-AudioParam internal parameters)
-     * @deprecated
-     */
-    readonly paramsChangeCanDispatch: Set<InternalParams>;
+
     /**
      * Event dispatch callbacks reference of the `setTimeout` calls.
      * Used to clear the callbacks while destroying the plugin.
      * @deprecated
      */
     readonly paramsUpdateCheckFnRef: number[];
+
+    /**
+     * Event dispatch callback functions bound to specific values for the parameter.
+     * @deprecated
+     */
+    readonly paramsUpdateCheckFn: number[];
+
     /**
      * waiting for the processor that gives the `paramsBuffer` `SharedArrayBuffer`
      */
