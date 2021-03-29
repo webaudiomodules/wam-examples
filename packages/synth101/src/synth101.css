@@ -1,0 +1,52 @@
+/* synth-101 */
+
+.synth-101 {
+    background-color: #4773cc;
+    color: white;
+    display: flex;
+}
+
+.synth-101 .component-wrapper {
+    padding: 5px;
+}
+
+.synth-101-section {
+    /* border: 1px solid white; */
+    border: 1px solid rgba(0,0,0,0.3);
+
+    border-radius: 2px;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.synth-101-header {
+    background-color: rgba(0,0,0,0.2);
+    padding: 2px;
+}
+
+.synth-101-section-content {
+    display: flex;
+    justify-content: stretch;
+    flex: 1;
+    padding: 10px;
+}
+
+/* UI elements */
+
+.component-wrapper {
+    display: flex;
+    flex-direction: column; 
+    align-content: center; 
+    text-align: center;
+    flex: 1;
+}
+
+.component-knob, .component-fader {
+    margin-top: auto;
+}
+
+.component-select {
+    margin-top: auto;
+    margin-bottom: 3px;
+}
