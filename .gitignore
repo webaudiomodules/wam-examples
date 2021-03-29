@@ -17,3 +17,6 @@ esm/
 .env*.local
 .log*
 .cache
+lerna-debug.log
+packages/host/yarn-error.log
+

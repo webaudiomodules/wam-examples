@@ -84,8 +84,7 @@ class WamParameterSab extends WamParameterNoSab {
 
 export { WamParameterNoSab, WamParameterSab };
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
+if (globalThis.AudioWorkletGlobalScope) {
 	globalThis.WamParameterNoSab = WamParameterNoSab;
 	globalThis.WamParameterSab = WamParameterSab;
 }
