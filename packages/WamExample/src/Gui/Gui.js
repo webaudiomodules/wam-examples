@@ -1,12 +1,79 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-underscore-dangle */
+
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
 import '../utils/webaudio-controls.js';
 
-/* eslint-disable no-plusplus */
+class ZigZag {
+	constructor(startX, startY, endX, endY, numSegments) {
+		this._numSegments = numSegments;
+		this._startX = startX;
+		this._startY = startY;
+		this._endX = endX;
+		this._endY = endY;
+		this._dX = this._endX - this._startX;
+		this._dY = this._endY - this._startY;
+		this._slope = this._dY / this._dX;
 
+		const magnitude = Math.sqrt(this._dX ** 2 + this._dY ** 2);
+		this._segmentLength = magnitude / this._numSegments;
+		this._stepX = this._dX / this._numSegments;
+		this._stepY = this._dY / this._numSegments;
+
+		this._X = [];
+		this._Y = [];
+		for (let i = 1; i < this._numSegments; ++i) {
+			this._X.push(this._startX + i * this._stepX);
+			this._Y.push(this._startY + i * this._stepY);
+		}
+	}
+
+	updatePoints(jitter, smoothing) {
+		let points = `${this._startX},${this._startY} `;
+		const alpha = smoothing;
+		const beta = 1.0 - smoothing;
+		let sign = this._slope > 0 ? 1 : -1;
+		for (let i = 1; i < this._numSegments; ++i) {
+			const jitterX = 0.5 * (Math.random() - 0.5) * jitter * this._segmentLength;
+			const jitterY = sign * 2.0 * Math.random() * jitter * this._segmentLength;
+			const currentX = this._X[i - 1];
+			const currentY = this._Y[i - 1];
+			const targetX = this._startX + i * this._stepX + jitterX;
+			const targetY = this._startY + i * this._stepY + jitterY;
+
+			this._X[i - 1] = alpha * currentX + beta * targetX;
+			this._Y[i - 1] = alpha * currentY + beta * targetY;
+			sign *= -1;
+			points += `${this._X[i - 1]},${this._Y[i - 1]} `;
+		}
+		points += `${this._endX},${this._endY}`;
+		return points;
+	}
+}
+
+const red = '#F86234';
 const yellow = '#F5CB31';
 const green = '#A8D149';
 const grayDark = '#262626';
 const grayLight = '#545454';
+const transparent = '#00000000';
+
+// const modeStrings = [
+// 	'&#9636',
+// 	'&#9637',
+// 	'&#9639',
+// 	'&#9640',
+// 	'&#9641',
+// ];
+
+const modeStrings = [
+	'1',
+	'2',
+	'3',
+	'4',
+	'?',
+];
 
 const style = `.pedal {
 	display: block;
@@ -26,12 +93,19 @@ const style = `.pedal {
 
 .overlay {
 	position: absolute;
+	width: 120px;
+	height: 180px;
 }
 
-.knob,
+
 .switch,
 .icon,
 .label {
+	position: absolute;
+	cursor: pointer;
+}
+
+.knob {
 	position: absolute;
 	cursor: pointer;
 }
@@ -47,22 +121,55 @@ const style = `.pedal {
 }
 
 #drive {
-	left: 47px;
-	top: 78px;
+	left: 46px;
+	top: 80px;
 }
 
 #drive div {
 	color: #ffffff;
 	font-family: "Verdana";
-	font-size: 8px;
+	font-size: 8px;;
 }
 
 #title {
-	left: 8px;
-	top: 6px;
+	left: 30px;
+	top: 8px;
+	position: absolute;
+	margin: auto;
 	color: #333333;
-	font-family: "Arial Black";
-	font-size: 14px;
+	font-family: "Helvetica";
+	font-size: 18px;
+	font-style: bold;
+	text-align: center;
+}
+
+.mode {
+	opacity: 0;
+	cursor: pointer;
+	color: ${yellow};
+	font-family: "Helvetica";
+	font-size: 12px;
+	font-style: bold;
+	text-align: center;
+	user-select: none;
+	position: absolute;
+	padding: 25px;
+	top: 14px;
+	z-index: 0;
+}
+
+.mode:hover {
+	opacity: 1;
+}
+
+#leftVoiceMode {
+	left: -11px;
+	transform: rotate(-22deg);
+}
+
+#rightVoiceMode {
+	left: 74px;
+	transform: rotate(22deg);
 }
 
 .pedalLabel {
@@ -96,20 +203,36 @@ const style = `.pedal {
 #knob1-label {
 	top: 84px;
 	left: 43px;
-}`;
+}
+
+@keyframes green-red-keyframes {
+	0% { color: ${green} }
+	100% { color: ${red} }
+}
+
+#green-red-mixer {
+	height: 1px;
+	width: 1px;
+	animation: green-red-keyframes 1s linear forwards paused;
+	background: currentColor;
+}
+`;
 
 const template = `<div id="wamsdk-wamexample" class="wrapper">
 <div class="pedal">
-	<svg class="overlay" id="eyes"></svg>
+	<svg class="overlay" id="visualization"></svg>
 	<img id="background-image">
 	<div class="switchCont">
 		<webaudio-switch class="switch" id="switch1" height="24" width="48"></webaudio-switch>
 	</div>
 	<div class="knob" id="drive">
-		<webaudio-knob id="knob1" height="24" width="24" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Drive %.2f"></webaudio-knob>
+		<webaudio-knob id="knob1" height="26" width="26" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Drive %.2f"></webaudio-knob>
 		<!-- <div style="text-align:center">Drive</div> -->
 	</div>
-	<div class="label" id="title">WamExample</div>
+	<div class="mode" id="leftVoiceMode">L</div>
+	<div class="mode" id="rightVoiceMode">R</div>
+	<div class="label" id="title">PurrBot</div>
+  	<div id="green-red-mixer"></div>
 </div>
 </div>
 `;
@@ -143,6 +266,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.setKnobs();
 		this.setSwitchListener();
 		this.setTextListener();
+		this.updateMode('leftVoiceMode');
+		this.updateMode('rightVoiceMode');
+
+		this.whiskers = [[], []];
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
@@ -209,32 +336,100 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.shadowRoot.querySelector('#switch1').value = status;
 	}
 
+	updateMode = async (parameterId, increment = false) => {
+		const state = await this.plugin.audioNode.getParameterValues(false, parameterId);
+		if (increment) {
+			state[parameterId].value = (state[parameterId].value + 1) % 5;
+			this.plugin.audioNode.setParameterValues(state);
+		}
+		const text = modeStrings[state[parameterId].value];
+		this.shadowRoot.querySelector(`#${parameterId}`).innerHTML = text;
+	}
+
 	handleAnimationFrame = async () => {
 		const {
 			drive,
 			bypass,
 		} = await this.plugin.audioNode.getParameterValues();
+
 		this.shadowRoot.querySelector('#knob1').value = drive.value;
 		this.shadowRoot.querySelector('#switch1').value = !bypass.value;
+
+		const greenRedMixer = this.shadowRoot.querySelector('#green-red-mixer');
+		if (bypass.value) {
+			greenRedMixer.style.backgroundColor = grayLight;
+		} else {
+			greenRedMixer.style = `animation-delay: -${drive.value}s`;
+		}
+		const driveColor = getComputedStyle(greenRedMixer).backgroundColor;
 
 		const {
 			synthLevels,
 			effectLevels,
 		} = this.plugin.audioNode;
 
+		const minOpacity = 0.333;
+		const maxOpacity = 0.85;
+
+		let svg = '';
+
+		// ears
+		const earUpperY = 35;
+		const earOuterY = 57;
+		const earInnerY = 47.5;
+		const earUpperX = [12, 107];
+		const earOuterX = [8.5, 110];
+		const earInnerX = [31, 88];
+
+		// eyes
 		const eyeOriginY = 67.5;
-		const eyeOriginX0 = 38;
-		const eyeOriginX1 = eyeOriginX0 + 44;
-		const eyeOriginX = [eyeOriginX0, eyeOriginX1];
+		const eyeOriginX = [38, 82];
 		const eyeRadius = 10;
 		const pupilHeight = 8;
 		const laserY = eyeOriginY + 100;
-		const maxOpacity = 0.85;
-		let svg = '';
+
+		// whiskers
+		const whiskerUpperOuterY = 81;
+		const whiskerUpperInnerY = 85;
+		const whiskerUpperOuterX = [21, 98];
+		const whiskerUpperInnerX = [47, 72];
+
+		const whiskerMiddleOuterY = 100;
+		const whiskerMiddleInnerY = 91;
+		const whiskerMiddleOuterX = [25, 95];
+		const whiskerMiddleInnerX = [46, 72];
+
+		const whiskerLowerOuterY = 113;
+		const whiskerLowerInnerY = 98;
+		const whiskerLowerOuterX = [34, 86];
+		const whiskerLowerInnerX = [50.5, 69];
+
+		const whiskerOpacity0 = Math.min(
+			Math.min(effectLevels[0], synthLevels[0]) * (1.0 - 0.4 * drive.value) + minOpacity,
+			maxOpacity,
+		);
+		const whiskerOpacity1 = Math.min(
+			Math.min(effectLevels[1], synthLevels[1]) * (1.0 - 0.4 * drive.value) + minOpacity,
+			maxOpacity,
+		);
+		const whiskerOpacity = [whiskerOpacity0, whiskerOpacity1];
+
 		for (let c = 0; c < 2; ++c) {
 			const synthLevelA = synthLevels[c];
 			const synthLevelB = 1.0 - synthLevelA;
 			const effectLevel = effectLevels[c];
+
+			const earOpacity = Math.min(effectLevel + synthLevelA + minOpacity, maxOpacity);
+			const earPoints = `${earUpperX[c]},${earUpperY} ${earOuterX[c]},${earOuterY} ${earInnerX[c]},${earInnerY}`;
+			svg += `\
+				<polygon
+					points="${earPoints}"
+					style="fill:${transparent};stroke:${yellow};stroke-width:.5;opacity:${earOpacity};z-index:0"
+				/>
+			`;
+
+			const laserOpacity = Math.min(1.25 * synthLevelA, maxOpacity);
+			const eyeOpacity = Math.min(2.0 * effectLevel + 0.5, maxOpacity);
 
 			const laserWidthFactor = Math.max(0.5 + synthLevelB, 0.5);
 			const pupilWidth = pupilHeight * Math.min(Math.max(synthLevelB, 0.25), 0.75);
@@ -242,12 +437,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 			const laserRightX = eyeOriginX[c] + eyeRadius * (c % 2 ? 3 : 0.5) * laserWidthFactor;
 
 			const laserPoints = `${eyeOriginX[c]},${eyeOriginY} ${laserLeftX},${laserY} ${laserRightX},${laserY}`;
-			const laserOpacity = Math.min(1.25 * synthLevelA, maxOpacity);
-			const eyeOpacity = Math.min(2.0 * effectLevel + 0.5, maxOpacity);
 			svg += `
 				<circle
 					cx="${eyeOriginX[c]}" cy="${eyeOriginY}" r="${eyeRadius}"
-					style="fill:${green};stroke:${yellow};stroke-width:.5;opacity:${eyeOpacity};z-index:-2"
+					style="fill:${driveColor};stroke:${yellow};stroke-width:.5;opacity:${eyeOpacity};z-index:-2"
 				/>
 				<ellipse
 					cx="${eyeOriginX[c]}" cy="${eyeOriginY}" rx="${pupilWidth}" ry="${pupilHeight}"
@@ -255,11 +448,57 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 				<polygon
 					points="${laserPoints}"
-					style="fill:${green};stroke:${yellow};stroke-width:.5;opacity:${laserOpacity};z-index:0"
+					style="fill:${driveColor};stroke:${yellow};stroke-width:.5;opacity:${laserOpacity};z-index:0"
 				/>
 			`;
+
+			const numSegments = 4;
+			if (this.whiskers[c].length === 0) {
+				let startX = whiskerUpperOuterX[c];
+				let startY = whiskerUpperOuterY;
+				let endX = whiskerUpperInnerX[c];
+				let endY = whiskerUpperInnerY;
+				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+
+				startX = whiskerMiddleOuterX[c];
+				startY = whiskerMiddleOuterY;
+				endX = whiskerMiddleInnerX[c];
+				endY = whiskerMiddleInnerY;
+				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+
+				startX = whiskerLowerOuterX[c];
+				startY = whiskerLowerOuterY;
+				endX = whiskerLowerInnerX[c];
+				endY = whiskerLowerInnerY;
+				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+			}
+
+			const jitter = Math.min(0.25, Math.max(synthLevelA, effectLevel));
+			const smoothing = Math.min(0.25, 1.0 - jitter);
+			for (let i = 0; i < 3; ++i) {
+				const whiskerPoints = this.whiskers[c][i].updatePoints(jitter, smoothing);
+				svg += `
+					<polyline
+						points="${whiskerPoints}"
+						style="fill:${transparent};stroke:${yellow};stroke-width:.5;
+						opacity:${whiskerOpacity[Math.round(Math.random())]};z-index:-1"
+					/>
+				`;
+			}
 		}
-		this.shadowRoot.querySelector('#eyes').innerHTML = svg;
+
+		const ledOriginX = 59;
+		const ledOriginY = 155;
+		const ledRadius = 9;
+
+		svg += `\
+			<circle
+				cx="${ledOriginX}" cy="${ledOriginY}" r="${ledRadius}"
+				style="fill:${driveColor};stroke:${yellow};stroke-width:.5;z-index:-1"
+			/>
+		`;
+
+		this.shadowRoot.querySelector('#visualization').innerHTML = svg;
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
@@ -298,6 +537,14 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.shadowRoot
 			.querySelector('#title')
 			.addEventListener('click', () => { this.triggerNotes(0.1); });
+		const leftVoiceMode = this.shadowRoot.querySelector('#leftVoiceMode');
+		leftVoiceMode.addEventListener('click', () => {
+			this.updateMode('leftVoiceMode', true);
+		});
+		const rightVoiceMode = this.shadowRoot.querySelector('#rightVoiceMode');
+		rightVoiceMode.addEventListener('click', () => {
+			this.updateMode('rightVoiceMode', true);
+		});
 	}
 
 	setSwitchListener() {
