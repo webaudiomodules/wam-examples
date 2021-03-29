@@ -43,8 +43,9 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		this.internalParams = processorOptions.internalParams;
 		this.internalParamsConfig = internalParamsConfig;
 		this.$prevParamsBuffer = new Float32Array(this.internalParams.length);
-		this.paramsChangeCanDispatch = new Set(this.internalParams);
+		this.paramsUpdateCheckFn = [];
 		this.paramsUpdateCheckFnRef = [];
+
 		Object.entries(this.getParams()).forEach(([name, param]) => {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
 			param.info = this.paramsConfig[name];
@@ -225,7 +226,6 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {string} name
 	 */
 	requestDispatchIParamChange = (name) => {
-		if (!this.paramsChangeCanDispatch.has(name)) return;
 		const config = this.internalParamsConfig[name];
 		if (!('onChange' in config)) return;
 		const { automationRate, onChange } = config;
@@ -237,18 +237,19 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		if (typeof this.paramsUpdateCheckFnRef[i] === 'number') {
 			window.clearTimeout(this.paramsUpdateCheckFnRef[i]);
 		}
-		this.paramsUpdateCheckFnRef[i] = window.setTimeout(() => {
-			this.paramsUpdateCheckFnRef[i] = undefined;
-			this.paramsChangeCanDispatch.add(name);
-			this.requestDispatchIParamChange(name);
-		}, interval);
-		const prev = this.$prevParamsBuffer[i];
-		const cur = this.$paramsBuffer[i];
+		this.paramsUpdateCheckFn[i] = this.paramUpdateCallback.bind(this, i, onChange, interval)
+		
+		this.paramsUpdateCheckFn[i]()		
+	}
+
+	paramUpdateCallback = (index, onChange, interval) => {
+		const prev = this.$prevParamsBuffer[index];
+		const cur = this.$paramsBuffer[index];
 		if (cur !== prev) {
 			onChange(cur, prev);
-			this.$prevParamsBuffer[i] = cur;
-			this.paramsChangeCanDispatch.delete(name);
+			this.$prevParamsBuffer[index] = cur;
 		}
+		this.paramsUpdateCheckFnRef[index] = window.setTimeout(this.paramsUpdateCheckFn[index], interval)
 	}
 
 	/**
