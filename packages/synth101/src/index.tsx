@@ -275,14 +275,18 @@ export default class Synth101 extends WebAudioModule<Synth101Node> {
     }
 
 	async createGui() {
-		// return new Promise<Element>((resolve, reject) => {
-			const div = document.createElement('div');
-			// hack because h() is getting stripped for non-use despite it being what the JSX compiles to
-			h("div", {})
+		const div = document.createElement('div');
+		// hack because h() is getting stripped for non-use despite it being what the JSX compiles to
+		h("div", {})
 
-    		render(<SynthView plugin={this}></SynthView>, div);
+		var shadow = div.attachShadow({mode: 'open'});
+		render(<SynthView plugin={this}></SynthView>, shadow);
 
-   			return div;
-		// })
+		return div;
+	}
+
+	destroyGui(el: Element) {
+		console.log("destroyGui called!")
+		render(null, el.shadowRoot)
 	}
 }

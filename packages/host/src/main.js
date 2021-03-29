@@ -15,6 +15,7 @@ const audioContext = new AudioContext();
 const mediaElementSource = audioContext.createMediaElementSource(player);
 
 let currentPluginAudioNode, liveInputGainNode;
+let currentPluginDomNode;
 
 // Very simple function to connect the plugin audionode to the host
 const connectPlugin = (audioNode) => {
@@ -70,6 +71,11 @@ const setPlugin = async (pluginUrl) => {
 			feedback: 0.7,
 		},
 	});
+
+	if (window.instance && currentPluginDomNode && window.instance.destroyGui) {
+		window.instance.destroyGui(currentPluginDomNode)
+	}
+
 	window.instance = instance;
 	// instance.enable();
 
@@ -81,14 +87,14 @@ const setPlugin = async (pluginUrl) => {
 
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
-	const pluginDomNode = await instance.createGui();
+	currentPluginDomNode = await instance.createGui();
 
 	// Show plugin info
-	showPluginInfo(instance, pluginDomNode);
+	showPluginInfo(instance, currentPluginDomNode);
 
 	populateParamSelector(instance);
 
-	mountPlugin(pluginDomNode);
+	mountPlugin(currentPluginDomNode);
 
 	const saveStateButton = document.querySelector('#saveStateButton');
 	const restoreStateButton = document.querySelector('#restoreStateButton');
