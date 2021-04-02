@@ -139,7 +139,7 @@ export default class CompositeAudioNode extends GainNode {
 
 	connect(...args) {
 		// @ts-ignore
-		this.connectEvents(...args);
+		if (this._wamNode) this.connectEvents(...args);
 		// @ts-ignore
 		if (this._output) return this._output.connect(...args);
 		// @ts-ignore
@@ -148,7 +148,7 @@ export default class CompositeAudioNode extends GainNode {
 
 	disconnect(...args) {
 		// @ts-ignore
-		this.disconnectEvents(...args);
+		if (this._wamNode) this.disconnectEvents(...args);
 		// @ts-ignore
 		if (this._output) return this._output.disconnect(...args);
 		// @ts-ignore
