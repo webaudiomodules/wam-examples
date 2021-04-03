@@ -90,12 +90,13 @@ class RandomNoteProcessor extends AudioWorkletProcessor {
 			const pitch = Math.round(Math.random() * (pitchMax - pitchMin) + pitchMin);
 			const velocity = Math.round(Math.random() * (velocityMax - velocityMin) + velocityMin);
 			this.lastPitch = pitch;
-			this.lastTime = currentTime - this.lastTime - pause;
+			if (this.lastTime) this.lastTime += pause;
+			else this.lastTime = currentTime;
 			this.proxy.emitEvents({ type: 'midi', time: currentTime, data: { bytes: [0b10010000, pitch, velocity] } });
 		} else if (this.lastPitch && currentTime - this.lastTime >= length) {
 			this.proxy.emitEvents({ type: 'midi', time: currentTime, data: { bytes: [0b10010000, this.lastPitch, 0] } });
 			this.lastPitch = null;
-			this.lastTime = currentTime - this.lastTime - length;
+			this.lastTime += length;
 		}
 		return true;
 	}

@@ -15,7 +15,6 @@ const processor = () => {
 			this._graph = new Map();
 			/** @type {Record<string, WamProcessor>} */
 			this._processors = {};
-			console.log(this);
 		}
 
 		get graph() {
@@ -31,7 +30,7 @@ const processor = () => {
 		 */
 		create(wam) {
 			this._processors[wam.instanceId] = wam;
-			console.log('create', this);
+			// console.log('create', this);
 		}
 
 		/**
@@ -55,7 +54,7 @@ const processor = () => {
 				set.add(to);
 				outputMap[output] = set;
 			}
-			console.log('connectEvents', this);
+			// console.log('connectEvents', this);
 		}
 
 		/**
@@ -80,7 +79,7 @@ const processor = () => {
 			}
 			if (!outputMap[output]) return;
 			outputMap[output].delete(to);
-			console.log('disconnectEvents', this);
+			// console.log('disconnectEvents', this);
 		}
 
 		/**
@@ -93,7 +92,7 @@ const processor = () => {
 					if (set && set.has(wam)) set.delete(wam);
 				});
 			});
-			console.log('destroy', this);
+			// console.log('destroy', this);
 		}
 
 		/**
