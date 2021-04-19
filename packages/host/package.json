@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "parcel-bundler": "^1.12.4",
     "pingpongdelay": "^0.0.0",
