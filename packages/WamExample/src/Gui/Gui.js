@@ -473,7 +473,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
 			}
 
-			const jitter = Math.min(0.25, Math.max(synthLevelA, effectLevel));
+			const jitter = (0.1 + 0.5 * drive.value) * Math.max(synthLevelA, effectLevel);
 			const smoothing = Math.min(0.25, 1.0 - jitter);
 			for (let i = 0; i < 3; ++i) {
 				const whiskerPoints = this.whiskers[c][i].updatePoints(jitter, smoothing);
