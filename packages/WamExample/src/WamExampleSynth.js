@@ -331,8 +331,11 @@ class WamExampleSynthPart {
 		let mode2 = this.constructor.Mode.IDLE;
 
 		if (mode === this.constructor.Mode.RANDOM) {
-			mode = Math.floor(Object.keys(this.constructor.Mode).length * Math.random());
-			if (mode === this.constructor.Mode.IDLE) mode = this.constructor.Mode.CLEAN;
+			const modeKeys = Object.keys(this.constructor.Mode);
+			const modeMin = 1; // exclude IDLE
+			const modeMax = modeKeys.length - 2; // exclude RANDOM
+			const modeRange = modeMax - modeMin;
+			mode = this.constructor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
 		}
 		switch (mode) {
 		case this.constructor.Mode.CLEAN:
