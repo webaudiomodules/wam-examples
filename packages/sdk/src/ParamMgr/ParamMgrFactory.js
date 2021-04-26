@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 import './AudioWorkletRegister.js';
 import processor from './ParamMgrProcessor.js';
+import wamEnvProcessor from '../WamEnv.js';
 import ParamMappingConfigurator from './ParamConfigurator.js';
 import ParamMgrNode from './ParamMgrNode.js';
 /** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
@@ -31,6 +32,7 @@ export default class ParamMgrFactory {
 		// @ts-ignore
 		// eslint-disable-next-line prefer-destructuring
 		const AudioWorkletRegister = window.AudioWorkletRegister;
+		await AudioWorkletRegister.register('__WebAudioModules_WamEnv', wamEnvProcessor, audioContext.audioWorklet);
 		await AudioWorkletRegister.register(processorId, processor, audioContext.audioWorklet, serializableParamsConfig);
 		/** @type {ParamMgrOptions} */
 		const options = {

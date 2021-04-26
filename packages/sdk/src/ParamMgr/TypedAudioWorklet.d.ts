@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable max-len */
 
-import { WamProcessor } from '../api/types';
+import { WamProcessor, AudioWorkletGlobalScope as IAudioWorkletGlobalScope } from '../api/types';
 
 export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
 	processorOptions?: T;
@@ -56,7 +56,7 @@ export const TypedAudioWorkletProcessor: {
 	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(options: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletProcessor<MsgIn, MsgOut, Par>;
 };
 
-export interface AudioWorkletGlobalScope {
+export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
 	registerProcessor: (name: string, constructor: new (options: any) => TypedAudioWorkletProcessor) => void;
 	currentFrame: number;
 	currentTime: number;

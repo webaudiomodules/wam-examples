@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        (async () => {
+            const audioCtx = new AudioContext();
+            const { default: Wam } = await import('./index.js');
+            const wam = await Wam.createInstance(audioCtx);
+            console.log(wam);
+            const gui = await wam.createGui();
+            document.body.appendChild(gui);
+        })();
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
