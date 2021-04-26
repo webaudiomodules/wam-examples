@@ -4,11 +4,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-<<<<<<< HEAD:packages/tinySynth/src/NodeMichel.js
-import './utils/webaudio-tinysynth.js';
-=======
 import { WebAudioTinySynth } from './utils/webaudio-tinysynth.js';
->>>>>>> c36d5d18a46623be903c3e0f36f2d9c643fd9e39:packages/tinySynth/src/Node.js
 
 // name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class TinySynthNode extends CompositeAudioNode {
