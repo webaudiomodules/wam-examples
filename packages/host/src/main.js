@@ -19,6 +19,7 @@ let currentPluginAudioNode, liveInputGainNode;
 // Very simple function to connect the plugin audionode to the host
 const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
+		keyboardPlugin.audioNode.disconnectEvents(currentPluginAudioNode);
 		keyboardPlugin.audioNode.disconnect(currentPluginAudioNode);
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
@@ -29,6 +30,7 @@ const connectPlugin = (audioNode) => {
 	console.log('connected live input node to plugin node');
 
 	keyboardPlugin.audioNode.connect(audioNode);
+	keyboardPlugin.audioNode.connectEvents(audioNode);
 	mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;

@@ -94,13 +94,6 @@ const processor = () => {
 			});
 			// console.log('destroy', this);
 		}
-
-		/**
-		 * @param {number} from
-		 * @param {number} to
-		 */
-		// eslint-disable-next-line
-		getTimeInfo(from, to) { throw new Error('Not Implemented.'); return null; }
 	}
 
 	/** @type {AudioWorkletGlobalScope} */
