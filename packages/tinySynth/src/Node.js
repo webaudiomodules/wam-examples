@@ -4,7 +4,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import '../utils/webaudio-tinysynth.js';
+import { WebAudioTinySynth } from './utils/webaudio-tinysynth.js';
 
 // name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class TinySynthNode extends CompositeAudioNode {
@@ -20,6 +20,11 @@ export default class TinySynthNode extends CompositeAudioNode {
 	setup(wamNode) {
 		this._wamNode = wamNode;
 		this.connectNodes();
+		this._wamNode.addEventListener('midi', ({ detail }) => {
+			console.log(detail);
+			const msg = detail.data.bytes;
+			this.synth.send(msg);
+		});
 	}
 
 	constructor(context, options) {

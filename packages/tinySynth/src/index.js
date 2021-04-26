@@ -54,7 +54,7 @@ export default class TinySynthPlugin extends WebAudioModule {
 				defaultValue: 1,
 				minValue: 0,
 				maxValue: 1,
-				onChange: (value) => { midiVirtualKeyboardNode.status = !!value; },
+				onChange: (value) => { tinySynthNode.status = !!value; },
 			},
 		};
 		// hmmm no mapping...
