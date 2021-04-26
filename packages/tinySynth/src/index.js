@@ -10,7 +10,7 @@ import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
 
 // DSP part
-import TinySynthNode from './NodeMichel.js';
+import TinySynthNode from './Node.js';
 // GUI part
 import { createElement } from './Gui/index.js';
 
