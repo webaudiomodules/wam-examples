@@ -10,7 +10,7 @@ import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
 
 // DSP part
-import TinySynthNode from './Node.js';
+import TinySynthNode from './NodeMichel.js';
 // GUI part
 import { createElement } from './Gui/index.js';
 
@@ -54,7 +54,7 @@ export default class TinySynthPlugin extends WebAudioModule {
 				defaultValue: 1,
 				minValue: 0,
 				maxValue: 1,
-				onChange: (value) => { midiVirtualKeyboardNode.status = !!value; },
+				onChange: (value) => { tinySynthNode.status = !!value; },
 			},
 		};
 		// hmmm no mapping...

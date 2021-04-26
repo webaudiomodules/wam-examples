@@ -4,7 +4,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import '../utils/webaudio-tinysynth.js';
+import './utils/webaudio-tinysynth.js';
 
 // name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class TinySynthNode extends CompositeAudioNode {
@@ -26,7 +26,21 @@ export default class TinySynthNode extends CompositeAudioNode {
 		super(context, options);
 		this.createNodes();
 
-		this.synth = new WebAudioTinySynth();
+		this.createSynth();
+	}
+
+	async createSynth() {
+		//this.synth = new WebAudioTinySynth();
+		this.synth = document.createElement("webaudio-tinysynth");
+		this.synth = document.querySelector("#webaudio-tinysynth")
+		//await this.synth.ready();
+		console.log("TinySynth default sound : " + this.synth.getTimbreName(0, 0));
+		this.synth.getTimbreName(0, 0);
+		// play a note just to see if it works
+		setInterval(() => {
+			this.synth.send([0x90, 60, 100]);
+		}, 500);
+		// anywhere I will be able to do thngs like : synth.send([0x90, 60, 100]); // NoteOn:ch1 Note#:60 Velocity:100
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
@@ -80,5 +94,5 @@ export default class TinySynthNode extends CompositeAudioNode {
 	setParamsValues(values) {
 		return this._wamNode.setParamsValues(values);
 	}
-    // -----------------------------------
+	// -----------------------------------
 }
