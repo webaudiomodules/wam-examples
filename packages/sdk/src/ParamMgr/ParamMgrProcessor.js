@@ -209,9 +209,9 @@ const processor = (processorId, paramsConfig) => {
 
 		get downstream() {
 			const wams = new Set();
-			const { graph } = audioWorkletGlobalScope.webAudioModules;
-			if (!graph.has(this)) return wams;
-			const outputMap = graph.get(this);
+			const { eventGraph } = audioWorkletGlobalScope.webAudioModules;
+			if (!eventGraph.has(this)) return wams;
+			const outputMap = eventGraph.get(this);
 			outputMap.forEach((set) => {
 				if (set) set.forEach((wam) => wams.add(wam));
 			});
@@ -219,9 +219,9 @@ const processor = (processorId, paramsConfig) => {
 		}
 
 		emitEvents(...events) {
-			const { graph } = audioWorkletGlobalScope.webAudioModules;
-			if (!graph.has(this)) return;
-			const downstream = graph.get(this);
+			const { eventGraph } = audioWorkletGlobalScope.webAudioModules;
+			if (!eventGraph.has(this)) return;
+			const downstream = eventGraph.get(this);
 			downstream.forEach((set) => {
 				if (set) set.forEach((wam) => wam.scheduleEvents(...events));
 			});
