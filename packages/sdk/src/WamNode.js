@@ -225,6 +225,52 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
+	 * @param {WamNode} to the destination WAM for the event stream
+	 * @param {number} [output] the event output stream of the source WAM
+	 */
+	connectEvents(to, output) {
+		if (!to.module?.isWebAudioModule) return;
+		const request = 'connect/events';
+		const id = this._generateMessageId();
+		let processed = false;
+		new Promise((resolve, reject) => {
+			this._pendingResponses[id] = resolve;
+			this._pendingEvents[id] = () => { if (!processed) reject(); };
+			this.port.postMessage({
+				id,
+				request,
+				content: { wamInstanceId: to.instanceId, output },
+			});
+		}).then((resolved) => {
+			processed = true;
+			delete this._pendingEvents[id];
+		}).catch((rejected) => { delete this._pendingResponses[id]; });
+	}
+
+	/**
+	 * @param {WamNode} [to] the destination WAM for the event stream
+	 * @param {number} [output]
+	 */
+	disconnectEvents(to, output) {
+		if (to && !to.module?.isWebAudioModule) return;
+		const request = 'disconnect/events';
+		const id = this._generateMessageId();
+		let processed = false;
+		new Promise((resolve, reject) => {
+			this._pendingResponses[id] = resolve;
+			this._pendingEvents[id] = () => { if (!processed) reject(); };
+			this.port.postMessage({
+				id,
+				request,
+				content: { wamInstanceId: to?.instanceId, output },
+			});
+		}).then((resolved) => {
+			processed = true;
+			delete this._pendingEvents[id];
+		}).catch((rejected) => { delete this._pendingResponses[id]; });
+	}
+
+	/**
 	 * Messages from audio thread
 	 * @param {MessageEvent} message
 	 * */

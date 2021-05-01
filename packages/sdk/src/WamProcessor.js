@@ -53,9 +53,8 @@ const {
 	// @ts-ignore
 	WamParameterSab,
 	// @ts-ignore
+	webAudioModules,
 } = globalThis;
-
-// const { , registerProcessor } = AudioWorkletGlobalScope;
 
 /**
  * @implements {IWamProcessor}
@@ -153,8 +152,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
 
-		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
-		else globalThis.WamProcessors = { [instanceId]: this };
+		webAudioModules.create(this);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -177,6 +175,26 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			this._eventQueue.push({ id: 0, event: events[i] });
 			i++;
 		}
+	}
+
+	get downstream() {
+		const wams = new Set();
+		const { eventGraph } = webAudioModules;
+		if (!eventGraph.has(this)) return wams;
+		const outputMap = eventGraph.get(this);
+		outputMap.forEach((set) => {
+			if (set) set.forEach((wam) => wams.add(wam));
+		});
+		return wams;
+	}
+
+	emitEvents(...events) {
+		const { eventGraph } = webAudioModules;
+		if (!eventGraph.has(this)) return;
+		const downstream = eventGraph.get(this);
+		downstream.forEach((set) => {
+			if (set) set.forEach((wam) => wam.scheduleEvents(...events));
+		});
 	}
 
 	/** From the audio thread, clear all pending WamEvents. */
@@ -240,6 +258,16 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					const ids = this._eventQueue.map((queued) => queued.id);
 					this.clearEvents();
 					response.content = ids;
+				}
+			} else if (verb === 'connect') {
+				if (noun === 'events') {
+					const { wamInstanceId, output } = content;
+					this.connectEvents(wamInstanceId, output);
+				}
+			} else if (verb === 'disconnect') {
+				if (noun === 'events') {
+					const { wamInstanceId, output } = content;
+					this.disconnectEvents(wamInstanceId, output);
 				}
 			}
 			this.port.postMessage(response);
@@ -458,9 +486,35 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		return true;
 	}
 
-	/** Stop processing and remove the node from the graph. */
+	/**
+	 * @param {string} wamInstanceId
+	 * @param {number} [output]
+	 */
+	connectEvents(wamInstanceId, output) {
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.connectEvents(this, wam, output);
+	}
+
+	/**
+	 * @param {string} [wamInstanceId]
+	 * @param {number} [output]
+	 */
+	disconnectEvents(wamInstanceId, output) {
+		if (typeof wamInstanceId === 'undefined') {
+			webAudioModules.disconnectEvents(this);
+			return;
+		}
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.disconnectEvents(this, wam, output);
+	}
+
+	/** Stop processing and remove the node from the WAM event graph. */
 	destroy() {
 		this._destroyed = true;
+		this.port.close();
+		webAudioModules.destroy(this);
 	}
 }
 
