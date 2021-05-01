@@ -405,11 +405,11 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const whiskerLowerInnerX = [50.5, 69];
 
 		const whiskerOpacity0 = Math.min(
-			Math.min(effectLevels[0], synthLevels[0]) * (1.0 - 0.4 * drive.value) + minOpacity,
+			Math.max(effectLevels[0], synthLevels[0]) * (1.0 - 0.4 * drive.value) + minOpacity,
 			maxOpacity,
 		);
 		const whiskerOpacity1 = Math.min(
-			Math.min(effectLevels[1], synthLevels[1]) * (1.0 - 0.4 * drive.value) + minOpacity,
+			Math.max(effectLevels[1], synthLevels[1]) * (1.0 - 0.4 * drive.value) + minOpacity,
 			maxOpacity,
 		);
 		const whiskerOpacity = [whiskerOpacity0, whiskerOpacity1];
