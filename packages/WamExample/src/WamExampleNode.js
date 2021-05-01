@@ -19,6 +19,9 @@ export default class WamExampleNode extends WamNode {
 		};
 		super(module, options);
 
+		// 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-midi']);
+
 		this.synthLevels = new Float32Array(2);
 		this.effectLevels = new Float32Array(2);
 	}
