@@ -145,10 +145,11 @@ class WamExampleProcessor extends WamProcessor {
 	_onMidi(midiData) {
 		/* eslint-disable no-lone-blocks */
 		const bytes = midiData.bytes;
-		const type = bytes[0] & 0xf0;
+		let type = bytes[0] & 0xf0;
 		const channel = bytes[0] & 0x0f;
 		const data1 = bytes[1];
 		const data2 = bytes[2];
+		if (type === 0x90 && data2 === 0) type = 0x80;
 		switch (type) {
 		case 0x80: { /* note off */
 			this._synth.noteOff(channel, data1, data2);
