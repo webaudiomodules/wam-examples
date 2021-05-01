@@ -19,6 +19,8 @@ let currentPluginAudioNode, liveInputGainNode;
 // Very simple function to connect the plugin audionode to the host
 const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
+		keyboardPlugin.audioNode.disconnectEvents(currentPluginAudioNode);
+		keyboardPlugin.audioNode.disconnect(currentPluginAudioNode);
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
 		currentPluginAudioNode = null;
@@ -27,6 +29,8 @@ const connectPlugin = (audioNode) => {
 	liveInputGainNode.connect(audioNode);
 	console.log('connected live input node to plugin node');
 
+	keyboardPlugin.audioNode.connect(audioNode);
+	keyboardPlugin.audioNode.connectEvents(audioNode);
 	mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
@@ -403,3 +407,14 @@ async function populateParamSelector(instance) {
 	}
 	pluginParamSelector.selectedIndex = 0;
 }
+
+let keyboardPlugin;
+// MIDI Keyboard
+(async () => {
+	const url = '/packages/midiKeyboard/index.js';
+	const { default: Wam } = await import(url);
+	keyboardPlugin = await Wam.createInstance(audioContext);
+	const gui = await keyboardPlugin.createGui();
+	const keyboardContainer = document.getElementById('midiKeyboard');
+	keyboardContainer.appendChild(gui);
+})();

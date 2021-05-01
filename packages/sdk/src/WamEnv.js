@@ -12,13 +12,13 @@ const processor = () => {
 	class WamEnv {
 		constructor() {
 			/** @type {Map<WamProcessor, Set<WamProcessor>[]>} */
-			this._graph = new Map();
+			this._eventGraph = new Map();
 			/** @type {Record<string, WamProcessor>} */
 			this._processors = {};
 		}
 
-		get graph() {
-			return this._graph;
+		get eventGraph() {
+			return this._eventGraph;
 		}
 
 		get processors() {
@@ -41,11 +41,11 @@ const processor = () => {
 		connectEvents(from, to, output = 0) {
 			/** @type {Set<WamProcessor>[]} */
 			let outputMap;
-			if (this._graph.has(from)) {
-				outputMap = this._graph.get(from);
+			if (this._eventGraph.has(from)) {
+				outputMap = this._eventGraph.get(from);
 			} else {
 				outputMap = [];
-				this._graph.set(from, outputMap);
+				this._eventGraph.set(from, outputMap);
 			}
 			if (outputMap[output]) {
 				outputMap[output].add(to);
@@ -63,8 +63,8 @@ const processor = () => {
 		 * @param {number} [output]
 		 */
 		disconnectEvents(from, to, output) {
-			if (!this._graph.has(from)) return;
-			const outputMap = this._graph.get(from);
+			if (!this._eventGraph.has(from)) return;
+			const outputMap = this._eventGraph.get(from);
 			if (typeof to === 'undefined') {
 				outputMap.forEach((set) => {
 					if (set) set.clear();
@@ -86,21 +86,14 @@ const processor = () => {
 		 * @param {WamProcessor} wam
 		 */
 		destroy(wam) {
-			if (this.graph.has(wam)) this.graph.delete(wam);
-			this.graph.forEach((outputMap) => {
+			if (this.eventGraph.has(wam)) this.eventGraph.delete(wam);
+			this.eventGraph.forEach((outputMap) => {
 				outputMap.forEach((set) => {
 					if (set && set.has(wam)) set.delete(wam);
 				});
 			});
 			// console.log('destroy', this);
 		}
-
-		/**
-		 * @param {number} from
-		 * @param {number} to
-		 */
-		// eslint-disable-next-line
-		getTimeInfo(from, to) { throw new Error('Not Implemented.'); return null; }
 	}
 
 	/** @type {AudioWorkletGlobalScope} */
