@@ -5,7 +5,9 @@
 /** @typedef {import('./api/types').WamParameterData} WamParameterData */
 /** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
+/** @typedef {import('./api/types').WamTransportData} WamTransportData */
 /** @typedef {import('./api/types').WamMidiData} WamMidiData */
+/** @typedef {import('./api/types').WamSysexData} WamSysexData */
 /** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
@@ -246,10 +248,52 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	/**
 	 *
+	 * @param {WamTransportData} transportData
+	 */
+	_onTransport(transportData) {
+		// Override for custom transport handling
+		// eslint-disable-next-line no-console
+		console.error('_onTransport not implemented!');
+	}
+
+	/**
+	 *
 	 * @param {WamMidiData} midiData
 	 */
 	_onMidi(midiData) {
-		// Custom midi handling here
+		// Override for custom midi handling
+		// eslint-disable-next-line no-console
+		console.error('_onMidi not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {WamSysexData} sysexData
+	 */
+	_onSysex(sysexData) {
+		// Override for custom sysex handling
+		// eslint-disable-next-line no-console
+		console.error('_onMidi not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {WamMidiData} mpeData
+	 */
+	_onMpe(mpeData) {
+		// Override for custom mpe handling
+		// eslint-disable-next-line no-console
+		console.error('_onMpe not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {string} oscData
+	 */
+	_onOsc(oscData) {
+		// Override for custom osc handling
+		// eslint-disable-next-line no-console
+		console.error('_onOsc not implemented!');
 	}
 
 	/**
@@ -368,7 +412,11 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_processEvent(event) {
 		switch (event.type) {
 		case 'automation': this._setParameterValue(event.data, true); break;
+		case 'transport': this._onTransport(event.data); break;
 		case 'midi': this._onMidi(event.data); break;
+		case 'sysex': this._onSysex(event.data); break;
+		case 'mpe': this._onMpe(event.data); break;
+		case 'osc': this._onOsc(event.data); break;
 		default: break;
 		}
 	}
