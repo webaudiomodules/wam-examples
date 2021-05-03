@@ -85,7 +85,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	const { default: Wam } = await import(pluginUrl);
 	/** @type {WebAudioModule} */
 	const keyboardPlugin = await Wam.createInstance(audioContext);
-	if (currentPluginAudioNode) {
+	if (keyboardPluginAudioNode && currentPluginAudioNode) {
 		keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
 		keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		keyboardPluginAudioNode = null;
@@ -94,7 +94,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	const gui = await keyboardPlugin.createGui();
 	keyboardContainer.innerHTML = '';
 	keyboardContainer.appendChild(gui);
-	if (currentPluginAudioNode) {
+	if (keyboardPluginAudioNode && currentPluginAudioNode) {
 		keyboardPluginAudioNode.connect(currentPluginAudioNode);
 		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
 	}
