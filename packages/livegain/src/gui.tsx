@@ -8,3 +8,8 @@ export const createElement = async (plugin: WebAudioModule, JSX: typeof React.Co
     ReactDOM.render(<JSX module={plugin} />, div);
     return div;
 };
+
+export const destroyElement = (div: Element) => {
+    ReactDOM.unmountComponentAtNode(div);
+    return div;
+};

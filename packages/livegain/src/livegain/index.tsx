@@ -1,7 +1,7 @@
 
 import { WebAudioModule, ParamMgrFactory } from "sdk";
 import TemporalAnalyserNode from "../worklets/TemporalAnalyser";
-import { createElement } from "../gui";
+import { createElement, destroyElement } from "../gui";
 import Node from "./LiveGainNode";
 import UI from "./LiveGainUI";
 
@@ -82,6 +82,10 @@ export class LiveGainModule extends WebAudioModule<Node> {
 
     createGui(): Promise<HTMLDivElement> {
         return createElement(this, UI);
+    }
+
+    destroyGui(gui: Element) {
+        return destroyElement(gui);
     }
 }
 export default LiveGainModule;

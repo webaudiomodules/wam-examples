@@ -3,7 +3,7 @@ import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
 import Node from "./OscilloscopeNode";
 import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
-import { createElement } from "../gui";
+import { createElement, destroyElement } from "../gui";
 import UI from "./OscilloscopeUI";
 
 export type Parameters = "frameRate" | "windowSize" | "interleaved" | "showStats";
@@ -57,6 +57,10 @@ export class OscilloscopeModule extends WebAudioModule<Node> {
 
     createGui(): Promise<HTMLDivElement> {
         return createElement(this, UI);
+    }
+
+    destroyGui(gui: Element) {
+        return destroyElement(gui);
     }
 }
 export default OscilloscopeModule;

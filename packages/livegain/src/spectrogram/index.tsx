@@ -3,7 +3,7 @@ import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
 import Node from "./SpectrogramNode";
 import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
-import { createElement } from "../gui";
+import { createElement, destroyElement } from "../gui";
 import UI from "./SpectrogramUI";
 
 export type Parameters = "frameRate" | "windowSize" | "fftSize" | "fftOverlap" | "windowFunction";
@@ -55,6 +55,10 @@ export class SpectrogramModule extends WebAudioModule<Node> {
 
     createGui(): Promise<HTMLDivElement> {
         return createElement(this, UI);
+    }
+
+    destroyGui(gui: Element) {
+        return destroyElement(gui);
     }
 }
 export default SpectrogramModule;

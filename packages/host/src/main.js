@@ -26,8 +26,14 @@ const mediaElementSource = audioContext.createMediaElementSource(player);
 /** @type {WamNode} */
 let keyboardPluginAudioNode;
 
+/** @type {Element} */
+let currentKeyboardPluginDomNode;
+
 /** @type {WamNode} */
 let currentPluginAudioNode;
+
+/** @type {Element} */
+let currentPluginDomNode;
 
 /** @type {GainNode} */
 let liveInputGainNode;
@@ -38,10 +44,17 @@ let liveInputGainNode;
  */
 const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
-		keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-		keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+		if (keyboardPluginAudioNode) {
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+		}
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
+		if (currentPluginDomNode) {
+			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
+			mount.innerHTML = '';
+			currentPluginDomNode = null;
+		}
 		currentPluginAudioNode = null;
 	}
 
@@ -85,15 +98,20 @@ const setMidiPlugin = async (pluginUrl) => {
 	const { default: Wam } = await import(pluginUrl);
 	/** @type {WebAudioModule} */
 	const keyboardPlugin = await Wam.createInstance(audioContext);
-	if (keyboardPluginAudioNode && currentPluginAudioNode) {
-		keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-		keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+	if (keyboardPluginAudioNode) {
+		if (currentPluginAudioNode) {
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+		}
+		if (currentKeyboardPluginDomNode) {
+			keyboardPluginAudioNode.module.destroyGui(currentKeyboardPluginDomNode);
+		}
 		keyboardPluginAudioNode = null;
 	}
 	keyboardPluginAudioNode = keyboardPlugin.audioNode;
-	const gui = await keyboardPlugin.createGui();
+	currentKeyboardPluginDomNode = await keyboardPlugin.createGui();
 	keyboardContainer.innerHTML = '';
-	keyboardContainer.appendChild(gui);
+	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
 	if (keyboardPluginAudioNode && currentPluginAudioNode) {
 		keyboardPluginAudioNode.connect(currentPluginAudioNode);
 		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
@@ -239,6 +257,8 @@ const setPlugin = async (pluginUrl) => {
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
 	const pluginDomNode = await instance.createGui();
+
+	currentPluginDomNode = pluginDomNode;
 
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
