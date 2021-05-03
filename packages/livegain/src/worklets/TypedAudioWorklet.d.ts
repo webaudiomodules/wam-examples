@@ -1,6 +1,6 @@
-export type PromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => PromiseLike<ReturnType<F>>;
+export type PromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => ReturnType<F> extends Promise<any> ? ReturnType<F> : Promise<ReturnType<F>>;
 
-export type UnPromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => ReturnType<F> extends PromiseLike<infer P> ? P : ReturnType<F>;
+export type UnPromisifiedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => ReturnType<F> extends Promise<infer P> ? P : ReturnType<F>;
 
 export type FunctionMap = Record<string, (...args: any[]) => any>;
 
@@ -21,14 +21,29 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
     error?: Error;
 }
 
-export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
-    processorOptions?: T;
-}
 export interface TypedMessageEvent<T = any> extends MessageEvent {
     data: T;
 }
 export interface TypedMessagePortEventMap<T = any> extends MessagePortEventMap {
     "message": TypedMessageEvent<T>;
+}
+
+export interface TypedEventListener<EventDetail = any> {
+    (evt: CustomEvent<EventDetail>): void;
+}
+
+export interface TypedEventListenerObject<EventDetail = any> {
+    handleEvent(evt: CustomEvent<EventDetail>): void;
+}
+
+export type TypedEventListenerOrEventListenerObject<EventDetail = any> = TypedEventListener<EventDetail> | TypedEventListenerObject<EventDetail>;
+
+export interface TypedEventTarget<EventMap extends Record<string, any> = any> extends EventTarget {
+    addEventListener<K extends keyof EventMap>(type: K, listener: TypedEventListenerOrEventListenerObject<EventMap[K]> | null, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    dispatchEvent(event: Event): boolean;
+    removeEventListener<K extends keyof EventMap>(type: K, listener: TypedEventListenerOrEventListenerObject<EventMap[K]> | null, options?: EventListenerOptions | boolean): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 export interface TypedMessagePort<In = any, Out = any> extends MessagePort {
     onmessage: ((this: TypedMessagePort<In, Out>, ev: TypedMessageEvent<In>) => any) | null;
@@ -39,6 +54,10 @@ export interface TypedMessagePort<In = any, Out = any> extends MessagePort {
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof TypedMessagePortEventMap<In>>(type: K, listener: (this: MessagePort, ev: TypedMessagePortEventMap<In>[K]) => any, options?: boolean | EventListenerOptions): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+
+export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
+    processorOptions?: T;
 }
 export interface TypedAudioParamDescriptor<Par extends string = string> extends AudioParamDescriptor {
     automationRate?: AutomationRate;
@@ -66,11 +85,17 @@ export interface AudioWorkletGlobalScope {
 
 export type TypedAudioParamMap<P extends string = string> = ReadonlyMap<P, AudioParam>;
 
-export interface TypedAudioWorkletNode<MsgIn = any, MsgOut = any, Par extends string = string> extends AudioWorkletNode {
+export interface TypedAudioWorkletNode<MsgIn = any, MsgOut = any, Par extends string = string, EventMap extends Record<string, any> = any> extends AudioWorkletNode {
     readonly port: TypedMessagePort<MsgIn, MsgOut>;
     readonly parameters: TypedAudioParamMap<Par>;
     destroyed: boolean;
     destroy(): void;
+    addEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener<K extends keyof EventMap>(type: K, listener: (this: AudioWorkletNode, ev: CustomEvent<EventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: AudioWorkletNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener<K extends keyof EventMap>(type: K, listener: (this: AudioWorkletNode, ev: CustomEvent<EventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 export const TypedAudioWorkletNode: {
     prototype: TypedAudioWorkletNode;

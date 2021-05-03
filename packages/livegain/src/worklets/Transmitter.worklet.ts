@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
 import { setTypedArray } from "../utils/buffer";
-import { AudioWorkletGlobalScope } from "./AudioWorklet";
+import { AudioWorkletGlobalScope } from "./TypedAudioWorklet";
 import { ITransmitterProcessor, ITransmitterNode, TransmitterParameters } from "./TransmitterWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 
@@ -8,7 +7,7 @@ const processorID = "__WebAudioModule_LiveGain_Transmitter";
 declare const globalThis: AudioWorkletGlobalScope;
 const { registerProcessor } = globalThis;
 
-class TransmitterProcessor extends AudioWorkletProxyProcessor<ITransmitterProcessor, ITransmitterNode, TransmitterParameters> {
+class TransmitterProcessor extends AudioWorkletProxyProcessor<ITransmitterProcessor, ITransmitterNode, TransmitterParameters> implements ITransmitterProcessor {
     static fnNames: (keyof ITransmitterNode)[] = ["setBuffer"];
     private destroyed = false;
     private readonly window: Float32Array[] = [];
@@ -29,7 +28,7 @@ class TransmitterProcessor extends AudioWorkletProxyProcessor<ITransmitterProces
     }
     destroy() {
         this.destroyed = true;
-        this.port.close();
+        this._disposed = true;
     }
     get windowSize() {
         return this._windowSize;
@@ -74,4 +73,9 @@ class TransmitterProcessor extends AudioWorkletProxyProcessor<ITransmitterProces
         return true;
     }
 }
-registerProcessor(processorID, TransmitterProcessor);
+try {
+    registerProcessor(processorID, TransmitterProcessor);
+} catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn(error);
+}

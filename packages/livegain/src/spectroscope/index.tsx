@@ -2,7 +2,7 @@
 import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
 import Node from "./SpectroscopeNode";
-import { SpectralAnalyserNode, register } from "../worklets/SpectralAnalyser";
+import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
 import { createElement } from "../gui";
 import UI from "./SpectroscopeUI";
 
@@ -16,7 +16,7 @@ export class SpectroscopeModule extends WebAudioModule<Node> {
     async createAudioNode(initialState?: any) {
         const node = new Node(this.audioContext);
         const outGainNode = this.audioContext.createGain();
-        await register(this.audioContext.audioWorklet);
+        await SpectralAnalyserNode.register(this.audioContext.audioWorklet);
         const analyserNode = new SpectralAnalyserNode(this.audioContext);
         const paramsConfig: ParametersMappingConfiguratorOptions<Parameters, Parameters>["paramsConfig"] = {
             frameRate: {

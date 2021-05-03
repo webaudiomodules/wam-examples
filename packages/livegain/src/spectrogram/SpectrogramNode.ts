@@ -1,6 +1,6 @@
 /* eslint-disable import/no-duplicates */
 import { CompositeAudioNode, ParamMgrNode } from "sdk";
-import { SpectralAnalyserNode } from "../worklets/SpectralAnalyser";
+import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
 import { Parameters } from ".";
 
 export default class SpectrogramNode extends CompositeAudioNode {
