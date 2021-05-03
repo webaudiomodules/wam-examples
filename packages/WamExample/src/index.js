@@ -38,10 +38,14 @@ export default class WamExamplePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		// DSP is implemented in WamExampleProcessor.
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamEnv.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameter.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInfo.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInterpolator.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamProcessor.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleComponents.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleSynth.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleEffect.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleProcessor.js`);
 
 		const wamExampleNode = new WamExampleNode(this, {});

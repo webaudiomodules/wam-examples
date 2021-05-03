@@ -2,7 +2,7 @@
 /**
  * Main `WebAudioModule` interface,
  * its constructor should be the `export default` of the ESM of each WAM.
- * 
+ *
  * @template Node type of the `audioNode` property, could be any `AudioNode` that implements `WamNode`
  */
 export interface WebAudioModule<Node extends WamNode = WamNode> {
@@ -107,7 +107,9 @@ export interface WamNode extends AudioNode, Readonly<WamNodeOptions> {
     scheduleEvents(...event: WamEvent[]): void;
     /** From the main thread, clear all pending WamEvents. */
     clearEvents(): void;
+    /** Connect an event output stream to another WAM. If no output index is given, assume output 0. */
     connectEvents(to: WamNode, output?: number): void;
+    /** Disconnect an event output stream from another WAM. If no arguments are given, all event streams will be disconnected. */
     disconnectEvents(to?: WamNode, output?: number): void;
     /** Stop processing and remove the node from the graph. */
     destroy(): void;
@@ -199,7 +201,7 @@ export type WamParameterDataMap = Record<string, WamParameterData>;
 
 // EVENTS
 
-export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc' | 'wam-transport';
+export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
 
 export type WamEventType = keyof WamEventMap;
 
@@ -207,14 +209,6 @@ export interface WamEventBase<T extends WamEventType = WamEventType, D = any> {
     type: T;
     data: D;
     time?: number;
-}
-
-export interface WamMidiData {
-    bytes: [number, number, number];
-}
-
-export interface WamSysexData {
-    bytes: number[];
 }
 
 export interface WamTransportData {
@@ -225,24 +219,32 @@ export interface WamTransportData {
     timeSigDenominator: number;
 }
 
+export interface WamMidiData {
+    bytes: [number, number, number];
+}
+
+export interface WamSysexData {
+    bytes: number[];
+}
+
 export type WamEventCallback<E extends WamEventType = WamEventType> = (event: WamEventMap[E]) => any;
 
 export interface WamEventMap {
     "automation": WamAutomationEvent;
+    "transport": WamTransportEvent;
     "midi": WamMidiEvent;
     "sysex": WamSysexEvent;
     "mpe": WamMpeEvent;
     "osc": WamOscEvent;
-    "transport": WamTransportEvent;
 }
 
-export type WamEvent = WamAutomationEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent;
+export type WamEvent = WamAutomationEvent | WamTransportEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent;
 export type WamAutomationEvent = WamEventBase<'automation', WamParameterData>;
+export type WamTransportEvent = WamEventBase<'transport', WamTransportData>;
 export type WamMidiEvent = WamEventBase<'midi', WamMidiData>;
 export type WamSysexEvent = WamEventBase<'sysex', WamSysexData>;
 export type WamMpeEvent = WamEventBase<'mpe', WamMidiData>;
 export type WamOscEvent = WamEventBase<'osc', string>;
-export type WamTransportEvent = WamEventBase<'transport', WamTransportData>;
 
 export interface AudioWorkletProcessor {
     port: MessagePort;

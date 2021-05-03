@@ -18,5 +18,24 @@ export default class WamExampleNode extends WamNode {
 			outputChannelCount: [2],
 		};
 		super(module, options);
+
+		// 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-midi']);
+
+		this.synthLevels = new Float32Array(2);
+		this.effectLevels = new Float32Array(2);
+	}
+
+	/**
+	 * Messages from audio thread
+	 * @param {MessageEvent} message
+	 * */
+	_onMessage(message) {
+		const { data } = message;
+		const { levels } = data;
+		if (levels) {
+			this.synthLevels = levels.synth;
+			this.effectLevels = levels.effect;
+		} else super._onMessage(message);
 	}
 }
