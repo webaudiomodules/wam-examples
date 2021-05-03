@@ -31,7 +31,22 @@ export default class TinySynthNode extends CompositeAudioNode {
 		super(context, options);
 		this.createNodes();
 
+		this.createSynth();
+	}
+
+	async createSynth() {
 		this.synth = new WebAudioTinySynth();
+
+		await this.synth.ready();
+		console.log("TinySynth default sound : " + this.synth.getTimbreName(0, 0));
+		this.synth.getTimbreName(0, 0);
+		/*
+		// play a note just to see if it works
+		setInterval(() => {
+			this.synth.send([0x90, 60, 100]);
+		}, 500);
+		// anywhere I will be able to do thngs like : synth.send([0x90, 60, 100]); // NoteOn:ch1 Note#:60 Velocity:100
+		*/
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
@@ -85,5 +100,5 @@ export default class TinySynthNode extends CompositeAudioNode {
 	setParamsValues(values) {
 		return this._wamNode.setParamsValues(values);
 	}
-    // -----------------------------------
+	// -----------------------------------
 }
