@@ -1,0 +1,14 @@
+{
+    "name": "TinySynth (no GUI)",
+    "vendor": "WebAudioModule",
+    "description": "TinySynth GM synthesizer without GUI",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "",
+    "keywords": [],
+    "isInstrument": true,
+	"hasMidiInput":true,
+	"hasMidiOutput":true,
+	"hasAudioOutput":true,
+    "website": ""
+}

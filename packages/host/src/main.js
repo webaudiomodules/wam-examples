@@ -414,7 +414,7 @@ async function populateParamSelector(instance) {
 let keyboardPlugin;
 // MIDI Keyboard
 (async () => {
-	const url = '/packages/midiKeyboard/index.js';
+	const url = '/packages/VirtualMidiKeyboardNoSound/src/index.js';
 	const { default: Wam } = await import(url);
 	keyboardPlugin = await Wam.createInstance(audioContext);
 	const gui = await keyboardPlugin.createGui();
