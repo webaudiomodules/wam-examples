@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>WamParameterInfo | sdk</title>
+	<title>WamEnv | sdk</title>
 	<meta name="description" content="Documentation for sdk">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="wamparameterinfo.html">WamParameterInfo</a>
+					<a href="wamenv.html">WamEnv</a>
 				</li>
 			</ul>
-			<h1>Interface WamParameterInfo</h1>
+			<h1>Interface WamEnv</h1>
 		</div>
 	</div>
 </header>
@@ -68,12 +68,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-symbol">{}</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">WamParameterInfo</span>
-							</li>
-						</ul>
+						<span class="target">WamEnv</span>
 					</li>
 				</ul>
 			</section>
@@ -84,15 +79,17 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamparameterinfo.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamenv.html#eventgraph" class="tsd-kind-icon">event<wbr>Graph</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamenv.html#processors" class="tsd-kind-icon">processors</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamparameterinfo.html#denormalize" class="tsd-kind-icon">denormalize</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamparameterinfo.html#normalize" class="tsd-kind-icon">normalize</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamparameterinfo.html#valuestring" class="tsd-kind-icon">value<wbr>String</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamenv.html#connectevents" class="tsd-kind-icon">connect<wbr>Events</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamenv.html#create" class="tsd-kind-icon">create</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamenv.html#destroy" class="tsd-kind-icon">destroy</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="wamenv.html#disconnectevents" class="tsd-kind-icon">disconnect<wbr>Events</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,104 +98,129 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="eventgraph" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> event<wbr>Graph</h3>
+					<div class="tsd-signature tsd-kind-icon">event<wbr>Graph<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L169">packages/sdk/src/api/types.d.ts:169</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L261">packages/sdk/src/api/types.d.ts:261</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The parameter&#39;s unique identifier.</p>
-						</div>
-					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="processors" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> processors</h3>
+					<div class="tsd-signature tsd-kind-icon">processors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L262">packages/sdk/src/api/types.d.ts:262</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="denormalize" class="tsd-anchor"></a>
-					<h3>denormalize</h3>
+					<a name="connectevents" class="tsd-anchor"></a>
+					<h3>connect<wbr>Events</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">denormalize<span class="tsd-signature-symbol">(</span>valueNorm<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">connect<wbr>Events<span class="tsd-signature-symbol">(</span>from<span class="tsd-signature-symbol">: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a>, to<span class="tsd-signature-symbol">: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a>, output<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L173">packages/sdk/src/api/types.d.ts:173</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L264">packages/sdk/src/api/types.d.ts:264</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Convert a value from normalized range <code>[0, 1]</code> to the parameter&#39;s denormalized range <code>[minValue, maxValue]</code>.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>valueNorm: <span class="tsd-signature-type">number</span></h5>
+									<h5>from: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
+								</li>
+								<li>
+									<h5>to: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> output: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="normalize" class="tsd-anchor"></a>
-					<h3>normalize</h3>
+					<a name="create" class="tsd-anchor"></a>
+					<h3>create</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">normalize<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">create<span class="tsd-signature-symbol">(</span>wam<span class="tsd-signature-symbol">: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L171">packages/sdk/src/api/types.d.ts:171</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L263">packages/sdk/src/api/types.d.ts:263</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Convert a value from the parameter&#39;s denormalized range <code>[minValue, maxValue]</code> to normalized range <code>[0, 1]</code>.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">number</span></h5>
+									<h5>wam: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="valuestring" class="tsd-anchor"></a>
-					<h3>value<wbr>String</h3>
+					<a name="destroy" class="tsd-anchor"></a>
+					<h3>destroy</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">value<wbr>String<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span>wam<span class="tsd-signature-symbol">: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L175">packages/sdk/src/api/types.d.ts:175</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L266">packages/sdk/src/api/types.d.ts:266</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get a human-readable string representing the given value, including units if applicable.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">number</span></h5>
+									<h5>wam: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="disconnectevents" class="tsd-anchor"></a>
+					<h3>disconnect<wbr>Events</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">disconnect<wbr>Events<span class="tsd-signature-symbol">(</span>from<span class="tsd-signature-symbol">: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a>, to<span class="tsd-signature-symbol">?: </span><a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a>, output<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L265">packages/sdk/src/api/types.d.ts:265</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>from: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> to: <a href="wamprocessor.html" class="tsd-signature-type">WamProcessor</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> output: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -223,9 +245,33 @@
 					<li class=" tsd-kind-interface">
 						<a href="wamdescriptor.html" class="tsd-kind-icon">Wam<wbr>Descriptor</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="wamenv.html" class="tsd-kind-icon">Wam<wbr>Env</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamenv.html#eventgraph" class="tsd-kind-icon">event<wbr>Graph</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamenv.html#processors" class="tsd-kind-icon">processors</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="wamenv.html#connectevents" class="tsd-kind-icon">connect<wbr>Events</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="wamenv.html#create" class="tsd-kind-icon">create</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="wamenv.html#destroy" class="tsd-kind-icon">destroy</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="wamenv.html#disconnectevents" class="tsd-kind-icon">disconnect<wbr>Events</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="wameventbase.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Base</a>
 					</li>
@@ -250,27 +296,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="wamparameterdata.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="wamparameterinfo.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wamparameterinfo.html#id" class="tsd-kind-icon">id</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="wamparameterinfo.html#denormalize" class="tsd-kind-icon">denormalize</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="wamparameterinfo.html#normalize" class="tsd-kind-icon">normalize</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="wamparameterinfo.html#valuestring" class="tsd-kind-icon">value<wbr>String</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="wamprocessor.html" class="tsd-kind-icon">Wam<wbr>Processor</a>
 					</li>

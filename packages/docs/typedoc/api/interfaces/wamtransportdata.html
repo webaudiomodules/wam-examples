@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>WamEventMap | sdk</title>
+	<title>WamTransportData | sdk</title>
 	<meta name="description" content="Documentation for sdk">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="wameventmap.html">WamEventMap</a>
+					<a href="wamtransportdata.html">WamTransportData</a>
 				</li>
 			</ul>
-			<h1>Interface WamEventMap</h1>
+			<h1>Interface WamTransportData</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">WamEventMap</span>
+						<span class="target">WamTransportData</span>
 					</li>
 				</ul>
 			</section>
@@ -79,12 +79,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#automation" class="tsd-kind-icon">automation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#midi" class="tsd-kind-icon">midi</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#mpe" class="tsd-kind-icon">mpe</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#osc" class="tsd-kind-icon">osc</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#sysex" class="tsd-kind-icon">sysex</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wameventmap.html#transport" class="tsd-kind-icon">transport</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamtransportdata.html#currentbar" class="tsd-kind-icon">current<wbr>Bar</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamtransportdata.html#currentbarstarted" class="tsd-kind-icon">current<wbr>Bar<wbr>Started</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamtransportdata.html#tempo" class="tsd-kind-icon">tempo</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamtransportdata.html#timesigdenominator" class="tsd-kind-icon">time<wbr>Sig<wbr>Denominator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wamtransportdata.html#timesignumerator" class="tsd-kind-icon">time<wbr>Sig<wbr>Numerator</a></li>
 							</ul>
 						</section>
 					</div>
@@ -93,62 +92,52 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="automation" class="tsd-anchor"></a>
-					<h3>automation</h3>
-					<div class="tsd-signature tsd-kind-icon">automation<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wamautomationevent" class="tsd-signature-type">WamAutomationEvent</a></div>
+					<a name="currentbar" class="tsd-anchor"></a>
+					<h3>current<wbr>Bar</h3>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Bar<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L235">packages/sdk/src/api/types.d.ts:235</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L217">packages/sdk/src/api/types.d.ts:217</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="midi" class="tsd-anchor"></a>
-					<h3>midi</h3>
-					<div class="tsd-signature tsd-kind-icon">midi<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wammidievent" class="tsd-signature-type">WamMidiEvent</a></div>
+					<a name="currentbarstarted" class="tsd-anchor"></a>
+					<h3>current<wbr>Bar<wbr>Started</h3>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Bar<wbr>Started<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L237">packages/sdk/src/api/types.d.ts:237</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L218">packages/sdk/src/api/types.d.ts:218</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="mpe" class="tsd-anchor"></a>
-					<h3>mpe</h3>
-					<div class="tsd-signature tsd-kind-icon">mpe<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wammpeevent" class="tsd-signature-type">WamMpeEvent</a></div>
+					<a name="tempo" class="tsd-anchor"></a>
+					<h3>tempo</h3>
+					<div class="tsd-signature tsd-kind-icon">tempo<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L239">packages/sdk/src/api/types.d.ts:239</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L219">packages/sdk/src/api/types.d.ts:219</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="osc" class="tsd-anchor"></a>
-					<h3>osc</h3>
-					<div class="tsd-signature tsd-kind-icon">osc<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wamoscevent" class="tsd-signature-type">WamOscEvent</a></div>
+					<a name="timesigdenominator" class="tsd-anchor"></a>
+					<h3>time<wbr>Sig<wbr>Denominator</h3>
+					<div class="tsd-signature tsd-kind-icon">time<wbr>Sig<wbr>Denominator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L240">packages/sdk/src/api/types.d.ts:240</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L221">packages/sdk/src/api/types.d.ts:221</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="sysex" class="tsd-anchor"></a>
-					<h3>sysex</h3>
-					<div class="tsd-signature tsd-kind-icon">sysex<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wamsysexevent" class="tsd-signature-type">WamSysexEvent</a></div>
+					<a name="timesignumerator" class="tsd-anchor"></a>
+					<h3>time<wbr>Sig<wbr>Numerator</h3>
+					<div class="tsd-signature tsd-kind-icon">time<wbr>Sig<wbr>Numerator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L238">packages/sdk/src/api/types.d.ts:238</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="transport" class="tsd-anchor"></a>
-					<h3>transport</h3>
-					<div class="tsd-signature tsd-kind-icon">transport<span class="tsd-signature-symbol">:</span> <a href="../globals.html#wamtransportevent" class="tsd-signature-type">WamTransportEvent</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L236">packages/sdk/src/api/types.d.ts:236</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L220">packages/sdk/src/api/types.d.ts:220</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -179,33 +168,9 @@
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="wameventbase.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Base</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="wameventmap.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Map</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#automation" class="tsd-kind-icon">automation</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#midi" class="tsd-kind-icon">midi</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#mpe" class="tsd-kind-icon">mpe</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#osc" class="tsd-kind-icon">osc</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#sysex" class="tsd-kind-icon">sysex</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="wameventmap.html#transport" class="tsd-kind-icon">transport</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="wammididata.html" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Data</a>
 					</li>
@@ -233,9 +198,30 @@
 					<li class=" tsd-kind-interface">
 						<a href="wamsysexdata.html" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Data</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="wamtransportdata.html" class="tsd-kind-icon">Wam<wbr>Transport<wbr>Data</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamtransportdata.html#currentbar" class="tsd-kind-icon">current<wbr>Bar</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamtransportdata.html#currentbarstarted" class="tsd-kind-icon">current<wbr>Bar<wbr>Started</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamtransportdata.html#tempo" class="tsd-kind-icon">tempo</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamtransportdata.html#timesigdenominator" class="tsd-kind-icon">time<wbr>Sig<wbr>Denominator</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wamtransportdata.html#timesignumerator" class="tsd-kind-icon">time<wbr>Sig<wbr>Numerator</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="webaudiomodule.html" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
 					</li>

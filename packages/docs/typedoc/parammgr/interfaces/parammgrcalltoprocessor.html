@@ -84,6 +84,9 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="parammgrcalltoprocessor.html#connectevents" class="tsd-kind-icon">connect<wbr>Events</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="parammgrcalltoprocessor.html#disconnectevents" class="tsd-kind-icon">disconnect<wbr>Events</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="parammgrcalltoprocessor.html#emitevents" class="tsd-kind-icon">emit<wbr>Events</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="parammgrcalltoprocessor.html#getbuffer" class="tsd-kind-icon">get<wbr>Buffer</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="parammgrcalltoprocessor.html#setparamsmapping" class="tsd-kind-icon">set<wbr>Params<wbr>Mapping</a></li>
 							</ul>
@@ -94,6 +97,81 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="connectevents" class="tsd-anchor"></a>
+					<h3>connect<wbr>Events</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">connect<wbr>Events<span class="tsd-signature-symbol">(</span>wamInstanceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, from<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L87">packages/sdk/src/ParamMgr/types.d.ts:87</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>wamInstanceId: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>from: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="disconnectevents" class="tsd-anchor"></a>
+					<h3>disconnect<wbr>Events</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">disconnect<wbr>Events<span class="tsd-signature-symbol">(</span>wamInstanceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, from<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L88">packages/sdk/src/ParamMgr/types.d.ts:88</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>wamInstanceId: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>from: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="emitevents" class="tsd-anchor"></a>
+					<h3>emit<wbr>Events</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">emit<wbr>Events<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>events<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WamEvent</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L89">packages/sdk/src/ParamMgr/types.d.ts:89</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>events: <span class="tsd-signature-type">WamEvent</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getbuffer" class="tsd-anchor"></a>
 					<h3>get<wbr>Buffer</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -103,7 +181,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/5050885/packages/sdk/src/ParamMgr/types.d.ts#L88">packages/sdk/src/ParamMgr/types.d.ts:88</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L91">packages/sdk/src/ParamMgr/types.d.ts:91</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>lock<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Int32Array</span><span class="tsd-signature-symbol">; </span>paramsBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> }</span></h4>
@@ -128,7 +206,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/5050885/packages/sdk/src/ParamMgr/types.d.ts#L87">packages/sdk/src/ParamMgr/types.d.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L90">packages/sdk/src/ParamMgr/types.d.ts:90</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -158,6 +236,15 @@
 					<li class="current tsd-kind-interface">
 						<a href="parammgrcalltoprocessor.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Call<wbr>ToProcessor</a>
 						<ul>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="parammgrcalltoprocessor.html#connectevents" class="tsd-kind-icon">connect<wbr>Events</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="parammgrcalltoprocessor.html#disconnectevents" class="tsd-kind-icon">disconnect<wbr>Events</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="parammgrcalltoprocessor.html#emitevents" class="tsd-kind-icon">emit<wbr>Events</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="parammgrcalltoprocessor.html#getbuffer" class="tsd-kind-icon">get<wbr>Buffer</a>
 							</li>
