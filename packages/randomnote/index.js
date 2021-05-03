@@ -86,7 +86,7 @@ export default class RandomNotePlugin extends WebAudioModule {
 				maxValue,
 			} = info;
 			const div = document.createElement('div');
-			div.style.color = 'white';
+			div.style.color = 'dimgrey';
 			div.style.display = 'flex';
 			div.style.flex = '1 1 auto';
 			const span = document.createElement('span');
