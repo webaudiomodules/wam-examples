@@ -253,10 +253,9 @@ export default class ParamMgrNode extends AudioWorkletNode {
 				onChange(cur, prev);
 				this.$prevParamsBuffer[i] = cur;
 			}
-			this.paramsUpdateCheckFnRef[i] = window.setTimeout(this.paramsUpdateCheckFn[i], interval)
-		}
-		
-		this.paramsUpdateCheckFn[i]()
+			this.paramsUpdateCheckFnRef[i] = window.setTimeout(this.paramsUpdateCheckFn[i], interval);
+		};
+		this.paramsUpdateCheckFn[i]();
 	}
 
 	/**
