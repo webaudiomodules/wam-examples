@@ -181,7 +181,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	scheduleEvents(...events) {
 		events.forEach((event) => {
 			if (event.type === 'automation') {
-				this.scheduleAutomation(event)
+				this.scheduleAutomation(event);
 			}
 		});
 		this.call('scheduleEvents', ...events);
@@ -202,8 +202,8 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {WamEvent} event
 	 */
 	dispatchWamEvent(event) {
-		if (event.type == 'automation') {
-			this.scheduleAutomation(event)
+		if (event.type === 'automation') {
+			this.scheduleAutomation(event);
 		} else {
 			this.dispatchEvent(new CustomEvent(event.type, { detail: event }));
 		}
