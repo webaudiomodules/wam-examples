@@ -223,11 +223,16 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	}
 
 	getState() {
-		return this.getParameterValues();
+		return new Promise((resolve) => {
+			resolve(this.getParamsValues());
+		});
 	}
 
 	setState(state) {
-		return this.setParameterValues(state);
+		return new Promise((resolve) => {
+			this.setParamsValues(state);
+			resolve();
+		});
 	}
 
 	convertTimeToFrame(time) {
