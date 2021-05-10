@@ -5,7 +5,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable max-len */
 
-const processor = () => {
+const executable = () => {
 	/**
 	 * @implements {IWamEnv}
 	 */
@@ -106,7 +106,7 @@ const processor = () => {
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;
 if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.webAudioModules) processor();
+	if (!audioWorkletGlobalScope.webAudioModules) executable();
 }
 
-export default processor;
+export default executable;
