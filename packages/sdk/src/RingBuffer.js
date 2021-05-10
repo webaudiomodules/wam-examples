@@ -7,7 +7,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-//@ts-check
 
 /**
  * @returns {RingBufferConstructor}
@@ -54,18 +53,18 @@ const executable = () => {
 			// -4 for the read ptr (uint32_t offsets)
 			// capacity counts the empty slot to distinguish between full and empty.
 			this._Type = Type;
-			this.capacity = (sab.byteLength - 8) / Type.BYTES_PER_ELEMENT;
+			this._capacity = (sab.byteLength - 8) / Type.BYTES_PER_ELEMENT;
 			this.buf = sab;
 			this.write_ptr = new Uint32Array(this.buf, 0, 1);
 			this.read_ptr = new Uint32Array(this.buf, 4, 1);
-			this.storage = new Type(this.buf, 8, this.capacity);
+			this.storage = new Type(this.buf, 8, this._capacity);
 		}
 
 		/**
 		 * Returns the type of the underlying ArrayBuffer for this RingBuffer. This
 		 * allows implementing crude type checking.
 		 */
-		type() {
+		get type() {
 			return this._Type.name;
 		}
 
@@ -135,7 +134,7 @@ const executable = () => {
 		 * True if the ring buffer is empty false otherwise. This can be late on the
 		 * reader side: it can return true even if something has just been pushed.
 		 */
-		empty() {
+		get empty() {
 			const rd = Atomics.load(this.read_ptr, 0);
 			const wr = Atomics.load(this.write_ptr, 0);
 
@@ -146,19 +145,19 @@ const executable = () => {
 		 * True if the ring buffer is full, false otherwise. This can be late on the
 		 * write side: it can return true when something has just been popped.
 		 */
-		full() {
+		get full() {
 			const rd = Atomics.load(this.read_ptr, 0);
 			const wr = Atomics.load(this.write_ptr, 0);
 
-			return (wr + 1) % this.capacity !== rd;
+			return (wr + 1) % this._capacity !== rd;
 		}
 
 		/**
 		 * The usable capacity for the ring buffer: the number of elements that can be
 		 * stored.
 		 */
-		getCapacity() {
-			return this.capacity - 1;
+		get capacity() {
+			return this._capacity - 1;
 		}
 
 		/**
@@ -166,7 +165,7 @@ const executable = () => {
 		 * elements that is actually in the queue, when something has just been
 		 * enqueued.
 		 */
-		availableRead() {
+		get availableRead() {
 			const rd = Atomics.load(this.read_ptr, 0);
 			const wr = Atomics.load(this.write_ptr, 0);
 			return this._availableRead(rd, wr);
@@ -177,7 +176,7 @@ const executable = () => {
 		 * elements that is actually available for writing, when something has just
 		 * been dequeued.
 		 */
-		availableWrite() {
+		get availableWrite() {
 			const rd = Atomics.load(this.read_ptr, 0);
 			const wr = Atomics.load(this.write_ptr, 0);
 			return this._availableWrite(rd, wr);
@@ -216,7 +215,7 @@ const executable = () => {
 		 * The size of the storage for elements not accounting the space for the index.
 		 */
 		_storageCapacity() {
-			return this.capacity;
+			return this._capacity;
 		}
 
 		/**
