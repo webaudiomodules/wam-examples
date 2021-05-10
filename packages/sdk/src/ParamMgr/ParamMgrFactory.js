@@ -3,6 +3,7 @@
 import './AudioWorkletRegister.js';
 import processor from './ParamMgrProcessor.js';
 import wamEnvExecutable from '../WamEnv.js';
+import ringBufferExecutable from '../RingBuffer.js';
 import ParamMappingConfigurator from './ParamConfigurator.js';
 import ParamMgrNode from './ParamMgrNode.js';
 /** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
@@ -33,6 +34,7 @@ export default class ParamMgrFactory {
 		// eslint-disable-next-line prefer-destructuring
 		const AudioWorkletRegister = window.AudioWorkletRegister;
 		await AudioWorkletRegister.register('__WebAudioModules_WamEnv', wamEnvExecutable, audioContext.audioWorklet);
+		await AudioWorkletRegister.register('__WebAudioModules_RingBuffer', ringBufferExecutable, audioContext.audioWorklet);
 		await AudioWorkletRegister.register(processorId, processor, audioContext.audioWorklet, serializableParamsConfig);
 		/** @type {ParamMgrOptions} */
 		const options = {

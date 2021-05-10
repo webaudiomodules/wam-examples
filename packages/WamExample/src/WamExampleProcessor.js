@@ -56,7 +56,11 @@ const {
 	// @ts-ignore
 	WamExampleEffect,
 	registerProcessor,
+	RingBuffer,
 } = globalThis;
+
+console.log('Audio-Thread RingBuffer', RingBuffer);
+
 const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
 
 /**

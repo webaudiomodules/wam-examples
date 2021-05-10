@@ -1,4 +1,8 @@
 import WamNode from '../../sdk/src/WamNode.js';
+import executable from '../../sdk/src/RingBuffer.js';
+
+const RingBuffer = executable();
+console.log('Main-thread RingBuffer', RingBuffer);
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
