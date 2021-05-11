@@ -181,7 +181,7 @@ export const slope = (array: TypedArray | number[], from = 0, n = array.length) 
     const x2Sum = (n - 1) * n * (2 * n - 1) / 6;
     let ySum = 0;
     let xySum = 0;
-    let y
+    let y;
     for (let x = 0; x < n; x++) {
         y = array[(x + from) % n];
         ySum += y;

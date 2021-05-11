@@ -315,7 +315,7 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
         this.$write %= dataSize;
         this.$writeFrame %= dataFrames;
         this.$total += bufferSize;
-        let { $write, samplesWaiting, $writeFrame: $writeFrame, $totalFrames, $fft } = this;
+        let { $write, samplesWaiting, $writeFrame, $totalFrames, $fft } = this;
         // Init windows
         for (let i = 0; i < input.length; i++) {
             $write = this.$write;

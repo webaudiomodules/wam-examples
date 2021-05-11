@@ -95,10 +95,10 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
 
         if (!buffer) return;
 
-        const { $read: ui8$, data: t } = buffer;
+        const { $read: $ui32, data: t } = buffer;
         if (!t || !t.length || !t[0].length) return;
 
-        const $ = Atomics.load(ui8$, 0);
+        const $ = Atomics.load($ui32, 0);
         const channels = t.length;
         const dl = t[0].length;
         // Vertical Range
