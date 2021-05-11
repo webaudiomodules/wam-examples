@@ -46,6 +46,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		this.$prevParamsBuffer = new Float32Array(this.internalParams.length);
 		this.paramsUpdateCheckFn = [];
 		this.paramsUpdateCheckFnRef = [];
+		this.messageRequestId = 0;
 
 		Object.entries(this.getParams()).forEach(([name, param]) => {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
@@ -60,12 +61,15 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		 * @param {keyof ParamMgrCallToProcessor} call
 		 * @param {any} args
 		 */
-		this.call = (call, ...args) => new Promise((resolve, reject) => {
-			const id = performance.now();
-			resolves[id] = resolve;
-			rejects[id] = reject;
-			this.port.postMessage({ id, call, args });
-		});
+		this.call = (call, ...args) => {
+			const id = this.messageRequestId;
+			this.messageRequestId += 1;
+			return new Promise((resolve, reject) => {
+				resolves[id] = resolve;
+				rejects[id] = reject;
+				this.port.postMessage({ id, call, args });
+			});
+		};
 		this.handleMessage = ({ data }) => {
 			const { id, call, args, value, error } = data;
 			if (call) {
@@ -222,12 +226,12 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		});
 	}
 
-	getState() {
-		return this.getParameterValues();
+	async getState() {
+		return this.getParamsValues();
 	}
 
-	setState(state) {
-		return this.setParameterValues(state);
+	async setState(state) {
+		this.setParamsValues(state);
 	}
 
 	convertTimeToFrame(time) {
