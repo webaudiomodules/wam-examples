@@ -14,7 +14,7 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
     $paintRaf = -1;
     $changeTimer = -1;
     $lastFrame = -1;
-    frames = 1;
+    dataFrames = 1;
     offscreenCtx = document.createElement("canvas").getContext("2d");
     offscreenVRes = 1024;
     get canvas() {
@@ -57,8 +57,8 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
         this.paintScheduled = true;
     };
     componentDidMount() {
-        const { offscreenCtx, frames } = this;
-        offscreenCtx.canvas.width = frames;
+        const { offscreenCtx, dataFrames } = this;
+        offscreenCtx.canvas.width = dataFrames;
         offscreenCtx.canvas.height = this.offscreenVRes;
         this.schedulePaint();
     }
@@ -89,21 +89,19 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
         ctx.fillRect(0, 0, width, height);
 
         if (!allAmplitudes) return;
-        const { data: f, $totalFrames, fftBins: bins, frames: framesIn, $frame: $frameUi32 } = allAmplitudes;
+        const { data: f, $totalFrames, fftBins: bins, frames, dataFrames, $writeFrame: $writeFrameUi32 } = allAmplitudes;
         if (!f || !f.length || !f[0].length) return;
         const l = f[0].length;
         const channels = f.length;
 
         // Draw to offscreen canvas
-        let frames = this.frames;
-        const $lastFrame = $totalFrames[0] - 1;
-        const $frame = $frameUi32[0];
-        let $frame0 = $frame;
-        const $frame1 = $frame0 + framesIn;
-        if (frames !== framesIn) {
-            offscreenCtx.canvas.width = framesIn;
-            this.frames = framesIn;
-            frames = framesIn;
+        const $lastFrame = Atomics.load($totalFrames, 0) - 1;
+        const $writeFrame = Atomics.load($writeFrameUi32, 0);
+        let $frame0 = $writeFrame;
+        let $frame1 = $frame0 + dataFrames;
+        if (this.dataFrames !== dataFrames) {
+            offscreenCtx.canvas.width = dataFrames;
+            this.dataFrames = dataFrames;
         } else if ($lastFrame >= this.$lastFrame) {
             $frame0 = Math.max($frame0, $frame1 - ($lastFrame - this.$lastFrame));
         }
@@ -115,7 +113,7 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
             for (let j = $frame0; j < $frame1; j++) {
                 let maxInStep;
                 offscreenCtx.fillStyle = "black";
-                offscreenCtx.fillRect(j % frames, i * osChannelHeight, 1, osChannelHeight);
+                offscreenCtx.fillRect(j % dataFrames, i * osChannelHeight, 1, osChannelHeight);
                 for (let k = 0; k < bins; k++) {
                     const samp = atodb(f[i][(k + j * bins) % l]);
                     const $step = k % step;
@@ -129,7 +127,7 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
                     const hue = (normalized * 180 + 240) % 360;
                     const lum = normalized * 50;
                     offscreenCtx.fillStyle = `hsl(${hue}, 100%, ${lum}%)`;
-                    offscreenCtx.fillRect(j % frames, (bins - k - 1) * vGrid + i * osChannelHeight, 1, Math.max(1, vGrid));
+                    offscreenCtx.fillRect(j % dataFrames, (bins - k - 1) * vGrid + i * osChannelHeight, 1, Math.max(1, vGrid));
                 }
             }
         }
@@ -168,14 +166,15 @@ export default class SpectrogramUI extends React.PureComponent<{ module: Module 
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         ctx.imageSmoothingEnabled = false;
-        $frame0 = $frame;
-        if ($frame1 === frames) {
-            ctx.drawImage(offscreenCtx.canvas, 0, 0, frames, offscreenVRes, left, 0, width - left, height - bottom);
+        $frame0 = ($frame1 - frames) % dataFrames;
+        $frame1 = $frame0 + frames;
+        if ($frame1 <= dataFrames) {
+            ctx.drawImage(offscreenCtx.canvas, $frame0, 0, frames, offscreenVRes, left, 0, width - left, height - bottom);
         } else {
-            const sSplit = frames - $frame0;
+            const sSplit = dataFrames - $frame0;
             const dSplit = sSplit / frames * (width - left);
             ctx.drawImage(offscreenCtx.canvas, $frame0, 0, sSplit, offscreenVRes, left, 0, dSplit, height - bottom);
-            ctx.drawImage(offscreenCtx.canvas, 0, 0, $frame1 - frames - 0.01, offscreenVRes, dSplit + left, 0, width - left - dSplit, height - bottom);
+            ctx.drawImage(offscreenCtx.canvas, 0, 0, $frame1 - dataFrames - 0.01, offscreenVRes, dSplit + left, 0, width - left - dSplit, height - bottom);
         }
         ctx.restore();
     }
