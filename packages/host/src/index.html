@@ -11,59 +11,6 @@
 	<script
 		src="./bpf.js">
 	</script>
-	<style>
-		#wrapper {
-			display: flex;
-		}
-
-		#left {
-			flex: 0 0 25%;
-		}
-
-		#right {
-			flex: 1;
-		}
-
-		#pluginContainer {
-			grid-row-start: 1;
-			grid-column-start: 1;
-		}
-
-		#pluginInfoContainer {
-			color: blueviolet;
-			font-family: 'Courier New', Courier, monospace;
-			grid-row-start: 2;
-			grid-column-start: 1;
-			border: 1px solid;
-			overflow: auto;
-			width: 700px;
-			height: 300px;
-
-		}
-
-		#pluginAutomationContainer {
-			display: flex;
-			flex-direction: column;
-		}
-
-		#pluginAutomationEditor {
-			flex: 0 0 auto;
-		}
-		#pluginParamSelectorContainer {
-			display: flex;
-			flex-direction: row;
-		}
-		#pluginParamSelectorContainer label {
-			padding: 0px 6px;
-		}
-		#pluginParamSelector {
-			flex: 1 1 auto;
-		}
-		#pluginAutomationLength {
-    		width: 50px;
-		}
-
-	</style>
 </head>
 
 <body>
@@ -104,6 +51,13 @@
 						</div>
 						<p></p>
 						<div>
+							<ul id="midi-emitters">
+								<p>Midi</p>
+								<!--<li data-plugin-url="midiKeyboard/src">Midi Virtual keyboard</li>-->
+								<li data-plugin-url="simpleMidiKeyboard">Simple MIDI Keyboard</li>
+								<li data-plugin-url="VirtualMidiKeyboardNoSound/src">Midi Virtual keyboard No Sound (just emits events)</li>
+								<li data-plugin-url="randomnote">Random note generator</li>
+							</ul>
 							<ul id="examples">
 								<p>Pure JavaScript</p>
 								<li data-plugin-url="quadrafuzz/dist">Quadrafuzz</li>
@@ -111,6 +65,7 @@
 								<li data-plugin-url="pingpongdelay/dist">PingPongDelay</li>
 								<li data-plugin-url="graphicEqualizer/src">Graphic Equaliser (pureJS)</li>
 								<li data-plugin-url="WamExample/src">WAM Example (pureJS)</li>
+								<li data-plugin-url="tinySynth/src">TinySynth, a GM syth without GUI. Accepts program changes, volume change, notes...</li>
 								<p>Faust</p>
 								<li data-plugin-url="faustPingPongDelay/plugin">faustPingPongDelay</li>
 								<li data-plugin-url="faustPingPongDelayDefaultUI">faustPingPongDelayDefaultUI</li>
@@ -134,6 +89,7 @@
 				</form>
 			</div>
 			<div id="right">
+				<div id="midiKeyboard"></div>
 				<div id="pluginContainer">
 					<div id="mount"></div>
 					<br>

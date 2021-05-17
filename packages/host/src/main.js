@@ -1,44 +1,88 @@
+/* eslint-disable no-console */
 import './main.css';
+/**
+ * @typedef {import('sdk/src/api/types').WebAudioModule} WebAudioModule
+ * @typedef {import('sdk/src/api/types').WamNode} WamNode
+ */
 
+/** @type {HTMLAudioElement} */
 const player = document.querySelector('#player');
+/** @type {HTMLDivElement} */
 const mount = document.querySelector('#mount');
 
-// Safari...
-const AudioContext =
-	window.AudioContext || // Default
-	window.webkitAudioContext || // Safari and old versions of Chrome
-	false;
+// webkitAudioContext for Safari and old versions of Chrome
+/** @type {typeof AudioContext} */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
 
-const audioContext = new AudioContext();
+const audioContext = new AudioCtx();
 // If looking for low latency (i.e. guitar plugged into live input)
 // const audioContext = new AudioContext({ latencyHint: 0.00001});
+
 const mediaElementSource = audioContext.createMediaElementSource(player);
 
-let currentPluginAudioNode, liveInputGainNode;
+/** @type {WebAudioModule} */
+// let keyboardPlugin;
 
-// Very simple function to connect the plugin audionode to the host
+/** @type {WamNode} */
+let keyboardPluginAudioNode;
+
+/** @type {Element} */
+let currentKeyboardPluginDomNode;
+
+/** @type {WamNode} */
+let currentPluginAudioNode;
+
+/** @type {Element} */
+let currentPluginDomNode;
+
+/** @type {GainNode} */
+let liveInputGainNode;
+
+/**
+ * @param {WamNode} audioNode
+ * @description Very simple function to connect the plugin audionode to the host
+ */
 const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
+		if (keyboardPluginAudioNode) {
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+		}
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
+		if (currentPluginDomNode) {
+			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
+			mount.innerHTML = '';
+			currentPluginDomNode = null;
+		}
 		currentPluginAudioNode = null;
 	}
 
 	liveInputGainNode.connect(audioNode);
 	console.log('connected live input node to plugin node');
 
+	if (keyboardPluginAudioNode) {
+		keyboardPluginAudioNode.connect(audioNode);
+		keyboardPluginAudioNode.connectEvents(audioNode);
+	}
 	mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
 };
 
-// Very simple function to append the plugin root dom node to the host
+/**
+ * @param {HTMLElement} domNode
+ * @description Very simple function to append the plugin root dom node to the host
+ */
 const mountPlugin = (domNode) => {
 	mount.innerHTML = '';
 	mount.appendChild(domNode);
 };
 
+/** @type {HTMLFormElement} */
 const form = document.querySelector('#form');
+
+/** @type {NodeListOf<HTMLLIElement>} */
 const examples = document.querySelectorAll('#examples > li');
 
 Array.from(examples).forEach((example) => {
@@ -48,8 +92,143 @@ Array.from(examples).forEach((example) => {
 	});
 });
 
+const keyboardContainer = document.getElementById('midiKeyboard');
+// MIDI Keyboard
+const setMidiPlugin = async (pluginUrl) => {
+	const { default: Wam } = await import(pluginUrl);
+	/** @type {WebAudioModule} */
+	const keyboardPlugin = await Wam.createInstance(audioContext);
+	if (keyboardPluginAudioNode) {
+		if (currentPluginAudioNode) {
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+		}
+		if (currentKeyboardPluginDomNode) {
+			keyboardPluginAudioNode.module.destroyGui(currentKeyboardPluginDomNode);
+		}
+		keyboardPluginAudioNode = null;
+	}
+	keyboardPluginAudioNode = keyboardPlugin.audioNode;
+	currentKeyboardPluginDomNode = await keyboardPlugin.createGui();
+	keyboardContainer.innerHTML = '';
+	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
+	if (keyboardPluginAudioNode && currentPluginAudioNode) {
+		keyboardPluginAudioNode.connect(currentPluginAudioNode);
+		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
+	}
+};
+
+/** @type {NodeListOf<HTMLLIElement>} */
+const midiEmitters = document.querySelectorAll('#midi-emitters > li');
+
+Array.from(midiEmitters).forEach((midiEmitter) => {
+	midiEmitter.addEventListener('click', () => {
+		const pluginUrl = `/packages/${midiEmitter.dataset.pluginUrl}/index.js`;
+		setMidiPlugin(pluginUrl);
+	});
+});
+
+/**
+ * @param {WebAudioModule} instance
+ * @param {HTMLElement} gui
+ * @description Display plugin info
+ */
+const showPluginInfo = async (instance, gui) => {
+	/** @type {HTMLDivElement} */
+	const pluginInfoDiv = document.querySelector('#pluginInfoDiv');
+	const paramInfos = await instance.audioNode.getParameterInfo();
+	let guiWidth;
+	let guiHeight;
+	try {
+		guiWidth = gui.properties.dataWidth.value;
+		guiHeight = gui.properties.dataHeight.value;
+	} catch (err) {
+		guiWidth = 'undefined, (you should define get properties in Gui.js)';
+		guiHeight = 'undefined, (you should define get properties in Gui.js)';
+	}
+
+	let parameterList = '';
+
+	Object.entries(paramInfos).forEach(([key, value]) => {
+		parameterList += `<li><b>${key}</b> : ${JSON.stringify(value)}</li>`;
+	});
+
+	pluginInfoDiv.innerHTML = `
+	<li><b>instance.descriptor :</b> ${JSON.stringify(instance.descriptor)}</li>
+	<li><b>gui.properties.dataWidth.value</b> : ${guiWidth}</li>
+	<li><b>gui.properties.dataHeight.value</b> : ${guiHeight}</li>
+	<li><b>instance.audioNode.getParameterInfo() :</b>
+		<ul>
+		   ${parameterList}
+		</ul>
+	</li>
+	`;
+};
+
+/** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
+/** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
+/** @type {HTMLInputElement} */ const pluginAutomationApplyButton = document.querySelector('#pluginAutomationApply');
+/** @type {HTMLDivElement} */ const bpfContainer = document.querySelector('#pluginAutomationEditor');
+
+pluginParamSelector.addEventListener('input', async (e) => {
+	if (!currentPluginAudioNode) return;
+	const paramId = e.target.value;
+	if (paramId === '-1') return;
+	if (Array.from(bpfContainer.querySelectorAll('.pluginAutomationParamId')).find(/** @param {HTMLSpanElement} span */(span) => span.textContent === paramId)) return;
+	const div = document.createElement('div');
+	div.classList.add('pluginAutomation');
+	const span = document.createElement('span');
+	span.textContent = paramId;
+	span.classList.add('pluginAutomationParamId');
+	div.appendChild(span);
+	const bpf = document.createElement('webaudiomodules-host-bpf');
+	const info = await currentPluginAudioNode.getParameterInfo(paramId);
+	const { minValue, maxValue, defaultValue } = info[paramId];
+	bpf.setAttribute('min', minValue);
+	bpf.setAttribute('max', maxValue);
+	bpf.setAttribute('default', defaultValue);
+	div.appendChild(bpf);
+	bpfContainer.appendChild(div);
+	pluginParamSelector.selectedIndex = 0;
+});
+pluginAutomationLengthInput.addEventListener('input', (e) => {
+	const domain = +e.target.value;
+	if (!domain) return;
+	bpfContainer.querySelectorAll('webaudiomodules-host-bpf').forEach(/** @param {import("./bpf").default} bpf */(bpf) => {
+		bpf.setAttribute('domain', domain);
+	});
+});
+pluginAutomationApplyButton.addEventListener('click', () => {
+	if (!currentPluginAudioNode) return;
+	bpfContainer.querySelectorAll('.pluginAutomation').forEach(/** @param {HTMLDivElement} div */(div) => {
+		const paramId = div.querySelector('.pluginAutomationParamId').textContent;
+		/** @type {import("./bpf").default} */ const bpf = div.querySelector('webaudiomodules-host-bpf');
+		bpf.apply(currentPluginAudioNode, paramId);
+	});
+});
+
+/**
+ * @param {import('sdk/src/api/types').WebAudioModule} instance
+ */
+const populateParamSelector = async (instance) => {
+	bpfContainer.innerHTML = '';
+	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
+	const wamNode = instance.audioNode;
+	const info = await wamNode.getParameterInfo();
+	// eslint-disable-next-line
+	for (const paramId in info) {
+		const { minValue, maxValue } = info[paramId];
+		const option = new Option(`${paramId}: ${minValue} - ${maxValue}`, paramId);
+		pluginParamSelector.add(option);
+	}
+	pluginParamSelector.selectedIndex = 0;
+};
+
 let state;
 
+/**
+ * @param {string} pluginUrl
+ */
 const setPlugin = async (pluginUrl) => {
 	// Load plugin from the url of its json descriptor
 	// Pass the option { noGui: true } to not load the GUI by default
@@ -65,13 +244,9 @@ const setPlugin = async (pluginUrl) => {
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await WAM.createInstance(audioContext, {
-		params: {
-			feedback: 0.7,
-		},
-	});
+	/** @type {WebAudioModule} */
+	const instance = await WAM.createInstance(audioContext);
 	window.instance = instance;
-	// instance.enable();
 
 	// Connect the audionode to the host
 	connectPlugin(instance.audioNode);
@@ -82,6 +257,8 @@ const setPlugin = async (pluginUrl) => {
 	// Load the GUI if need (ie. if the option noGui was set to true)
 	// And calls the method createElement of the Gui module
 	const pluginDomNode = await instance.createGui();
+
+	currentPluginDomNode = pluginDomNode;
 
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
@@ -114,45 +291,14 @@ form.addEventListener('submit', (event) => {
 	setPlugin(pluginUrl);
 });
 
-// ----- DISPLAY PLUGIN INFO -----
-async function showPluginInfo(instance, gui) {
-	let pluginInfoDiv = document.querySelector('#pluginInfoDiv');
-	let paramInfos = await instance.audioNode.getParameterInfo();
-	let guiWidth = undefined,
-		guiHeight = undefined;
-	try {
-		guiWidth = gui.properties.dataWidth.value;
-		guiHeight = gui.properties.dataHeight.value;
-	} catch (err) {
-		guiWidth = 'undefined, (you should define get properties in Gui.js)';
-		guiHeight = 'undefined, (you should define get properties in Gui.js)';
-	}
-
-	let parameterList = '';
-
-	for (const [key, value] of Object.entries(paramInfos)) {
-		parameterList += `<li><b>${key}</b> : ${JSON.stringify(value)}</li>`;
-	}
-
-	pluginInfoDiv.innerHTML = `
-	<li><b>instance.descriptor :</b> ${JSON.stringify(instance.descriptor)}</li>
-	<li><b>gui.properties.dataWidth.value</b> : ${guiWidth}</li>
-	<li><b>gui.properties.dataHeight.value</b> : ${guiHeight}</li>
-	<li><b>instance.audioNode.getParameterInfo() :</b>
-		<ul>
-		   ${parameterList}
-		</ul>
-	</li>
-	`;
-}
 // ------- LIVE INPUT ------
 // live input
-var liveInputActivated = false;
+let liveInputActivated = false;
 let inputStreamNode;
 
 function convertToMono(input) {
-	var splitter = audioContext.createChannelSplitter(2);
-	var merger = audioContext.createChannelMerger(2);
+	const splitter = audioContext.createChannelSplitter(2);
+	const merger = audioContext.createChannelMerger(2);
 
 	input.connect(splitter);
 	splitter.connect(merger, 0, 0);
@@ -162,7 +308,7 @@ function convertToMono(input) {
 	return merger;
 }
 
-var defaultConstraints = {
+const defaultConstraints = {
 	audio: {
 		echoCancellation: false,
 		mozNoiseSuppression: false,
@@ -170,91 +316,113 @@ var defaultConstraints = {
 	},
 };
 // User input part
-function setLiveInputToNewStream(stream) {
+const setLiveInputToNewStream = (stream) => {
 	window.stream = stream;
 	inputStreamNode = audioContext.createMediaStreamSource(stream);
-	let inputinputStreamNodeMono = convertToMono(inputStreamNode);
+	const inputinputStreamNodeMono = convertToMono(inputStreamNode);
 
 	liveInputGainNode = audioContext.createGain();
 
 	liveInputGainNode.gain.value = liveInputActivated ? 1 : 0;
-	console.log(
-		'liveInputGainNode.gain.value = ' + liveInputGainNode.gain.value
-	);
+	console.log(`liveInputGainNode.gain.value = ${liveInputGainNode.gain.value}`);
 	inputinputStreamNodeMono.connect(liveInputGainNode);
 
 	console.log('Live Input node created...');
-}
+};
 
 // initial live input setup.
 navigator.mediaDevices.getUserMedia(defaultConstraints).then((stream) => {
 	setLiveInputToNewStream(stream);
 });
 
-navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
-
-function handleDeviceChange(event) {
-	console.log('### INPUT DEVICE LIST CHANGED');
-	// let's rebuild the menu
-	rebuildAudioDeviceMenu();
-}
-
-let liveInputButton = document.querySelector('#toggleLiveInput');
-liveInputButton.onclick = toggleLiveInput;
-
-function toggleLiveInput(event) {
+const toggleLiveInput = () => {
 	audioContext.resume();
 
-	var button = document.querySelector('#toggleLiveInput');
+	const button = document.querySelector('#toggleLiveInput');
 
 	if (!liveInputActivated) {
-		button.innerHTML =
-			"Live input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(1, audioContext.currentTime);
 	} else {
-		button.innerHTML =
-			"Live input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(0, audioContext.currentTime);
 	}
 	liveInputActivated = !liveInputActivated;
-}
+};
+
+const liveInputButton = document.querySelector('#toggleLiveInput');
+liveInputButton.onclick = toggleLiveInput;
 
 // -------- select audio input device ---------
-let audioInput = document.querySelector('#selectAudioInput');
+const audioInput = document.querySelector('#selectAudioInput');
 
-function gotDevices(deviceInfos) {
+/**
+ * @param {MediaDeviceInfo[]} deviceInfos
+ */
+const gotDevices = (deviceInfos) => {
 	// lets rebuild the menu
 	audioInput.innerHTML = '';
 
+	// eslint-disable-next-line no-plusplus
 	for (let i = 0; i !== deviceInfos.length; ++i) {
 		const deviceInfo = deviceInfos[i];
 		if (deviceInfo.kind === 'audioinput') {
 			const option = document.createElement('option');
 			option.value = deviceInfo.deviceId;
-			option.text =
-				deviceInfo.label || `microphone ${audioInput.length + 1}`;
+			option.text = deviceInfo.label || `microphone ${audioInput.length + 1}`;
 			audioInput.appendChild(option);
-			console.log('adding ' + option.text);
+			console.log(`adding ${option.text}`);
 		} else {
 			console.log('Some other kind of source/device: ', deviceInfo);
 		}
 	}
-}
+};
 
-buildAudioDeviceMenu();
-
-function rebuildAudioDeviceMenu() {
-	console.log('REBUILDING INPUT DEVICE MENU');
-	buildAudioDeviceMenu();
-	console.log('RE OPENING INPUT LIVE STREAM WITH DEFAULT DEVICE');
-	// initial live input setup.
-	let defaultConstraints = {
+/**
+ * @param {string} id
+ */
+const changeStream = (id) => {
+	const constraints = {
 		audio: {
 			echoCancellation: false,
 			mozNoiseSuppression: false,
 			mozAutoGainControl: false,
+			deviceId: id ? { exact: id } : undefined,
 		},
 	};
+	navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+		setLiveInputToNewStream(stream);
+		const pluginUrl = form.pluginUrl.value;
+		setPlugin(pluginUrl);
+	});
+};
+
+const buildAudioDeviceMenu = () => {
+	console.log('BUILDING DEVICE MENU');
+	navigator.mediaDevices
+		.enumerateDevices()
+		.then(gotDevices)
+		.catch((error) => {
+			console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+		});
+
+	audioInput.onchange = (e) => {
+		const index = e.target.selectedIndex;
+		const id = e.target[index].value;
+		const label = e.target[index].text;
+
+		console.dir(`Audio input selected : ${label} id = ${id}`);
+		changeStream(id);
+	};
+};
+
+buildAudioDeviceMenu();
+
+const rebuildAudioDeviceMenu = () => {
+	console.log('REBUILDING INPUT DEVICE MENU');
+	buildAudioDeviceMenu();
+	console.log('RE OPENING INPUT LIVE STREAM WITH DEFAULT DEVICE');
+	// initial live input setup.
 	navigator.mediaDevices.getUserMedia(defaultConstraints).then((stream) => {
 		setLiveInputToNewStream(stream);
 	});
@@ -262,50 +430,15 @@ function rebuildAudioDeviceMenu() {
 	console.log('REBUILDING GRAPH');
 	const pluginUrl = form.pluginUrl.value;
 	setPlugin(pluginUrl);
-}
+};
 
-function buildAudioDeviceMenu() {
-	console.log('BUILDING DEVICE MENU');
-	navigator.mediaDevices
-		.enumerateDevices()
-		.then(gotDevices)
-		.catch((error) => {
-			console.log(
-				'navigator.MediaDevices.getUserMedia error: ',
-				error.message,
-				error.name
-			);
-		});
+const handleDeviceChange = () => {
+	console.log('### INPUT DEVICE LIST CHANGED');
+	// let's rebuild the menu
+	rebuildAudioDeviceMenu();
+};
 
-	audioInput.onchange = (e) => {
-		let index = e.target.selectedIndex;
-		let id = e.target[index].value;
-		let label = e.target[index].text;
-
-		console.dir('Audio input selected : ' + label + ' id = ' + id);
-		changeStream(id);
-	};
-
-	function changeStream(id) {
-		var constraints = {
-			audio: {
-				echoCancellation: false,
-				mozNoiseSuppression: false,
-				mozAutoGainControl: false,
-				deviceId: id
-					? {
-							exact: id,
-					  }
-					: undefined,
-			},
-		};
-		navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-			setLiveInputToNewStream(stream);
-			const pluginUrl = form.pluginUrl.value;
-			setPlugin(pluginUrl);
-		});
-	}
-}
+navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
 
 // -------- select MIDI input device ---------
 /** @type {HTMLSelectElement} */const midiInputSelector = document.querySelector('#selectMidiInput');
@@ -314,9 +447,9 @@ if (navigator.requestMIDIAccess) {
 	navigator.requestMIDIAccess().then((midiAccess) => {
 		let currentInput;
 		const handleMidiMessage = (e) => {
-			if (!instance) return;
-			instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: e.data } });
-		}
+			if (!currentPluginAudioNode) return;
+			currentPluginAudioNode.audioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
+		};
 		const handleStateChange = () => {
 			const { inputs } = midiAccess;
 			if (midiInputSelector.options.length === inputs.size + 1) return;
@@ -335,71 +468,13 @@ if (navigator.requestMIDIAccess) {
 			const id = e.target.value;
 			currentInput = midiAccess.inputs.get(id);
 			currentInput.addEventListener('midimessage', handleMidiMessage);
-		})
+		});
 	});
 }
 
 // -------- generate MIDI note button ---------
 /** @type {HTMLButtonElement} */ const sendMIDINoteButton = document.querySelector('#sendMIDINoteButton');
-sendMIDINoteButton.onclick = async (e) => {
-	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
-	instance.audioNode.scheduleEvents({ type: 'midi', time: instance.audioContext.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
-}
-
-/** @type {HTMLSelectElement} */ const pluginParamSelector = document.querySelector('#pluginParamSelector');
-/** @type {HTMLInputElement} */ const pluginAutomationLengthInput = document.querySelector('#pluginAutomationLength');
-/** @type {HTMLInputElement} */ const pluginAutomationApplyButton = document.querySelector('#pluginAutomationApply');
-/** @type {HTMLDivElement} */ const bpfContainer = document.querySelector('#pluginAutomationEditor');
-
-pluginParamSelector.addEventListener('input', async (e) => {
-	if (!instance) return;
-	const paramId = e.target.value;
-	if (paramId === '-1') return;
-	if (Array.from(bpfContainer.querySelectorAll('.pluginAutomationParamId')).find(span => span.textContent === paramId)) return;
-	const div = document.createElement('div');
-	div.classList.add('pluginAutomation');
-	const span = document.createElement('span');
-	span.textContent = paramId;
-	span.classList.add('pluginAutomationParamId');
-	div.appendChild(span);
-	const bpf = document.createElement('webaudiomodules-host-bpf');
-	const info = await instance.audioNode.getParameterInfo(paramId);
-	const { minValue, maxValue, defaultValue } = info[paramId];
-	bpf.setAttribute('min', minValue);
-	bpf.setAttribute('max', maxValue);
-	bpf.setAttribute('default', defaultValue);
-	div.appendChild(bpf);
-	bpfContainer.appendChild(div);
-	pluginParamSelector.selectedIndex = 0;
-});
-pluginAutomationLengthInput.addEventListener('input', (e) => {
-	const domain = +e.target.value;
-	if (!domain) return;
-	bpfContainer.querySelectorAll('webaudiomodules-host-bpf').forEach(/** @param {import("./bpf").default} bpf */(bpf) => {
-		bpf.setAttribute("domain", domain);
-	});
-});
-pluginAutomationApplyButton.addEventListener('click', () => {
-	if (!instance) return;
-	bpfContainer.querySelectorAll('.pluginAutomation').forEach(/** @param {HTMLDivElement} div */(div) => {
-		const paramId = div.querySelector('.pluginAutomationParamId').textContent;
-		/** @type {import("./bpf").default} */ const bpf = div.querySelector('webaudiomodules-host-bpf');
-		bpf.apply(instance.audioNode, paramId);
-	});
-});
-
-/**
- * @param {import('sdk/src/api/types').WebAudioModule} instance
- */
-async function populateParamSelector(instance) {
-	bpfContainer.innerHTML = '';
-	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
-	const wamNode = instance.audioNode;
-	const info = await wamNode.getParameterInfo();
-	for (const paramId in info) {
-		const { minValue, maxValue } = info[paramId];
-		const option = new Option(`${paramId}: ${minValue} - ${maxValue}`, paramId);
-		pluginParamSelector.add(option);
-	}
-	pluginParamSelector.selectedIndex = 0;
-}
+sendMIDINoteButton.onclick = async () => {
+	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
+	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
+};

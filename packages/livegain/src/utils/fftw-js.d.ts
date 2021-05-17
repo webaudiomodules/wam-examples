@@ -38,3 +38,14 @@ declare module "fftw-js" {
         constructor(size: number);
     }
 }
+
+declare module "fftw-js/src/FFTW" {
+    interface FFTWModule extends EmscriptenModule {
+        cwrap: typeof cwrap;
+    }
+    const FFTWModule: {
+        (options?: Partial<EmscriptenModule & { ENVIRONMENT: Emscripten.EnvironmentType }>): FFTWModule;
+        new (options?: Partial<EmscriptenModule & { ENVIRONMENT: Emscripten.EnvironmentType }>): FFTWModule;
+    };
+    export = FFTWModule;
+}

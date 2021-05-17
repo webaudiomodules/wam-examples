@@ -5,7 +5,9 @@
 /** @typedef {import('./api/types').WamParameterData} WamParameterData */
 /** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
+/** @typedef {import('./api/types').WamTransportData} WamTransportData */
 /** @typedef {import('./api/types').WamMidiData} WamMidiData */
+/** @typedef {import('./api/types').WamSysexData} WamSysexData */
 /** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
@@ -51,9 +53,8 @@ const {
 	// @ts-ignore
 	WamParameterSab,
 	// @ts-ignore
+	webAudioModules,
 } = globalThis;
-
-// const { , registerProcessor } = AudioWorkletGlobalScope;
 
 /**
  * @implements {IWamProcessor}
@@ -151,8 +152,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		/** @property {boolean} _destroyed */
 		this._destroyed = false;
 
-		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
-		else globalThis.WamProcessors = { [instanceId]: this };
+		webAudioModules.create(this);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -175,6 +175,26 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			this._eventQueue.push({ id: 0, event: events[i] });
 			i++;
 		}
+	}
+
+	get downstream() {
+		const wams = new Set();
+		const { eventGraph } = webAudioModules;
+		if (!eventGraph.has(this)) return wams;
+		const outputMap = eventGraph.get(this);
+		outputMap.forEach((set) => {
+			if (set) set.forEach((wam) => wams.add(wam));
+		});
+		return wams;
+	}
+
+	emitEvents(...events) {
+		const { eventGraph } = webAudioModules;
+		if (!eventGraph.has(this)) return;
+		const downstream = eventGraph.get(this);
+		downstream.forEach((set) => {
+			if (set) set.forEach((wam) => wam.scheduleEvents(...events));
+		});
 	}
 
 	/** From the audio thread, clear all pending WamEvents. */
@@ -239,6 +259,16 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					this.clearEvents();
 					response.content = ids;
 				}
+			} else if (verb === 'connect') {
+				if (noun === 'events') {
+					const { wamInstanceId, output } = content;
+					this.connectEvents(wamInstanceId, output);
+				}
+			} else if (verb === 'disconnect') {
+				if (noun === 'events') {
+					const { wamInstanceId, output } = content;
+					this.disconnectEvents(wamInstanceId, output);
+				}
 			}
 			this.port.postMessage(response);
 		}
@@ -246,10 +276,52 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	/**
 	 *
+	 * @param {WamTransportData} transportData
+	 */
+	_onTransport(transportData) {
+		// Override for custom transport handling
+		// eslint-disable-next-line no-console
+		console.error('_onTransport not implemented!');
+	}
+
+	/**
+	 *
 	 * @param {WamMidiData} midiData
 	 */
 	_onMidi(midiData) {
-		// Custom midi handling here
+		// Override for custom midi handling
+		// eslint-disable-next-line no-console
+		console.error('_onMidi not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {WamSysexData} sysexData
+	 */
+	_onSysex(sysexData) {
+		// Override for custom sysex handling
+		// eslint-disable-next-line no-console
+		console.error('_onMidi not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {WamMidiData} mpeData
+	 */
+	_onMpe(mpeData) {
+		// Override for custom mpe handling
+		// eslint-disable-next-line no-console
+		console.error('_onMpe not implemented!');
+	}
+
+	/**
+	 *
+	 * @param {string} oscData
+	 */
+	_onOsc(oscData) {
+		// Override for custom osc handling
+		// eslint-disable-next-line no-console
+		console.error('_onOsc not implemented!');
 	}
 
 	/**
@@ -368,7 +440,11 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_processEvent(event) {
 		switch (event.type) {
 		case 'automation': this._setParameterValue(event.data, true); break;
+		case 'transport': this._onTransport(event.data); break;
 		case 'midi': this._onMidi(event.data); break;
+		case 'sysex': this._onSysex(event.data); break;
+		case 'mpe': this._onMpe(event.data); break;
+		case 'osc': this._onOsc(event.data); break;
 		default: break;
 		}
 	}
@@ -410,9 +486,35 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		return true;
 	}
 
-	/** Stop processing and remove the node from the graph. */
+	/**
+	 * @param {string} wamInstanceId
+	 * @param {number} [output]
+	 */
+	connectEvents(wamInstanceId, output) {
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.connectEvents(this, wam, output);
+	}
+
+	/**
+	 * @param {string} [wamInstanceId]
+	 * @param {number} [output]
+	 */
+	disconnectEvents(wamInstanceId, output) {
+		if (typeof wamInstanceId === 'undefined') {
+			webAudioModules.disconnectEvents(this);
+			return;
+		}
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.disconnectEvents(this, wam, output);
+	}
+
+	/** Stop processing and remove the node from the WAM event graph. */
 	destroy() {
 		this._destroyed = true;
+		this.port.close();
+		webAudioModules.destroy(this);
 	}
 }
 

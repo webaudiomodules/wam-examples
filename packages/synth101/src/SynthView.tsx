@@ -30,6 +30,7 @@ export interface SynthViewProps {
   
     // Lifecycle: Called just before our component will be destroyed
     componentWillUnmount() {
+      console.log("Synth-101 unmounting")
     }
   
     detuneChanged(value: number) {

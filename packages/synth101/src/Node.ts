@@ -259,7 +259,9 @@ export default class Synth101Node extends CompositeAudioNode {
 		midiEvents.forEach (message => {
             if (message.event[0] == MIDI.NOTE_ON) {
                 let midiNote = message.event[1]
-                this.noteOn(midiNote, message.time)
+                let velocity = message.event[2];
+                if (velocity) this.noteOn(midiNote, message.time)
+                else this.noteOff(midiNote, message.time)
             } else if (message.event[0] == MIDI.NOTE_OFF) {
                 let midiNote = message.event[1]
                 this.noteOff(midiNote, message.time)
