@@ -49,9 +49,7 @@ const {
 	// @ts-ignore
 	WamParameterInterpolator,
 	// @ts-ignore
-	WamParameterNoSab,
-	// @ts-ignore
-	WamParameterSab,
+	WamParameter,
 	// @ts-ignore
 	webAudioModules,
 } = globalThis;
@@ -107,36 +105,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._parameterInterpolators = {};
 		Object.keys(this._parameterInfo).forEach((parameterId) => {
 			const info = this._parameterInfo[parameterId];
+			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
 			this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
 		});
-
-		/** @property {boolean} _useSab */
-		this._useSab = !!useSab;
-		if (this._useSab) {
-			const numParameters = Object.keys(this._parameterInfo).length;
-			const byteLength = Float32Array.BYTES_PER_ELEMENT * numParameters;
-			/** @private @property {SharedArrayBuffer} _parameterBuffer */
-			this._parameterBuffer = new SharedArrayBuffer(byteLength);
-			/** @private @property {Float32Array} _parameterValues */
-			this._parameterValues = new Float32Array(this._parameterBuffer);
-			/** @private @property {[paramterId: string]: number} */
-			this._parameterIndices = {};
-			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
-				const info = this._parameterInfo[parameterId];
-				this._parameterIndices[parameterId] = index;
-				this._parameterState[parameterId] = new WamParameterSab(info, this._parameterValues, index);
-			});
-			// pass the SAB to main thread
-			this.port.postMessage({
-				useSab: true,
-				parameterIndices: this._parameterIndices,
-				parameterBuffer: this._parameterBuffer,
-			});
-		} else {
-			Object.keys(this._parameterInfo).forEach((parameterId) => {
-				this._parameterState[parameterId] = new WamParameterNoSab(this._parameterInfo[parameterId]);
-			});
-		}
 
 		/*
 		* TODO
