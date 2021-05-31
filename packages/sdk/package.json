@@ -32,33 +32,6 @@
   "scripts": {
     "clean": "del esm",
     "build": "rollup -c",
-    "test": "jest --verbose"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "verbose": true,
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.(ts|js)$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json",
-      "node"
-    ],
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|js)$",
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.{ts,js}",
-      "!src/**/*.d.ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "tsConfig": {
-          "allowJs": true
-        }
-      }
-    }
+    "test": "jest"
   }
 }
