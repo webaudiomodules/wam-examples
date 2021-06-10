@@ -125,6 +125,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			if (config instanceof AudioParam) {
 				try {
 					config.automationRate = 'a-rate';
+				} catch {
 				} finally {
 					config.value = Math.max(0, config.minValue);
 					this.connect(config, offset + i);
