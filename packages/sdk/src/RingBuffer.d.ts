@@ -1,4 +1,4 @@
-import { RingBuffer } from './api/types';
+import { RingBuffer } from './types';
 
 declare const executable: () => typeof RingBuffer;
 

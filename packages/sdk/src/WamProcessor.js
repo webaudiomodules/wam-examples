@@ -9,7 +9,7 @@
 /** @typedef {import('./api/types').WamTransportData} WamTransportData */
 /** @typedef {import('./api/types').WamMidiData} WamMidiData */
 /** @typedef {import('./api/types').WamBinaryData} WamBinaryData */
-/** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
 /* eslint-disable no-undef */
@@ -47,13 +47,9 @@
 // @ts-ignore
 const {
 	AudioWorkletProcessor,
-	// @ts-ignore
 	WamParameterInterpolator,
-	// @ts-ignore
 	WamParameter,
-	// @ts-ignore
 	WamEventRingBuffer,
-	// @ts-ignore
 	webAudioModules,
 	RingBuffer,
 } = globalThis;

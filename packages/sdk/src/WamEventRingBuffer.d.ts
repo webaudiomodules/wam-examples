@@ -1,4 +1,4 @@
-import { WamEventRingBuffer } from './api/types';
+import { WamEventRingBuffer } from './types';
 
 declare const executable: () => typeof WamEventRingBuffer;
 

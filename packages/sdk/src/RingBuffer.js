@@ -1,8 +1,8 @@
-/** @typedef {import('./api/types').TypedArrayConstructor} TypedArrayConstructor */
-/** @typedef {import('./api/types').TypedArray} TypedArray */
-/** @typedef {import('./api/types').RingBuffer} IRingBuffer */
-/** @typedef {typeof import('./api/types').RingBuffer} RingBufferConstructor */
-/** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
+/** @typedef {import('./types').TypedArray} TypedArray */
+/** @typedef {import('./types').RingBuffer} IRingBuffer */
+/** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
