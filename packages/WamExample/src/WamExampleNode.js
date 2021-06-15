@@ -1,8 +1,4 @@
 import WamNode from '../../sdk/src/WamNode.js';
-import executable from '../../sdk/src/RingBuffer.js';
-
-const RingBuffer = executable();
-console.log('Main-thread RingBuffer', RingBuffer);
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
@@ -20,6 +16,7 @@ export default class WamExampleNode extends WamNode {
 			numberOfInputs: 1,
 			numberOfOutputs: 1,
 			outputChannelCount: [2],
+			useSab: true,
 		};
 		super(module, options);
 

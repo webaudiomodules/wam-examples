@@ -1,4 +1,5 @@
 /** @typedef {import('./api/types').WamProcessor} IWamProcessor */
+/** @typedef {import('./api/types').WamParameter} WamParameter */
 /** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
@@ -51,7 +52,10 @@ const {
 	// @ts-ignore
 	WamParameter,
 	// @ts-ignore
+	WamEventRingBuffer,
+	// @ts-ignore
 	webAudioModules,
+	RingBuffer,
 } = globalThis;
 
 /**
@@ -109,12 +113,6 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
 		});
 
-		/*
-		* TODO
-		* Maybe this should all be refactored at some point to use a ringbuffer backed
-		* by SAB. Relying heavily on MessagePort for now, but it would be possible to
-		* handle automation / midi events etc without it.
-		*/
 		/** @property {PendingWamEvent[]} _eventQueue */
 		this._eventQueue = [];
 
@@ -126,6 +124,19 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		webAudioModules.create(this);
 
 		this.port.onmessage = this._onMessage.bind(this);
+
+		/** @property {boolean} _useSab */
+		this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
+		/** @property {boolean} _sabReady */
+		this._sabReady = false;
+		if (this._useSab) {
+			/** @property {{[parameterId: string]: number}} _parameterIndices */
+			this._parameterIndices = {};
+			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
+				this._parameterIndices[parameterId] = index;
+			});
+			this._configureSab();
+		}
 	}
 
 	/**
@@ -173,13 +184,25 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._eventQueue = [];
 	}
 
+	_configureSab() {
+		this.port.postMessage({
+			sab: {
+				eventCapacity: 2 ** 10,
+				// maxBytesPerEvent: undefined,
+				parameterIndices: this._parameterIndices,
+			},
+		});
+	}
+
 	/**
 	 * Messages from main thread appear here.
 	 * @param {MessageEvent} message
 	 */
-	_onMessage(message) {
+	async _onMessage(message) {
 		if (message.data.request) {
-			const { id, request, content } = message.data;
+			const {
+				id, request, content,
+			} = message.data;
 			const response = { id, response: request };
 			const requestComponents = request.split('/');
 			const verb = requestComponents[0];
@@ -234,11 +257,33 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				if (noun === 'events') {
 					const { wamInstanceId, output } = content;
 					this.connectEvents(wamInstanceId, output);
+					delete response.content;
 				}
 			} else if (verb === 'disconnect') {
 				if (noun === 'events') {
 					const { wamInstanceId, output } = content;
 					this.disconnectEvents(wamInstanceId, output);
+					delete response.content;
+				}
+			} else if (verb === 'initialize') {
+				if (noun === 'sab') {
+					const { mainToAudioSab, audioToMainSab } = content;
+
+					/** @property {SharedArrayBuffer} _audioToMainSab */
+					this._audioToMainSab = audioToMainSab;
+
+					/** @property {SharedArrayBuffer} _mainToAudioSab */
+					this._mainToAudioSab = mainToAudioSab;
+
+					/** @property {WamEventRingBuffer} _eventWriter */
+					this._eventWriter = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
+						this._parameterIndices);
+					/** @property {WamEventRingBuffer} _eventReader */
+					this._eventReader = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
+						this._parameterIndices);
+
+					this._sabReady = true;
+					delete response.content;
 				}
 			}
 			this.port.postMessage(response);
@@ -383,6 +428,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				else eventsBySampleIndex[sampleIndex] = [event];
 				// notify main thread
 				if (id) this.port.postMessage({ id, response });
+				else if (this._sabReady) this._eventWriter.write(event);
 				else this.port.postMessage({ event });
 				this._eventQueue.shift();
 				i = -1;
@@ -439,6 +485,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 */
 	process(inputs, outputs, parameters) {
 		if (this._destroyed) return false;
+		if (this._sabReady) this.scheduleEvents(...this._eventReader.read());
+
 		const processingSlices = this._getProcessingSlices();
 		let i = 0;
 		while (i < processingSlices.length) {

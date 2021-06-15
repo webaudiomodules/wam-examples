@@ -56,12 +56,7 @@ const {
 	// @ts-ignore
 	WamExampleEffect,
 	registerProcessor,
-	RingBuffer,
 } = globalThis;
-
-console.log('Audio-Thread RingBuffer', RingBuffer);
-
-const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
 
 /**
  * `WamExample`'s `AudioWorkletProcessor`
@@ -91,7 +86,6 @@ class WamExampleProcessor extends WamProcessor {
 	constructor(options) {
 		super(options);
 		this.destroyed = false;
-		this.supportSharedArrayBuffer = supportSharedArrayBuffer;
 		const {
 			moduleId,
 			instanceId,
