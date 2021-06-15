@@ -42,8 +42,7 @@ const executable = () => {
 		 */
 		constructor(sab, Type) {
 			// eslint-disable-next-line no-prototype-builtins
-			if (!Object.getPrototypeOf(ArrayBuffer).isPrototypeOf(Type)
-					&& Type.BYTES_PER_ELEMENT !== undefined) {
+			if (!Type.BYTES_PER_ELEMENT) {
 				throw new Error('Pass a concrete typed array class as second argument');
 			}
 
