@@ -308,6 +308,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		let i = 0;
 		while (i < parameterIds.length) {
 			const id = parameterIds[i];
+			/** @type {WamParameter} */
 			const parameter = this._parameterState[id];
 			parameterValues[id] = {
 				id,
@@ -338,6 +339,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 */
 	_setParameterValue(parameterUpdate, interpolate) {
 		const { id, value, normalized } = parameterUpdate;
+		/** @type {WamParameter} */
 		const parameter = this._parameterState[id];
 		if (!parameter) return;
 		if (!normalized) parameter.value = value;
