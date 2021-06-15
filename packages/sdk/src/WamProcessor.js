@@ -7,7 +7,7 @@
 /** @typedef {import('./api/types').WamEvent} WamEvent */
 /** @typedef {import('./api/types').WamTransportData} WamTransportData */
 /** @typedef {import('./api/types').WamMidiData} WamMidiData */
-/** @typedef {import('./api/types').WamSysexData} WamSysexData */
+/** @typedef {import('./api/types').WamBinaryData} WamBinaryData */
 /** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamParameterInterpolator')} WamParameterInterpolator */
 
@@ -267,7 +267,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	/**
 	 *
-	 * @param {WamSysexData} sysexData
+	 * @param {WamBinaryData} sysexData
 	 */
 	_onSysex(sysexData) {
 		// Override for custom sysex handling
@@ -287,7 +287,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	/**
 	 *
-	 * @param {string} oscData
+	 * @param {WamBinaryData} oscData
 	 */
 	_onOsc(oscData) {
 		// Override for custom osc handling
