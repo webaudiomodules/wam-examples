@@ -97,7 +97,6 @@ const style = `.pedal {
 	height: 180px;
 }
 
-
 .switch,
 .icon,
 .label {
@@ -428,11 +427,12 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const laserOpacity = Math.min(1.25 * synthLevelA, maxOpacity);
+			const laserOpacity = Math.min(1.75 * synthLevelA, maxOpacity);
 			const eyeOpacity = Math.min(2.0 * effectLevel + 0.5, maxOpacity);
 
 			const laserWidthFactor = Math.max(0.5 + synthLevelB, 0.5);
-			const pupilWidth = pupilHeight * Math.min(Math.max(synthLevelB, 0.25), 0.75);
+			const minPupilWidth = Math.min(0.9, Math.max(0.2, 1.0 - drive.value)) * pupilHeight;
+			const pupilWidth = minPupilWidth + (0.333 + drive.value) * pupilHeight * synthLevelA;
 			const laserLeftX = eyeOriginX[c] + eyeRadius * (c % 2 ? -0.5 : -3) * laserWidthFactor;
 			const laserRightX = eyeOriginX[c] + eyeRadius * (c % 2 ? 3 : 0.5) * laserWidthFactor;
 
