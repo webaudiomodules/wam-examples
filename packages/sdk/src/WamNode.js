@@ -6,10 +6,11 @@
 /** @typedef {import('./api/types').WamEventType} WamEventType */
 /** @typedef {import('./api/types').WamListenerType} WamListenerType */
 
-import executable from './RingBuffer.js';
-import WamEventRingBuffer from './WamEventRingBuffer.js';
+import getRingBuffer from './RingBuffer.js';
+import getWamEventRingBuffer from './WamEventRingBuffer.js';
 
-const RingBuffer = executable();
+const RingBuffer = getRingBuffer();
+const WamEventRingBuffer = getWamEventRingBuffer();
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */

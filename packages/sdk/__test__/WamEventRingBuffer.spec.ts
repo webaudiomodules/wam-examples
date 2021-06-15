@@ -8,10 +8,11 @@ import {
 	WamMidiEvent, WamMpeEvent, WamSysexEvent, WamOscEvent,
 } from '../src/api/types';
 
-import executable from '../src/RingBuffer.js';
-import WamEventRingBuffer from '../src/WamEventRingBuffer.js';
+import getRingBuffer from '../src/RingBuffer.js';
+import getWamEventRingBuffer from '../src/WamEventRingBuffer.js';
 
-const RingBuffer = executable();
+const RingBuffer = getRingBuffer();
+const WamEventRingBuffer = getWamEventRingBuffer();
 
 describe('WamEventRingBuffer Suite', () => {
 	const binaryBytesLength = 72;
