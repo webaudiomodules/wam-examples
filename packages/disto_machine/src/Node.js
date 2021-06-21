@@ -158,7 +158,7 @@ export default class DistoMachineNode extends CompositeAudioNode {
 					this.overdrives[i].curve = this.getDistortionCurve(this.normalize(0.5, 0, 150));
 				}
 				*/
-		this._output = this.context.createGain();
+		this._outputGain = this.context.createGain();
 
 		this.equalizer = new EqualizerDisto(this.context);
 		this.ampReverb = new ConvolverDisto(
@@ -209,8 +209,8 @@ export default class DistoMachineNode extends CompositeAudioNode {
 
 		this.amp.output.connect(this._output);*/
 
-		this._output = this.context.createGain();
-		this.connect(this._output);
+		this.connect(this._outputGain);
+		this._output = this._outputGain;
 	}
 
 
