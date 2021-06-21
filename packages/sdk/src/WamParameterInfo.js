@@ -1,3 +1,4 @@
+/** @typedef {import('./api/types').WamParameterInfo} IWamParameterInfo */
 /** @typedef {import('./api/types').WamParameterType} WamParameterType */
 /** @typedef {import('./api/types').WamParameterConfiguration} WamParameterConfiguration */
 
@@ -44,6 +45,9 @@ const denormalize = (x, min, max, e = 0) => (
  */
 const inRange = (x, min, max) => (x >= min && x <= max);
 
+/**
+ * @implements {IWamParameterInfo}
+ */
 export default class WamParameterInfo {
 	/**
 	 * @param {string} id
@@ -178,5 +182,6 @@ export default class WamParameterInfo {
 	}
 }
 
-// @ts-ignore
-if (typeof AudioWorkletGlobalScope !== 'undefined') { AudioWorkletGlobalScope.WamParameterInfo = WamParameterInfo; }
+if (globalThis.AudioWorkletGlobalScope) {
+	globalThis.WamParameterInfo = WamParameterInfo;
+}

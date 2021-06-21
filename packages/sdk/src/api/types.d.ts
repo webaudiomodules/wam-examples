@@ -2,7 +2,7 @@
 /**
  * Main `WebAudioModule` interface,
  * its constructor should be the `export default` of the ESM of each WAM.
- * 
+ *
  * @template Node type of the `audioNode` property, could be any `AudioNode` that implements `WamNode`
  */
 export interface WebAudioModule<Node extends WamNode = WamNode> {
@@ -46,6 +46,8 @@ export interface WebAudioModule<Node extends WamNode = WamNode> {
     initialize(state?: any): Promise<WebAudioModule>;
     /** Redefine this method to get the WAM's GUI as an HTML `Element`. */
     createGui(): Promise<Element>;
+    /** Clean up an element previously returned by `createGui` */
+    destroyGui(gui: Element): void
 }
 export const WebAudioModule: {
     prototype: WebAudioModule;
@@ -56,7 +58,10 @@ export const WebAudioModule: {
     /** WAM constructor, should call `initialize` after constructor to get it work */
     new <Node extends WamNode = WamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 };
-export interface WamDescriptor {
+
+export type WamIODescriptor = Record<`has${'Audio' | 'Midi' | 'Sysex' | 'Osc' | 'Mpe' | 'Automation'}${'Input' | 'Output'}`, boolean>;
+
+export interface WamDescriptor extends WamIODescriptor {
     name: string;
     vendor: string;
     version: string;
@@ -81,9 +86,9 @@ export interface WamNode extends AudioNode, Readonly<WamNodeOptions> {
     readonly module: WebAudioModule;
 
     /** Get parameter info for the specified parameter ids, or omit argument to get info for all parameters. */
-    getParameterInfo(parameterIdQuery?: string | string[]): Promise<WamParameterInfoMap>;
+    getParameterInfo(...parameterIdQuery: string[]): Promise<WamParameterInfoMap>;
     /** Get parameter values for the specified parameter ids, or omit argument to get values for all parameters. */
-    getParameterValues(normalized?: boolean, parameterIdQuery?: string | string[]): Promise<WamParameterDataMap>;
+    getParameterValues(normalized?: boolean, ...parameterIdQuery: string[]): Promise<WamParameterDataMap>;
     /** Set parameter values for the specified parameter ids. */
     setParameterValues(parameterValues: WamParameterDataMap): Promise<void>;
     /** Returns an object (such as JSON or a serialized blob) that can be used to restore the WAM's state. */
@@ -101,9 +106,13 @@ export interface WamNode extends AudioNode, Readonly<WamNodeOptions> {
     removeEventListener<K extends keyof WamEventMap>(type: K, listener: (this: WamNode, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     /** From the main thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
-    scheduleEvent(event: WamEvent): void;
+    scheduleEvents(...event: WamEvent[]): void;
     /** From the main thread, clear all pending WamEvents. */
-    clearEvents(): Promise<void>;
+    clearEvents(): void;
+    /** Connect an event output stream to another WAM. If no output index is given, assume output 0. */
+    connectEvents(to: WamNode, output?: number): void;
+    /** Disconnect an event output stream from another WAM. If no arguments are given, all event streams will be disconnected. */
+    disconnectEvents(to?: WamNode, output?: number): void;
     /** Stop processing and remove the node from the graph. */
     destroy(): void;
 }
@@ -117,7 +126,9 @@ export interface WamProcessor extends AudioWorkletProcessor {
     /** Compensation delay hint in seconds. */
     getCompensationDelay(): number;
     /** From the audio thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
-    scheduleEvent(event: WamEvent): void;
+    scheduleEvents(...event: WamEvent[]): void;
+    /** Schedule events for all the downstream WAMs */
+    emitEvents(...events: WamEvent[]): void;
     /** From the audio thread, clear all pending WamEvents. */
     clearEvents(): void;
     /** Stop processing and remove the node from the graph. */
@@ -192,7 +203,7 @@ export type WamParameterDataMap = Record<string, WamParameterData>;
 
 // EVENTS
 
-export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
+export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
 
 export type WamEventType = keyof WamEventMap;
 
@@ -200,6 +211,14 @@ export interface WamEventBase<T extends WamEventType = WamEventType, D = any> {
     type: T;
     data: D;
     time?: number;
+}
+
+export interface WamTransportData {
+    currentBar: number; // bar number
+    currentBarStarted: number; // timestamp in seconds (WebAudio clock)
+    tempo: number;
+    timeSigNumerator: number;
+    timeSigDenominator: number;
 }
 
 export interface WamMidiData {
@@ -214,14 +233,16 @@ export type WamEventCallback<E extends WamEventType = WamEventType> = (event: Wa
 
 export interface WamEventMap {
     "automation": WamAutomationEvent;
+    "transport": WamTransportEvent;
     "midi": WamMidiEvent;
     "sysex": WamSysexEvent;
     "mpe": WamMpeEvent;
     "osc": WamOscEvent;
 }
 
-export type WamEvent = WamAutomationEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent;
+export type WamEvent = WamAutomationEvent | WamTransportEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent;
 export type WamAutomationEvent = WamEventBase<'automation', WamParameterData>;
+export type WamTransportEvent = WamEventBase<'transport', WamTransportData>;
 export type WamMidiEvent = WamEventBase<'midi', WamMidiData>;
 export type WamSysexEvent = WamEventBase<'sysex', WamSysexData>;
 export type WamMpeEvent = WamEventBase<'mpe', WamMidiData>;
@@ -236,11 +257,20 @@ export const AudioWorkletProcessor: {
     new (options: AudioWorkletNodeOptions): AudioWorkletProcessor;
 };
 
+export interface WamEnv {
+    readonly eventGraph: Map<WamProcessor, Set<WamProcessor>[]>;
+    readonly processors: Record<string, WamProcessor>;
+    create(wam: WamProcessor): void;
+    connectEvents(from: WamProcessor, to: WamProcessor, output?: number): void;
+    disconnectEvents(from: WamProcessor, to?: WamProcessor, output?: number): void;
+    destroy(wam: WamProcessor): void;
+}
+
 export interface AudioWorkletGlobalScope {
     registerProcessor: (name: string, constructor: new (options: any) => AudioWorkletProcessor) => void;
     currentFrame: number;
     currentTime: number;
     sampleRate: number;
     AudioWorkletProcessor: typeof AudioWorkletProcessor;
-	WamProcessors: Record<string, WamProcessor>;
+    webAudioModules: WamEnv;
 }

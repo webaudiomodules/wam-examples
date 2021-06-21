@@ -4,9 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import builtins from 'rollup-plugin-node-builtins';
 
-export default {
-	input: './src',
-
+const commonConfig = {
 	output: [
 		{
 			sourcemap: true,
@@ -28,3 +26,10 @@ export default {
 		commonjs(),
 	],
 };
+export default [{
+	input: './src',
+	...commonConfig,
+}, {
+	input: './src/WamProcessor.js',
+	...commonConfig,
+}];

@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "noImplicitAny": true,
+      "module": "esnext",
+      "moduleResolution": "node",
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "target": "es2015",
+      "sourceMap": true,
+      "lib": ["es2015", "dom", "dom.iterable"],
+      "jsx": "react",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
+      "jsxFactory": "h",
+      "jsxFragmentFactory": "Fragment",
+      "outDir": "dist",
+      "noUnusedLocals": false,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "alwaysStrict": true,
+      "noUnusedParameters": false,
+      "pretty": true,
+      "noFallthroughCasesInSwitch": true,
+      "allowUnreachableCode": false,
+      "experimentalDecorators": true,
+      "downlevelIteration": true
+    },
+    "include": [
+      "./src/*"
+    ],
+    "exclude": [
+      "dist",
+      "node_modules",
+      "../../node_modules"
+    ]
+  }

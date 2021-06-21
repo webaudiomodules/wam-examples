@@ -54,7 +54,12 @@ const oscilloscope = {
     ...common,
     input: "./src/oscilloscope/index.tsx",
     output: { ...common.output[0], dir: "./dist/oscilloscope" },
-    plugins: [...common.plugins, copy({ targets: [{ src: "./src/oscilloscope/descriptor.json", dest: "./dist/oscilloscope" }] })]
+    plugins: [...common.plugins, copy({ targets: [{ src: "./src/oscilloscope/descriptor.json", dest: "./dist/oscilloscope" }] })],
+    onwarn(warning, warn) {
+        // suppress eval warnings
+        if (warning.code === "EVAL") return;
+        warn(warning);
+    }
 };
 const spectroscope = {
     ...common,

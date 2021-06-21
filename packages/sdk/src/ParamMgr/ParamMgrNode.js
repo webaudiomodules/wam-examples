@@ -7,6 +7,7 @@
 import MgrAudioParam from './MgrAudioParam.js';
 
 /** @typedef {import('../api/types').WebAudioModule} WebAudioModule */
+/** @typedef {import('../api/types').WamNode} WamNode */
 /** @typedef {import('../api/types').WamParameterDataMap} WamParameterValueMap */
 /** @typedef {import('../api/types').WamEvent} WamEvent */
 /** @typedef {import('./types').ParamMgrOptions} ParamMgrOptions */
@@ -43,8 +44,10 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		this.internalParams = processorOptions.internalParams;
 		this.internalParamsConfig = internalParamsConfig;
 		this.$prevParamsBuffer = new Float32Array(this.internalParams.length);
-		this.paramsChangeCanDispatch = new Set(this.internalParams);
+		this.paramsUpdateCheckFn = [];
 		this.paramsUpdateCheckFnRef = [];
+		this.messageRequestId = 0;
+
 		Object.entries(this.getParams()).forEach(([name, param]) => {
 			Object.setPrototypeOf(param, MgrAudioParam.prototype);
 			param.info = this.paramsConfig[name];
@@ -58,12 +61,15 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		 * @param {keyof ParamMgrCallToProcessor} call
 		 * @param {any} args
 		 */
-		this.call = (call, ...args) => new Promise((resolve, reject) => {
-			const id = performance.now();
-			resolves[id] = resolve;
-			rejects[id] = reject;
-			this.port.postMessage({ id, call, args });
-		});
+		this.call = (call, ...args) => {
+			const id = this.messageRequestId;
+			this.messageRequestId += 1;
+			return new Promise((resolve, reject) => {
+				resolves[id] = resolve;
+				rejects[id] = reject;
+				this.port.postMessage({ id, call, args });
+			});
+		};
 		this.handleMessage = ({ data }) => {
 			const { id, call, args, value, error } = data;
 			if (call) {
@@ -119,6 +125,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			if (config instanceof AudioParam) {
 				try {
 					config.automationRate = 'a-rate';
+				} catch {
 				} finally {
 					config.value = Math.max(0, config.minValue);
 					this.connect(config, offset + i);
@@ -150,36 +157,49 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		return this.call('getCompensationDelay');
 	}
 
-	getParameterInfo(parameterIdQuery) {
-		return this.call('getParameterInfo', parameterIdQuery);
+	getParameterInfo(...parameterIdQuery) {
+		return this.call('getParameterInfo', ...parameterIdQuery);
 	}
 
-	getParameterValues(normalized, parameterIdQuery) {
-		return this.call('getParameterValues', normalized, parameterIdQuery);
+	getParameterValues(normalized, ...parameterIdQuery) {
+		return this.call('getParameterValues', normalized, ...parameterIdQuery);
+	}
+
+	scheduleAutomation(event) {
+		const { time } = event;
+		const { id, normalized, value } = event.data;
+		const audioParam = this.getParam(id);
+		if (!audioParam) return;
+		if (audioParam.info.type === 'float') {
+			if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
+			else audioParam.linearRampToValueAtTime(value, time);
+		} else {
+			// eslint-disable-next-line no-lonely-if
+			if (normalized) audioParam.setNormalizedValueAtTime(value, time);
+			else audioParam.setValueAtTime(value, time);
+		}
 	}
 
 	/**
-	 * @param {WamEvent} event
+	 * @param {WamEvent[]} events
 	 */
-	scheduleEvent(event) {
-		if (event.type === 'automation') {
-			const { time } = event;
-			const { id, normalized, value } = event.data;
-			const audioParam = this.getParam(id);
-			if (!audioParam) return;
-			if (audioParam.info.type === 'float') {
-				if (normalized) audioParam.linearRampToNormalizedValueAtTime(value, time);
-				else audioParam.linearRampToValueAtTime(value, time);
-			} else {
-				// eslint-disable-next-line no-lonely-if
-				if (normalized) audioParam.setNormalizedValueAtTime(value, time);
-				else audioParam.setValueAtTime(value, time);
+	scheduleEvents(...events) {
+		events.forEach((event) => {
+			if (event.type === 'automation') {
+				this.scheduleAutomation(event);
 			}
-		}
-		this.call('scheduleEvent', event);
+		});
+		this.call('scheduleEvents', ...events);
 	}
 
-	async clearEvents() {
+	/**
+	 * @param {WamEvent[]} events
+	 */
+	emitEvents(...events) {
+		this.call('emitEvents', ...events);
+	}
+
+	clearEvents() {
 		this.call('clearEvents');
 	}
 
@@ -187,7 +207,11 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {WamEvent} event
 	 */
 	dispatchWamEvent(event) {
-		this.dispatchEvent(new CustomEvent(event.type, { detail: event }));
+		if (event.type === 'automation') {
+			this.scheduleAutomation(event);
+		} else {
+			this.dispatchEvent(new CustomEvent(event.type, { detail: event }));
+		}
 	}
 
 	/**
@@ -203,12 +227,12 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		});
 	}
 
-	getState() {
-		return this.getParameterValues();
+	async getState() {
+		return this.getParamsValues();
 	}
 
-	setState(state) {
-		return this.setParameterValues(state);
+	async setState(state) {
+		this.setParamsValues(state);
 	}
 
 	convertTimeToFrame(time) {
@@ -223,7 +247,6 @@ export default class ParamMgrNode extends AudioWorkletNode {
 	 * @param {string} name
 	 */
 	requestDispatchIParamChange = (name) => {
-		if (!this.paramsChangeCanDispatch.has(name)) return;
 		const config = this.internalParamsConfig[name];
 		if (!('onChange' in config)) return;
 		const { automationRate, onChange } = config;
@@ -235,18 +258,17 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		if (typeof this.paramsUpdateCheckFnRef[i] === 'number') {
 			window.clearTimeout(this.paramsUpdateCheckFnRef[i]);
 		}
-		this.paramsUpdateCheckFnRef[i] = window.setTimeout(() => {
-			this.paramsUpdateCheckFnRef[i] = undefined;
-			this.paramsChangeCanDispatch.add(name);
-			this.requestDispatchIParamChange(name);
-		}, interval);
-		const prev = this.$prevParamsBuffer[i];
-		const cur = this.$paramsBuffer[i];
-		if (cur !== prev) {
-			onChange(cur, prev);
-			this.$prevParamsBuffer[i] = cur;
-			this.paramsChangeCanDispatch.delete(name);
-		}
+
+		this.paramsUpdateCheckFn[i] = () => {
+			const prev = this.$prevParamsBuffer[i];
+			const cur = this.$paramsBuffer[i];
+			if (cur !== prev) {
+				onChange(cur, prev);
+				this.$prevParamsBuffer[i] = cur;
+			}
+			this.paramsUpdateCheckFnRef[i] = window.setTimeout(this.paramsUpdateCheckFn[i], interval);
+		};
+		this.paramsUpdateCheckFn[i]();
 	}
 
 	/**
@@ -444,6 +466,24 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		const param = this.parameters.get(name);
 		if (!param) return null;
 		return param.cancelAndHoldAtTime(cancelTime);
+	}
+
+	/**
+	 * @param {WamNode} to
+	 * @param {number} [output]
+	 */
+	connectEvents(to, output) {
+		if (!to.module?.isWebAudioModule) return;
+		this.call('connectEvents', to.instanceId, output);
+	}
+
+	/**
+	 * @param {WamNode} [to]
+	 * @param {number} [output]
+	 */
+	disconnectEvents(to, output) {
+		if (to && !to.module?.isWebAudioModule) return;
+		this.call('disconnectEvents', to?.instanceId, output);
 	}
 
 	async destroy() {

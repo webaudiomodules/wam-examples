@@ -287,24 +287,25 @@ export default class LiveGainUI extends React.PureComponent<{ module: Module }, 
         this.inTouch = false;
     };
     handleKeyDown = (e: React.KeyboardEvent) => {
+        const { key } = e;
         if (!this.state.inputBuffer) {
             let addStep = 0;
-            if (e.key === "ArrowUp" || e.key === "ArrowRight") addStep = 1;
-            if (e.key === "ArrowDown" || e.key === "ArrowLeft") addStep = -1;
+            if (key === "ArrowUp" || key === "ArrowRight") addStep = 1;
+            if (key === "ArrowDown" || key === "ArrowLeft") addStep = -1;
             if (addStep !== 0) {
                 const newValue = this.toValidValue(this.props.module.audioNode.getParamValue("gain") + this.props.module.audioNode.getParamValue("step") * addStep);
                 if (newValue !== this.props.module.audioNode.getParamValue("gain")) this.setValueToOutput(newValue);
             }
         }
-        if (e.key.match(/[0-9.-]/)) {
-            this.setState(({ inputBuffer }) => ({ inputBuffer: inputBuffer + e.key }));
+        if (key.match(/[0-9.-]/)) {
+            this.setState(({ inputBuffer }) => ({ inputBuffer: inputBuffer + key }));
             return;
         }
-        if (e.key === "Backspace") {
+        if (key === "Backspace") {
             this.setState(({ inputBuffer }) => ({ inputBuffer: inputBuffer.slice(0, -1) }));
             return;
         }
-        if (e.key === "Enter") {
+        if (key === "Enter") {
             const newValue = this.toValidValue(+this.state.inputBuffer);
             this.setState({ inputBuffer: "" });
             if (newValue !== this.props.module.audioNode.getParamValue("gain")) this.setValueToOutput(newValue);

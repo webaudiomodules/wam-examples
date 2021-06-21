@@ -16,7 +16,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	getCompensationDelay() { throw new Error('Not Implemented.'); return null; }
 
-	scheduleEvent(event) { throw new Error('Not Implemented.'); }
+	scheduleEvents(...events) { throw new Error('Not Implemented.'); }
+
+	emitEvents(...events) { throw new Error('Not Implemented.'); }
 
 	clearEvents() { throw new Error('Not Implemented.'); }
 

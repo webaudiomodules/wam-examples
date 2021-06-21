@@ -2,8 +2,8 @@
 import { WebAudioModule, ParamMgrFactory } from "sdk";
 import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
 import Node from "./OscilloscopeNode";
-import { TemporalAnalyserNode, register } from "../worklets/TemporalAnalyser";
-import { createElement } from "../gui";
+import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
+import { createElement, destroyElement } from "../gui";
 import UI from "./OscilloscopeUI";
 
 export type Parameters = "frameRate" | "windowSize" | "interleaved" | "showStats";
@@ -16,8 +16,8 @@ export class OscilloscopeModule extends WebAudioModule<Node> {
     async createAudioNode(initialState?: any) {
         const node = new Node(this.audioContext);
         const outGainNode = this.audioContext.createGain();
-        await register(this.audioContext.audioWorklet);
-        const analyserNode = new TemporalAnalyserNode(this.audioContext);
+        await SpectralAnalyserNode.register(this.audioContext.audioWorklet);
+        const analyserNode = new SpectralAnalyserNode(this.audioContext);
         const paramsConfig: ParametersMappingConfiguratorOptions["paramsConfig"] = {
             frameRate: {
                 defaultValue: 60,
@@ -25,7 +25,8 @@ export class OscilloscopeModule extends WebAudioModule<Node> {
                 maxValue: 60
             },
             windowSize: {
-                ...analyserNode.parameters.get("windowSize")
+                ...analyserNode.parameters.get("windowSize"),
+                defaultValue: 1024
             },
             interleaved: {
                 defaultValue: 1,
@@ -56,6 +57,10 @@ export class OscilloscopeModule extends WebAudioModule<Node> {
 
     createGui(): Promise<HTMLDivElement> {
         return createElement(this, UI);
+    }
+
+    destroyGui(gui: Element) {
+        return destroyElement(gui);
     }
 }
 export default OscilloscopeModule;

@@ -80,6 +80,7 @@ declare class WamParameterInterpolator {
 	private _filled: number;
 
 	/** Utility for managing lifecycles of lookup tables. */
+	/* eslint-disable-next-line no-underscore-dangle */
 	private _removeTableReference(oldKey: string): void;
 
 	/**

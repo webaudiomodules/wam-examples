@@ -64,6 +64,18 @@ class WebAudioModule extends AbstractWebAudioModule {
 		keywords: [],
 		isInstrument: false,
 		website: '',
+		hasAudioInput: true,
+		hasAudioOutput: true,
+		hasAutomationInput: true,
+		hasAutomationOutput: true,
+		hasMidiInput: true,
+		hasMidiOutput: true,
+		hasMpeInput: true,
+		hasMpeOutput: true,
+		hasOscInput: true,
+		hasOscOutput: true,
+		hasSysexInput: true,
+		hasSysexOutput: true,
 	};
 
 	get moduleId() { return this.vendor + this.name; }
@@ -143,6 +155,8 @@ class WebAudioModule extends AbstractWebAudioModule {
 		const { createElement } = await this._loadGui();
 		return createElement(this);
 	}
+
+	destroyGui() {}
 }
 
 export default WebAudioModule;

@@ -83,7 +83,10 @@ export interface MessagePortResponse<M = Record<string, any>, K extends keyof M 
 	error?: Error;
 }
 
-export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues' | 'scheduleEvent' | 'clearEvents'>> {
+export interface ParamMgrCallToProcessor extends UnPromisifiedFunctionMap<Pick<WamNode, 'destroy' | 'getCompensationDelay' | 'getParameterInfo' | 'getParameterValues' | 'scheduleEvents' | 'clearEvents'>> {
+    connectEvents(wamInstanceId: string, from: number): void;
+    disconnectEvents(wamInstanceId: string, from: number): void;
+    emitEvents(...events: WamEvent[]): void;
 	setParamsMapping(mapping: ParametersMapping): void;
 	getBuffer(): { lock: Int32Array, paramsBuffer: Float32Array };
 }
@@ -191,19 +194,20 @@ export interface ParamMgrNode<Params extends string = string, InternalParams ext
      * @deprecated
      */
     readonly $prevParamsBuffer: Float32Array;
-    /**
-     * A set for internal parameters names.
-     * These params is ready for next change event dispatch.
-     * (to throttle event dispatch rate for the non-AudioParam internal parameters)
-     * @deprecated
-     */
-    readonly paramsChangeCanDispatch: Set<InternalParams>;
+
     /**
      * Event dispatch callbacks reference of the `setTimeout` calls.
      * Used to clear the callbacks while destroying the plugin.
      * @deprecated
      */
     readonly paramsUpdateCheckFnRef: number[];
+
+    /**
+     * Event dispatch callback functions bound to specific values for the parameter.
+     * @deprecated
+     */
+    readonly paramsUpdateCheckFn: number[];
+
     /**
      * waiting for the processor that gives the `paramsBuffer` `SharedArrayBuffer`
      */

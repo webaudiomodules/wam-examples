@@ -1,24 +1,23 @@
 import apply from "window-function/apply";
 import { blackman, hamming, hann, triangular } from "window-function";
-import "../utils/simWorkletAsWebEnv";
-import { RFFT } from "fftw-js";
-import "../utils/unsimWorkletAsWebEnv";
-import { setTypedArray, getSubTypedArray, indexToFreq, centroid, estimateFreq, fftw2Amp } from "../utils/buffer";
+import { RFFT } from "../utils/fftw";
+import { setTypedArray, getSubTypedArray, indexToFreq, sum, centroid, estimateFreq, fftw2Amp, flatness, flux, kurtosis, rolloff, skewness, slope, spread } from "../utils/buffer";
 import { ceil } from "../utils/math";
-import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "./AudioWorklet";
-import { ISpectralAnalyserProcessor, ISpectralAnalyserNode, SpectralAnalyserParameters } from "./SpectralAnalyserWorklet.types";
+import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "./TypedAudioWorklet";
+import { ISpectralAnalyserProcessor, ISpectralAnalyserNode, SpectralAnalyserParameters, SpectralAnalysis } from "./SpectralAnalyserWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 import { windowEnergyFactor } from "../utils/windowEnergy";
 
 const processorID = "__WebAudioModule_LiveGain_SpectralAnalyser";
-declare const globalThis: AudioWorkletGlobalScope;
+declare const globalThis: AudioWorkletGlobalScope & { SharedArrayBuffer: typeof SharedArrayBuffer | typeof ArrayBuffer; Atomics: typeof Atomics };
+if (!globalThis.SharedArrayBuffer) globalThis.SharedArrayBuffer = ArrayBuffer;
 const { registerProcessor, sampleRate } = globalThis;
 
 /**
  * Some data to transfer across threads
  */
 class SpectralAnalyserAtoms {
-    private readonly _sab: ArrayBuffer;
+    private readonly _sab: SharedArrayBuffer;
     private readonly _lock: Int32Array;
     private readonly _$: Uint32Array;
     private readonly _$total: Uint32Array;
@@ -28,10 +27,10 @@ class SpectralAnalyserAtoms {
      * Atomic Lock
      */
     get lock(): number {
-        return Atomics.load(this._lock, 0);
+        return globalThis.Atomics?.load(this._lock, 0);
     }
     set lock(value: number) {
-        Atomics.store(this._lock, 0, value);
+        globalThis.Atomics?.store(this._lock, 0, value);
     }
     /**
      * Next audio sample index to write into window
@@ -82,7 +81,7 @@ class SpectralAnalyserAtoms {
         return { $: this._$, $total: this._$total, $frame: this._$frame, $totalFrames: this._$totalFrames, lock: this._lock };
     }
     constructor() {
-        this._sab = new ArrayBuffer(5 * Uint32Array.BYTES_PER_ELEMENT);
+        this._sab = new SharedArrayBuffer(5 * Uint32Array.BYTES_PER_ELEMENT);
         this._lock = new Int32Array(this._sab, 0, 1);
         this._$ = new Uint32Array(this._sab, 4, 1);
         this._$total = new Uint32Array(this._sab, 8, 1);
@@ -93,7 +92,7 @@ class SpectralAnalyserAtoms {
 class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnalyserProcessor, ISpectralAnalyserNode, SpectralAnalyserParameters> implements ISpectralAnalyserProcessor {
     static get parameterDescriptors(): TypedAudioParamDescriptor<SpectralAnalyserParameters>[] {
         return [{
-            defaultValue: 65536,
+            defaultValue: 1024,
             maxValue: 2 ** 32,
             minValue: 128,
             name: "windowSize"
@@ -119,7 +118,7 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
     /**
      * Concatenated audio data, array of channels
      */
-    private readonly windowSab: ArrayBuffer[] = [];
+    private readonly windowSab: SharedArrayBuffer[] = [];
     /**
      * Float32Array Buffer view of window
      */
@@ -127,7 +126,7 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
     /**
      * Concatenated FFT amplitude data, array of channels.
      */
-    private readonly fftWindowSab: ArrayBuffer[] = [];
+    private readonly fftWindowSab: SharedArrayBuffer[] = [];
     /**
      * Float32Array Buffer view of fft window
      */
@@ -201,8 +200,33 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
         const { frames, fftBins, fftHopSize } = this;
         return { $frame, data, frames, fftBins, fftHopSize, $totalFrames, lock };
     }
+    getAmplitude() {
+        return this.lastFrame.map(channel => sum(channel));
+    }
     getCentroid() {
         return this.lastFrame.map(channel => indexToFreq(centroid(channel), this.fftBins, sampleRate));
+    }
+    getFlatness() {
+        return this.lastFrame.map(channel => flatness(channel));
+    }
+    getFlux() {
+        const secondLastFrame = this.getLastFrame(2);
+        return this.lastFrame.map((channel, i) => flux(channel, secondLastFrame[i]));
+    }
+    getKurtosis() {
+        return this.lastFrame.map(channel => kurtosis(channel));
+    }
+    getSkewness() {
+        return this.lastFrame.map(channel => skewness(channel));
+    }
+    getRolloff() {
+        return this.lastFrame.map(channel => indexToFreq(rolloff(channel), this.fftBins, sampleRate));
+    }
+    getSlope() {
+        return this.lastFrame.map(channel => slope(channel)/* / (sampleRate / 2 / this.fftBins)*/);
+    }
+    getSpread() {
+        return this.lastFrame.map(channel => spread(channel));
     }
     getEstimatedFreq() {
         return this.lastFrame.map(channel => estimateFreq(channel, sampleRate));
@@ -220,9 +244,18 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
         const { $, $total, lock } = this.atoms.asObject;
         return { data, $, $total, lock };
     }
+    gets<K extends keyof SpectralAnalysis>(...analysis: K[]) {
+        const result: Partial<SpectralAnalysis> = {};
+        for (const key of analysis) {
+            if (typeof key !== "string" || !key.length) continue;
+            const method = `get${key.charAt(0).toUpperCase()}${key.slice(1)}` as `get${Capitalize<string & K>}`;
+            if (this[method]) result[key] = this[method]() as SpectralAnalysis[K];
+        }
+        return result;
+    }
     destroy() {
         this.destroyed = true;
-        this.port.close();
+        this._disposed = true;
     }
     /**
      * Total FFT frames in fftWindow
@@ -304,6 +337,9 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
 
         const bufferSize = Math.max(...input.map(c => c.length)) || 128;
 
+        this.wait();
+        this.lock = 1;
+
         this.$ %= windowSize;
         this.$total += bufferSize;
         this.$frame %= frames;
@@ -313,15 +349,15 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
             $ = this.$;
             $fft = this.$fft;
             if (!this.window[i]) { // Initialise channel if not exist
-                this.windowSab[i] = new ArrayBuffer(windowSize * Float32Array.BYTES_PER_ELEMENT);
+                this.windowSab[i] = new SharedArrayBuffer(windowSize * Float32Array.BYTES_PER_ELEMENT);
                 this.window[i] = new Float32Array(this.windowSab[i]);
-                this.fftWindowSab[i] = new ArrayBuffer(fftWindowSize * Float32Array.BYTES_PER_ELEMENT);
+                this.fftWindowSab[i] = new SharedArrayBuffer(fftWindowSize * Float32Array.BYTES_PER_ELEMENT);
                 this.fftWindow[i] = new Float32Array(this.fftWindowSab[i]);
             } else {
                 if (this.window[i].length !== windowSize) { // adjust window size if not corresponded
                     const oldWindow = this.window[i];
                     const oldWindowSize = oldWindow.length;
-                    const windowSab = new ArrayBuffer(windowSize * Float32Array.BYTES_PER_ELEMENT);
+                    const windowSab = new SharedArrayBuffer(windowSize * Float32Array.BYTES_PER_ELEMENT);
                     const window = new Float32Array(windowSab);
                     $ = setTypedArray(window, oldWindow, 0, $ - Math.min(windowSize, oldWindowSize));
                     this.windowSab[i] = windowSab;
@@ -330,7 +366,7 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
                 if (this.fftWindow[i].length !== fftWindowSize) { // adjust fftWindow size if not corresponded
                     const oldWindow = this.fftWindow[i];
                     const oldWindowSize = oldWindow.length;
-                    const window = new ArrayBuffer(fftWindowSize * Float32Array.BYTES_PER_ELEMENT);
+                    const window = new SharedArrayBuffer(fftWindowSize * Float32Array.BYTES_PER_ELEMENT);
                     $fft = setTypedArray(new Float32Array(window), new Float32Array(oldWindow), 0, $fft - Math.min(windowSize, oldWindowSize));
                     $frame = ~~($fft / fftBins);
                     this.fftWindowSab[i] = window;
@@ -374,7 +410,13 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
         this.$frame = $frame;
         this.$totalFrames = $totalFrames;
         this.samplesWaiting = samplesWaiting;
+        this.lock = 0;
         return true;
     }
 }
-registerProcessor(processorID, SpectralAnalyserProcessor);
+try {
+    registerProcessor(processorID, SpectralAnalyserProcessor);
+} catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn(error);
+}
