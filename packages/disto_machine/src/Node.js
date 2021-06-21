@@ -202,120 +202,123 @@ export default class DistoMachineNode extends CompositeAudioNode {
 		}
 		*/
 
-		/*
+
 		this.connect(this.amp.input);
 		// shihong....
-		this._output = this.context.createGain();
-
-		this.amp.output.connect(this._output);*/
-
-		this.connect(this._outputGain);
+		this.amp.output.connect(this._outputGain);
 		this._output = this._outputGain;
 	}
 
+	setParam(key, value) {
+		try {
+		  this[key] = value;
+		} catch (error) {
+		  console.warn("this plugin does not implement this param");
+		}
+	  }
 
 	set volume(val) {
-		this.params.volume = val;
+		//this.params.volume = val;
 		this.amp.changeOutputGain(val);
 	}
 
 	set master(val) {
-		this.params.master = val;
+		//this.params.master = val;
 		this.amp.changeMasterVolume(val);
 	}
 
 	set drive(val) {
-		this.params.drive = val;
+		//this.params.drive = val;
 		this.amp.changeDrive(val);
 	}
 
 	set bass(val) {
-		this.params.bass = val;
+		//this.params.bass = val;
 		this.amp.changeBassFilterValue(val);
 	}
 
 	set middle(val) {
-		this.params.middle = val;
+		//this.params.middle = val;
 		this.amp.changeMidFilterValue(val);
 	}
 
 	set treble(val) {
-		this.params.treble = val;
+		//this.params.treble = val;
 		this.amp.changeTrebleFilterValue(val);
 	}
 
 	set reverb(val) {
-		this.params.reverb = val;
+		//this.params.reverb = val;
 		this.amp.changeReverbGain(val);
 	}
 
 	set presence(val) {
-		this.params.presence = val;
+		//this.params.presence = val;
 		this.amp.changePresenceFilterValue(val);
 	}
 
 	set preset(val) {
 		console.log("########### SET PRESET val=" + val + "#######");
-		this.params.preset = val;
+		//this.params.preset = val;
 		this.amp.setPresetByIndex(this, val);
 	}
 
 	set LS1Freq(val) {
-		this.params.LS1Freq = val;
+		//this.params.LS1Freq = val;
 		this.amp.changeLowShelf1FrequencyValue(val);
 	}
 
 	set LS1Gain(val) {
-		this.params.LS1Gain = val;
+		//this.params.LS1Gain = val;
 		this.amp.changeLowShelf1GainValue(val);
 	}
 
 	set LS2Freq(val) {
-		this.params.LS2Freq = val;
+		//this.params.LS2Freq = val;
 		this.amp.changeLowShelf2FrequencyValue(val);
 	}
 
 	set LS2Gain(val) {
-		this.params.LS2Gain = val;
+		//this.params.LS2Gain = val;
 		this.amp.changeLowShelf2GainValue(val);
 	}
 
 	set LS3Freq(val) {
-		this.params.LS3Freq = val;
+		//this.params.LS3Freq = val;
 		this.amp.changeLowShelf3FrequencyValue = val;
 	}
 
 	set LS3Gain(val) {
-		this.params.LS3Gain = val;
+		//this.params.LS3Gain = val;
 		this.amp.changeLowShelf3GainValue(val);
 	}
 	set gain1(val) {
-		this.params.gain1 = val;
+		//this.params.gain1 = val;
 		this.amp.changePreampStage1GainValue(val);
 	}
 
 	set gain2(val) {
-		this.params.gain2 = val;
+		//this.params.gain2 = val;
 		this.amp.changePreampStage2GainValue(val);
 	}
 
 	set HP1Freq(val) {
-		this.params.HP1Freq = val;
+		//this.params.HP1Freq = val;
 		this.amp.changeHighPass1FrequencyValue(val);
 	}
 
 	set HP1Q(val) {
-		this.params.HP1Q = val;
+		//this.params.HP1Q = val;
 		this.amp.changeHighPass1QValue(val);
 	}
 
 	set EQ(val) {
-		this.params.EQ = val;
+		//this.params.EQ = val;
 		this.amp.changeEQValues(val);
 	}
 
 	set CG(val) {
-		this.params.CG = val;
+		//this.params.CG = val;
 		this.amp.changeRoom(val);
 	}
 

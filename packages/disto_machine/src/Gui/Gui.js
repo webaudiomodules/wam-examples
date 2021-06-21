@@ -6,9 +6,15 @@ import '../utils/webaudio-controls.js';
 // that build in pure JS the syles and html template directly
 // in the code...
 let style = `
+@font-face {
+	font-family: 'BouWeste';
+	src: url('http://localhost:1234/packages/disto_machine/src/Gui/assets/BouWeste.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
 
+}
 :host {
-	font: 'BouWeste', 'Arial Black';
+	font-family: 'BouWeste', 'Arial Black';
 	display: block;
 	width: 450px;
 	height: 150px;
@@ -173,6 +179,21 @@ let style = `
 
 let template = `
 <img id="background-image">
+	<div class="knob " id="volume">
+			<webaudio-knob height="40" width="40" id="knob1" sprites="100" min="0" max="10" step="0.1" value="2" midilearn="1">
+			</webaudio-knob>
+			<div style="text-align:center">Volume</div>
+	</div>
+	<div class="knob " id="master">
+		<webaudio-knob height="40" width="40" id="knob2" sprites="100" min="0" max="10" step="0.1" value="5.5" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Master</div>
+	</div>
+	<div class="knob " id="drive">
+		<webaudio-knob height="40" width="40" id="knob3" sprites="100" min="0" max="10" step="0.1" value="5.2" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Drive</div>
+	</div>
 
 	<div class="switchCont" id="switch1">
 		<webaudio-switch class="switch" value="1" id="switch1" height="30" width="60"></webaudio-switch>
@@ -203,21 +224,9 @@ let template = `
 		</webaudio-knob>
 		<div style="text-align:center">Bass</div>
 	</div>
-	<div class="knob " id="drive">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="5.2" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Drive</div>
-	</div>
-	<div class="knob " id="master">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="5.5" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Master</div>
-	</div>
-	<div class="knob " id="volume">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="2" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Volume</div>
-	</div>
+
+
+
 	<select id="menuPresets" style="display:none">
 		<option value=0>Default</option>
 		<option value=1>Jimmy HDX</option>
@@ -255,7 +264,7 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 
 		super();
 
-		this.fixFontURL();
+		//this.fixFontURL();
 		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
@@ -294,8 +303,8 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 
 		}
 		` + style;
-		//console.log("########### STYLE ###########");
-		//console.log(style);
+		console.log("########### STYLE ###########");
+		console.log(style);
 	}
 	/*
 	constructor(plugin) {
@@ -315,9 +324,49 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 */
+static get observedAttributes() {
 
+	return ['state'];
+
+}
+
+simulatePresetMenuChoice(val) {
+	this.root.querySelector("#menuPresets").value = val;
+	this.plugin.audioNode.setParamsValues({ preset: val});
+	//this._plug.setParam("preset", val);
+}
+
+connectedCallback() {
+	console.log("connected callback")
+	this.simulatePresetMenuChoice(5);
+}
+
+attributeChangedCallback() {
+	this.state = JSON.parse(this.getAttribute('state'));
+	console.log("attributeChangedCallback state = " + this.getAttribute('state'))
+
+	try {
+		if (this.state.status == "enable") {
+			this.root.querySelector("#switch1").querySelector("webaudio-switch").value = 1;
+			this.isOn = true;
+		} else {
+			this.root.querySelector("#switch1").querySelector("webaudio-switch").value = 0;
+			this.isOn = false;
+		}
+		this.knobs = this._root.querySelectorAll(".knob");
+		for (var i = 0; i < this.knobs.length; i++) {
+			this.knobs[i].querySelector("webaudio-knob").setValue(this.state[this.knobs[i].id], false);
+
+		}
+		if (this.state.preset) {
+			var preset = this.root.querySelector("#menuPresets");
+			preset.value = this.state.preset;
+		}
+	} catch (err) {
+	}
+}
 	updateStatus = (status) => {
-		this.shadowRoot.querySelector('#switch1').value = status;
+		this.root.querySelector('#switch1').value = status;
 	}
 
 	handleAnimationFrame = () => {
@@ -393,12 +442,24 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 	}
 
 	setKnobs() {
-/*
+
+		// volume
 		this.root
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
-				this.plugin.audioNode.setParamsValues({ lowGain: e.target.value});
+				this.plugin.audioNode.setParamsValues({ volume: e.target.value});
 			});
+			this.root
+			.querySelector('#knob2')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ master: e.target.value});
+			});
+			this.root
+			.querySelector('#knob3')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ drive: e.target.value});
+			});
+			/*
 		this.root
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {

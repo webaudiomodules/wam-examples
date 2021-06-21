@@ -50,23 +50,34 @@ export default class DistoMachinePlugin extends WebAudioModule {
 		const distoMachineNode = new DistoMachineNode(this.audioContext);
 
 		const internalParamsConfig = {
-			// quadrafuzzNode.overdrives[0] is a waveshaper. When we call setLowGain(value) it will change
-			// the curve of the waveshaper... so... we don't really want to automatize at a fast rate...
-			// I guess this is the case of a developer who is gonna do custom automation
-			/*
-			lowGain: {
-				defaultValue: 0.6,
+
+			preset: {
+				defaultValue: 5,
 				minValue: 0,
-				maxValue: 1,
-				onChange: (value) => { quadrafuzzNode.lowGain = value; },
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.preset = value; },
 			},
+
 			// and we do have other "params"
-			midLowGain: {
-				defaultValue: 0.8,
+			volume: {
+				defaultValue: 2,
 				minValue: 0,
-				maxValue: 1,
-				onChange: (value) => { quadrafuzzNode.midLowGain = value; },
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.volume = value; },
 			},
+			master: {
+				defaultValue: 5.5,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.master = value; },
+			},
+			drive: {
+				defaultValue: 5.2,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.drive = value; },
+			},
+			/*
 			midHighGain: {
 				defaultValue: 0.5,
 				minValue: 0,
