@@ -214,10 +214,15 @@ export interface WamEventBase<T extends WamEventType = WamEventType, D = any> {
 }
 
 export interface WamTransportData {
-    currentBar: number; // bar number
-    currentBarStarted: number; // timestamp in seconds (WebAudio clock)
+    /** Bar number */
+    currentBar: number;
+    /** Timestamp in seconds (WebAudio clock) */
+    currentBarStarted: number;
+    /** Beats per Minute */
     tempo: number;
+    /** Beats count per Bar */
     timeSigNumerator: number;
+    /** Beat duration indicator */
     timeSigDenominator: number;
 }
 
@@ -225,8 +230,8 @@ export interface WamMidiData {
     bytes: [number, number, number];
 }
 
-export interface WamSysexData {
-    bytes: number[];
+export interface WamBinaryData {
+    bytes: Uint8Array;
 }
 
 export type WamEventCallback<E extends WamEventType = WamEventType> = (event: WamEventMap[E]) => any;
@@ -244,9 +249,9 @@ export type WamEvent = WamAutomationEvent | WamTransportEvent | WamMidiEvent | W
 export type WamAutomationEvent = WamEventBase<'automation', WamParameterData>;
 export type WamTransportEvent = WamEventBase<'transport', WamTransportData>;
 export type WamMidiEvent = WamEventBase<'midi', WamMidiData>;
-export type WamSysexEvent = WamEventBase<'sysex', WamSysexData>;
+export type WamSysexEvent = WamEventBase<'sysex', WamBinaryData>;
 export type WamMpeEvent = WamEventBase<'mpe', WamMidiData>;
-export type WamOscEvent = WamEventBase<'osc', string>;
+export type WamOscEvent = WamEventBase<'osc', WamBinaryData>;
 
 export interface AudioWorkletProcessor {
     port: MessagePort;
@@ -258,11 +263,17 @@ export const AudioWorkletProcessor: {
 };
 
 export interface WamEnv {
+    /** Stores a graph of WamProcessors connected with `connectEvents` for each output of processors */
     readonly eventGraph: Map<WamProcessor, Set<WamProcessor>[]>;
+    /** processors map with `instanceId` */
     readonly processors: Record<string, WamProcessor>;
+    /** The method should be called when a processor instance is created */
     create(wam: WamProcessor): void;
+    /** Connect events between `WamProcessor`s, the output number is 0 by default */
     connectEvents(from: WamProcessor, to: WamProcessor, output?: number): void;
+    /** Disonnect events between `WamProcessor`s, the output number is 0 by default, if `to` is omitted, will disconnect every connections */
     disconnectEvents(from: WamProcessor, to?: WamProcessor, output?: number): void;
+    /** The method should be called when a processor instance is destroyed */
     destroy(wam: WamProcessor): void;
 }
 

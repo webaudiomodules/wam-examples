@@ -24,3 +24,25 @@ export function diffArray(arrayLike: ArrayLike<number>, n = 1) {
 	}
 	return diffs;
 }
+
+/**
+ * Randomly shuffles values in `arrayLike`, in place. Adapted from
+ * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+ * @param arrayLike the sequence of values to difference
+ */
+export function shuffleArray(arrayLike: ArrayLike<any>) {
+	let currentIndex = arrayLike.length;
+	let randomIndex = -1;
+
+	// While there remain elements to shuffle...
+	while (currentIndex !== 0) {
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex--;
+
+		// And swap it with the current element.
+		// @ts-ignore
+		[arrayLike[currentIndex], arrayLike[randomIndex]] = [arrayLike[randomIndex],
+			arrayLike[currentIndex]];
+	}
+}

@@ -73,7 +73,8 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
         const stablize = true;
         const {
             interleaved,
-            showStats
+            showStats,
+            windowSize: l
         } = this.props.module.audioNode._wamNode.getParamsValues();
         const ctx = this.ctx;
         if (!ctx) return;
@@ -83,7 +84,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
         const bottom = 0;
 
         const { analyserNode } = this.props.module.audioNode;
-        const [buffer, estimatedFreq] = await Promise.all([analyserNode.getBuffer(), analyserNode.getEstimatedFreq()]);
+        const { estimatedFreq, buffer } = await analyserNode.gets("estimatedFreq", "buffer");
         const { sampleRate } = this.props.module.audioContext;
 
         // Background
@@ -94,12 +95,12 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
 
         if (!buffer) return;
 
-        const { $: ui8$, data: t } = buffer;
+        const { $read: $ui32, data: t } = buffer;
         if (!t || !t.length || !t[0].length) return;
 
-        const $ = ui8$[0];
+        const $ = Atomics.load($ui32, 0);
         const channels = t.length;
-        const l = t[0].length;
+        const dl = t[0].length;
         // Vertical Range
         let min = -range;
         let max = range;
@@ -111,7 +112,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
             while (i--) {
                 let j = l;
                 while (j--) {
-                    s = t[i][j];
+                    s = t[i][($ + j) % dl];
                     if (s < min) min = s;
                     else if (s > max) max = s;
                 }
@@ -162,11 +163,11 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
                 const thresh = (min + max) * 0.5 + 0.001; // the zero-crossing with "offset"
                 const period = sampleRate / estimatedFreq[i];
                 const times = Math.floor(l / period) - 1;
-                while ($zerox < l && t[i][($ + $zerox++) % l] > thresh); // Find first raise
+                while ($zerox < l && t[i][($ + $zerox++) % dl] > thresh); // Find first raise
                 if ($zerox >= l - 1) { // Found nothing, no stablization
                     $zerox = 0;
                 } else {
-                    while ($zerox < l && t[i][($ + $zerox++) % l] < thresh); // Find first drop
+                    while ($zerox < l && t[i][($ + $zerox++) % dl] < thresh); // Find first drop
                     $zerox--;
                     if ($zerox >= l - 1 || $zerox < 0) {
                         $zerox = 0;
@@ -185,7 +186,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
             let maxInStep;
             let minInStep;
             for (let j = $0; j < $1; j++) {
-                const $j = (j + $) % l;
+                const $j = (j + $) % dl;
                 const samp = t[i][$j];
                 const $step = (j - $0) % step;
                 if ($step === 0) {
@@ -210,6 +211,7 @@ export default class OscilloscopeUI extends React.PureComponent<{ module: Module
             }
             ctx.stroke();
         }
+        // Atomics.store(ui8$, 0, ($ + l) % dl);
         // Stats
         if (showStats) {
             ctx.font = "bold 12px Consolas, monospace";

@@ -1,6 +1,7 @@
 const Bundler = require('parcel-bundler');
 const express = require('express');
-var cors = require('cors')
+const cors = require('cors');
+
 const app = express();
 
 // fix : https://github.com/parcel-bundler/parcel/issues/1315#issuecomment-523524186
@@ -9,7 +10,12 @@ app.get('/', (req, res, next) => {
 	next();
 });
 
-app.use(cors())
+app.use((req, res, next) => {
+	res.header('Cross-Origin-Embedder-Policy', 'require-corp');
+	res.header('Cross-Origin-Opener-Policy', 'same-origin');
+	next();
+});
+
 app.use('/packages', express.static('../'));
 
 const bundler = new Bundler('src/*.html');
