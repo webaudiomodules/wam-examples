@@ -1,64 +1,62 @@
 // eslint-disable-next-line no-use-before-define
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
 
 import crossIcon from './cross.png';
 import css from './index.scss';
 
-//Used to remove the 'px' part of the string
-const parseCSSPropertyToInt = (valueStr) => parseInt(valueStr.slice(0, valueStr.length - 2), 10);
-
-const getHeight = (element, cumulate = false) => {
-	const multiplier = cumulate ? 1 : -1;
-	const height = element.clientHeight;
-	const marginTop = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('margin-top'));
-	const marginBottom = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('margin-bottom'));
-	const paddingTop = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('padding-top'));
-	const paddingBottom = parseCSSPropertyToInt(window.getComputedStyle(element).getPropertyValue('padding-bottom'));
-	return height - Math.ceil((marginTop + marginBottom + paddingBottom + paddingTop) * multiplier);
-};
-
 const Plugin = ({
 	plugin,
 	onClickRemove,
 }) => {
-	const plugginWrapperRef = useRef(plugin.id);
-	let pluginGui;
+	const plugginGuiRef = useRef();
+	const pluginGuiRectRef = useRef();
+	const plugginWrapperRef = useRef();
+	const pluginContainerRef = useRef();
+	const lastHeightRef = useRef();
+
+	const onResize = useCallback(() => {
+		const containerRect = pluginContainerRef.current.getBoundingClientRect();
+		const scale = containerRect.height / pluginGuiRectRef.current.height;
+
+		plugginWrapperRef.current.style.transformOrigin = 'top left';
+		plugginWrapperRef.current.style.transform = `scale(${scale})`;
+
+		pluginContainerRef.current.style.width = `${pluginGuiRectRef.current.width * scale}px`;
+	}, []);
 
 	useEffect(() => {
-		const pluginWrapper = plugginWrapperRef;
 		(async () => {
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-			pluginGui = await plugin.instance.createGui();
+			plugginGuiRef.current = await plugin.instance.createGui();
+			plugginWrapperRef.current.appendChild(plugginGuiRef.current);
+			pluginGuiRectRef.current = plugginGuiRef.current.getBoundingClientRect();
 
-			const boardHeight = getHeight(document.querySelector('#board'), true);
-			const nameHeight = getHeight(document.querySelector('#nameAndIcon'));
+			let resizeLoopEnabled = true;
 
-			pluginWrapper.current.appendChild(pluginGui);
-			const parent = pluginWrapper.current.parentNode;
-			const instanceRect = pluginWrapper.current.getBoundingClientRect();
-			const parentRect = pluginWrapper.current.parentNode.getBoundingClientRect();
+			const loop = () => {
+				if (!pluginContainerRef.current) return;
+				const containerRect = pluginContainerRef.current.getBoundingClientRect();
+				const { height } = containerRect;
 
-			const widthRatio = parentRect.width / parentRect.height;
-			const scale = (boardHeight - nameHeight - 1) / instanceRect.height;
-			const translateX = ((scale - 1) * 100) / 2;
-			const translateY = ((scale - 1) * 100) / 2;
+				if (height !== lastHeightRef.current) {
+					lastHeightRef.current = height;
+					onResize();
+				}
 
-			pluginWrapper.current.style.transform = `translate(${translateX}%, ${translateY}%) scale(${scale})`;
+				if (!resizeLoopEnabled) return;
 
-			const pluginSize = pluginWrapper.current.getBoundingClientRect();
-			parent.style.width = `${pluginSize.height * widthRatio}px`;
-			parent.style.height = `${pluginSize.height}px`;
+				requestAnimationFrame(loop);
+			};
 
-			return pluginGui;
+			loop();
+
+			return () => {
+				resizeLoopEnabled = false;
+			};
 		})();
-
-		return () => {
-			pluginWrapper.current.style.removeProperty('transform');
-			pluginWrapper.current.removeChild(pluginGui);
-		};
-	}, [plugin, plugginWrapperRef]);
+	}, [onResize, plugin]);
 
 	return (
 		<div className={css.PluginWrapper}>
@@ -75,8 +73,8 @@ const Plugin = ({
 					onClick={() => onClickRemove(plugin.id)}
 				/>
 			</div>
-			<div className={css.PluginContainer}>
-				<div ref={plugginWrapperRef} />
+			<div className={css.PluginWrapper_Container} ref={pluginContainerRef}>
+				<div className={css.PluginWrapper_Ref} ref={plugginWrapperRef} />
 			</div>
 		</div>
 	);

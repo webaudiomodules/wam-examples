@@ -11,8 +11,10 @@
     "react-dom": "^16.13.1",
     "react-draggable-hoc": "^2.4.0",
     "react-sortable-hoc": "^1.11.0",
+    "react-sortablejs": "^6.0.0",
     "rollup-plugin-replace": "^2.2.0",
-    "sdk": "^0.0.0"
+    "sdk": "^0.0.0",
+    "sortablejs": "^1.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -25,6 +27,7 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.0.1",
     "@rollup/plugin-url": "^6.0.0",
+    "@types/sortablejs": "^1.10.6",
     "autoprefixer": "^9.8.6",
     "babel-loader": "^8.2.2",
     "del-cli": "^3.0.1",

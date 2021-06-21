@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
-import { Draggable, DragDropContainer, Droppable } from 'react-draggable-hoc';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { ReactSortable } from 'react-sortablejs';
 
 import Plugin from './Plugin/index.js';
 
@@ -61,52 +60,76 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 	);
 };
 
-const PluginWrapper = SortableElement(({ plugin, onClickRemove }) => (
-	<Plugin plugin={plugin} onClickRemove={onClickRemove} />
-));
-
-const PedalboardBoard = SortableContainer(({
+const PedalboardBoard = ({
 	plugins,
 	handleClickRemove,
-}) => (
-	<main className={css.PedalboardBoard} id="board">
-		{
-			plugins.map((plugin, index) => (
-				<PluginWrapper
-					// eslint-disable-next-line react/no-array-index-key
-					key={index}
-					index={index}
+	onDrop,
+	onSortPlugin
+}) => {
+	const setList = (e) => {
+		if (e.url) {
+			onDrop(e.url);
+		}
+	};
+	return (
+		<ReactSortable
+			group={{
+				name: 'plugins',
+				pull: false,
+			}}
+			list={plugins}
+			setList={setList}
+			className={css.PedalboardBoard}
+			id="board"
+			onSort={(e) => onSortPlugin(e, e.oldIndex, e.newIndex)}
+		>
+			{plugins.map((plugin) => (
+				<Plugin
+					key={plugin.id}
 					plugin={plugin}
 					onClickRemove={handleClickRemove}
 				/>
-			))
-		}
-	</main>
-));
+			))}
+		</ReactSortable>
+	);
+};
 
-const PedalboardSelector = ({ onClick, selectedType }) => (
-	<>
-		<aside className={css.PedalboardSelector}>
-			{
-				PedalsJSON?.length > 0 && PedalsJSON.map((pedal) => (
-					(selectedType === 'default' || selectedType === pedal.type) && (
-						<Draggable key={pedal.url} dragProps={pedal} className={css.PedalboardSelectorCell}>
-							<div>
-								<img
-									src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
-									alt={`image_pedale_${pedal.url}`}
-									key={pedal.url}
-									className={css.PedalboardSelectorThumbnail}
-									onClick={() => onClick(pedal.url)}
-								/>
-							</div>
-						</Draggable>
-					)
-				))
-			}
-		</aside>
-	</>
-);
+const PedalboardSelector = ({ onClick, selectedType }) => {
+	const [pedals, setPedals] = useState([]);
+
+	useEffect(() => {
+		setPedals(PedalsJSON.filter((pedal) => selectedType === 'default' || selectedType === pedal.type));
+	}, [selectedType]);
+
+	return (
+		<>
+			<aside className={css.PedalboardSelector}>
+				<ReactSortable
+					group={{
+						name: 'plugins',
+						pull: 'clone',
+					}}
+					list={pedals}
+					setList={setPedals}
+					className={css.PedalboardSelectorCell}
+					sort={false}
+				>
+					{
+						pedals.map((pedal) => (
+							<img
+								src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
+								alt={`image_pedale_${pedal.url}`}
+								key={pedal.url}
+								className={css.PedalboardSelectorThumbnail}
+								onClick={() => onClick(pedal.url)}
+							/>
+						))
+					}
+				</ReactSortable>
+			</aside>
+		</>
+	);
+};
 
 const Pedalboard = ({ audioNode }) => {
 	const [plugins, setPlugins] = useState([]);
@@ -134,16 +157,16 @@ const Pedalboard = ({ audioNode }) => {
 		audioNode.removePlugin(pluginID);
 	};
 
-	const onDrop = (pedal) => {
-		audioNode.addPlugin(pedal.dragProps.url);
-	};
-
-	const onSortPlugin = ({ oldIndex, newIndex }) => {
-		audioNode.swapPlugins(oldIndex, newIndex);
+	const onSortPlugin = (element, oldIndex, newIndex) => {
+		if (element.clone.tagName === 'IMG') {
+			handleClickThumbnail(element.clone.attributes['data-id'].value);
+		} else {
+			audioNode.swapPlugins(oldIndex, newIndex);
+		}
 	};
 
 	return (
-		<DragDropContainer className="Simple-page-container">
+		<div className="Simple-page-container">
 			<section className={css.Pedalboard}>
 				<PedalboardHeader
 					className={css.Pedalboard_Header}
@@ -151,38 +174,22 @@ const Pedalboard = ({ audioNode }) => {
 					setSelectedType={setSelectedType}
 				/>
 				<div className={css.Pedalboard_Body}>
+					<div className={css.Pedalboard_Body_Content}>
+						<PedalboardBoard
+							plugins={plugins}
+							handleClickRemove={handleClickRemove}
+							onDrop={handleClickThumbnail}
+							onSortPlugin={onSortPlugin}
+						/>
+					</div>
 					<PedalboardSelector
 						onClick={handleClickThumbnail}
 						audioNode={audioNode}
 						selectedType={selectedType}
 					/>
-					<Droppable onDrop={onDrop}>
-						{({ isHovered, ref, dragProps }) => (
-							<div
-								className={css.Pedalboard_Body_Content}
-								ref={ref}
-								style={{
-									backgroundColor: isHovered ? 'rgba(0, 130, 20, 0.2)' : undefined,
-									border: dragProps ? '1px dashed #ccc' : undefined,
-								}}
-							>
-								<div
-									className={css.Pedalboard_Body_Content_Board}
-								>
-									<PedalboardBoard
-										pressDelay={200}
-										axis="x"
-										onSortEnd={onSortPlugin}
-										plugins={plugins}
-										handleClickRemove={handleClickRemove}
-									/>
-								</div>
-							</div>
-						)}
-					</Droppable>
 				</div>
 			</section>
-		</DragDropContainer>
+		</div>
 	);
 };
 
@@ -197,6 +204,11 @@ Pedalboard.propTypes = {
 PedalboardSelector.propTypes = {
 	onClick: PropTypes.func.isRequired,
 	selectedType: PropTypes.string.isRequired,
+};
+
+PedalboardBoard.propTypes = {
+	plugins: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+	handleClickRemove: PropTypes.func.isRequired,
 };
 
 PedalboardHeader.propTypes = {

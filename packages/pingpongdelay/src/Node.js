@@ -27,6 +27,7 @@ export default class PingPongDelayNode extends CompositeAudioNode {
 	// the number of inputs and outputs...
 	constructor(audioContext, options) {
 		super(audioContext, options);
+		console.log('CONSTRUCTOR CompositeAudioNode');
 		this.createNodes();
 	}
 
