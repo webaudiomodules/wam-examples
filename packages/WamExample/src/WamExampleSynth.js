@@ -567,11 +567,13 @@ export default class WamExampleSynth {
 				type: 'choice',
 				label: 'Left Channel Waveform',
 				choices: this._VoiceModes,
+				defaultValue: 4, // random mode
 			}),
 			rightVoiceMode: new WamParameterInfo('rightVoiceMode', {
 				type: 'choice',
 				label: 'Right Channel Waveform',
 				choices: this._VoiceModes,
+				defaultValue: 4, // random mode
 			}),
 		};
 	}
