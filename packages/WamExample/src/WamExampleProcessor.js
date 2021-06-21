@@ -57,7 +57,6 @@ const {
 	WamExampleEffect,
 	registerProcessor,
 } = globalThis;
-const supportSharedArrayBuffer = !!globalThis.SharedArrayBuffer;
 
 /**
  * `WamExample`'s `AudioWorkletProcessor`
@@ -87,7 +86,6 @@ class WamExampleProcessor extends WamProcessor {
 	constructor(options) {
 		super(options);
 		this.destroyed = false;
-		this.supportSharedArrayBuffer = supportSharedArrayBuffer;
 		const {
 			moduleId,
 			instanceId,

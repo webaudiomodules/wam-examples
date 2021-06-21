@@ -47,8 +47,8 @@ let currentPluginDomNode;
 let liveInputGainNode;
 
 /**
+ * Very simple function to connect the plugin audionode to the host
  * @param {WamNode} audioNode
- * @description Very simple function to connect the plugin audionode to the host
  */
 const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
@@ -79,8 +79,8 @@ const connectPlugin = (audioNode) => {
 };
 
 /**
+ * Very simple function to append the plugin root dom node to the host
  * @param {HTMLElement} domNode
- * @description Very simple function to append the plugin root dom node to the host
  */
 const mountPlugin = (domNode) => {
 	mount.innerHTML = '';
@@ -137,9 +137,9 @@ Array.from(midiEmitters).forEach((midiEmitter) => {
 });
 
 /**
+ * Display plugin info
  * @param {WebAudioModule} instance
  * @param {HTMLElement} gui
- * @description Display plugin info
  */
 const showPluginInfo = async (instance, gui) => {
 	/** @type {HTMLDivElement} */
