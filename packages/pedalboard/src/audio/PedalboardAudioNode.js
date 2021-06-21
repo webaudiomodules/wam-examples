@@ -108,6 +108,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 			previousPlugin.instance.audioNode.connect(nextPlugin.instance.audioNode);
 			console.warn(previousPlugin.instance.name, 'connect to: ', nextPlugin.instance.name);
 		}
+		deletedPlugin.instance.audioNode.destroy();
 
 		this.pluginList = this.pluginList.filter((plugin) => plugin.id !== pluginID);
 		this.dispatchEvent(new CustomEvent('onchange', { detail: { pluginList: this.pluginList } }));

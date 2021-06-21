@@ -5,43 +5,19 @@
             {
                 "url": "/packages/pingpongdelay/dist/index.js",
                 "params": {
-                "feedback": {
-                    "id": "feedback",
-                    "value": 0.05000000074505806
-                },
-                "time": {
-                    "id": "time",
-                    "value": 0.14000000059604645
-                },
-                "mix": {
-                    "id": "mix",
-                    "value": 0.9200000166893005
-                },
-                "enabled": {
-                    "id": "enabled",
-                    "value": 1
-                }
+                "feedback": 0.05000000074505806,
+                "time": 0.14000000059604645,
+                "mix": 0.9200000166893005,
+                "enabled": 1
                 }
             },
             {
                 "url": "/packages/faustPingPongDelay/plugin/index.js",
                 "params": {
-                "/PingPongDelayFaust/bypass": {
-                    "id": "/PingPongDelayFaust/bypass",
-                    "value": 0
-                },
-                "/PingPongDelayFaust/time": {
-                    "id": "/PingPongDelayFaust/time",
-                    "value": 1
-                },
-                "/PingPongDelayFaust/feedback": {
-                    "id": "/PingPongDelayFaust/feedback",
-                    "value": 0
-                },
-                "/PingPongDelayFaust/mix": {
-                    "id": "/PingPongDelayFaust/mix",
-                    "value": 1
-                }
+                "/PingPongDelayFaust/bypass": 0,
+                "/PingPongDelayFaust/time": 1,
+                "/PingPongDelayFaust/feedback": 0,
+                "/PingPongDelayFaust/mix": 1
                 }
             }
         ]
@@ -52,43 +28,19 @@
             {
                 "url": "/packages/pingpongdelay/dist/index.js",
                 "params": {
-                "feedback": {
-                    "id": "feedback",
-                    "value": 0.95000000074505806
-                },
-                "time": {
-                    "id": "time",
-                    "value": 0.94000000059604645
-                },
-                "mix": {
-                    "id": "mix",
-                    "value": 0.0200000166893005
-                },
-                "enabled": {
-                    "id": "enabled",
-                    "value": 1
-                }
+                "feedback": 0.95000000074505806,
+                "time": 0.94000000059604645,
+                "mix": 0.0200000166893005,
+                "enabled": 1
                 }
             },
             {
                 "url": "/packages/faustPingPongDelay/plugin/index.js",
                 "params": {
-                "/PingPongDelayFaust/bypass": {
-                    "id": "/PingPongDelayFaust/bypass",
-                    "value": 1
-                },
-                "/PingPongDelayFaust/time": {
-                    "id": "/PingPongDelayFaust/time",
-                    "value": 0
-                },
-                "/PingPongDelayFaust/feedback": {
-                    "id": "/PingPongDelayFaust/feedback",
-                    "value": 1
-                },
-                "/PingPongDelayFaust/mix": {
-                    "id": "/PingPongDelayFaust/mix",
-                    "value": 0
-                }
+                "/PingPongDelayFaust/bypass": 1,
+                "/PingPongDelayFaust/time": 0,
+                "/PingPongDelayFaust/feedback": 1,
+                "/PingPongDelayFaust/mix": 0
                 }
             }
         ]

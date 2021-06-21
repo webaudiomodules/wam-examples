@@ -53,6 +53,7 @@ const Plugin = ({
 			loop();
 
 			return () => {
+				plugin.instance.destroyGui(plugginGuiRef.current);
 				resizeLoopEnabled = false;
 			};
 		})();
@@ -85,6 +86,7 @@ Plugin.propTypes = {
 		id: PropTypes.number.isRequired,
 		instance: PropTypes.shape({
 			createGui: PropTypes.func.isRequired,
+			destroyGui: PropTypes.func.isRequired,
 			name: PropTypes.string.isRequired,
 		}).isRequired,
 	}).isRequired,
