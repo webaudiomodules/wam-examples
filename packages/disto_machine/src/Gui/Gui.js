@@ -2,17 +2,11 @@
 import '../utils/webaudio-controls.js';
 
 // This works when youuse a bundler such as rollup
-// If you do no wan to use a bundler, then  look at other examples
+// If you do no want to use a bundler, then  look at other examples
 // that build in pure JS the syles and html template directly
 // in the code...
 let style = `
-@font-face {
-	font-family: 'BouWeste';
-	src: url('./assets/BouWeste.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
 
-}
 :host {
 	font: 'BouWeste', 'Arial Black';
 	display: block;
@@ -240,9 +234,9 @@ let template = `
 `;
 
 
-let backgroundImg = './assets/background.png';
-let knobImg = './assets/MiniMoog_Main.png';
-let switchImg = './assets/switch_1.png';
+let backgroundImg = './assets/DistoMachine.png';
+let knobImg = './assets/Jambalaya.png';
+let switchImg = './assets/switch_2.png';
 
 const getAssetUrl = (asset) => {
 	const base = new URL('.', import.meta.url);
@@ -261,31 +255,48 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 
 		super();
 
+		this.fixFontURL();
 		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
-		this.plugin = plugin;
+		this.plugin = plug;
 
 		this._plug = plug;
 		this._plug.gui = this;
 
-		this.knobs = this._root.querySelectorAll(".knob");
+		this.knobs = this.root.querySelectorAll(".knob");
 		this.isOn;
 		this.state = new Object();
-		this.menu = this._root.querySelector("#menuPresets");
+
+		this.menu = this.root.querySelector("#menuPresets");
 		this.index = this.menu.value;
 		this.setKnobs();
 		this.setSwitchListener();
 		this.setResources();
-		this.avoidDrag();
+		//this.avoidDrag();
 
 		console.log("### calling reactivate")
-		this.reactivate();
+		//this.reactivate();
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
+	fixFontURL() {
+		let font = getAssetUrl('assets/BouWeste.ttf');
+
+		style = `
+		@font-face {
+			font-family: 'BouWeste';
+			src: url('${font}') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+
+		}
+		` + style;
+		//console.log("########### STYLE ###########");
+		//console.log(style);
+	}
 	/*
 	constructor(plugin) {
 		super();
@@ -331,17 +342,39 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 	 * Change relative URLS to absolute URLs for CSS assets, webaudio controls spritesheets etc.
 	 */
 	setResources() {
+
 		// Set up the background img & style
 		const background = this.root.querySelector("img");
 		background.src = getAssetUrl(backgroundImg);
 		//background.src = bgImage;
-		background.style = 'border-radius : 5px;'
+		background.style = 'border-radius : 10px;'
 		// Setting up the knobs imgs, those are loaded from the assets
 		this.root.querySelectorAll(".knob").forEach((knob) => {
 			knob.querySelector("webaudio-knob").setAttribute('src', getAssetUrl(knobImg));
+			knob.style.fontFamily = "BouWeste";
 		});
 		// Setting up the switches imgs, those are loaded from the assets
 		this.root.querySelector("webaudio-switch").setAttribute('src', getAssetUrl(switchImg));
+
+
+		let menuPresets = this.root.querySelector("#menuPresets");
+		menuPresets.onchange = (e) => {
+			this.index = e.target.value;
+			this._plug.setParam("preset", this.index);
+		}
+
+		/*
+		var background = this.root.querySelector("img");
+		background.src = this._plug.URL + '/assets/DistoMachine.png';
+		background.src = getAssetUrl(backgroundImg);
+		background.style = 'border-radius :10px;'
+		this._root.querySelectorAll(".knob").forEach((knob) => {
+			knob.querySelector("webaudio-knob").setAttribute('src', this._plug.URL +
+				'/assets/Jambalaya.png');
+		});
+		this._root.querySelector("#switch1").querySelector("webaudio-switch").setAttribute('src', this._plug.URL +
+			'/assets/switch_2.png');
+			*/
 	}
 
 	get properties() {
@@ -360,26 +393,28 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 	}
 
 	setKnobs() {
-		this.shadowRoot
+/*
+		this.root
 			.querySelector('#knob1')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParamsValues({ lowGain: e.target.value});
 			});
-		this.shadowRoot
+		this.root
 			.querySelector('#knob2')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParamsValues({ midLowGain: e.target.value});
 			});
-			this.shadowRoot
+			this.root
 			.querySelector('#knob3')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParamsValues({ midHighGain: e.target.value });
 			});
-			this.shadowRoot
+			this.root
 			.querySelector('#knob4')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParamsValues({ highGain: e.target.value });
 			});
+			*/
 	}
 
 	setSwitchListener() {
@@ -388,7 +423,7 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 		// by default, plugin is disabled
 		plugin.audioNode.setParamsValues({ enabled: 1 });
 
-		this.shadowRoot
+		this.root
 			.querySelector('#switch1')
 			.addEventListener('change', function onChange() {
 				plugin.audioNode.setParamsValues({ enabled: +!!this.checked });

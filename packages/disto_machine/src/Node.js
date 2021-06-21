@@ -4,10 +4,15 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import ConvolverDisto from './convolverdisto.mjs';
-import AmpDisto from './ampdisto.mjs';
-import EqualizerDisto from './equalizerdisto.mjs';
-import BoostDisto from './boostdisto.mjs';
+import ConvolverDisto from './convolverdisto.js';
+import AmpDisto from './ampdisto.js';
+import EqualizerDisto from './equalizerdisto.js';
+import BoostDisto from './boostdisto.js';
+
+const getAssetUrl = (asset) => {
+	const base = new URL('.', import.meta.url);
+	return `${base}${asset}`;
+};
 
 // name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class DistoMachineNode extends CompositeAudioNode {
@@ -19,79 +24,72 @@ export default class DistoMachineNode extends CompositeAudioNode {
 	reverbImpulses = [
 		{
 			name: "Fender Hot Rod",
-			url: this.URL + "/assets/impulses/reverb/cardiod-rear-levelled.wav",
+			url: "/assets/impulses/reverb/cardiod-rear-levelled.wav",
 		},
 		{
 			name: "PCM 90 clean plate",
-			url: this.URL + "/assets/impulses/reverb/pcm90cleanplate.wav",
+			url: "/assets/impulses/reverb/pcm90cleanplate.wav",
 		},
 		{
 			name: "Scala de Milan",
-			url: this.URL + "/assets/impulses/reverb/ScalaMilanOperaHall.wav",
+			url: "/assets/impulses/reverb/ScalaMilanOperaHall.wav",
 		},
 	];
 	cabinetImpulses = [
 		{
 			name: "Marshall 1960, axis",
-			url: this.URL + "/assets/impulses/cabinet/Marshall1960.wav",
+			url: "/assets/impulses/cabinet/Marshall1960.wav",
 		},
 		{
 			name: "Vintage Marshall 1",
-			url: this.URL + "/assets/impulses/cabinet/Block%20Inside.wav",
+			url: "/assets/impulses/cabinet/Block%20Inside.wav",
 		},
 		{
 			name: "Vox Custom Bright 4x12 M930 Axis 1",
 			url:
-				this.URL + "/assets/impulses/cabinet/voxCustomBrightM930OnAxis1.wav",
+				"/assets/impulses/cabinet/voxCustomBrightM930OnAxis1.wav",
 		},
 		{
 			name: "Fender Champ, axis",
-			url: this.URL + "assets/impulses/cabinet/FenderChampAxisStereo.wav",
+			url: "assets/impulses/cabinet/FenderChampAxisStereo.wav",
 		},
 		{
 			name: "Mesa Boogie 4x12",
-			url: this.URL + "/assets/impulses/cabinet/Mesa-OS-Rectifier-3.wav",
+			url: "/assets/impulses/cabinet/Mesa-OS-Rectifier-3.wav",
 		},
 		{
 			name: "001a-SM57-V30-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/001a-SM57-V30-4x12.wav",
 		},
 		{
 			name: "028a-SM7-V30-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/028a-SM7-V30-4x12.wav",
 		},
 		{
 			name: "034a-SM58-V30-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/034a-SM58-V30-4x12.wav",
 		},
 		{
 			name: "022a-MD21-V30-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/022a-MD21-V30-4x12.wav",
 		},
 		{
 			name: "023a-MD21-V30-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/023a-MD21-V30-4x12.wav",
 		},
 		{
 			name: "024a-MD21-G12T75-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/024a-MD21-G12T75-4x12.wav",
 		},
 		{
 			name: "009a-SM57-G12T75-4x12",
 			url:
-				this.URL +
 				"/assets/impulses/cabinet/KalthallenCabsIR/009a-SM57-G12T75-4x12.wav",
 		},
 	];
@@ -107,7 +105,23 @@ export default class DistoMachineNode extends CompositeAudioNode {
 
 	constructor(context, options) {
 		super(context, options);
+		// add absolute URL to relative urls...
+		this.fixImpulseURLs();
+
 		this.createNodes();
+	}
+	fixImpulseURLs() {
+		let relativeURL;
+		this.reverbImpulses.forEach(impulse => {
+			relativeURL = impulse.url;
+			impulse.url = getAssetUrl(relativeURL);
+		});
+
+		this.cabinetImpulses.forEach(impulse => {
+			relativeURL = impulse.url;
+			impulse.url = getAssetUrl(relativeURL);
+		});
+
 	}
 
 	/*  #########  Personnal code for the web audio graph  #########   */
@@ -187,8 +201,16 @@ export default class DistoMachineNode extends CompositeAudioNode {
 			this.overdrives[i].connect(this._output);
 		}
 		*/
+
+		/*
 		this.connect(this.amp.input);
-		this.amp.output.connect(this._output);
+		// shihong....
+		this._output = this.context.createGain();
+
+		this.amp.output.connect(this._output);*/
+
+		this._output = this.context.createGain();
+		this.connect(this._output);
 	}
 
 

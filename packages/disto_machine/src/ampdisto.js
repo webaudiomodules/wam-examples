@@ -1,111 +1,111 @@
-import WaveShapersDisto from './waveshapersdisto.mjs';
+import WaveShapersDisto from './waveshapersdisto.js';
 
 export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
     var presets = [];
     var wsFactoryDisto = new WaveShapersDisto();
-  
+
     var currentDistoName = "standard";
     var currentK = 2;
     var currentWSCurve = wsFactoryDisto.distorsionCurves[currentDistoName](
       currentK
     );
-  
+
     var input = context.createGain();
     var output = context.createGain();
-  
+
     var inputGain = context.createGain();
     inputGain.gain.value = 1;
     var bassFilter, midFilter, trebleFilter, presenceFilter;
-  
+
     var k = [2, 2, 2, 2];
     var od = [];
     var distoTypes = ["asymetric", "standard"];
-  
+
     var gainsOds = [];
-  
+
     var lowShelf1 = context.createBiquadFilter();
     lowShelf1.type = "lowshelf";
     lowShelf1.frequency.value = 720;
     lowShelf1.gain.value = -6;
-  
+
     var lowShelf2 = context.createBiquadFilter();
     lowShelf2.type = "lowshelf";
     lowShelf2.frequency.value = 320;
     lowShelf2.gain.value = -5;
-  
+
     var preampStage1Gain = context.createGain();
     preampStage1Gain.gain.value = 1.0;
-  
+
     od[0] = context.createWaveShaper();
     od[0].curve = wsFactoryDisto.distorsionCurves[distoTypes[0]](0);
     var highPass1 = context.createBiquadFilter();
     highPass1.type = "highpass";
     highPass1.frequency.value = 6;
     highPass1.Q.value = 0.7071;
-  
+
     var lowShelf3 = context.createBiquadFilter();
     lowShelf3.type = "lowshelf";
     lowShelf3.frequency.value = 720;
     lowShelf3.gain.value = -6;
-  
+
     var preampStage2Gain = context.createGain();
     preampStage2Gain.gain.value = 1;
-  
+
     od[1] = context.createWaveShaper();
     od[1].curve = wsFactoryDisto.distorsionCurves[distoTypes[1]](0);
-  
+
     changeDistorsionValues(4, 0);
     changeDistorsionValues(4, 1);
-  
+
     var outputGain = context.createGain();
     changeOutputGainValue(7);
-  
+
     var bassFilter = context.createBiquadFilter();
     bassFilter.frequency.value = 100;
     bassFilter.type = "lowshelf";
     bassFilter.Q.value = 0.7071;
-  
+
     var midFilter = context.createBiquadFilter();
     midFilter.frequency.value = 1700;
     midFilter.type = "peaking";
     midFilter.Q.value = 0.7071;
-  
+
     var trebleFilter = context.createBiquadFilter();
     trebleFilter.frequency.value = 6500;
     trebleFilter.type = "highshelf";
     trebleFilter.Q.value = 0.7071;
-  
+
     var presenceFilter = context.createBiquadFilter();
     presenceFilter.frequency.value = 3900;
     presenceFilter.type = "peaking";
     presenceFilter.Q.value = 0.7071;
-  
+
     var eqhicut = context.createBiquadFilter();
     eqhicut.frequency.value = 10000;
     eqhicut.type = "peaking";
     eqhicut.gain.value = -25;
-  
+
     var eqlocut = context.createBiquadFilter();
     eqlocut.frequency.value = 60;
     eqlocut.type = "peaking";
     eqlocut.gain.value = -19;
-  
+
     var bypassEQg = context.createGain();
     bypassEQg.gain.value = 0;
     var inputEQ = context.createGain();
-  
+
     var cabinetSim, reverb;
     var masterVolume = context.createGain();
     changeMasterVolume(2);
-  
+
     doAllConnections();
-  
+
     function doAllConnections() {
       buildGraph();
       changeRoom(7.5);
       initPresets();
     }
-  
+
     function buildGraph() {
       input.connect(inputGain);
       inputGain.connect(boost.input);
@@ -115,11 +115,11 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       preampStage1Gain.connect(od[0]);
       od[0].connect(highPass1);
       highPass1.connect(lowShelf3);
-  
+
       lowShelf3.connect(preampStage2Gain);
       preampStage2Gain.connect(od[1]);
       od[1].connect(outputGain);
-  
+
       outputGain.connect(trebleFilter);
       trebleFilter.connect(bassFilter);
       bassFilter.connect(midFilter);
@@ -129,21 +129,21 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       eqhicut.connect(inputEQ);
       eqhicut.connect(bypassEQg);
       bypassEQg.connect(masterVolume);
-  
+
       inputEQ.connect(eq.input);
       eq.output.connect(masterVolume);
       masterVolume.connect(reverb.input);
-  
+
       reverb.output.connect(cabinetSim.input);
       cabinetSim.output.connect(output);
     }
-  
+
     function boostOnOff(cb) {
       boost.toggle();
       adjustOutputGainIfBoostActivated();
       updateBoostLedButtonState(boost.isActivated());
     }
-  
+
     function changeBoost(state) {
       if (boost.isActivated() !== state) {
         boost.onOff(state);
@@ -152,7 +152,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       } else {
       }
     }
-  
+
     function adjustOutputGainIfBoostActivated() {
       if (boost.isActivated()) {
         output.gain.value /= 2;
@@ -160,67 +160,67 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         output.gain.value *= 2;
       }
     }
-  
+
     function updateBoostLedButtonState(activated) {}
-  
+
     function changeInputGainValue(sliderVal) {
       input.gain.value = parseFloat(sliderVal);
     }
-  
+
     function changeOutputGainValue(sliderVal) {
       output.gain.value = parseFloat(sliderVal) / 10;
     }
-  
+
     function changeLowShelf1FrequencyValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf1.frequency.value = value;
     }
-  
+
     function changeLowShelf1GainValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf1.gain.value = value;
     }
-  
+
     function changeLowShelf2FrequencyValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf2.frequency.value = value;
     }
-  
+
     function changeLowShelf2GainValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf2.gain.value = value;
     }
-  
+
     function changePreampStage1GainValue(sliderVal) {
       var value = parseFloat(sliderVal);
       preampStage1Gain.gain.value = value;
     }
-  
+
     function changeHighPass1FrequencyValue(sliderVal) {
       var value = parseFloat(sliderVal);
       highPass1.frequency.value = value;
     }
-  
+
     function changeHighPass1QValue(sliderVal) {
       var value = parseFloat(sliderVal);
       highPass1.Q.value = value;
     }
-  
+
     function changeLowShelf3FrequencyValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf3.frequency.value = value;
     }
-  
+
     function changeLowShelf3GainValue(sliderVal) {
       var value = parseFloat(sliderVal);
       lowShelf3.gain.value = value;
     }
-  
+
     function changePreampStage2GainValue(sliderVal) {
       var value = parseFloat(sliderVal);
       preampStage2Gain.gain.value = value;
     }
-  
+
     function changeHicutFreqValue(sliderVal) {
       var value = parseFloat(sliderVal);
       for (var i = 0; i < 4; i++) {
@@ -228,31 +228,31 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       }
       var output = document.querySelector("#hiCutFreq");
       output.value = parseFloat(sliderVal).toFixed(1) + " Hz";
-  
+
       var slider = document.querySelector("#hiCutFreqSlider");
       slider.value = parseFloat(sliderVal).toFixed(1);
     }
-  
+
     function changeBassFilterValue(sliderVal) {
       var value = parseFloat(sliderVal);
       bassFilter.gain.value = (value - 10) * 7;
     }
-  
+
     function changeMidFilterValue(sliderVal) {
       var value = parseFloat(sliderVal);
       midFilter.gain.value = (value - 5) * 4;
     }
-  
+
     function changeTrebleFilterValue(sliderVal) {
       var value = parseFloat(sliderVal);
       trebleFilter.gain.value = (value - 10) * 10;
     }
-  
+
     function changePresenceFilterValue(sliderVal) {
       var value = parseFloat(sliderVal);
       presenceFilter.gain.value = (value - 5) * 2;
     }
-  
+
     function buildDistoMenu1() {
       for (var p in wsFactoryDisto.distorsionCurves) {
         var option = document.createElement("option");
@@ -271,47 +271,47 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       }
       menuDisto2.onchange = changeDistoType2;
     }
-  
+
     function changeDistoType1() {
       currentDistoName = menuDisto1.value;
       distoTypes[0] = currentDistoName;
       changeDrive(currentK);
     }
-  
+
     function changeDistoType2() {
       currentDistoName = menuDisto2.value;
       distoTypes[1] = currentDistoName;
       changeDrive(currentK);
     }
-  
+
     function changeDisto1TypeFromPreset(name) {
       currentDistoName = name;
       distoTypes[0] = currentDistoName;
     }
-  
+
     function changeDisto2TypeFromPreset(name) {
       currentDistoName = name;
       distoTypes[1] = currentDistoName;
     }
-  
+
     function changeDrive(sliderValue) {
       for (var i = 0; i < 2; i++) {
         changeDistorsionValues(sliderValue, i);
       }
     }
-  
+
     function changeDistorsionValues(sliderValue, numDisto) {
       var value = 150 * parseFloat(sliderValue);
       var minp = 0;
       var maxp = 1500;
-  
+
       var minv = Math.log(10);
       var maxv = Math.log(1500);
-  
+
       var scale = (maxv - minv) / (maxp - minp);
-  
+
       value = Math.exp(minv + scale * (value - minp));
-  
+
       k[numDisto] = value;
       od[numDisto].curve = wsFactoryDisto.distorsionCurves[distoTypes[numDisto]](
         k[numDisto]
@@ -327,7 +327,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       var linearValue = parseFloat(maxPosVal).toFixed(1);
       currentK = linearValue;
     }
-  
+
     function logToPos(logValue) {
       var minp = 0;
       var maxp = 1500;
@@ -336,7 +336,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       var scale = (maxv - minv) / (maxp - minp);
       return (minp + (Math.log(logValue) - minv) / scale) / 150;
     }
-  
+
     function changeOversampling(cb) {
       for (var i = 0; i < 2; i++) {
         if (cb.checked) {
@@ -348,17 +348,17 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         }
       }
     }
-  
+
     function getDistorsionValue(numChannel) {
       var pos = logToPos(k[numChannel]);
       return parseFloat(pos).toFixed(1);
     }
-  
+
     function drawDistoCurves(distoDrawer, signalDrawer, curve) {
       var c = curve;
       distoDrawer.clear();
       drawCurve(distoDrawer, c);
-  
+
       signalDrawer.clear();
       signalDrawer.drawAxis();
       signalDrawer.makeCurve(Math.sin, 0, Math.PI * 2);
@@ -366,10 +366,10 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       var cTransformed = distord(c);
       drawCurve(signalDrawer, cTransformed);
     }
-  
+
     function distord(c) {
       var curveLength = c.length;
-  
+
       var c2 = new Float32Array(DRAWER_CANVAS_SIZE);
       var incX = (2 * Math.PI) / DRAWER_CANVAS_SIZE;
       var x = 0;
@@ -380,83 +380,83 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       }
       return c2;
     }
-  
+
     function changeQValues(sliderVal, numQ) {
       var value = parseFloat(sliderVal);
       filters[numQ].Q.value = value;
-  
+
       var output = document.querySelector("#q" + numQ);
       output.value = value.toFixed(1);
-  
+
       var numSlider = numQ + 1;
       var slider = document.querySelector("#Q" + numSlider + "slider");
       slider.value = value;
     }
-  
+
     function changeFreqValues(sliderVal, numF) {
       var value = parseFloat(sliderVal);
       filters[numF].frequency.value = value;
-  
+
       var output = document.querySelector("#freq" + numF);
       output.value = value + " Hz";
       var numSlider = numF + 1;
       var slider = document.querySelector("#F" + numSlider + "slider");
       slider.value = value;
     }
-  
+
     function changeOutputGain(sliderVal) {
       var value = parseFloat(sliderVal / 10);
       outputGain.gain.value = value;
     }
-  
+
     function changeInputGain(sliderVal) {
       var value = parseFloat(sliderVal / 10);
       inputGain.gain.value = value;
-  
+
       var knob = document.querySelector("#Knob1");
       knob.setValue(parseFloat(sliderVal).toFixed(1), false);
     }
-  
+
     function changeMasterVolume(sliderVal) {
       var value = parseFloat(sliderVal);
       masterVolume.gain.value = value;
-  
+
       var knob = document.querySelector("#Knob2");
     }
-  
+
     function changeReverbGain(sliderVal) {
       var value = parseFloat(sliderVal) / 10;
       reverb.setGain(value);
     }
-  
+
     function changeReverbImpulse(name) {
       console.log("---- LOADING reverb impulse " + name);
-  
+
       reverb.loadImpulseByName(name);
     }
-  
+
     function changeRoom(sliderVal) {
       var value = parseFloat(sliderVal) / 10;
       cabinetSim.setGain(value);
-  
+
       var output = document.querySelector("#cabinetGainOutput");
       var slider = document.querySelector("#convolverCabinetSlider");
     }
-  
+
     function changeCabinetSimImpulse(name) {
       console.log("---- LOADING cabinet impulse " + name);
       cabinetSim.loadImpulseByName(name);
     }
-  
+
     function changeEQValues(eqValues) {
       eq.setValues(eqValues);
     }
-  
+
     function makeDistortionCurve(k) {
       currentWSCurve = wsFactoryDisto.distorsionCurves[currentDistoName](k);
       return currentWSCurve;
     }
-  
+
     function initPresets() {
       var preset0 = {
         name: "Default",
@@ -488,7 +488,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "3.0",
       };
       presets.push(preset0);
-  
+
       var preset1 = {
         name: "Jimmy HDX",
         boost: false,
@@ -519,7 +519,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "4.5",
       };
       presets.push(preset1);
-  
+
       var preset2 = {
         name: "Slasher",
         boost: true,
@@ -550,7 +550,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "3.9",
       };
       presets.push(preset2);
-  
+
       var preset3 = {
         name: "Metal",
         boost: false,
@@ -581,7 +581,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "1.5",
       };
       presets.push(preset3);
-  
+
       var preset4 = {
         name: "Hard Rock classic 1",
         boost: false,
@@ -612,7 +612,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "9.4",
       };
       presets.push(preset4);
-  
+
       var preset5 = {
         name: "Hard Rock classic 2",
         boost: false,
@@ -643,7 +643,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "9.2",
       };
       presets.push(preset5);
-  
+
       var preset6 = {
         name: "Clean and Warm",
         boost: false,
@@ -674,7 +674,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "8.8",
       };
       presets.push(preset6);
-  
+
       var preset7 = {
         name: "Strong and Warm",
         boost: false,
@@ -705,7 +705,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: "8.0",
       };
       presets.push(preset7);
-  
+
       var preset8 = {
         name: "Another Clean Sound",
         boost: false,
@@ -767,11 +767,11 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       };
       presets.push(preset9);
     }
-  
+
     function setPresetByIndex(parent, index) {
       setPreset(parent, presets[index]);
     }
-  
+
     function setPreset(parent, p) {
       if (p.distoName1 === undefined) {
         p.distoName1 = "standard";
@@ -779,10 +779,10 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       if (p.distoName2 === undefined) {
         p.distoName2 = "standard";
       }
-  
+
       if (p.boost === undefined) p.boost = false;
       changeBoost(p.boost);
-  
+
       changeLowShelf1FrequencyValue(p.LS1Freq);
       changeLowShelf1GainValue(p.LS1Gain);
       changeLowShelf2FrequencyValue(p.LS2Freq);
@@ -790,13 +790,13 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       changePreampStage1GainValue(p.gain1);
       changeDisto1TypeFromPreset(p.distoName1);
       changeDistorsionValues(p.K1, 0);
-  
+
       changeLowShelf3FrequencyValue(p.LS3Freq);
       changeLowShelf3GainValue(p.LS3Gain);
       changePreampStage2GainValue(p.gain2);
       changeDisto2TypeFromPreset(p.distoName2);
       changeDistorsionValues(p.K2, 1);
-  
+
       parent.volume = p.OG;
       parent.bass = p.BF;
       parent.middle = p.MF;
@@ -805,7 +805,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       parent.master = p.MV;
       parent.reverb = p.RG;
       parent.drive = p.K1;
-  
+
       parent.LS1Freq = p.LS1Freq;
       parent.LS1Gain = p.LS1Gain;
       parent.LS2Freq = p.LS2Freq;
@@ -821,32 +821,32 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       parent.distoName1 = p.distoName1;
       parent.distoName2 = p.distoName2;
       parent.CG = p.CG;
-  
+
       changeReverbImpulse(p.RN);
-  
+
       changeRoom(p.CG);
       changeCabinetSimImpulse(p.CN);
-  
+
       changeEQValues(p.EQ);
       try {
         parent.gui.setAttribute("state", JSON.stringify(parent.params));
       } catch (error) {}
     }
-  
+
     function getPresets() {
       return presets;
     }
-  
+
     function setDefaultPreset() {
       setPreset(preset0);
     }
-  
+
     function printCurrentAmpValues() {
       var currentPresetValue = {
         name: "current",
-  
+
         boost: boost.isActivated(),
-  
+
         LS1Freq: lowShelf1.frequency.value,
         LS1Gain: lowShelf1.gain.value,
         LS2Freq: lowShelf2.frequency.value,
@@ -856,13 +856,13 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         K1: getDistorsionValue(0),
         HP1Freq: highPass1.frequency.value,
         HP1Q: highPass1.Q.value,
-  
+
         LS3Freq: lowShelf3.frequency.value,
         LS3Gain: lowShelf3.gain.value,
         gain2: preampStage2Gain.gain.value,
         distoName2: menuDisto2.value,
         K2: getDistorsionValue(1),
-  
+
         OG: (output.gain.value * 10).toFixed(1),
         BF: (bassFilter.gain.value / 7 + 10).toFixed(1),
         MF: (midFilter.gain.value / 4 + 5).toFixed(1),
@@ -876,7 +876,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         CG: (cabinetSim.getGain() * 10).toFixed(1),
       };
     }
-  
+
     function bypass(bypassOn, amp) {
       if (!bypassOn) {
         input.disconnect();
@@ -887,13 +887,13 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         input.connect(inputGain);
         amp.params.status = "enable";
       }
-  
+
       /*
       this._input.connect(this.amp.input);
       this.amp.output.connect(this._output);
       */
     }
-  
+
     function bypassEQ(cb) {
       if (cb.checked) {
         inputEQ.gain.value = 1;
@@ -903,7 +903,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
         bypassEQg.gain.value = 1;
       }
     }
-  
+
     return {
       input: input,
       output: output,
@@ -913,7 +913,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       cabinet: cabinetSim,
       changeInputGainValue: changeInputGainValue,
       changeOutputGainValue: changeOutputGainValue,
-  
+
       changeLowShelf1FrequencyValue: changeLowShelf1FrequencyValue,
       changeLowShelf1GainValue: changeLowShelf1GainValue,
       changeLowShelf2FrequencyValue: changeLowShelf2FrequencyValue,
@@ -924,7 +924,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       changeLowShelf3FrequencyValue: changeLowShelf3FrequencyValue,
       changeLowShelf3GainValue: changeLowShelf3GainValue,
       changePreampStage2GainValue: changePreampStage2GainValue,
-  
+
       changeBassFilterValue: changeBassFilterValue,
       changeMidFilterValue: changeMidFilterValue,
       changeTrebleFilterValue: changeTrebleFilterValue,
@@ -934,7 +934,7 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       changeOversampling: changeOversampling,
       changeOutputGain: changeOutputGain,
       changeInputGain: changeInputGain,
-  
+
       changeMasterVolume: changeMasterVolume,
       changeReverbGain: changeReverbGain,
       changeRoom: changeRoom,
@@ -948,4 +948,3 @@ export default function AmpDisto(context, boost, eq, reverb, cabinetSim) {
       bypassEQ: bypassEQ,
     };
   }
-  
