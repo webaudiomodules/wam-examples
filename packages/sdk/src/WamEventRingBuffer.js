@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
+/** @typedef {import('./types').RingBuffer} RingBuffer */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
 /** @typedef {import('./api/types').WamEventType} WamEventType */
@@ -34,9 +35,7 @@ const executable = () => {
 		 * {uint8} encoded event type
 		 * {float64} time
 		 *
-		 * @static
 		 * @type {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		static WamEventBaseBytes = 4 + 1 + 8;
 
@@ -47,9 +46,7 @@ const executable = () => {
 		 * {float64} value
 		 * {uint8} normalized
 		 *
-		 * @static
 		 * @type {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		static WamAutomationEventBytes = WamEventRingBuffer.WamEventBaseBytes + 2 + 8 + 1;
 
@@ -62,9 +59,7 @@ const executable = () => {
 		 * {uint8} time signature numerator
 		 * {uint8} time signature denominator
 		 *
-		 * @static
 		 * @type {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		static WamTransportEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1;
 
@@ -75,9 +70,7 @@ const executable = () => {
 		 * {uint8} data1 byte
 		 * {uint8} data2 byte
 		 *
-		 * @static
 		 * @type {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		static WamMidiEventBytes = WamEventRingBuffer.WamEventBaseBytes + 1 + 1 + 1;
 
@@ -88,9 +81,7 @@ const executable = () => {
 		 * {uint32} number of bytes in binary array
 		 * {uint8[]} N bytes in binary array depending on message
 		 *
-		 * @static
 		 * @type {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		static WamBinaryEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4; // + N
 
@@ -99,13 +90,10 @@ const executable = () => {
 		 * the specified number of events. Specify 'maxBytesPerEvent'
 		 * to support variable-size binary event types like sysex or osc.
 		 *
-		 * @static
 		 * @param {RingBufferConstructor} RingBuffer
 		 * @param {number} eventCapacity
 		 * @param {number} [maxBytesPerEvent=undefined]
-
 		 * @return {SharedArrayBuffer}
-		 * @memberof WamEventRingBuffer
 		 */
 		static getStorageForEventCapacity(RingBuffer, eventCapacity, maxBytesPerEvent = undefined) {
 			if (maxBytesPerEvent === undefined) maxBytesPerEvent = 0;
@@ -127,26 +115,25 @@ const executable = () => {
 		 * @param {SharedArrayBuffer} sab
 		 * @param {{[parameterId: string]: number}} parameterIndices
 		 * @param {number} [maxBytesPerEvent=undefined]
-		 * @memberof WamEventRingBuffer
 		 */
 		constructor(RingBuffer, sab, parameterIndices, maxBytesPerEvent = undefined) {
-			/** @property {string: number} _eventSizeBytes */
+			/** @type {Record<string, number>} */
 			this._eventSizeBytes = {};
 
-			/** @property {string: number} _encodeEventType */
+			/** @type {Record<string, number>} */
 			this._encodeEventType = {};
 
-			/** @property {number: string} _decodeEventType */
+			/** @type {Record<number, string>} */
 			this._decodeEventType = {};
-			['automation', 'transport', 'midi', 'sysex', 'mpe', 'osc'].forEach((type, encodedType) => {
+			['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc'].forEach((type, encodedType) => {
 				let byteSize = 0;
 				switch (type) {
-				case 'automation': byteSize = WamEventRingBuffer.WamAutomationEventBytes; break;
-				case 'transport': byteSize = WamEventRingBuffer.WamTransportEventBytes; break;
-				case 'mpe':
-				case 'midi': byteSize = WamEventRingBuffer.WamMidiEventBytes; break;
-				case 'osc':
-				case 'sysex': byteSize = WamEventRingBuffer.WamBinaryEventBytes; break;
+				case 'wam-automation': byteSize = WamEventRingBuffer.WamAutomationEventBytes; break;
+				case 'wam-transport': byteSize = WamEventRingBuffer.WamTransportEventBytes; break;
+				case 'wam-mpe':
+				case 'wam-midi': byteSize = WamEventRingBuffer.WamMidiEventBytes; break;
+				case 'wam-osc':
+				case 'wam-sysex': byteSize = WamEventRingBuffer.WamBinaryEventBytes; break;
 				default: break;
 				}
 				this._eventSizeBytes[type] = byteSize;
@@ -154,40 +141,40 @@ const executable = () => {
 				this._decodeEventType[encodedType] = type;
 			});
 
-			/** @property {{[parameterId: string]: number}} _parameterIndices */
+			/** @type {{[parameterId: string]: number}} */
 			this._encodeParameterId = parameterIndices;
 
-			/** @property {{[parameterId: number]: string}} _parameterIndices */
+			/** @type {{[parameterId: number]: string}} */
 			this._decodeParameterId = {};
 			Object.keys(this._encodeParameterId).forEach((parameterId) => {
 				const encodedParameterId = this._encodeParameterId[parameterId];
 				this._decodeParameterId[encodedParameterId] = parameterId;
 			});
 
-			/** @property {SharedArrayBuffer} _sab */
+			/** @type {SharedArrayBuffer} */
 			this._sab = sab;
 
 			if (maxBytesPerEvent === undefined) maxBytesPerEvent = 0;
 
-			/** @property {number} _eventBytesAvailable */
+			/** @type {number} */
 			this._eventBytesAvailable = Math.max(
 				WamEventRingBuffer.WamAutomationEventBytes,
 				WamEventRingBuffer.WamTransportEventBytes,
 				WamEventRingBuffer.WamMidiEventBytes,
 				WamEventRingBuffer.WamBinaryEventBytes,
 			) + maxBytesPerEvent;
-			/** @property {ArrayBuffer} _eventBytes */
+			/** @type {ArrayBuffer} */
 			this._eventBytes = new ArrayBuffer(this._eventBytesAvailable);
-			/** @property {DataView} _eventBytesView */
+			/** @type {DataView} */
 			this._eventBytesView = new DataView(this._eventBytes);
 
-			/** @property {RingBuffer} _mainToAudioRb */
+			/** @type {RingBuffer} */
 			this._rb = new RingBuffer(this._sab, Uint8Array);
 
-			/** @property {Uint8Array} _eventSizeReadArray */
+			/** @type {Uint8Array} */
 			this._eventSizeArray = new Uint8Array(this._eventBytes, 0, 4);
 
-			/** @property {DataView} _eventSizeView */
+			/** @type {DataView} */
 			this._eventSizeView = new DataView(this._eventBytes, 0, 4);
 		}
 
@@ -199,7 +186,6 @@ const executable = () => {
 		 * @param {string} type
 		 * @param {number} time
 		 * @return {number} updated byte offset
-		 * @memberof WamEventRingBuffer
 		 */
 		_writeHeader(byteSize, type, time) {
 			let byteOffset = 0;
@@ -218,13 +204,12 @@ const executable = () => {
 		 * @private
 		 * @param {WamEvent} event
 		 * @returns {Uint8Array}
-		 * @memberof WamEventRingBuffer
 		 */
 		_encode(event) {
 			let byteOffset = 0;
 			const { type, time } = event;
 			switch (event.type) {
-			case 'automation': {
+			case 'wam-automation': {
 				const byteSize = this._eventSizeBytes[type];
 				byteOffset = this._writeHeader(byteSize, type, time);
 
@@ -243,7 +228,7 @@ const executable = () => {
 				this._eventBytesView.setUint8(byteOffset, normalized ? 1 : 0);
 				byteOffset += 1;
 			} break;
-			case 'transport': {
+			case 'wam-transport': {
 				const byteSize = this._eventSizeBytes[type];
 				byteOffset = this._writeHeader(byteSize, type, time);
 
@@ -267,8 +252,8 @@ const executable = () => {
 				this._eventBytesView.setUint8(byteOffset, timeSigDenominator);
 				byteOffset += 1;
 			} break;
-			case 'mpe':
-			case 'midi': {
+			case 'wam-mpe':
+			case 'wam-midi': {
 				const byteSize = this._eventSizeBytes[type];
 				byteOffset = this._writeHeader(byteSize, type, time);
 
@@ -285,8 +270,8 @@ const executable = () => {
 					b++;
 				}
 			} break;
-			case 'osc':
-			case 'sysex': {
+			case 'wam-osc':
+			case 'wam-sysex': {
 				/**
 				 * @type {WamSysexEvent | WamOscEvent}
 				 * @property {WamBinaryData} data
@@ -319,7 +304,6 @@ const executable = () => {
 		 *
 		 * @private
 		 * @returns {WamEvent} Decoded WamEvent
-		 * @memberof WamEventRingBuffer
 		 */
 		_decode() {
 			let byteOffset = 0;
@@ -330,7 +314,7 @@ const executable = () => {
 			byteOffset += 8;
 
 			switch (type) {
-			case 'automation': {
+			case 'wam-automation': {
 				const id = this._decodeParameterId[this._eventBytesView.getUint16(byteOffset)];
 				byteOffset += 2;
 				const value = this._eventBytesView.getFloat64(byteOffset);
@@ -348,7 +332,7 @@ const executable = () => {
 				};
 				return event;
 			}
-			case 'transport': {
+			case 'wam-transport': {
 				const currentBar = this._eventBytesView.getUint32(byteOffset);
 				byteOffset += 4;
 				const currentBarStarted = this._eventBytesView.getFloat64(byteOffset);
@@ -370,8 +354,8 @@ const executable = () => {
 				};
 				return event;
 			}
-			case 'mpe':
-			case 'midi': {
+			case 'wam-mpe':
+			case 'wam-midi': {
 				/** @type {[number, number, number]} */
 				const bytes = [0, 0, 0];
 				let b = 0;
@@ -389,8 +373,8 @@ const executable = () => {
 				};
 				return event;
 			}
-			case 'osc':
-			case 'sysex': {
+			case 'wam-osc': // TODO
+			case 'wam-sysex': {
 				const numBytes = this._eventBytesView.getUint32(byteOffset);
 				byteOffset += 4;
 				const bytes = new Uint8Array(numBytes);
@@ -399,6 +383,7 @@ const executable = () => {
 
 				/** @type {WamSysexEvent} */
 				const event = {
+					// @ts-ignore
 					type,
 					time,
 					data: { bytes },
@@ -409,7 +394,7 @@ const executable = () => {
 			}
 			// eslint-disable-next-line no-console
 			console.error('Failed to decode event!');
-			return { type: 'midi', time: undefined, data: { bytes: [0, 0, 0] } };
+			return { type: 'wam-midi', time: undefined, data: { bytes: [0, 0, 0] } };
 		}
 
 		/**
@@ -418,7 +403,6 @@ const executable = () => {
 		 *
 		 * @param {WamEvent[]} events
 		 * @return {number}
-		 * @memberof WamEventRingBuffer
 		 */
 		write(...events) {
 			const numEvents = events.length;
@@ -443,7 +427,6 @@ const executable = () => {
 		 * the list of events successfully read.
 		 *
 		 * @return {WamEvent[]}
-		 * @memberof WamEventRingBuffer
 		 */
 		read() {
 			if (this._rb.empty) return [];

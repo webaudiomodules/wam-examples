@@ -298,10 +298,10 @@ class BPF extends HTMLElement {
 		const { currentTime } = audioCtx;
 		wamNode.clearEvents();
 		const currentValue = (await wamNode.getParameterValues(false, wamParamId))[wamParamId].value;
-		wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
+		wamNode.scheduleEvents({ type: 'wam-automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
 		for (let t = 0; t < this.domain; t += 0.01) {
 			const value = this.getYfromX(t);
-			wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value }, time: currentTime + t });
+			wamNode.scheduleEvents({ type: 'wam-automation', data: { id: wamParamId, value }, time: currentTime + t });
 		}
 	}
 

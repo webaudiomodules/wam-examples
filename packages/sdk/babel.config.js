@@ -3,7 +3,7 @@ module.exports = {
 		['@babel/preset-env', { targets: { node: 'current'/*, esmodules: true*/ } }],
 		'@babel/preset-typescript',
 	],
-	// plugins: [
-	// 	['@babel/plugin-proposal-class-properties', { loose: true }],
-	// ],
+	plugins: [
+		['@babel/plugin-proposal-class-properties'],
+	],
 };

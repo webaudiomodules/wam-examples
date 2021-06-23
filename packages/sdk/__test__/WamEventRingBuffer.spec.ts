@@ -23,7 +23,7 @@ describe('WamEventRingBuffer Suite', () => {
 	};
 
 	const inputAutomationEvent: WamAutomationEvent = {
-		type: 'automation',
+		type: 'wam-automation',
 		time: 10 * Math.random(),
 		data: {
 			id: 'y',
@@ -33,7 +33,7 @@ describe('WamEventRingBuffer Suite', () => {
 	};
 
 	const inputTransportEvent: WamTransportEvent = {
-		type: 'transport',
+		type: 'wam-transport',
 		time: 10 * Math.random(),
 		data: {
 			currentBar: Math.round(10 * Math.random()),
@@ -45,7 +45,7 @@ describe('WamEventRingBuffer Suite', () => {
 	};
 
 	const inputMidiEvent: WamMidiEvent = {
-		type: 'midi',
+		type: 'wam-midi',
 		time: 10 * Math.random(),
 		data: {
 			bytes: [0x80, 0x80, 0x80],
@@ -53,7 +53,7 @@ describe('WamEventRingBuffer Suite', () => {
 	};
 
 	const inputMpeEvent: WamMpeEvent = {
-		type: 'mpe',
+		type: 'wam-mpe',
 		time: 10 * Math.random(),
 		data: {
 			bytes: [0x90, 0x90, 0x90],
@@ -67,7 +67,7 @@ describe('WamEventRingBuffer Suite', () => {
 		b++;
 	}
 	const inputSysexEvent: WamSysexEvent = {
-		type: 'sysex',
+		type: 'wam-sysex',
 		time: 10 * Math.random(),
 		data: {
 			bytes: sysexBytes,
@@ -81,7 +81,7 @@ describe('WamEventRingBuffer Suite', () => {
 		b++;
 	}
 	const inputOscEvent: WamOscEvent = {
-		type: 'osc',
+		type: 'wam-osc',
 		time: 10 * Math.random(),
 		data: {
 			bytes: sysexBytes,

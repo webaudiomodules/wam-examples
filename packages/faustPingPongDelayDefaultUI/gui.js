@@ -11,7 +11,6 @@ class FaustDefaultGui extends HTMLElement {
 	 * @param {AudioWorkletNode} faustNode
 	 * @param {any} ui
 	 * @param {string} style
-	 * @memberof FaustDefaultGui
 	 */
 	constructor(wamNode, faustNode, ui, style) {
 		super();

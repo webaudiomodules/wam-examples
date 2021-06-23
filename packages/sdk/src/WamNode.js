@@ -4,7 +4,7 @@
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
 /** @typedef {import('./api/types').WamEventType} WamEventType */
-/** @typedef {import('./api/types').WamListenerType} WamListenerType */
+/** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
 
 import getRingBuffer from './RingBuffer.js';
 import getWamEventRingBuffer from './WamEventRingBuffer.js';
@@ -42,16 +42,16 @@ export default class WamNode extends AudioWorkletNode {
 		this._useSab = false; // can override this via processorOptions;
 		/** @type {boolean} _sabReady */
 		this._sabReady = false;
-		/** @type {{[key: number]: (...args: any[]) => any}} */
+		/** @private @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
-		/** @type {{[key: number]: () => any}} */
+		/**  @private @type {{[key: number]: () => any}} */
 		this._pendingEvents = {};
 		/** @type {boolean} */
 		this._destroyed = false;
 		/** @type {number} */
 		this._messageId = 1;
 		/** @type {Set<WamEventType>} */
-		this._supportedEventTypes = new Set(['wam-event']);
+		this._supportedEventTypes = new Set(['wam-event', 'wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -170,7 +170,7 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Register a callback function so it will be called
 	 * when matching events are processed.
-	 * @param {WamListenerType} type
+	 * @param {WamEventType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -181,7 +181,7 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Deregister a callback function so it will no longer
 	 * be called when matching events are processed.
-	 * @param {WamListenerType} type
+	 * @param {WamEventType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -306,25 +306,25 @@ export default class WamNode extends AudioWorkletNode {
 			this._useSab = true;
 			const { eventCapacity, parameterIndices } = sab;
 
-			/** @property {{[parameterId: string]: number}} _parameterIndices */
+			/** @type {{[parameterId: string]: number}} */
 			this._parameterIndices = parameterIndices;
 
-			/** @property {SharedArrayBuffer} _mainToAudioSab */
+			/** @type {SharedArrayBuffer} */
 			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @property {SharedArrayBuffer} _audioToMainSab */
+			/** @type {SharedArrayBuffer} */
 			this._audioToMainSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @property {WamEventRingBuffer} _eventWriter */
+			/** @type {WamEventRingBuffer} */
 			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
 				this._parameterIndices);
-			/** @property {WamEventRingBuffer} _eventReader */
+			/** @type {WamEventRingBuffer} */
 			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
 				this._parameterIndices);
 
-			/** @property {intervalID} _audioToMainInterval */
+			/** @type {number} */
 			this._eventReaderInterval = null;
 
 			const request = 'initialize/sab';

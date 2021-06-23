@@ -458,7 +458,7 @@ if (navigator.requestMIDIAccess) {
 		let currentInput;
 		const handleMidiMessage = (e) => {
 			if (!currentPluginAudioNode) return;
-			currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
+			currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
 		};
 		const handleStateChange = () => {
 			const { inputs } = midiAccess;
@@ -485,6 +485,6 @@ if (navigator.requestMIDIAccess) {
 // -------- generate MIDI note button ---------
 /** @type {HTMLButtonElement} */ const sendMIDINoteButton = document.querySelector('#sendMIDINoteButton');
 sendMIDINoteButton.onclick = async () => {
-	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
-	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
+	currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
+	currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
 };

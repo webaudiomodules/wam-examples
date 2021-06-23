@@ -92,9 +92,9 @@ class RandomNoteProcessor extends AudioWorkletProcessor {
 			this.lastPitch = pitch;
 			if (this.lastTime) this.lastTime += pause;
 			else this.lastTime = currentTime;
-			this.proxy.emitEvents({ type: 'midi', time: currentTime, data: { bytes: [0b10010000, pitch, velocity] } });
+			this.proxy.emitEvents({ type: 'wam-midi', time: currentTime, data: { bytes: [0b10010000, pitch, velocity] } });
 		} else if (this.lastPitch && currentTime - this.lastTime >= length) {
-			this.proxy.emitEvents({ type: 'midi', time: currentTime, data: { bytes: [0b10010000, this.lastPitch, 0] } });
+			this.proxy.emitEvents({ type: 'wam-midi', time: currentTime, data: { bytes: [0b10010000, this.lastPitch, 0] } });
 			this.lastPitch = null;
 			this.lastTime += length;
 		}

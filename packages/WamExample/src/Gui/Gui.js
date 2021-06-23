@@ -300,32 +300,32 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		 */
 		const noteEvents = [
 			// start chord1
-			{ type: 'midi', data: { bytes: [0x90, chord1a, velocity1] }, time: time1a },
-			{ type: 'midi', data: { bytes: [0x90, chord1b, velocity1] }, time: time1a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord1a, velocity1] }, time: time1a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord1b, velocity1] }, time: time1a },
 
 			// stop chord1
-			{ type: 'midi', data: { bytes: [0x80, chord1a, 0] }, time: time1b },
-			{ type: 'midi', data: { bytes: [0x80, chord1b, 0] }, time: time1b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord1a, 0] }, time: time1b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord1b, 0] }, time: time1b },
 
 			// start chord2
-			{ type: 'midi', data: { bytes: [0x90, chord2a, velocity2] }, time: time2a },
-			{ type: 'midi', data: { bytes: [0x90, chord2b, velocity2] }, time: time2a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord2a, velocity2] }, time: time2a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord2b, velocity2] }, time: time2a },
 
 			// stop chord2
-			{ type: 'midi', data: { bytes: [0x80, chord2a, 0] }, time: time2b },
-			{ type: 'midi', data: { bytes: [0x80, chord2b, 0] }, time: time2b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord2a, 0] }, time: time2b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord2b, 0] }, time: time2b },
 
 			// start chord3
-			{ type: 'midi', data: { bytes: [0x90, chord3a, velocity3] }, time: time3a },
-			{ type: 'midi', data: { bytes: [0x90, chord3b, velocity3] }, time: time3a },
-			{ type: 'midi', data: { bytes: [0x90, chord3c, velocity3] }, time: time3a },
-			{ type: 'midi', data: { bytes: [0x90, chord3d, velocity3] }, time: time3a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord3a, velocity3] }, time: time3a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord3b, velocity3] }, time: time3a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord3c, velocity3] }, time: time3a },
+			{ type: 'wam-midi', data: { bytes: [0x90, chord3d, velocity3] }, time: time3a },
 
 			// stop chord3
-			{ type: 'midi', data: { bytes: [0x80, chord3a, 0] }, time: time3b },
-			{ type: 'midi', data: { bytes: [0x80, chord3b, 0] }, time: time3b },
-			{ type: 'midi', data: { bytes: [0x80, chord3c, 0] }, time: time3b },
-			{ type: 'midi', data: { bytes: [0x80, chord3d, 0] }, time: time3b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord3a, 0] }, time: time3b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord3b, 0] }, time: time3b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord3c, 0] }, time: time3b },
+			{ type: 'wam-midi', data: { bytes: [0x80, chord3d, 0] }, time: time3b },
 		];
 		noteEvents.sort((a, b) => a.time - b.time);
 		this.plugin.audioNode.scheduleEvents(...noteEvents);

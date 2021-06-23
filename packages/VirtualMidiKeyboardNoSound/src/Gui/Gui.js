@@ -143,7 +143,7 @@ export default class MidiVirtualKeyboardNoSoundHTMLElement extends HTMLElement {
 
 	sendMidiMessage(mess) {
 		// send message to wam env
-		this.plugin.audioNode._wamNode.emitEvents({ type: 'midi', time: this.plugin.audioContext.currentTime, data: { bytes: mess } });
+		this.plugin.audioNode._wamNode.emitEvents({ type: 'wam-midi', time: this.plugin.audioContext.currentTime, data: { bytes: mess } });
 		// send message to external midi devices
 		if (this.midiout) this.midiout.send(mess);
 	}

@@ -28,55 +28,49 @@ class WebAudioModule extends AbstractWebAudioModule {
 	constructor(audioContext) {
 		super(audioContext);
 		this._audioContext = audioContext;
+		this._initialized = false;
+		/** @type {WamNode} */
+		this._audioNode = undefined;
+		this._timestamp = performance.now();
+		/**
+		 * Url to load the plugin's GUI HTML
+		 * @type {string}
+		 */
+		this._guiModuleUrl = undefined;
+		/**
+		 * Url to load the plugin's `descriptor.json`
+		 * @type {string}
+		 */
+		this._descriptorUrl = './descriptor.json';
+		/** @type {WamDescriptor} */
+		this._descriptor = {
+			name: `WebAudioModule_${this.constructor.name}`,
+			vendor: 'WebAudioModuleVendor',
+			description: '',
+			version: '0.0.0',
+			sdkVersion: '1.0.0',
+			thumbnail: '',
+			keywords: [],
+			isInstrument: false,
+			website: '',
+			hasAudioInput: true,
+			hasAudioOutput: true,
+			hasAutomationInput: true,
+			hasAutomationOutput: true,
+			hasMidiInput: true,
+			hasMidiOutput: true,
+			hasMpeInput: true,
+			hasMpeOutput: true,
+			hasOscInput: true,
+			hasOscOutput: true,
+			hasSysexInput: true,
+			hasSysexOutput: true,
+		};
 	}
 
 	get isWebAudioModule() {
 		return true;
 	}
-
-	_initialized = false;
-
-	/** @type {WamNode} */
-	_audioNode = undefined;
-
-	_timestamp = performance.now();
-
-	/**
-	 * Url to load the plugin's GUI HTML
-	 * @type {string}
-	 */
-	_guiModuleUrl = undefined;
-
-	/**
-	 * Url to load the plugin's `descriptor.json`
-	 * @type {string}
-	 */
-	_descriptorUrl = './descriptor.json';
-
-	/** @type {WamDescriptor} */
-	_descriptor = {
-		name: `WebAudioModule_${this.constructor.name}`,
-		vendor: 'WebAudioModuleVendor',
-		description: '',
-		version: '0.0.0',
-		sdkVersion: '1.0.0',
-		thumbnail: '',
-		keywords: [],
-		isInstrument: false,
-		website: '',
-		hasAudioInput: true,
-		hasAudioOutput: true,
-		hasAutomationInput: true,
-		hasAutomationOutput: true,
-		hasMidiInput: true,
-		hasMidiOutput: true,
-		hasMpeInput: true,
-		hasMpeOutput: true,
-		hasOscInput: true,
-		hasOscOutput: true,
-		hasSysexInput: true,
-		hasSysexOutput: true,
-	};
 
 	get moduleId() { return this.vendor + this.name; }
 

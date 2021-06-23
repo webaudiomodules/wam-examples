@@ -1,7 +1,80 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamEvent, WamParameter } from './api/types';
-import WamParameterInterpolator from './WamParameterInterpolator.d';
-
+/* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamEvent, WamParameter, WamParameterInfo } from './api/types';
+
+export interface WamParameterInterpolator {
+	/** Info object for corresponding WamParameter. */
+	readonly info: WamParameterInfo;
+
+	/** Buffer storing per-sample values. */
+	readonly values: Float32Array;
+
+	/**
+	 * Update interpolation curve based on skew factor in range `[-1, 1]`.
+	 * Setting to `0` results in linear interpolation. Positive values
+	 * result in convex exponential curves while negative vales result
+	 * in concave exponential curves.
+	 */
+	setSkew(skew: number): void;
+
+	/**
+	 * Reset the interpolator to specified value, setting all per-sample
+	 * values immediately if `fill` is `true`. Assumes `value` is within
+	 * parameter's valid range `[minValue, maxValue]`;
+	 */
+	setStartValue(value: number, fill?: boolean): void;
+
+	/**
+	 * Prepare to compute per-sample values interpolating to `value` on
+	 * next `process` call. Assumes `value` is within parameter's valid
+	 * range `[minValue, maxValue]`;
+	 */
+	setEndValue(value: number): void;
+
+	/**
+	 * Compute per-sample value updates in the specified range `[startIndex, endIndex)`,
+	 * interpolating if applicable. Results are stored in `values`. Assumes this will be
+	 * called once per parameter per processing slice in `WamProcessor.process`.
+	 */
+	process(startIndex: number, endIndex: number): void;
+
+	/**
+	 * Whether or not further processing is required before
+	 * accessing per-sample values.
+	 */
+	readonly done: boolean;
+
+	/**
+	 * Call this when no longer using the instance in order
+	 * to allow deletion of unused static lookup tables.
+	 */
+	destroy(): void;
+}
+
+export const WamParameterInterpolator: {
+	prototype: WamParameterInterpolator;
+	/**
+	 * Lookup tables to avoid recomputing interpolation curves. Keyed
+	 * by `'<samplesPerInterpolation>_<skew>'`. Not used for
+	 * discrete parameters.
+	 */
+	_tables: Record<string, Float32Array>;
+
+	/**
+	 * List of parameter ids currently using the lookup table associated
+	 * with the key. Keyed by `'<samplesPerInterpolation>_<skew>'`.
+	 * For purging unused lookup tables. Not used for discrete parameters.
+	 */
+	_tableReferences: Record<string, string[]>;
+
+	/**
+	 * Provides per-sample value updates for WamParameters
+	 * with interpolation when applicable. Only one instance
+	 * should be created per WamParameter.
+	 */
+	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number)
+	: WamParameterInterpolator;
+};
 
 // eslint-disable-next-line no-undef
 export type TypedArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigInt64ArrayConstructor;
@@ -35,6 +108,7 @@ export interface RingBuffer {
     readonly availableWrite: number;
 }
 export const RingBuffer: {
+	prototype: RingBuffer;
     getStorageForCapacity(capacity: number, Type: TypedArrayConstructor): SharedArrayBuffer;
     /**
      * `sab` is a SharedArrayBuffer with a capacity calculated by calling
@@ -57,6 +131,7 @@ export interface WamEventRingBuffer {
 	read(): WamEvent[];
 }
 export const WamEventRingBuffer: {
+	prototype: WamEventRingBuffer;
 	/**
 	 * Number of bytes required for WamEventBase
 	 * {uint32} total event size in bytes
@@ -115,7 +190,7 @@ export const WamEventRingBuffer: {
 	 * a UInt8Array RingBuffer. Specify 'maxBytesPerEvent'
 	 * to support variable-size binary event types like sysex or osc.
 	 */
-	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIndices: { [parameterId: string]: number }, maxBytesPerEvent?: number);
+	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIndices: { [parameterId: string]: number }, maxBytesPerEvent?: number): WamEventRingBuffer;
 };
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
