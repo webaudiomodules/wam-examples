@@ -81,5 +81,5 @@ export interface TypedAudioWorkletNode<MsgIn = any, MsgOut = any, Par extends st
 }
 export const TypedAudioWorkletNode: {
 	prototype: TypedAudioWorkletNode;
-	new <MsgIn = any, MsgOut = any, Par extends string = string, Opt = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par>;
+	new <MsgIn = any, MsgOut = any, Par extends string = string, EventMap extends Record<string, any> = any, Opt = any>(context: BaseAudioContext, name: string, options?: TypedAudioWorkletNodeOptions<Opt>): TypedAudioWorkletNode<MsgIn, MsgOut, Par, EventMap>;
 };

@@ -125,6 +125,7 @@ export default class ParamMgrNode extends AudioWorkletNode {
 			if (config instanceof AudioParam) {
 				try {
 					config.automationRate = 'a-rate';
+				// eslint-disable-next-line no-empty
 				} catch {
 				} finally {
 					config.value = Math.max(0, config.minValue);

@@ -1,37 +1,32 @@
+/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 import { CompositeAudioNode } from 'sdk';
+import WamNode from './WamNode.js';
+/**
+ * @typedef {import('sdk').WebAudioModule} WebAudioModule
+ */
 
 export default class PedalboardAudioNode extends CompositeAudioNode {
-	constructor(audioContext, options) {
-		super(audioContext, options);
-		this.audioContext = audioContext;
-		this.createNodes();
+	/**
+	 * @param {WebAudioModule} module
+	 * @param {GainOptions} options
+	 */
+	constructor(module, options) {
+		super(module.audioContext, options);
+		/** @type {WebAudioModule} */
+		this._module = module;
+		/** @type {{ id: any; url: string; instance: WebAudioModule}[]} */
 		this.pluginList = [];
 		this.pluginID = 0;
+		this.createNodes();
 	}
 
 	createNodes() {
+		this._wamNode = new WamNode(this._module, this);
 		this._input = this.context.createGain();
 		super.connect(this._input);
 		this._output = this.context.createGain();
 		this._input.connect(this._output);
-	}
-
-	setState(pluginArray) {
-		this.clearPlugins();
-		pluginArray.reduce(async (memo, plugin) => {
-			await memo;
-			return this.addPlugin(plugin.url, plugin.params);
-		}, []);
-	}
-
-	async getState() {
-		return Promise.all(this.pluginList.map(async (plugin) => (
-			{
-				url: plugin.url,
-				params: await plugin.instance.audioNode.getState(),
-			}
-		)));
 	}
 
 	connectNewPlugin(newPlugin) {
@@ -56,7 +51,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		let instance;
 		try {
 			const { default: WAM } = await import(pluginURL);
-			instance = await WAM.createInstance(this.audioContext);
+			instance = await WAM.createInstance(this.context);
 		} catch (e) {
 			console.error(`Error while importing: "${pluginURL}"`);
 			console.error(e);
@@ -75,7 +70,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 
 		this.pluginList.push(newPlugin);
 		this.connectNewPlugin(newPlugin);
-		this.dispatchEvent(new CustomEvent('onchange', { detail: { pluginList: this.pluginList } }));
+		this.dispatchEvent(new CustomEvent('change', { detail: { pluginList: this.pluginList } }));
 	}
 
 	removePlugin(pluginID) {
@@ -111,7 +106,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		deletedPlugin.instance.audioNode.destroy();
 
 		this.pluginList = this.pluginList.filter((plugin) => plugin.id !== pluginID);
-		this.dispatchEvent(new CustomEvent('onchange', { detail: { pluginList: this.pluginList } }));
+		this.dispatchEvent(new CustomEvent('change', { detail: { pluginList: this.pluginList } }));
 	}
 
 	shiftPluginPosition(from, to) {
@@ -162,14 +157,20 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 			}
 		});
 
-		this.dispatchEvent(new CustomEvent('onchange', { detail: { pluginList: this.pluginList } }));
+		this.dispatchEvent(new CustomEvent('change', { detail: { pluginList: this.pluginList } }));
 	}
 
 	clearPlugins() {
 		this._input.disconnect();
 		this._input.connect(this._output);
+		this.pluginList.forEach(({ instance }) => instance.audioNode.destroy());
 		this.pluginList = [];
 		this.pluginID = 0;
-		this.dispatchEvent(new CustomEvent('onchange', { detail: { pluginList: this.pluginList } }));
+		this.dispatchEvent(new CustomEvent('change', { detail: { pluginList: this.pluginList } }));
+	}
+
+	destroy() {
+		this.clearPlugins();
+		super.destroy();
 	}
 }

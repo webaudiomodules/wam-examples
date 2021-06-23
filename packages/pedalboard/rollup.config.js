@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import postcss from 'rollup-plugin-postcss';
 import html from '@rollup/plugin-html';
-import { terser } from 'rollup-plugin-terser';
+// import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
 import url from '@rollup/plugin-url';
 
@@ -35,7 +35,6 @@ const common = {
 		}),
 		commonjs(),
 		html(),
-		terser(),
 		replace({
 			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
 		}),

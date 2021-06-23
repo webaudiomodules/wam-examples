@@ -48,11 +48,5 @@
     "clean": "del dist",
     "build": "cross-env NODE_ENV=production rollup -c",
     "start": "node demo/server.js"
-  },
-  "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions",
-    "not dead"
-  ]
+  }
 }

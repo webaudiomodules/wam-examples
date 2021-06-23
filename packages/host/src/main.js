@@ -58,6 +58,7 @@ const connectPlugin = (audioNode) => {
 		}
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
+		currentPluginAudioNode.destroy();
 		if (currentPluginDomNode) {
 			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
 			mount.innerHTML = '';
@@ -111,6 +112,7 @@ const setMidiPlugin = async (pluginUrl) => {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
 			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
+		keyboardPluginAudioNode.destroy();
 		if (currentKeyboardPluginDomNode) {
 			keyboardPluginAudioNode.module.destroyGui(currentKeyboardPluginDomNode);
 		}

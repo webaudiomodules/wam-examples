@@ -64,7 +64,7 @@ const PedalboardBoard = ({
 	plugins,
 	handleClickRemove,
 	onDrop,
-	onSortPlugin
+	onSortPlugin,
 }) => {
 	const setList = (e) => {
 		if (e.url) {
@@ -141,11 +141,11 @@ const Pedalboard = ({ audioNode }) => {
 
 	useEffect(() => {
 		// eslint-disable-next-line react/prop-types
-		audioNode.addEventListener('onchange', handlePluginListChange);
+		audioNode.addEventListener('change', handlePluginListChange);
 
 		return () => {
 			// eslint-disable-next-line react/prop-types
-			audioNode.removeEventListener('onchange', handlePluginListChange);
+			audioNode.removeEventListener('change', handlePluginListChange);
 		};
 	});
 
@@ -209,6 +209,8 @@ PedalboardSelector.propTypes = {
 PedalboardBoard.propTypes = {
 	plugins: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	handleClickRemove: PropTypes.func.isRequired,
+	onDrop: PropTypes.func.isRequired,
+	onSortPlugin: PropTypes.func.isRequired,
 };
 
 PedalboardHeader.propTypes = {

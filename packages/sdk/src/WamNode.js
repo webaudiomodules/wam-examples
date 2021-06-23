@@ -36,21 +36,21 @@ export default class WamNode extends AudioWorkletNode {
 		};
 		super(audioContext, moduleId, options);
 
-		/** @property {WebAudioModule} module */
+		/** @type {WebAudioModule} */
 		this.module = module;
-		/** @property {boolean} _useSab */
+		/** @type {boolean} _useSab */
 		this._useSab = false; // can override this via processorOptions;
-		/** @property {boolean} _sabReady */
+		/** @type {boolean} _sabReady */
 		this._sabReady = false;
-		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
+		/** @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
-		/** @private @property {{[key: number]: Promise<any>}} _pendingEvents **/
+		/** @type {{[key: number]: () => any}} */
 		this._pendingEvents = {};
-		/** @property {boolean} _destroyed */
+		/** @type {boolean} */
 		this._destroyed = false;
-		/** @property {number} _messageId */
+		/** @type {number} */
 		this._messageId = 1;
-		/** @property {Set<WamEventType>} _supportedEventTypes */
+		/** @type {Set<WamEventType>} */
 		this._supportedEventTypes = new Set(['wam-event']);
 
 		this.port.onmessage = this._onMessage.bind(this);

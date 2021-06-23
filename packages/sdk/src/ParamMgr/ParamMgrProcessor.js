@@ -245,7 +245,6 @@ const processor = (processorId, paramsConfig) => {
 		 * @param {Float32Array[][]} inputs
 		 * @param {Float32Array[][]} outputs
 		 * @param {Record<string, Float32Array>} parameters
-		 * @memberof ParamMgrProcessor
 		 */
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;
