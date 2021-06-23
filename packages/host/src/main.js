@@ -458,7 +458,7 @@ if (navigator.requestMIDIAccess) {
 		let currentInput;
 		const handleMidiMessage = (e) => {
 			if (!currentPluginAudioNode) return;
-			currentPluginAudioNode.audioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
+			currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
 		};
 		const handleStateChange = () => {
 			const { inputs } = midiAccess;
