@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>sdk</title>
-	<meta name="description" content="Documentation for sdk">
+	<title>Parameter Manager</title>
+	<meta name="description" content="Documentation for Parameter Manager">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -22,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">sdk</a>
+					<a href="index.html" class="title">Parameter Manager</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -49,12 +50,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
-			</ul>
-			<h1>sdk</h1>
+			<h1>Parameter Manager</h1>
 		</div>
 	</div>
 </header>
@@ -62,158 +58,13 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#parameter-manager" id="parameter-manager" style="color: inherit; text-decoration: none;">
-					<h1>Parameter Manager</h1>
-				</a>
-				<p>This document provides a description of the Parameter Manager used in the <code>WebAudioModule</code> <a href="https://github.com/53js/webaudiomodule/tree/master/packages/sdk">SDK</a>, and a guide to handle parameters in an <code>WebAudioModule</code> with the Parameter Manager.</p>
-				<a href="#motivation" id="motivation" style="color: inherit; text-decoration: none;">
-					<h3>Motivation</h3>
-				</a>
-				<p>It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its <code>AtTime</code> methods, to allow developers to schedule sample-accurate <code>a-rate</code> or buffer-accurate <code>k-rate</code> automations in several ways.</p>
-				<p>It is important for an <code>WebAudioModule</code> to control its parameters sample-accurately. However, the <code>AudioParam</code>s exist only inside <code>AudioNode</code>s, they are not constructable independently, and they do not exist in the audio thread. This is reason that <code>WebAudioModule</code> API provides another interface <code>WamParameter</code> for automatable parameters both in the main thread and in the audio thread. The Parameter Manager provides an implementation of the <code>WamParameter</code> that uses native but customized <code>AudioParam</code> to handle automation scheduling. In fact, Parameter Manager is mainly an <code>AudioWorkletNode</code> that creates user defined <code>AudioParam</code>s, then transform them to <code>AudioNode</code> outputs or funcion calls.</p>
-				<a href="#plugin-design-patterns" id="plugin-design-patterns" style="color: inherit; text-decoration: none;">
-					<h3>Plugin Design Patterns</h3>
-				</a>
-				<p>As described in the <code>WebAudioModule</code> API, the developer should declare and configure every parameters as <code>WamParameterInfo</code> that are controllable and automatable by the host application, and let them accessible via <code>WamNode</code>&#39;s methods, such as <code>getParameterInfo()</code>. In the Parameter Manager, we consider these parameters are the WAM&#39;s <em>exposed parameters</em>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L60"><code>ParametersMappingConfiguratorOptions.paramsConfig</code></a>).</p>
-				<p>In a host, by automating or controlling these <em>exposed parameters</em>, it will as a result change the WAM&#39;s internal state. The variables to be changed in the internal state, which we call <em>internal parameters</em>, can be an <code>AudioParam</code> or an event handler that will be called while the values change, under a certain fire rate. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L46"><code>InternalParametersDescriptor</code></a>)</p>
-				<p>In some use cases, the plugin need to control multiple <em>internal parameters</em> with one single <em>exposed parameters</em>, and with different value scalings or mappings. For example, an <em>exposed parameter</em> <code>mix</code> need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an <em>internal parameter</em> <code>dry</code>; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an <em>internal parameter</em> <code>wet</code>. This can be done easily by declaring a <code>paramsMapping</code>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L57"><code>ParametersMapping</code></a>)</p>
-				<p>By using <code>ParamMgrFactory.create</code> static method, the developer will create an instance of the Parameter Manager that will automatically handle the parameters. It depends on the configuration provided with <code>paramsConfig</code>, <code>internalParamsConfig</code> and <code>paramsMapping</code> properties of the <code>optionsIn</code> argument. There are three main design patterns to declare and link the <em>exposed parameters</em> to the <em>internal parameters</em> using the Parameter Manager.</p>
-				<ol start="0">
-					<li>Direct to <code>AudioParam</code>, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
-				</ol>
-				<p><img src="media/paramMgr_0.png" alt="Direct to AudioParam"></p>
-				<blockquote>
-					<p>If the developer leaves the <code>paramsConfig</code> and the <code>paramsMapping</code> undefined, the SDK will derive the <code>paramsConfig</code> from the <code>internalParamsConfig</code>, which means they are containing same parameter names and values. The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
-				</blockquote>
-				<blockquote>
-					<p>For example:</p>
-				</blockquote>
-				<pre><code class="language-JavaScript"><span class="hljs-comment">// if audioNode.gain and audioNode.freq are AudioParams</span>
-<span class="hljs-keyword">const</span> internalParamsConfig = {
-    <span class="hljs-attr">gain</span>: audioNode.gain,
-    <span class="hljs-attr">freq</span>: audioNode.freq
-};
-<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, { internalParamsConfig });</code></pre>
-				<ol>
-					<li>Direct + default event listeners or <code>AudioParam</code>s, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
-				</ol>
-				<blockquote>
-					<p><img src="media/paramMgr_1.png" alt="Direct + default event listeners or `AudioParam`s"></p>
-				</blockquote>
-				<blockquote>
-					<p>If the developer declared the <code>internalParamsConfig</code> and leaves the <code>paramsMapping</code> unset, the SDK will automatically make links between the <em>exposed parameters</em> and the <em>internal parameters</em>, taking account of the giving <code>AudioParam</code>, or the <code>onChange</code> callback with the <code>automationRate</code>.</p>
-				</blockquote>
-				<blockquote>
-					<p>The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
-				</blockquote>
-				<blockquote>
-					<p>For example:</p>
-				</blockquote>
-				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> internalParamsConfig = {
-    <span class="hljs-attr">enabled</span>: {
-        <span class="hljs-attr">onChange</span>: <span class="hljs-function">(<span class="hljs-params">value, prevValue</span>) =&gt;</span> {
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Param &quot;enabled&quot; has been changed from <span class="hljs-subst">${prevValue}</span> to <span class="hljs-subst">${value}</span>`</span>);
-        }, <span class="hljs-comment">// callback</span>
-        <span class="hljs-attr">automationRate</span>: <span class="hljs-number">10</span> <span class="hljs-comment">// 10 times/sec</span>
-    },
-    <span class="hljs-attr">gain</span>: audioNode.gain <span class="hljs-comment">// AudioParam</span>
-};
-<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, { internalParamsConfig });</code></pre>
-				<ol start="2">
-					<li>Mapping + default event listeners or <code>AudioParam</code>s pattern, need to declare the <code>paramsConfig</code>, <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
-				</ol>
-				<blockquote>
-					<p><img src="media/paramMgr_2.png" alt="Mapping + default event listeners or `AudioParam`s pattern"></p>
-				</blockquote>
-				<blockquote>
-					<p>This pattern is useful when a different mapping is needed between the <em>internal parameters</em> and the <em>exposed parameters</em>.</p>
-				</blockquote>
-				<blockquote>
-					<p>A value mapping can be set via <code>sourceRange</code> and <code>targetRange</code> fields. The incoming value of the <em>exposed parameter</em> will be firstly clipped using <code>sourceRange</code>, then the value in the <code>sourceRange</code> will be remapped to the <code>targetRange</code>. If these fields remain <code>undefined</code>, they will be the same as the <code>minValue</code> and the <code>maxValue</code> of the <em>exposed parameter</em>.</p>
-				</blockquote>
-				<blockquote>
-					<p>If one parameter name appears in both <code>paramsConfig</code> and <code>internalParamsConfig</code>, the mapping will be created automatically if it is not declared explicitly in the <code>paramsMapping</code>.</p>
-				</blockquote>
-				<blockquote>
-					<p>Dynamically change the <code>paramsMapping</code> is possible using the <code>setParamsMapping</code> method.</p>
-				</blockquote>
-				<blockquote>
-					<p>For example:</p>
-				</blockquote>
-				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> paramsConfig = {
-    <span class="hljs-attr">mix</span>: {
-        <span class="hljs-attr">defaultValue</span>: <span class="hljs-number">0.5</span>,
-        <span class="hljs-attr">minValue</span>: <span class="hljs-number">0</span>,
-        <span class="hljs-attr">maxValue</span>: <span class="hljs-number">1</span>
-    }
-}
-<span class="hljs-keyword">const</span> internalParamsConfig = {
-    <span class="hljs-attr">dryGain</span>: dryGainNode.gain,
-    <span class="hljs-attr">wetGain</span>: wetGainNode.gain,
-};
-<span class="hljs-keyword">const</span> paramsMapping = {
-    <span class="hljs-attr">mix</span>: {
-        <span class="hljs-attr">dryGain</span>: {
-            <span class="hljs-attr">sourceRange</span>: [<span class="hljs-number">0.5</span>, <span class="hljs-number">1</span>],
-            <span class="hljs-attr">targetRange</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>],
-        },
-        <span class="hljs-attr">wetGain</span>: {
-            <span class="hljs-attr">sourceRange</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">0.5</span>],
-            <span class="hljs-attr">targetRange</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
-        },
-    },
-};
-<span class="hljs-keyword">const</span> option = {
-    paramsConfig,
-    internalParamsConfig,
-    paramsMapping
-};
-<span class="hljs-keyword">const</span> paramMgr = <span class="hljs-keyword">await</span> ParamMgrFactory.create(wam, option);</code></pre>
-				<a href="#creating-a-composite-audionode-using-the-parameter-manager" id="creating-a-composite-audionode-using-the-parameter-manager" style="color: inherit; text-decoration: none;">
-					<h3>Creating a Composite <code>AudioNode</code> using the Parameter Manager</h3>
-				</a>
-				<p><code>WebAudioModule</code> API requires that the module&#39;s <code>audioNode</code> is connectable as audio I/O, and implements the <code>WamNode</code> interface. As a developer, one can use the Parameter Manager to act as the <code>WamNode</code> interface, and use another <code>AudioNode</code> to act as the audio I/O by creating a <code>CompositeAudioNode</code>. We provide a <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/CompositeAudioNode.d.ts">prototype</a> of the <code>CompositeAudioNode</code> in the Parameter Manager folder.</p>
-				<p>To get it work with the Parameter Manager, see this example:</p>
-				<pre><code class="language-JavaScript"><span class="hljs-keyword">import</span> WebAudioModule <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/WebAudioModule&#x27;</span>;
-<span class="hljs-keyword">import</span> ParamMgrFactory <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/ParamMgr/ParamMgrFactory&#x27;</span>;
-<span class="hljs-keyword">import</span> CompositeAudioNode <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;sdk/src/ParamMgr/CompositeAudioNode&#x27;</span>;
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyCompositeAudioNode</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CompositeAudioNode</span> </span>{
-    <span class="hljs-function"><span class="hljs-title">setup</span>(<span class="hljs-params">output, paramMgr</span>)</span> {
-        <span class="hljs-built_in">this</span>.connect(output, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
-        <span class="hljs-built_in">this</span>._wamNode = paramMgr;
-        <span class="hljs-built_in">this</span>._output = output;
-    }
-}
-
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWam</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebAudioModule</span> </span>{
-    <span class="hljs-comment">//... other settings</span>
-    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-title">createAudioNode</span>(<span class="hljs-params">initialState</span>)</span> {
-        <span class="hljs-keyword">const</span> gainNode = <span class="hljs-keyword">new</span> GainNode(<span class="hljs-built_in">this</span>.audioContext);
-
-        <span class="hljs-keyword">const</span> compositeNode = <span class="hljs-keyword">new</span> MyCompositeAudioNode(<span class="hljs-built_in">this</span>.audioContext);
-
-        <span class="hljs-keyword">const</span> internalParamsConfig = {
-            <span class="hljs-attr">gain</span>: gainNode.gain
-        };
-
-        <span class="hljs-keyword">const</span> paramMgrNode = <span class="hljs-keyword">await</span> ParamMgrFactory.create(<span class="hljs-built_in">this</span>, { internalParamsConfig });
-
-        compositeNode.setup(gainNode, paramMgrNode);
-
-        <span class="hljs-keyword">if</span> (initialState) compositeNode.setState(initialState);
-
-        <span class="hljs-keyword">return</span> compositeNode;
-    }
-}
-</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
@@ -221,12 +72,6 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-class">
 						<a href="classes/audioworkletregister.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Register</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/audioworkletglobalscope.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Global<wbr>Scope</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/compositeaudionode.html" class="tsd-kind-icon">Composite<wbr>Audio<wbr>Node</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/internalparameterdescriptor.html" class="tsd-kind-icon">Internal<wbr>Parameter<wbr>Descriptor</a>
@@ -252,10 +97,10 @@
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="interfaces/parammgrnode.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/parammgrnodemsgin.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>In</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/parammgrnodemsgout.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>Out</a>
 					</li>
 					<li class=" tsd-kind-interface">
@@ -267,83 +112,32 @@
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="interfaces/parametersmappingconfiguratoroptions.html" class="tsd-kind-icon">Parameters<wbr>Mapping<wbr>Configurator<wbr>Options</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedaudioparamdescriptor.html" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Param<wbr>Descriptor</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedaudioworkletnode.html" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Worklet<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedaudioworkletnodeoptions.html" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Worklet<wbr>Node<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedaudioworkletprocessor.html" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Worklet<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedeventlistener.html" class="tsd-kind-icon">Typed<wbr>Event<wbr>Listener</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedeventlistenerobject.html" class="tsd-kind-icon">Typed<wbr>Event<wbr>Listener<wbr>Object</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedeventtarget.html" class="tsd-kind-icon">Typed<wbr>Event<wbr>Target</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedmessageevent.html" class="tsd-kind-icon">Typed<wbr>Message<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedmessageport.html" class="tsd-kind-icon">Typed<wbr>Message<wbr>Port</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="interfaces/typedmessageporteventmap.html" class="tsd-kind-icon">Typed<wbr>Message<wbr>Port<wbr>Event<wbr>Map</a>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#internalparametersdescriptor" class="tsd-kind-icon">Internal<wbr>Parameters<wbr>Descriptor</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#internalparametersdescriptor" class="tsd-kind-icon">Internal<wbr>Parameters<wbr>Descriptor</a>
+						<a href="modules.html#parametersmapping" class="tsd-kind-icon">Parameters<wbr>Mapping</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#parametersmapping" class="tsd-kind-icon">Parameters<wbr>Mapping</a>
+						<a href="modules.html#promisifiedfunction" class="tsd-kind-icon">Promisified<wbr>Function</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#promisifiedfunction" class="tsd-kind-icon">Promisified<wbr>Function</a>
+						<a href="modules.html#promisifiedfunctionmap" class="tsd-kind-icon">Promisified<wbr>Function<wbr>Map</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#promisifiedfunctionmap" class="tsd-kind-icon">Promisified<wbr>Function<wbr>Map</a>
+						<a href="modules.html#unpromisifiedfunction" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#typedaudioparammap" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Param<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#typedeventlisteneroreventlistenerobject" class="tsd-kind-icon">Typed<wbr>Event<wbr>Listener<wbr>OrEvent<wbr>Listener<wbr>Object</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#unpromisifiedfunction" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="globals.html#unpromisifiedfunctionmap" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function<wbr>Map</a>
+						<a href="modules.html#unpromisifiedfunctionmap" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function<wbr>Map</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#compositeaudionode" class="tsd-kind-icon">Composite<wbr>Audio<wbr>Node</a>
+						<a href="modules.html#mgraudioparam" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#mgraudioparam" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
+						<a href="modules.html#parammgrfactory" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Factory</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#parammgrfactory" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Factory</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#parammgrnode" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#typedaudioworkletnode" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Worklet<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#typedaudioworkletprocessor" class="tsd-kind-icon">Typed<wbr>Audio<wbr>Worklet<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#registeredprocessors" class="tsd-kind-icon">registered<wbr>Processors</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="globals.html#registeringprocessors" class="tsd-kind-icon">registering<wbr>Processors</a>
+						<a href="modules.html#parammgrnode" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
 					</li>
 				</ul>
 			</nav>
@@ -357,6 +151,9 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>

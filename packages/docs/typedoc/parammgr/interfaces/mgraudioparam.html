@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>MgrAudioParam | sdk</title>
-	<meta name="description" content="Documentation for sdk">
+	<title>MgrAudioParam | Parameter Manager</title>
+	<meta name="description" content="Documentation for Parameter Manager">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -22,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">sdk</a>
+					<a href="../index.html" class="title">Parameter Manager</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,7 +52,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../modules.html">Parameter Manager</a>
 				</li>
 				<li>
 					<a href="mgraudioparam.html">MgrAudioParam</a>
@@ -76,10 +77,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="mgraudioparam.html#audioparam" class="tsd-signature-type">AudioParam</a>
+						<span class="tsd-signature-type">AudioParam</span>
 					</li>
 					<li>
-						<a href="mgraudioparam.html#wamparameter" class="tsd-signature-type">WamParameter</a>
+						<span class="tsd-signature-type">WamParameter</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">MgrAudioParam</span>
@@ -92,18 +93,16 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="mgraudioparam.html#audioparam" class="tsd-kind-icon">Audio<wbr>Param</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="mgraudioparam.html#wamparameter" class="tsd-kind-icon">Wam<wbr>Parameter</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#automationrate" class="tsd-kind-icon">automation<wbr>Rate</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#defaultvalue" class="tsd-kind-icon">default<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="mgraudioparam.html#automationrate" class="tsd-kind-icon">automation<wbr>Rate</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="mgraudioparam.html#defaultvalue" class="tsd-kind-icon">default<wbr>Value</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#info" class="tsd-kind-icon">info</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#maxvalue" class="tsd-kind-icon">max<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#minvalue" class="tsd-kind-icon">min<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="mgraudioparam.html#maxvalue" class="tsd-kind-icon">max<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="mgraudioparam.html#minvalue" class="tsd-kind-icon">min<wbr>Value</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="mgraudioparam.html#normalizedvalue" class="tsd-kind-icon">normalized<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite tsd-is-inherited"><a href="mgraudioparam.html#value" class="tsd-kind-icon">value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="mgraudioparam.html#value" class="tsd-kind-icon">value</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -126,101 +125,27 @@
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="audioparam" class="tsd-anchor"></a>
-					<h3>Audio<wbr>Param</h3>
-					<div class="tsd-signature tsd-kind-icon">Audio<wbr>Param<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>prototype<span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#audioparam" class="tsd-signature-type">AudioParam</a><span class="tsd-signature-symbol"> }</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2337</li>
-						</ul>
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>constructor<span class="tsd-signature-symbol">: </span>function</h5>
-								<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-type-literal">
-									<li class="tsd-signature tsd-kind-icon">new __type<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#audioparam" class="tsd-signature-type">AudioParam</a></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<aside class="tsd-sources">
-											<ul>
-												<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2338</li>
-											</ul>
-										</aside>
-										<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html#audioparam" class="tsd-signature-type">AudioParam</a></h4>
-									</li>
-								</ul>
-							</li>
-							<li class="tsd-parameter">
-								<h5>prototype<span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#audioparam" class="tsd-signature-type">AudioParam</a></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="wamparameter" class="tsd-anchor"></a>
-					<h3>Wam<wbr>Parameter</h3>
-					<div class="tsd-signature tsd-kind-icon">Wam<wbr>Parameter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>prototype<span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#wamparameter" class="tsd-signature-type">WamParameter</a><span class="tsd-signature-symbol"> }</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L187">packages/sdk/src/api/types.d.ts:187</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>constructor<span class="tsd-signature-symbol">: </span>function</h5>
-								<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-type-literal">
-									<li class="tsd-signature tsd-kind-icon">new __type<span class="tsd-signature-symbol">(</span>info<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WamParameterInfo</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#wamparameter" class="tsd-signature-type">WamParameter</a></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<aside class="tsd-sources">
-											<ul>
-												<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L188">packages/sdk/src/api/types.d.ts:188</a></li>
-											</ul>
-										</aside>
-										<h4 class="tsd-parameters-title">Parameters</h4>
-										<ul class="tsd-parameters">
-											<li>
-												<h5>info: <span class="tsd-signature-type">WamParameterInfo</span></h5>
-											</li>
-										</ul>
-										<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html#wamparameter" class="tsd-signature-type">WamParameter</a></h4>
-									</li>
-								</ul>
-							</li>
-							<li class="tsd-parameter">
-								<h5>prototype<span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html#wamparameter" class="tsd-signature-type">WamParameter</a></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="automationrate" class="tsd-anchor"></a>
 					<h3>automation<wbr>Rate</h3>
 					<div class="tsd-signature tsd-kind-icon">automation<wbr>Rate<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AutomationRate</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#automationrate">automationRate</a></p>
+						<p>Inherited from AudioParam.automationRate</p>
 						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2323</li>
+							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2352</li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="defaultvalue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> default<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">default<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#defaultvalue">defaultValue</a></p>
+						<p>Inherited from AudioParam.defaultValue</p>
 						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2324</li>
+							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2353</li>
 						</ul>
 					</aside>
 				</section>
@@ -229,31 +154,31 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> info</h3>
 					<div class="tsd-signature tsd-kind-icon">info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">WamParameterInfo</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#info">info</a></p>
+						<p>Inherited from WamParameter.info</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L183">packages/sdk/src/api/types.d.ts:183</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L183">packages/sdk/src/api/types.d.ts:183</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="maxvalue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> max<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#maxvalue">maxValue</a></p>
+						<p>Inherited from AudioParam.maxValue</p>
 						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2325</li>
+							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2354</li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="minvalue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> min<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">min<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#minvalue">minValue</a></p>
+						<p>Inherited from AudioParam.minValue</p>
 						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2326</li>
+							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2355</li>
 						</ul>
 					</aside>
 				</section>
@@ -262,21 +187,20 @@
 					<h3>normalized<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">normalized<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#normalizedvalue">normalizedValue</a></p>
+						<p>Inherited from WamParameter.normalizedValue</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L185">packages/sdk/src/api/types.d.ts:185</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L185">packages/sdk/src/api/types.d.ts:185</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="value" class="tsd-anchor"></a>
 					<h3>value</h3>
 					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="mgraudioparam.html">MgrAudioParam</a>.<a href="mgraudioparam.html#value">value</a></p>
-						<p>Overrides WamParameter.value</p>
+						<p>Inherited from AudioParam.value</p>
 						<ul>
-							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2327</li>
+							<li>Defined in node_modules/typescript/lib/lib.dom.d.ts:2356</li>
 						</ul>
 					</aside>
 				</section>
@@ -287,14 +211,14 @@
 					<a name="cancelandholdattime" class="tsd-anchor"></a>
 					<h3>cancel<wbr>And<wbr>Hold<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">cancel<wbr>And<wbr>Hold<wbr>AtTime<span class="tsd-signature-symbol">(</span>cancelTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">cancel<wbr>And<wbr>Hold<wbr>AtTime<span class="tsd-signature-symbol">(</span>cancelTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.cancelAndHoldAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L113">packages/sdk/src/ParamMgr/types.d.ts:113</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L113">packages/sdk/src/ParamMgr/types.d.ts:113</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -303,7 +227,7 @@
 									<h5>cancelTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -311,14 +235,14 @@
 					<a name="cancelscheduledvalues" class="tsd-anchor"></a>
 					<h3>cancel<wbr>Scheduled<wbr>Values</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">cancel<wbr>Scheduled<wbr>Values<span class="tsd-signature-symbol">(</span>cancelTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">cancel<wbr>Scheduled<wbr>Values<span class="tsd-signature-symbol">(</span>cancelTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.cancelScheduledValues</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L114">packages/sdk/src/ParamMgr/types.d.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L114">packages/sdk/src/ParamMgr/types.d.ts:114</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -327,7 +251,7 @@
 									<h5>cancelTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -335,13 +259,13 @@
 					<a name="exponentialramptonormalizedvalueattime" class="tsd-anchor"></a>
 					<h3>exponential<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">exponential<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">exponential<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L116">packages/sdk/src/ParamMgr/types.d.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L116">packages/sdk/src/ParamMgr/types.d.ts:116</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -353,7 +277,7 @@
 									<h5>endTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -361,14 +285,14 @@
 					<a name="exponentialramptovalueattime" class="tsd-anchor"></a>
 					<h3>exponential<wbr>Ramp<wbr>ToValue<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">exponential<wbr>Ramp<wbr>ToValue<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">exponential<wbr>Ramp<wbr>ToValue<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.exponentialRampToValueAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L115">packages/sdk/src/ParamMgr/types.d.ts:115</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L115">packages/sdk/src/ParamMgr/types.d.ts:115</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -380,7 +304,7 @@
 									<h5>endTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -388,13 +312,13 @@
 					<a name="linearramptonormalizedvalueattime" class="tsd-anchor"></a>
 					<h3>linear<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">linear<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">linear<wbr>Ramp<wbr>ToNormalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L118">packages/sdk/src/ParamMgr/types.d.ts:118</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L118">packages/sdk/src/ParamMgr/types.d.ts:118</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -406,7 +330,7 @@
 									<h5>endTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -414,14 +338,14 @@
 					<a name="linearramptovalueattime" class="tsd-anchor"></a>
 					<h3>linear<wbr>Ramp<wbr>ToValue<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">linear<wbr>Ramp<wbr>ToValue<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">linear<wbr>Ramp<wbr>ToValue<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, endTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.linearRampToValueAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L117">packages/sdk/src/ParamMgr/types.d.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L117">packages/sdk/src/ParamMgr/types.d.ts:117</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -433,7 +357,7 @@
 									<h5>endTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -441,13 +365,13 @@
 					<a name="setnormalizedtargetattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Normalized<wbr>Target<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Target<wbr>AtTime<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, timeConstant<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Target<wbr>AtTime<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, timeConstant<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L120">packages/sdk/src/ParamMgr/types.d.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L120">packages/sdk/src/ParamMgr/types.d.ts:120</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -462,7 +386,7 @@
 									<h5>timeConstant: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -470,13 +394,13 @@
 					<a name="setnormalizedvalueattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Normalized<wbr>Value<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L122">packages/sdk/src/ParamMgr/types.d.ts:122</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L122">packages/sdk/src/ParamMgr/types.d.ts:122</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -488,7 +412,7 @@
 									<h5>startTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -496,19 +420,19 @@
 					<a name="setnormalizedvaluecurveattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Normalized<wbr>Value<wbr>Curve<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Value<wbr>Curve<wbr>AtTime<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Normalized<wbr>Value<wbr>Curve<wbr>AtTime<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L124">packages/sdk/src/ParamMgr/types.d.ts:124</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L124">packages/sdk/src/ParamMgr/types.d.ts:124</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>values: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>values: <span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
 									<h5>startTime: <span class="tsd-signature-type">number</span></h5>
@@ -517,7 +441,7 @@
 									<h5>duration: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -525,14 +449,14 @@
 					<a name="settargetattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Target<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Target<wbr>AtTime<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, timeConstant<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Target<wbr>AtTime<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, timeConstant<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.setTargetAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L119">packages/sdk/src/ParamMgr/types.d.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L119">packages/sdk/src/ParamMgr/types.d.ts:119</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -547,7 +471,7 @@
 									<h5>timeConstant: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -555,14 +479,14 @@
 					<a name="setvalueattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Value<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Value<wbr>AtTime<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.setValueAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L121">packages/sdk/src/ParamMgr/types.d.ts:121</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L121">packages/sdk/src/ParamMgr/types.d.ts:121</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -574,7 +498,7 @@
 									<h5>startTime: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -582,20 +506,20 @@
 					<a name="setvaluecurveattime" class="tsd-anchor"></a>
 					<h3>set<wbr>Value<wbr>Curve<wbr>AtTime</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Value<wbr>Curve<wbr>AtTime<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Value<wbr>Curve<wbr>AtTime<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, startTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides AudioParam.setValueCurveAtTime</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L123">packages/sdk/src/ParamMgr/types.d.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L123">packages/sdk/src/ParamMgr/types.d.ts:123</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>values: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>values: <span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
 									<h5>startTime: <span class="tsd-signature-type">number</span></h5>
@@ -604,7 +528,7 @@
 									<h5>duration: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="mgraudioparam.html" class="tsd-signature-type">MgrAudioParam</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../modules.html#mgraudioparam" class="tsd-signature-type" data-tsd-kind="Variable">MgrAudioParam</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -613,43 +537,49 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/audioworkletregister.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Register</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="internalparameterdescriptor.html" class="tsd-kind-icon">Internal<wbr>Parameter<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="messageportrequest.html" class="tsd-kind-icon">Message<wbr>Port<wbr>Request</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="messageportresponse.html" class="tsd-kind-icon">Message<wbr>Port<wbr>Response</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
 						<a href="mgraudioparam.html" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="mgraudioparam.html#audioparam" class="tsd-kind-icon">Audio<wbr>Param</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="mgraudioparam.html#wamparameter" class="tsd-kind-icon">Wam<wbr>Parameter</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="mgraudioparam.html#automationrate" class="tsd-kind-icon">automation<wbr>Rate</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="mgraudioparam.html#defaultvalue" class="tsd-kind-icon">default<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 								<a href="mgraudioparam.html#info" class="tsd-kind-icon">info</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="mgraudioparam.html#maxvalue" class="tsd-kind-icon">max<wbr>Value</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="mgraudioparam.html#minvalue" class="tsd-kind-icon">min<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 								<a href="mgraudioparam.html#normalizedvalue" class="tsd-kind-icon">normalized<wbr>Value</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite tsd-is-inherited">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="mgraudioparam.html#value" class="tsd-kind-icon">value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
@@ -692,6 +622,60 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="parammgraudioworkletoptions.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Audio<wbr>Worklet<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrcallfromprocessor.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Call<wbr>From<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrcalltoprocessor.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Call<wbr>ToProcessor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="parammgrnode.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrnodemsgin.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>In</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrnodemsgout.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>Out</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgroptions.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parametermappingtarget.html" class="tsd-kind-icon">Parameter<wbr>Mapping<wbr>Target</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="parametersmappingconfiguratoroptions.html" class="tsd-kind-icon">Parameters<wbr>Mapping<wbr>Configurator<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#internalparametersdescriptor" class="tsd-kind-icon">Internal<wbr>Parameters<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#parametersmapping" class="tsd-kind-icon">Parameters<wbr>Mapping</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#promisifiedfunction" class="tsd-kind-icon">Promisified<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#promisifiedfunctionmap" class="tsd-kind-icon">Promisified<wbr>Function<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#unpromisifiedfunction" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#unpromisifiedfunctionmap" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#mgraudioparam" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#parammgrfactory" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#parammgrnode" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -704,6 +688,9 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>

@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>AudioWorkletGlobalScope | sdk</title>
-	<meta name="description" content="Documentation for sdk">
+	<title>AudioWorkletGlobalScope | WebAudioModules API</title>
+	<meta name="description" content="Documentation for WebAudioModules API">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -22,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">sdk</a>
+					<a href="../index.html" class="title">WebAudioModules API</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,7 +52,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../modules.html">WebAudioModules API</a>
 				</li>
 				<li>
 					<a href="audioworkletglobalscope.html">AudioWorkletGlobalScope</a>
@@ -95,12 +96,20 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="audioworkletprocessor" class="tsd-anchor"></a>
 					<h3>Audio<wbr>Worklet<wbr>Processor</h3>
-					<div class="tsd-signature tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">typeof </span><a href="wamprocessor.html#audioworkletprocessor" class="tsd-signature-type">AudioWorkletProcessor</a></div>
+					<div class="tsd-signature tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>parameterDescriptors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AudioParamDescriptor</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L274">packages/sdk/src/api/types.d.ts:274</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L287">packages/sdk/src/api/types.d.ts:287</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>parameter<wbr>Descriptors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AudioParamDescriptor</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="currentframe" class="tsd-anchor"></a>
@@ -108,7 +117,7 @@
 					<div class="tsd-signature tsd-kind-icon">current<wbr>Frame<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L271">packages/sdk/src/api/types.d.ts:271</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L284">packages/sdk/src/api/types.d.ts:284</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -118,25 +127,25 @@
 					<div class="tsd-signature tsd-kind-icon">current<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L272">packages/sdk/src/api/types.d.ts:272</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L285">packages/sdk/src/api/types.d.ts:285</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="registerprocessor" class="tsd-anchor"></a>
 					<h3>register<wbr>Processor</h3>
-					<div class="tsd-signature tsd-kind-icon">register<wbr>Processor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<div class="tsd-signature tsd-kind-icon">register<wbr>Processor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">new </span><span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../modules.html#audioworkletprocessor" class="tsd-signature-type" data-tsd-kind="Variable">AudioWorkletProcessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L270">packages/sdk/src/api/types.d.ts:270</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L283">packages/sdk/src/api/types.d.ts:283</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-signature">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, constructor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">new </span><span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../modules.html#audioworkletprocessor" class="tsd-signature-type" data-tsd-kind="Variable">AudioWorkletProcessor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
@@ -146,8 +155,24 @@
 												<h5>name: <span class="tsd-signature-type">string</span></h5>
 											</li>
 											<li>
-												<h5>constructor: <span class="tsd-signature-symbol">{}</span></h5>
+												<h5>constructor: <span class="tsd-signature-symbol">new </span><span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../modules.html#audioworkletprocessor" class="tsd-signature-type" data-tsd-kind="Variable">AudioWorkletProcessor</a></h5>
 												<ul class="tsd-parameters">
+													<li class="tsd-parameter-signature">
+														<ul class="tsd-signatures tsd-kind-constructor">
+															<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">new </span><span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules.html#audioworkletprocessor" class="tsd-signature-type" data-tsd-kind="Variable">AudioWorkletProcessor</a></li>
+														</ul>
+														<ul class="tsd-descriptions">
+															<li class="tsd-description">
+																<h4 class="tsd-parameters-title">Parameters</h4>
+																<ul class="tsd-parameters">
+																	<li>
+																		<h5>options: <span class="tsd-signature-type">any</span></h5>
+																	</li>
+																</ul>
+																<h4 class="tsd-returns-title">Returns <a href="../modules.html#audioworkletprocessor" class="tsd-signature-type" data-tsd-kind="Variable">AudioWorkletProcessor</a></h4>
+															</li>
+														</ul>
+													</li>
 												</ul>
 											</li>
 										</ul>
@@ -164,17 +189,17 @@
 					<div class="tsd-signature tsd-kind-icon">sample<wbr>Rate<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L273">packages/sdk/src/api/types.d.ts:273</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L286">packages/sdk/src/api/types.d.ts:286</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="webaudiomodules" class="tsd-anchor"></a>
 					<h3>web<wbr>Audio<wbr>Modules</h3>
-					<div class="tsd-signature tsd-kind-icon">web<wbr>Audio<wbr>Modules<span class="tsd-signature-symbol">:</span> <a href="wamenv.html" class="tsd-signature-type">WamEnv</a></div>
+					<div class="tsd-signature tsd-kind-icon">web<wbr>Audio<wbr>Modules<span class="tsd-signature-symbol">:</span> <a href="wamenv.html" class="tsd-signature-type" data-tsd-kind="Interface">WamEnv</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/api/types.d.ts#L275">packages/sdk/src/api/types.d.ts:275</a></li>
+							<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/api/types.d.ts#L288">packages/sdk/src/api/types.d.ts:288</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -183,8 +208,8 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
@@ -217,117 +242,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface">
-						<a href="audioworkletprocessor.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamdescriptor.html" class="tsd-kind-icon">Wam<wbr>Descriptor</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamenv.html" class="tsd-kind-icon">Wam<wbr>Env</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="wameventbase.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Base</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wameventmap.html" class="tsd-kind-icon">Wam<wbr>Event<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wammididata.html" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamnode.html" class="tsd-kind-icon">Wam<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamnodeoptions.html" class="tsd-kind-icon">Wam<wbr>Node<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamparameter.html" class="tsd-kind-icon">Wam<wbr>Parameter</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamparameterconfiguration.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Configuration</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamparameterdata.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamparameterinfo.html" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamprocessor.html" class="tsd-kind-icon">Wam<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamsysexdata.html" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="wamtransportdata.html" class="tsd-kind-icon">Wam<wbr>Transport<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-has-type-parameter">
-						<a href="webaudiomodule.html" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamautomationevent" class="tsd-kind-icon">Wam<wbr>Automation<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamevent" class="tsd-kind-icon">Wam<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
-						<a href="../globals.html#wameventcallback" class="tsd-kind-icon">Wam<wbr>Event<wbr>Callback</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wameventtype" class="tsd-kind-icon">Wam<wbr>Event<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamiodescriptor" class="tsd-kind-icon">WamIODescriptor</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamlistenertype" class="tsd-kind-icon">Wam<wbr>Listener<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wammidievent" class="tsd-kind-icon">Wam<wbr>Midi<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wammpeevent" class="tsd-kind-icon">Wam<wbr>Mpe<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamoscevent" class="tsd-kind-icon">Wam<wbr>Osc<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamparameterdatamap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Data<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamparameterinfomap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamparametermap" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamparametertype" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamsysexevent" class="tsd-kind-icon">Wam<wbr>Sysex<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#wamtransportevent" class="tsd-kind-icon">Wam<wbr>Transport<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#audioworkletprocessor" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#wamnode" class="tsd-kind-icon">Wam<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#wamparameter" class="tsd-kind-icon">Wam<wbr>Parameter</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#wamparameterinfo" class="tsd-kind-icon">Wam<wbr>Parameter<wbr>Info</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#wamprocessor" class="tsd-kind-icon">Wam<wbr>Processor</a>
-					</li>
-					<li class=" tsd-kind-variable">
-						<a href="../globals.html#webaudiomodule" class="tsd-kind-icon">Web<wbr>Audio<wbr>Module</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ParamMgrCallFromProcessor | sdk</title>
-	<meta name="description" content="Documentation for sdk">
+	<title>ParamMgrCallFromProcessor | Parameter Manager</title>
+	<meta name="description" content="Documentation for Parameter Manager">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -22,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">sdk</a>
+					<a href="../index.html" class="title">Parameter Manager</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,7 +52,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../modules.html">Parameter Manager</a>
 				</li>
 				<li>
 					<a href="parammgrcallfromprocessor.html">ParamMgrCallFromProcessor</a>
@@ -71,7 +72,7 @@
 						<span class="target">ParamMgrCallFromProcessor</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="parammgrnode.html" class="tsd-signature-type">ParamMgrNode</a>
+								<a href="parammgrnode.html" class="tsd-signature-type" data-tsd-kind="Interface">ParamMgrNode</a>
 							</li>
 						</ul>
 					</li>
@@ -103,7 +104,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L95">packages/sdk/src/ParamMgr/types.d.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L95">packages/sdk/src/ParamMgr/types.d.ts:95</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -126,7 +127,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/cb00b94/packages/sdk/src/ParamMgr/types.d.ts#L94">packages/sdk/src/ParamMgr/types.d.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/53js/webaudiomodule/blob/bf806bb/packages/sdk/src/ParamMgr/types.d.ts#L94">packages/sdk/src/ParamMgr/types.d.ts:94</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -152,13 +153,31 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/audioworkletregister.html" class="tsd-kind-icon">Audio<wbr>Worklet<wbr>Register</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="internalparameterdescriptor.html" class="tsd-kind-icon">Internal<wbr>Parameter<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="messageportrequest.html" class="tsd-kind-icon">Message<wbr>Port<wbr>Request</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="messageportresponse.html" class="tsd-kind-icon">Message<wbr>Port<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="mgraudioparam.html" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgraudioworkletoptions.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Audio<wbr>Worklet<wbr>Options</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
@@ -174,6 +193,54 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="parammgrcalltoprocessor.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Call<wbr>ToProcessor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="parammgrnode.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrnodemsgin.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>In</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgrnodemsgout.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node<wbr>Msg<wbr>Out</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parammgroptions.html" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parametermappingtarget.html" class="tsd-kind-icon">Parameter<wbr>Mapping<wbr>Target</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="parametersmappingconfiguratoroptions.html" class="tsd-kind-icon">Parameters<wbr>Mapping<wbr>Configurator<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#internalparametersdescriptor" class="tsd-kind-icon">Internal<wbr>Parameters<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#parametersmapping" class="tsd-kind-icon">Parameters<wbr>Mapping</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#promisifiedfunction" class="tsd-kind-icon">Promisified<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#promisifiedfunctionmap" class="tsd-kind-icon">Promisified<wbr>Function<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#unpromisifiedfunction" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="../modules.html#unpromisifiedfunctionmap" class="tsd-kind-icon">Un<wbr>Promisified<wbr>Function<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#mgraudioparam" class="tsd-kind-icon">Mgr<wbr>Audio<wbr>Param</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#parammgrfactory" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../modules.html#parammgrnode" class="tsd-kind-icon">Param<wbr>Mgr<wbr>Node</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -186,6 +253,9 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
