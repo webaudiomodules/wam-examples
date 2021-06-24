@@ -2,6 +2,7 @@
 /**
  * @typedef {import('sdk/src/api/types').WamProcessor} IWamProcessor
  * @typedef {import('sdk/src/api/types').WamNodeOptions} WamNodeOptions
+ * @typedef {import('sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
  * @typedef {import('sdk/src/ParamMgr/TypedAudioWorklet')
  * .AudioWorkletGlobalScope} AudioWorkletGlobalScope
@@ -143,6 +144,14 @@ const processor = (processorId) => {
 				}
 			}
 			this.pluginList = pluginListIn;
+		}
+
+		/**
+		 * @param {string[]} data
+		 */
+		updateParameterInfo(data) {
+			const { currentTime } = audioWorkletGlobalScope;
+			this.emitEvents({ type: 'wam-parameter-info', data, time: currentTime });
 		}
 
 		getCompensationDelay() {

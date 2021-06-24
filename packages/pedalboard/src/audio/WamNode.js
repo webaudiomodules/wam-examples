@@ -8,9 +8,14 @@
  * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
  * @typedef {import('sdk/src/api/types').WamEventMap} WamEventMap
  * @typedef {import('sdk/src/api/types').WamEventType} WamEventType
+ * @typedef {import('sdk/src/api/types').WamParameterInfoEvent} WamParameterInfoEvent
+ * @typedef {import('sdk/src/api/types').WamParameterConfiguration} WamParameterConfiguration
  */
+//@ts-check
+import { WamParameterInfo } from 'sdk';
 /**
  * @implements {IWamNode}
+ * @implements {AudioWorkletNode}
  */
 export default class WamNode extends AudioWorkletNode {
 	/**
@@ -84,9 +89,26 @@ export default class WamNode extends AudioWorkletNode {
 		/**
 		 * @param {CustomEvent<{ pluginList: PedalboardAudioNode['pluginList'] }>} e
 		 */
-		this.handlePedalboardChange = (e) => {
+		this.handlePedalboardChange = async (e) => {
 			const workletPluginList = e.detail.pluginList.map((p) => p.instance.instanceId);
-			this._call('updatePluginList', workletPluginList);
+			this._parameterInfoMap = [];
+			// eslint-disable-next-line no-restricted-syntax
+			for (const { instance } of this.pedalboardNode.pluginList) {
+				// eslint-disable-next-line no-shadow
+				const { instanceId } = instance;
+				// eslint-disable-next-line no-await-in-loop
+				const parameterInfo = await instance.audioNode.getParameterInfo();
+				Object.keys(parameterInfo).forEach((parameterId) => {
+					this._parameterInfoMap.push({ instanceId, parameterId });
+				});
+			}
+			const parameterInfo = await this.getParameterInfo();
+			const parameterIds = Object.keys(parameterInfo);
+			await this._call('updatePluginList', workletPluginList);
+			await this._call('updateParameterInfo', parameterIds);
+			/** @type {CustomEvent<WamParameterInfoEvent>} */
+			const wamParameterInfoEvent = new CustomEvent('wam-parameter-info', { detail: { type: 'wam-parameter-info', data: parameterIds, time: this.context.currentTime } });
+			this.pedalboardNode.dispatchEvent(wamParameterInfoEvent);
 		};
 		this.pedalboardNode.addEventListener('change', this.handlePedalboardChange);
 	}
@@ -102,15 +124,16 @@ export default class WamNode extends AudioWorkletNode {
 	 * @returns {Promise<WamParameterInfoMap>}
 	 */
 	async getParameterInfo(...parameterIds) {
+		const ids = parameterIds.length ? parameterIds : Object.keys(this._parameterInfoMap);
 		/** @type {WamParameterInfoMap} */
 		const map = {};
-		await Promise.all(parameterIds.map(async ($parameterId) => {
+		await Promise.all(ids.map(async ($parameterId, i) => {
 			const { instanceId, parameterId } = this._parameterInfoMap[$parameterId];
 			const { instance: plugin } = this.pedalboardNode.pluginList
 				.find(({ instance }) => instance.instanceId === instanceId);
 			if (plugin) {
 				const parameterInfo = await plugin.audioNode.getParameterInfo(parameterId);
-				map[$parameterId] = parameterInfo[parameterId];
+				map[$parameterId] = new WamParameterInfo(i.toString(), parameterInfo[parameterId]);
 			}
 		}));
 		return map;
