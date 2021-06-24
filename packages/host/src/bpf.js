@@ -196,10 +196,10 @@ class BPF extends HTMLElement {
 			let {
 				left, top, width, height,
 			} = svg.getBoundingClientRect();
-			left += 0.05 * width;
-			top += 0.05 * height;
-			width *= 0.9;
-			height *= 0.9;
+			left += 0.025 * width;
+			top += 0.025 * height;
+			width *= 0.95;
+			height *= 0.95;
 			const i = +circle.getAttribute('values');
 			const limits = [
 				points[i - 1] ? points[i - 1][0] / domain * width + left : left,

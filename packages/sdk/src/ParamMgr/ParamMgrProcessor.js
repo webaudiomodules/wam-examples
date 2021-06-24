@@ -204,7 +204,8 @@ const processor = (processorId, paramsConfig) => {
 		 */
 		scheduleEvents(...events) {
 			this.eventQueue.push(...events);
-			this.eventQueue.sort((a, b) => a.time - b.time);
+			const { currentTime } = audioWorkletGlobalScope;
+			this.eventQueue.sort((a, b) => (a.time || currentTime) - (b.time || currentTime));
 		}
 
 		get downstream() {

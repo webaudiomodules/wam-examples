@@ -129,11 +129,14 @@ export default class WamNode extends AudioWorkletNode {
 		const map = {};
 		await Promise.all(ids.map(async ($parameterId, i) => {
 			const { instanceId, parameterId } = this._parameterInfoMap[$parameterId];
-			const { instance: plugin } = this.pedalboardNode.pluginList
+			const found = this.pedalboardNode.pluginList
 				.find(({ instance }) => instance.instanceId === instanceId);
-			if (plugin) {
-				const parameterInfo = await plugin.audioNode.getParameterInfo(parameterId);
-				map[$parameterId] = new WamParameterInfo(i.toString(), parameterInfo[parameterId]);
+			if (found) {
+				const { instance } = found;
+				if (instance) {
+					const parameterInfo = await instance.audioNode.getParameterInfo(parameterId);
+					map[$parameterId] = new WamParameterInfo(i.toString(), parameterInfo[parameterId]);
+				}
 			}
 		}));
 		return map;
@@ -149,11 +152,15 @@ export default class WamNode extends AudioWorkletNode {
 		const map = {};
 		await Promise.all(parameterIds.map(async ($parameterId) => {
 			const { instanceId, parameterId } = this._parameterInfoMap[$parameterId];
-			const { instance: plugin } = this.pedalboardNode.pluginList
+			const found = this.pedalboardNode.pluginList
 				.find(({ instance }) => instance.instanceId === instanceId);
-			if (plugin) {
-				const parameterValues = await plugin.audioNode.getParameterValues(normalized, parameterId);
-				map[$parameterId] = parameterValues[parameterId];
+			if (found) {
+				const { instance } = found;
+				if (instance) {
+					const parameterValues = await instance.audioNode
+						.getParameterValues(normalized, parameterId);
+					map[$parameterId] = parameterValues[parameterId];
+				}
 			}
 		}));
 		return map;
@@ -167,11 +174,14 @@ export default class WamNode extends AudioWorkletNode {
 		await Promise.all(
 			Object.entries(parameterValues).map(async ([$parameterId, { normalized, value }]) => {
 				const { instanceId, parameterId } = this._parameterInfoMap[$parameterId];
-				const { instance: plugin } = this.pedalboardNode.pluginList
+				const found = this.pedalboardNode.pluginList
 					.find(({ instance }) => instance.instanceId === instanceId);
-				if (plugin) {
-					const map = { [parameterId]: { id: parameterId, value, normalized } };
-					await plugin.audioNode.setParameterValues(map);
+				if (found) {
+					const { instance } = found;
+					if (instance) {
+						const map = { [parameterId]: { id: parameterId, value, normalized } };
+						await instance.audioNode.setParameterValues(map);
+					}
 				}
 			}),
 		);
@@ -206,19 +216,36 @@ export default class WamNode extends AudioWorkletNode {
 		return delay;
 	}
 
+	/** @param {WamEvent} event */
+	scheduleAutomationEvent(event) {
+		if (event.type === 'wam-automation') {
+			const { time, type, data } = event;
+			const { id: $id, normalized, value } = data;
+			const { instanceId, parameterId } = this._parameterInfoMap[+$id];
+			const found = this.pedalboardNode.pluginList
+				.find(({ instance }) => instance.instanceId === instanceId);
+			if (found) {
+				const { instance } = found;
+				instance.audioNode
+					.scheduleEvents({ type, time, data: { id: parameterId, value, normalized } });
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * @param {WamEvent[]} events
 	 */
 	scheduleEvents(...events) {
 		if (this.pedalboardNode.pluginList.length) {
-			this.pedalboardNode.pluginList[0].instance.audioNode.scheduleEvents(...events);
+			this.pedalboardNode.pluginList[0].instance.audioNode
+				.scheduleEvents(...events.filter((event) => !this.scheduleAutomationEvent(event)));
 		}
 	}
 
 	clearEvents() {
-		if (this.pedalboardNode.pluginList.length) {
-			this.pedalboardNode.pluginList[0].instance.audioNode.clearEvents();
-		}
+		this.pedalboardNode.pluginList.forEach((p) => p.instance.audioNode.clearEvents());
 	}
 
 	/**

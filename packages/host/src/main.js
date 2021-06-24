@@ -51,6 +51,8 @@ let liveInputGainNode;
  * @param {WamNode} audioNode
  */
 const connectPlugin = (audioNode) => {
+	// eslint-disable-next-line no-use-before-define
+	const handleParameterInfo = () => populateParamSelector(currentPluginAudioNode);
 	if (currentPluginAudioNode) {
 		if (keyboardPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
@@ -58,6 +60,7 @@ const connectPlugin = (audioNode) => {
 		}
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
+		currentPluginAudioNode.removeEventListener('wam-parameter-info', handleParameterInfo);
 		currentPluginAudioNode.destroy();
 		if (currentPluginDomNode) {
 			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
@@ -77,6 +80,7 @@ const connectPlugin = (audioNode) => {
 	mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
+	currentPluginAudioNode.addEventListener('wam-parameter-info', handleParameterInfo);
 };
 
 /**
@@ -188,8 +192,8 @@ pluginParamSelector.addEventListener('input', async (e) => {
 	const div = document.createElement('div');
 	div.classList.add('pluginAutomation');
 	const span = document.createElement('span');
-	span.textContent = paramId;
 	span.classList.add('pluginAutomationParamId');
+	span.textContent = paramId;
 	div.appendChild(span);
 	const bpf = document.createElement('webaudiomodules-host-bpf');
 	const info = await currentPluginAudioNode.getParameterInfo(paramId);
@@ -218,17 +222,16 @@ pluginAutomationApplyButton.addEventListener('click', () => {
 });
 
 /**
- * @param {import('sdk/src/api/types').WebAudioModule} instance
+ * @param {import('sdk/src/api/types').WamNode} wamNode
  */
-const populateParamSelector = async (instance) => {
+const populateParamSelector = async (wamNode) => {
 	bpfContainer.innerHTML = '';
 	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
-	const wamNode = instance.audioNode;
 	const info = await wamNode.getParameterInfo();
 	// eslint-disable-next-line
 	for (const paramId in info) {
-		const { minValue, maxValue } = info[paramId];
-		const option = new Option(`${paramId}: ${minValue} - ${maxValue}`, paramId);
+		const { minValue, maxValue, label } = info[paramId];
+		const option = new Option(`${paramId} (${label}): ${minValue} - ${maxValue}`, paramId);
 		pluginParamSelector.add(option);
 	}
 	pluginParamSelector.selectedIndex = 0;
@@ -273,7 +276,7 @@ const setPlugin = async (pluginUrl) => {
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
 
-	populateParamSelector(instance);
+	populateParamSelector(instance.audioNode);
 
 	mountPlugin(pluginDomNode);
 

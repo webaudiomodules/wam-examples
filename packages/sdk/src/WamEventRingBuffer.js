@@ -270,7 +270,7 @@ const executable = () => {
 					b++;
 				}
 			} break;
-			case 'wam-osc':
+			case 'wam-osc': //TODO
 			case 'wam-sysex': {
 				/**
 				 * @type {WamSysexEvent | WamOscEvent}
@@ -294,6 +294,7 @@ const executable = () => {
 				buffer.set(bytes);
 				byteOffset += numBytes;
 			} break;
+			case 'wam-parameter-info': //TODO
 			default: break;
 			}
 			return new Uint8Array(this._eventBytes, 0, byteOffset);
@@ -390,6 +391,7 @@ const executable = () => {
 				};
 				return event;
 			}
+			case 'wam-parameter-info': //TODO
 			default: break;
 			}
 			// eslint-disable-next-line no-console

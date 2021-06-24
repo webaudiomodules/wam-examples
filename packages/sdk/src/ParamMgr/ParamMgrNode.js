@@ -10,6 +10,7 @@ import MgrAudioParam from './MgrAudioParam.js';
 /** @typedef {import('../api/types').WamNode} WamNode */
 /** @typedef {import('../api/types').WamParameterDataMap} WamParameterValueMap */
 /** @typedef {import('../api/types').WamEvent} WamEvent */
+/** @typedef {import('../api/types').WamAutomationEvent} WamAutomationEvent */
 /** @typedef {import('./types').ParamMgrOptions} ParamMgrOptions */
 /** @typedef {import('./types').ParamMgrCallFromProcessor} ParamMgrCallFromProcessor */
 /** @typedef {import('./types').ParamMgrCallToProcessor} ParamMgrCallToProcessor */
@@ -166,8 +167,11 @@ export default class ParamMgrNode extends AudioWorkletNode {
 		return this.call('getParameterValues', normalized, ...parameterIdQuery);
 	}
 
+	/**
+	 * @param {WamAutomationEvent} event
+	 */
 	scheduleAutomation(event) {
-		const { time } = event;
+		const time = event.time || this.context.currentTime;
 		const { id, normalized, value } = event.data;
 		const audioParam = this.getParam(id);
 		if (!audioParam) return;
