@@ -1,6 +1,8 @@
 // WAM Toggle control
 // Jari Kleimola 2018 (jari@webaudiomodules.org)
 
+const baseUrl = new URL("..", import.meta.url);
+
 var WAM = WAM || {}
 if (!WAM.Toggle) {
 
@@ -40,7 +42,7 @@ WAM.Toggle = class WamToggle extends HTMLElement
       this.updateToggle();
     }.bind(this);
     if (this.hasAttribute("strip"))
-      img.src = this.getAttribute("strip");
+      img.src = new URL(this.getAttribute("strip"), baseUrl).href;
     div.onclick = this.onclick.bind(this);
     this.appendChild(node);
   }
@@ -53,7 +55,7 @@ WAM.Toggle = class WamToggle extends HTMLElement
     switch (name) {
       case "strip":
         var img = this.querySelector("img");
-        if (img) img.src = newValue;
+        if (img) img.src = new URL(newValue, baseUrl).href;
         break;
       case "states":
         this._.states = newValue|0;

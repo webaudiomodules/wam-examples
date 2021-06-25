@@ -220,7 +220,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					let { normalized, parameterIds } = content;
 					response.content = this._getParameterValues(normalized, parameterIds);
 				} else if (noun === 'state') {
-					response.content = { parameterValues: this._getParameterValues(false) };
+					response.content = this._getState();
 					// ...additional state?
 				} else if (noun === 'compensationDelay') {
 					response.content = this.getCompensationDelay();
@@ -232,7 +232,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					delete response.content;
 				} else if (noun === 'state') {
 					const { state } = content;
-					if (state.parameterValues) this._setParameterValues(state.parameterValues, false);
+					this._setState(state);
 					// ...additional state?
 					delete response.content;
 				}
@@ -328,6 +328,20 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		// Override for custom osc handling
 		// eslint-disable-next-line no-console
 		console.error('_onOsc not implemented!');
+	}
+
+	/**
+	 * @param {any} state
+	 */
+	_setState(state) {
+		if (state.parameterValues) this._setParameterValues(state.parameterValues, false);
+	}
+
+	/**
+	 * @returns {any}
+	 */
+	_getState() {
+		return { parameterValues: this._getParameterValues(false) };
 	}
 
 	/**

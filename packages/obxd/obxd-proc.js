@@ -1,7 +1,7 @@
 // OBXD WAM Processor
 // Jari Kleimola 2017-2020 (jari@webaudiomodules.org)
 
-var AWGS = AWGS || AudioWorkletGlobalScope;
+var AWGS = globalThis;
 class OBXDProcessor extends AWGS.WasmProcessor
 {
   constructor (options) {
@@ -11,4 +11,4 @@ class OBXDProcessor extends AWGS.WasmProcessor
   }
 }
 
-registerProcessor("OBXD", OBXDProcessor);
+registerProcessor("Jari Kleimola 2017-2020 (jari@webaudiomodules.org)OBXD", OBXDProcessor);

@@ -46,9 +46,10 @@ const connectPlugin = (audioNode) => {
 	// eslint-disable-next-line no-use-before-define
 	const handleParameterInfo = () => populateParamSelector(currentPluginAudioNode);
 	if (currentPluginAudioNode) {
+		liveInputGainNode.disconnect();
 		if (keyboardPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
@@ -62,14 +63,14 @@ const connectPlugin = (audioNode) => {
 		currentPluginAudioNode = null;
 	}
 
-	liveInputGainNode.connect(audioNode);
+	if (audioNode.numberOfInputs) liveInputGainNode.connect(audioNode);
 	console.log('connected live input node to plugin node');
 
 	if (keyboardPluginAudioNode) {
-		keyboardPluginAudioNode.connect(audioNode);
+		if (audioNode.numberOfInputs) keyboardPluginAudioNode.connect(audioNode);
 		keyboardPluginAudioNode.connectEvents(audioNode);
 	}
-	mediaElementSource.connect(audioNode);
+	if (audioNode.numberOfInputs) mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
 	currentPluginAudioNode.addEventListener('wam-parameter-info', handleParameterInfo);
@@ -106,7 +107,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	if (keyboardPluginAudioNode) {
 		if (currentPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		keyboardPluginAudioNode.destroy();
 		if (currentKeyboardPluginDomNode) {
@@ -119,7 +120,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	keyboardContainer.innerHTML = '';
 	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
 	if (keyboardPluginAudioNode && currentPluginAudioNode) {
-		keyboardPluginAudioNode.connect(currentPluginAudioNode);
+		if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.connect(currentPluginAudioNode);
 		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
 	}
 };

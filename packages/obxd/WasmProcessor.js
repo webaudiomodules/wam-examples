@@ -2,7 +2,7 @@
 // Jari Kleimola 2017-2020 (jari@webaudiomodules.org)
 
 // Firefox does not support imports
-var AWGS = AWGS || AudioWorkletGlobalScope;
+var AWGS = globalThis;
 
 if (!AWGS.WasmProcessor) {
 AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
@@ -33,7 +33,15 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     }
   }
 
-  process (inputs,outputs) {
+	/**
+	 * Override this to implement custom DSP.
+	 * @param {number} startSample beginning of processing slice
+	 * @param {number} endSample end of processing slice
+	 * @param {Float32Array[][]} inputs
+	 * @param {Float32Array[][]} outputs
+	 * @param {{[x: string]: Float32Array}} parameters
+	 */
+  _process (startSample, endSample, inputs, outputs, parameters) {
 
     // -- inputs
     for (var i=0; i<this.numInputs; i++) {
@@ -70,7 +78,7 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     if (options.outputChannelCount.length != options.numberOfOutputs) throw new Error("InvalidArgumentException");
 
     this.bufsize = 128;
-    this.sr = AudioWorkletGlobalScope.sampleRate || sampleRate;
+    this.sr = globalThis.sampleRate || sampleRate;
 
     let WAM = options.module;
     this.WAM = WAM;
@@ -143,12 +151,30 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
 
   // event handlers
 
-  onmidi (status, data1, data2) {
+	/**
+	 * @param {import('../sdk/src/api/types').WamMidiData} midiData
+	 */
+  _onMidi (midiData) {
+    const [status, data1, data2] = midiData.bytes;
     this.wam_onmidi(this.inst, status, data1, data2);
   }
 
-  onparam (key, value) {
-   if (typeof key === "string")
+	/**
+	 * @param {import('../sdk/src/api/types').WamParameterData} parameterUpdate
+	 * @param {boolean} interpolate
+	 */
+  _setParameterValue (parameterUpdate, interpolate) {
+    super._setParameterValue(parameterUpdate, interpolate);
+    const { id: key, value } = parameterUpdate;
+    /*
+    const { id } = parameterUpdate;
+    */
+		/** @type {WamParameter} */
+    /*
+		const parameter = this._parameterState[id];
+    const { info: { id: key }, value } = parameter;
+    */
+    if (typeof key === "string")
       this.wam_onmessageN(this.inst, "set", key, value);
     else this.wam_onparam(this.inst, key, value);
   }
@@ -169,7 +195,7 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     else this.wam_onmessageN(this.inst, verb, prop, data);
   }
 
-  onpatch (data) {
+  _setState (data) {
     let buffer = new Uint8Array(data);
     let len = data.byteLength;
     let WAM = this.WAM;
@@ -180,7 +206,10 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     WAM._free(buf);
   }
 
-	onsysex (data) {
+	/**
+	 * @param {import('../sdk/src/api/types').WamBinaryData} sysexData
+	 */
+	_onSysex ({ bytes: data }) {
     let WAM = this.WAM;
     let buf = WAM._malloc(data.length);
     for (var i = 0; i < data.length; i++)

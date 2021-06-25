@@ -1,0 +1,14 @@
+{
+    "name": "OBXD",
+    "vendor": "Jari Kleimola 2017-2020 (jari@webaudiomodules.org)",
+    "description": "",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": true,
+	"hasMidiInput": true,
+	"hasMidiOutput": true,
+	"hasAudioOutput": true,
+    "website": ""
+}

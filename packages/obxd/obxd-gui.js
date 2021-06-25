@@ -1,6 +1,8 @@
 import "./libs/wam-knob.js"
 import "./libs/wam-toggle.js"
 
+const baseUrl = import.meta.url;
+
 export async function createElement (plugin, options)
 {
   return new Promise(resolve => {
@@ -10,7 +12,7 @@ export async function createElement (plugin, options)
 
       // 2. load html template for <wam-obxd> (if not already loaded)
       if (!document.querySelector("#wam-obxd-template")) {
-        let resp = await fetch("obxd-gui.html");
+        let resp = await fetch(new URL("./obxd-gui.html", baseUrl).href);
         let html = await resp.text();
         let div = document.createElement("div");
         div.style.display = "none";
@@ -52,10 +54,11 @@ class OBXD_GUI extends HTMLElement
   set (key,value) {
     switch (key) {
       case "node":
+        /** @type {import('./obxd-node').OBXDNode} */
         this._node = value;
-        this._node.addEventCallback("subscriberID", (e) => {
-          if (e.type == "patch") this.set("patch", new Float32Array(e.data));
-        })
+        // this._node.addEventCallback("subscriberID", (e) => {
+        //   if (e.type == "patch") this.set("patch", new Float32Array(e.data));
+        // })
         break;
       case "patch":
         for (let i=1; i<value.length; i++) {
@@ -92,7 +95,7 @@ class OBXD_GUI extends HTMLElement
 
   _setupControls (skin) {
     if (!skin.endsWith("/")) skin += "/";
-    this._root.querySelector("#background").src = skin + "background.png";
+    this._root.querySelector("#background").src = new URL(skin + "background.png", baseUrl);
 
     // -- knobs
     Array.from(this._root.querySelectorAll("wam-knob")).forEach(knob => {
@@ -115,6 +118,6 @@ class OBXD_GUI extends HTMLElement
 
   _oncontrol (e) {
     let key = this.map.indexOf(e.detail.id);
-    this._node.set("param", { key, value:e.detail.value });
+    this._node.setParameterValues({ [key]: { id: key, value: e.detail.value } });
   }
 })
