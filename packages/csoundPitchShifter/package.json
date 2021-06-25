@@ -5,8 +5,7 @@
   "author": "Steven Yi",
   "license": "LGPL",
   "dependencies": {
-    "@kunstmusik/csound": "^6.15.0",
-    "sdk": "^0.0.0"
+    "@kunstmusik/csound": "^6.15.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
