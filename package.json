@@ -16,7 +16,7 @@
     "build": "yarn build:sdk && yarn build:csoundpitchshifter && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101 && yarn build:pedalboard",
     "start": "lerna run start --stream --scope host -- --color",
     "doc:api": "typedoc --name \"WebAudioModules API\" --tsconfig ./packages/sdk/tsconfig.json --out ./packages/docs/typedoc/api --logLevel Verbose ./packages/sdk/src/api/index.d.ts",
-    "doc:parammgr": "typedoc --name \"Parameter Manager\" --readme none --tsconfig ./packages/sdk/tsconfig.json --exclude **/*.js --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr --logLevel Verbose ./packages/sdk/src/ParamMgr/types.d.ts"
+    "doc:parammgr": "typedoc --name \"Parameter Manager\" --readme ./packages/sdk/src/ParamMgr/README.md --tsconfig ./packages/sdk/tsconfig.json --exclude **/*.js --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr --logLevel Verbose ./packages/sdk/src/ParamMgr/types.d.ts"
   },
   "workspaces": [
     "packages/*"

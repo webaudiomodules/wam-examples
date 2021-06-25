@@ -58,6 +58,155 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
+				<a href="#parameter-manager" id="parameter-manager" style="color: inherit; text-decoration: none;">
+					<h1>Parameter Manager</h1>
+				</a>
+				<p>This document provides a description of the Parameter Manager used in the <code>WebAudioModule</code> <a href="https://github.com/53js/webaudiomodule/tree/master/packages/sdk">SDK</a>, and a guide to handle parameters in an <code>WebAudioModule</code> with the Parameter Manager.</p>
+				<a href="#motivation" id="motivation" style="color: inherit; text-decoration: none;">
+					<h3>Motivation</h3>
+				</a>
+				<p>It is conventional for audio plugin users and hosts to schedule plugin parameter changes with an automation timeline. The WebAudio API provides the AudioParam interface, with its <code>AtTime</code> methods, to allow developers to schedule sample-accurate <code>a-rate</code> or buffer-accurate <code>k-rate</code> automations in several ways.</p>
+				<p>It is important for an <code>WebAudioModule</code> to control its parameters sample-accurately. However, the <code>AudioParam</code>s exist only inside <code>AudioNode</code>s, they are not constructable independently, and they do not exist in the audio thread. This is reason that <code>WebAudioModule</code> API provides another interface <code>WamParameter</code> for automatable parameters both in the main thread and in the audio thread. The Parameter Manager provides an implementation of the <code>WamParameter</code> that uses native but customized <code>AudioParam</code> to handle automation scheduling. In fact, Parameter Manager is mainly an <code>AudioWorkletNode</code> that creates user defined <code>AudioParam</code>s, then transform them to <code>AudioNode</code> outputs or funcion calls.</p>
+				<a href="#plugin-design-patterns" id="plugin-design-patterns" style="color: inherit; text-decoration: none;">
+					<h3>Plugin Design Patterns</h3>
+				</a>
+				<p>As described in the <code>WebAudioModule</code> API, the developer should declare and configure every parameters as <code>WamParameterInfo</code> that are controllable and automatable by the host application, and let them accessible via <code>WamNode</code>&#39;s methods, such as <code>getParameterInfo()</code>. In the Parameter Manager, we consider these parameters are the WAM&#39;s <em>exposed parameters</em>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L60"><code>ParametersMappingConfiguratorOptions.paramsConfig</code></a>).</p>
+				<p>In a host, by automating or controlling these <em>exposed parameters</em>, it will as a result change the WAM&#39;s internal state. The variables to be changed in the internal state, which we call <em>internal parameters</em>, can be an <code>AudioParam</code> or an event handler that will be called while the values change, under a certain fire rate. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L46"><code>InternalParametersDescriptor</code></a>)</p>
+				<p>In some use cases, the plugin need to control multiple <em>internal parameters</em> with one single <em>exposed parameters</em>, and with different value scalings or mappings. For example, an <em>exposed parameter</em> <code>mix</code> need to be clipped from 0 to 0.5 and be mapped to 0 and 1 for an <em>internal parameter</em> <code>dry</code>; in the same time, it need to be clipped from 0.5 to 1 and be mapped to 1 and 0 for an <em>internal parameter</em> <code>wet</code>. This can be done easily by declaring a <code>paramsMapping</code>. (see <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/types.d.ts#L57"><code>ParametersMapping</code></a>)</p>
+				<p>By using <code>ParamMgrFactory.create</code> static method, the developer will create an instance of the Parameter Manager that will automatically handle the parameters. It depends on the configuration provided with <code>paramsConfig</code>, <code>internalParamsConfig</code> and <code>paramsMapping</code> properties of the <code>optionsIn</code> argument. There are three main design patterns to declare and link the <em>exposed parameters</em> to the <em>internal parameters</em> using the Parameter Manager.</p>
+				<ol start="0">
+					<li>Direct to <code>AudioParam</code>, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
+				</ol>
+				<p><img src="media/paramMgr_0.png" alt="Direct to AudioParam"></p>
+				<blockquote>
+					<p>If the developer leaves the <code>paramsConfig</code> and the <code>paramsMapping</code> undefined, the SDK will derive the <code>paramsConfig</code> from the <code>internalParamsConfig</code>, which means they are containing same parameter names and values. The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
+				</blockquote>
+				<blockquote>
+					<p>For example:</p>
+				</blockquote>
+				<pre><code class="language-JavaScript"><span style="color: #008000">// if audioNode.gain and audioNode.freq are AudioParams</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">internalParamsConfig</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">gain:</span><span style="color: #000000"> </span><span style="color: #001080">audioNode</span><span style="color: #000000">.</span><span style="color: #001080">gain</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">freq:</span><span style="color: #000000"> </span><span style="color: #001080">audioNode</span><span style="color: #000000">.</span><span style="color: #001080">freq</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramMgr</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">ParamMgrFactory</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">(</span><span style="color: #001080">wam</span><span style="color: #000000">, { </span><span style="color: #001080">internalParamsConfig</span><span style="color: #000000"> });</span>
+</code></pre>
+				<ol>
+					<li>Direct + default event listeners or <code>AudioParam</code>s, no need to declare the <code>paramsConfig</code> and the <code>paramsMapping</code>, declare only the <code>internalParamsConfig</code>.</li>
+				</ol>
+				<blockquote>
+					<p><img src="media/paramMgr_1.png" alt="Direct + default event listeners or `AudioParam`s"></p>
+				</blockquote>
+				<blockquote>
+					<p>If the developer declared the <code>internalParamsConfig</code> and leaves the <code>paramsMapping</code> unset, the SDK will automatically make links between the <em>exposed parameters</em> and the <em>internal parameters</em>, taking account of the giving <code>AudioParam</code>, or the <code>onChange</code> callback with the <code>automationRate</code>.</p>
+				</blockquote>
+				<blockquote>
+					<p>The <code>paramsMapping</code> will be filled with peer to peer mappings with no value mapping.</p>
+				</blockquote>
+				<blockquote>
+					<p>For example:</p>
+				</blockquote>
+				<pre><code class="language-JavaScript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">internalParamsConfig</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">enabled:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #795E26">onChange</span><span style="color: #001080">:</span><span style="color: #000000"> (</span><span style="color: #001080">value</span><span style="color: #000000">, </span><span style="color: #001080">prevValue</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Param &quot;enabled&quot; has been changed from </span><span style="color: #0000FF">${</span><span style="color: #001080">prevValue</span><span style="color: #0000FF">}</span><span style="color: #A31515"> to </span><span style="color: #0000FF">${</span><span style="color: #001080">value</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">);</span>
+<span style="color: #000000">        }, </span><span style="color: #008000">// callback</span>
+<span style="color: #000000">        </span><span style="color: #001080">automationRate:</span><span style="color: #000000"> </span><span style="color: #098658">10</span><span style="color: #000000"> </span><span style="color: #008000">// 10 times/sec</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">gain:</span><span style="color: #000000"> </span><span style="color: #001080">audioNode</span><span style="color: #000000">.</span><span style="color: #001080">gain</span><span style="color: #000000"> </span><span style="color: #008000">// AudioParam</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramMgr</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">ParamMgrFactory</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">(</span><span style="color: #001080">wam</span><span style="color: #000000">, { </span><span style="color: #001080">internalParamsConfig</span><span style="color: #000000"> });</span>
+</code></pre>
+				<ol start="2">
+					<li>Mapping + default event listeners or <code>AudioParam</code>s pattern, need to declare the <code>paramsConfig</code>, <code>internalParamsConfig</code> and the <code>paramsMapping</code></li>
+				</ol>
+				<blockquote>
+					<p><img src="media/paramMgr_2.png" alt="Mapping + default event listeners or `AudioParam`s pattern"></p>
+				</blockquote>
+				<blockquote>
+					<p>This pattern is useful when a different mapping is needed between the <em>internal parameters</em> and the <em>exposed parameters</em>.</p>
+				</blockquote>
+				<blockquote>
+					<p>A value mapping can be set via <code>sourceRange</code> and <code>targetRange</code> fields. The incoming value of the <em>exposed parameter</em> will be firstly clipped using <code>sourceRange</code>, then the value in the <code>sourceRange</code> will be remapped to the <code>targetRange</code>. If these fields remain <code>undefined</code>, they will be the same as the <code>minValue</code> and the <code>maxValue</code> of the <em>exposed parameter</em>.</p>
+				</blockquote>
+				<blockquote>
+					<p>If one parameter name appears in both <code>paramsConfig</code> and <code>internalParamsConfig</code>, the mapping will be created automatically if it is not declared explicitly in the <code>paramsMapping</code>.</p>
+				</blockquote>
+				<blockquote>
+					<p>Dynamically change the <code>paramsMapping</code> is possible using the <code>setParamsMapping</code> method.</p>
+				</blockquote>
+				<blockquote>
+					<p>For example:</p>
+				</blockquote>
+				<pre><code class="language-JavaScript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramsConfig</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">mix:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">defaultValue:</span><span style="color: #000000"> </span><span style="color: #098658">0.5</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">minValue:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">maxValue:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">internalParamsConfig</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">dryGain:</span><span style="color: #000000"> </span><span style="color: #001080">dryGainNode</span><span style="color: #000000">.</span><span style="color: #001080">gain</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">wetGain:</span><span style="color: #000000"> </span><span style="color: #001080">wetGainNode</span><span style="color: #000000">.</span><span style="color: #001080">gain</span><span style="color: #000000">,</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramsMapping</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">mix:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">dryGain:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">sourceRange:</span><span style="color: #000000"> [</span><span style="color: #098658">0.5</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">],</span>
+<span style="color: #000000">            </span><span style="color: #001080">targetRange:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        </span><span style="color: #001080">wetGain:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">sourceRange:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0.5</span><span style="color: #000000">],</span>
+<span style="color: #000000">            </span><span style="color: #001080">targetRange:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">],</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">option</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">paramsConfig</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">internalParamsConfig</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">paramsMapping</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramMgr</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">ParamMgrFactory</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">(</span><span style="color: #001080">wam</span><span style="color: #000000">, </span><span style="color: #001080">option</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#creating-a-composite-audionode-using-the-parameter-manager" id="creating-a-composite-audionode-using-the-parameter-manager" style="color: inherit; text-decoration: none;">
+					<h3>Creating a Composite <code>AudioNode</code> using the Parameter Manager</h3>
+				</a>
+				<p><code>WebAudioModule</code> API requires that the module&#39;s <code>audioNode</code> is connectable as audio I/O, and implements the <code>WamNode</code> interface. As a developer, one can use the Parameter Manager to act as the <code>WamNode</code> interface, and use another <code>AudioNode</code> to act as the audio I/O by creating a <code>CompositeAudioNode</code>. We provide a <a href="https://github.com/53js/webaudiomodule/blob/master/packages/sdk/src/ParamMgr/CompositeAudioNode.d.ts">prototype</a> of the <code>CompositeAudioNode</code> in the Parameter Manager folder.</p>
+				<p>To get it work with the Parameter Manager, see this example:</p>
+				<pre><code class="language-JavaScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">WebAudioModule</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;sdk/src/WebAudioModule&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">ParamMgrFactory</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;sdk/src/ParamMgr/ParamMgrFactory&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">CompositeAudioNode</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;sdk/src/ParamMgr/CompositeAudioNode&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">class</span><span style="color: #000000"> </span><span style="color: #267F99">MyCompositeAudioNode</span><span style="color: #000000"> </span><span style="color: #0000FF">extends</span><span style="color: #000000"> </span><span style="color: #267F99">CompositeAudioNode</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #795E26">setup</span><span style="color: #000000">(</span><span style="color: #001080">output</span><span style="color: #000000">, </span><span style="color: #001080">paramMgr</span><span style="color: #000000">) {</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #795E26">connect</span><span style="color: #000000">(</span><span style="color: #001080">output</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">);</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">_wamNode</span><span style="color: #000000"> = </span><span style="color: #001080">paramMgr</span><span style="color: #000000">;</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">_output</span><span style="color: #000000"> = </span><span style="color: #001080">output</span><span style="color: #000000">;</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #AF00DB">default</span><span style="color: #000000"> </span><span style="color: #0000FF">class</span><span style="color: #000000"> </span><span style="color: #267F99">MyWam</span><span style="color: #000000"> </span><span style="color: #0000FF">extends</span><span style="color: #000000"> </span><span style="color: #267F99">WebAudioModule</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #008000">//... other settings</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #795E26">createAudioNode</span><span style="color: #000000">(</span><span style="color: #001080">initialState</span><span style="color: #000000">) {</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">gainNode</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">GainNode</span><span style="color: #000000">(</span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">audioContext</span><span style="color: #000000">);</span>
+<span style="color: #000000">        </span>
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">compositeNode</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MyCompositeAudioNode</span><span style="color: #000000">(</span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">audioContext</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">internalParamsConfig</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">            </span><span style="color: #001080">gain:</span><span style="color: #000000"> </span><span style="color: #001080">gainNode</span><span style="color: #000000">.</span><span style="color: #001080">gain</span>
+<span style="color: #000000">        };</span>
+
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">paramMgrNode</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">ParamMgrFactory</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">(</span><span style="color: #0000FF">this</span><span style="color: #000000">, { </span><span style="color: #001080">internalParamsConfig</span><span style="color: #000000"> });</span>
+
+<span style="color: #000000">        </span><span style="color: #001080">compositeNode</span><span style="color: #000000">.</span><span style="color: #795E26">setup</span><span style="color: #000000">(</span><span style="color: #001080">gainNode</span><span style="color: #000000">, </span><span style="color: #001080">paramMgrNode</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">initialState</span><span style="color: #000000">) </span><span style="color: #001080">compositeNode</span><span style="color: #000000">.</span><span style="color: #795E26">setState</span><span style="color: #000000">(</span><span style="color: #001080">initialState</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">        </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">compositeNode</span><span style="color: #000000">;</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
+
+</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
