@@ -4,10 +4,11 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 
-import { WebAudioModule, ParamMgrFactory, CompositeAudioNode } from 'sdk';
-import Synth101Node from './Node';
+import { WebAudioModule, ParamMgrFactory } from 'sdk';
+import Synth101Node, { InternalParams, Params } from './Node';
 import { h, render } from 'preact';
 import { SynthView } from './SynthView';
+import { InternalParametersDescriptor } from '../../sdk/src/ParamMgr/types';
 
 /**
  * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
@@ -17,7 +18,7 @@ import { SynthView } from './SynthView';
  * @param {URL} relativeURL
  * @returns {string}
  */
-const getBasetUrl = (relativeURL) => {
+const getBasetUrl = (relativeURL: URL) => {
 	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
 	return baseURL;
 };
@@ -45,12 +46,12 @@ export default class Synth101 extends WebAudioModule<Synth101Node> {
 		Object.assign(this.descriptor, descriptor);
 	}
 
-	async initialize(state) {
+	async initialize(state: any) {
 		await this._loadDescriptor();
 		return super.initialize(state);
 	}
 
-	async createAudioNode(initialState) {
+	async createAudioNode(initialState: any) {
 		const synthNode = new Synth101Node(this.audioContext);
 
 		const paramsConfig = {
@@ -267,7 +268,7 @@ export default class Synth101 extends WebAudioModule<Synth101Node> {
         };
 
         const optionsIn = { internalParamsConfig, paramsConfig };
-		const paramMgrNode = await ParamMgrFactory.create(this, optionsIn);
+		const paramMgrNode = await ParamMgrFactory.create<Params, InternalParams>(this, optionsIn);
 		synthNode.setup(paramMgrNode);
 
 		if (initialState) synthNode.setState(initialState);

@@ -1,5 +1,4 @@
 import { Component, h } from 'preact';
-import { HTMLInputEvent } from '../../globals';
 
 export interface SelectProps {
     label?: string
@@ -19,7 +18,7 @@ export class Select<T> extends Component<SelectProps, any> {
         this.lastRenderedValue = "-1"
     }
 
-    onChange(e: HTMLInputEvent) {
+    onChange(e: InputEvent & { target: HTMLInputElement }) {
         if (this.props.onChange) {
             this.props.onChange(e.target!.value)
         }
@@ -50,7 +49,7 @@ export class Select<T> extends Component<SelectProps, any> {
             select.appendChild(option)
         })
 
-        select.addEventListener("change", e => this.onChange(e as HTMLInputEvent))
+        select.addEventListener("change", e => this.onChange(e as InputEvent & { target: HTMLInputElement }))
 
         ref.appendChild(select)
     }

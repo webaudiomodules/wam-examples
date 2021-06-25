@@ -2,33 +2,24 @@
   "name": "root",
   "private": true,
   "devDependencies": {
-    "lerna": "^3.22.1"
+    "lerna": "^4.0.0"
   },
   "scripts": {
     "clean": "lerna run clean --stream",
     "build:livegain": "lerna run build --stream --scope livegain",
     "build:pingpongdelay": "lerna run build --stream --scope pingpongdelay",
     "build:quadrafuzz": "lerna run build --stream --scope quadrafuzz",
-    "build:csoundpitchshifter": "lerna run build --stream --scope csoundPitchShifter",
+    "build:csoundpitchshifter": "lerna run build --stream --scope csound-pitchshifter",
     "build:sdk": "lerna run build --stream --scope sdk",
     "build:pedalboard": "lerna run build --stream --scope pedalboard",
     "build:synth101": "lerna run build --stream --scope synth101",
-    "build": "yarn build:sdk && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101 && yarn build:pedalboard",
+    "build": "yarn build:sdk && yarn build:csoundpitchshifter && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101 && yarn build:pedalboard",
     "start": "lerna run start --stream --scope host -- --color",
-    "doc:api": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --out ./packages/docs/typedoc/api ./packages/sdk/src/api/",
-    "doc:parammgr": "typedoc --includeDeclarations --excludeExternals --ignoreCompilerErrors --exclude **/*.js --mode file --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr ./packages/sdk/src/ParamMgr/"
+    "doc:api": "typedoc --name \"WebAudioModules API\" --tsconfig ./packages/sdk/tsconfig.json --out ./packages/docs/typedoc/api --logLevel Verbose ./packages/sdk/src/api/index.d.ts",
+    "doc:parammgr": "typedoc --name \"Parameter Manager\" --readme none --tsconfig ./packages/sdk/tsconfig.json --exclude **/*.js --media ./packages/sdk/src/ParamMgr/img --out ./packages/docs/typedoc/parammgr --logLevel Verbose ./packages/sdk/src/ParamMgr/types.d.ts"
   },
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.1.1",
-    "@typescript-eslint/parser": "^4.1.1",
-    "eslint": "^7.9.0",
-    "eslint-config-53js": "^1.2.0",
-    "eslint-plugin-import": "2.22.0",
-    "eslint-plugin-jest": "^24.0.1",
-    "eslint-plugin-react": "7.20.6",
-    "eslint-plugin-react-hooks": "^4.1.2"
-  }
+  "dependencies": {}
 }

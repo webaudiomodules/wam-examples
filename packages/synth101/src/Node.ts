@@ -5,11 +5,8 @@ import { constantSource, noiseSource } from './util'
 
 const shaperLength = 44100;
 
-/**
- * @typedef {"feedback" | "time" | "mix" | "enabled"} Params
- * @typedef {"feedback" | "delayLeftTime" | "delayRightTime"
- * | "dryGain" | "wetGain" | "enabled"} InternalParams
- */
+export type Params = "waveform" | "detune" | "lfoRate" | "lfoWaveform" | "oscMod" | "oscRange" | "pulseWidth" | "pwmSource" | "subRange" | "mixerSaw" | "mixerPulse" | "mixerSub" | "mixerNoise" | "filterFreq" | "filterRes" | "filterEnv" | "filterMod" | "filterKeyboard" | "vcaSource" | "envTrigger" | "envAttack" | "envDecay" | "envSustain" | "envRelease" | "portamentoMode" | "portamentoTime";
+export type InternalParams = Params;
 
 export class MIDI {
 	static NOTE_ON = 0x90;
@@ -17,7 +14,7 @@ export class MIDI {
 	static CC = 0xB0;
 }
 
-export type MIDIEvent = Uint8Array
+export type MIDIEvent = Uint8Array | [number, number, number];
 export type ScheduledMIDIEvent = {
     event: MIDIEvent,
     time: number
@@ -33,7 +30,7 @@ export default class Synth101Node extends CompositeAudioNode {
 	/**
 	 * @type {ParamMgrNode<Params, InternalParams>}
 	 */
-	_wamNode = undefined;
+	_wamNode: ParamMgrNode<Params, InternalParams> = undefined;
 
 	get paramMgr(): ParamMgrNode {
 		return this._wamNode;
@@ -43,7 +40,7 @@ export default class Synth101Node extends CompositeAudioNode {
 	// this instance is he plugin as an Observable
 	// options is an extra container that could be ussed to indicate
 	// the number of inputs and outputs...
-	constructor(audioContext, options={}) {        
+	constructor(audioContext: BaseAudioContext, options={}) {        
 		super(audioContext, options);
         console.log("Synth101 constructor()")
 
@@ -58,10 +55,7 @@ export default class Synth101Node extends CompositeAudioNode {
 		this.createNodes();
 	}
 
-	/**
-	 * @param {ParamMgrNode<Params, InternalParams>} wamNode
-	 */
-	setup(paramMgr) {
+	setup(paramMgr: ParamMgrNode<Params, InternalParams>) {
         paramMgr.addEventListener('wam-midi', (e) => this.processMIDIEvents([{event: e.detail.data.bytes, time: 0}]));
 
         this._wamNode = paramMgr
@@ -71,7 +65,7 @@ export default class Synth101Node extends CompositeAudioNode {
 
 	isEnabled = true;
 
-	set status(_sig) {
+	set status(_sig: boolean) {
 		this.isEnabled = _sig;
 	}
 

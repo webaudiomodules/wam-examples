@@ -1,8 +1,4 @@
-// rollup.config.js
-import babel from 'rollup-plugin-babel';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import builtins from 'rollup-plugin-node-builtins';
+import babel from '@rollup/plugin-babel';
 
 const commonConfig = {
 	output: [
@@ -17,19 +13,11 @@ const commonConfig = {
 	plugins: [
 		babel({
 			exclude: 'node_modules/**',
-			runtimeHelpers: true,
-		}),
-		builtins(),
-		resolve({
-			browser: true,
-		}),
-		commonjs(),
+			babelHelpers: 'bundled',
+		})
 	],
 };
 export default [{
-	input: './src',
-	...commonConfig,
-}, {
-	input: './src/WamProcessor.js',
+	input: './src/index.js',
 	...commonConfig,
 }];

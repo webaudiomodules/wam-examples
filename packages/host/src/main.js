@@ -5,14 +5,6 @@ import './main.css';
  * @typedef {import('sdk/src/api/types').WamNode} WamNode
  */
 
-window.process = {
-	...(window.process ?? {}),
-	env: {
-		...(window.process?.env ?? {}),
-		NODE_ENV: window.process?.env?.NODE_ENV || 'production',
-	},
-};
-
 /** @type {HTMLAudioElement} */
 const player = document.querySelector('#player');
 /** @type {HTMLDivElement} */

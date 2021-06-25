@@ -1,22 +1,7 @@
 [
-    {
-      "url": "/packages/quadrafuzz/dist/index.js",
-      "thumbnail": "quadrafuzz.png",
-      "type": "Amplifier"
-    },
-    {
-      "url": "/packages/pingpongdelay/dist/index.js",
-      "thumbnail": "pingpongdelay.png" ,
-      "type": "Echo"
-    },
-    {
-      "url": "/packages/faustPingPongDelay/plugin/index.js",
-      "thumbnail": "faustPingPongDelay.png",
-      "type": "Echo"
-    },
-    {
-      "url": "",
-      "thumbnail": "test_pedal_horizon.png",
-      "type": "Amplifier"
-    }
+  "/packages/BigMuff",
+  "/packages/csoundPitchShifter/dist",
+  "/packages/quadrafuzz/dist",
+  "/packages/pingpongdelay/dist",
+  "/packages/faustPingPongDelay/plugin"
 ]

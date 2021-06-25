@@ -57,6 +57,24 @@ export default class MidiVirtualKeyboardNoSoundHTMLElement extends HTMLElement {
 		this.midiout = null;
 		this.kbd = null;
 		this.synth = null;
+		this.ecb = (e) => {
+			console.log(e);
+		}
+	
+		this.scb = (midiaccess) => {
+			var i = 0;
+			var outputs = midiaccess.outputs.values();
+			// populate midi out device menu
+			for (var outit = outputs.next(); !outit.done; outit = outputs.next()) {
+				this.shadowRoot.querySelector('#midiout').options[i++] = new Option(
+					outit.value.name
+				);
+				this.midioutputs.push(outit.value);
+			}
+			if(!this.midiout)
+				this.midiout = this.midioutputs[0];
+		}
+	
 	}
 
 	connectedCallback() {
@@ -120,24 +138,6 @@ export default class MidiVirtualKeyboardNoSoundHTMLElement extends HTMLElement {
 			.addEventListener('change', (e) => {
 				this.sendMidiMessage([0xb0, 7, e.target.value]);
 			});
-	}
-
-	ecb(e) {
-		console.log(e);
-	}
-
-	scb(midiaccess) {
-		var i = 0;
-		var outputs = midiaccess.outputs.values();
-		// populate midi out device menu
-		for (var outit = outputs.next(); !outit.done; outit = outputs.next()) {
-			this.shadowRoot.querySelector('#midiout').options[i++] = new Option(
-				outit.value.name
-			);
-			this.midioutputs.push(outit.value);
-		}
-		if(this.midiout.length !== 0)
-			this.midiout = this.midioutputs[0];
 	}
 
 

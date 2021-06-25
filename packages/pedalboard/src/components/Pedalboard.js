@@ -6,11 +6,39 @@ import { ReactSortable } from 'react-sortablejs';
 
 import Plugin from './Plugin/index.js';
 
-import PedalsJSON from '../../repository/Pedals.json';
-import PatchesJSON from '../../repository/Patches.json';
 import css from './Pedalboard.scss';
 
+let pedalsList = [];
+let patchesList = [];
+let typesList = new Set();
+let setPedalsList;
+let setPatchesList;
+let setTypesList;
+
+fetch(new URL('./pedals.json', import.meta.url).href).then((res) => res.json()).then((pedalsJSON) => {
+	Promise.all(pedalsJSON.map((url) => fetch(`${url}/descriptor.json`).then((res) => res.json()).then((json) => {
+		json.url = url;
+		if (!json.keywords) json.keywords = [];
+		json.keywords.forEach((k) => typesList.add(k));
+		return json;
+	})))
+	.then((list) => {
+		pedalsList = list;
+		if (setPedalsList) setPedalsList(pedalsList);
+		if (setTypesList) setTypesList(Array.from(typesList));
+	});
+});
+
+fetch(new URL('./patches.json', import.meta.url).href).then((res) => res.json()).then((patchesJSON) => {
+	patchesList = patchesJSON;
+	if (setPatchesList) setPatchesList(patchesList);
+});
+
 const PedalboardHeader = ({ audioNode, setSelectedType }) => {
+	const [types, setTypes] = useState([]);
+	const [patches, setPatches] = useState([]);
+	setTypesList = setTypes;
+	setPatchesList = setPatches;
 	const handleImport = (e) => {
 		if (e) {
 			audioNode.setState(JSON.parse(e));
@@ -27,8 +55,7 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 				>
 					<option value="">Patches</option>
 					{
-						PatchesJSON?.length > 0
-						&& [...new Set(PatchesJSON)].map((patch) => (
+						patches.map((patch) => (
 							<option
 								key={patch.name}
 								value={JSON.stringify(patch.plugins)}
@@ -44,8 +71,7 @@ const PedalboardHeader = ({ audioNode, setSelectedType }) => {
 				>
 					<option value="default">All plugins</option>
 					{
-						PedalsJSON?.length > 0
-						&& [...new Set(PedalsJSON.map((p) => p.type))].map((type) => (
+						types.map((type) => (
 							<option
 								key={type}
 								value={type}
@@ -97,9 +123,11 @@ const PedalboardBoard = ({
 const PedalboardSelector = ({ onClick, selectedType }) => {
 	const [pedals, setPedals] = useState([]);
 
-	useEffect(() => {
-		setPedals(PedalsJSON.filter((pedal) => selectedType === 'default' || selectedType === pedal.type));
-	}, [selectedType]);
+	const handleSelectedType = () => {
+		setPedals(pedalsList.filter((pedal) => selectedType === 'default' || pedal.keywords.indexOf(selectedType) !== -1));
+	};
+	setPedalsList = handleSelectedType;
+	useEffect(handleSelectedType, [selectedType]);
 
 	return (
 		<>
@@ -117,7 +145,7 @@ const PedalboardSelector = ({ onClick, selectedType }) => {
 					{
 						pedals.map((pedal) => (
 							<img
-								src={`/packages/pedalboard/demo/public/${pedal.thumbnail}`}
+								src={`${pedal.url}/${pedal.thumbnail || 'thumbnail.png'}`}
 								alt={`image_pedale_${pedal.url}`}
 								key={pedal.url}
 								className={css.PedalboardSelectorThumbnail}
@@ -150,7 +178,7 @@ const Pedalboard = ({ audioNode }) => {
 	});
 
 	const handleClickThumbnail = (pluginUrl) => {
-		audioNode.addPlugin(pluginUrl);
+		audioNode.addPlugin(`${pluginUrl}/index.js`);
 	};
 
 	const handleClickRemove = (pluginID) => {

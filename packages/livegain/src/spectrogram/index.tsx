@@ -25,7 +25,8 @@ export class SpectrogramModule extends WebAudioModule<Node> {
                 maxValue: 60
             },
             windowSize: {
-                ...analyserNode.parameters.get("windowSize")
+                ...analyserNode.parameters.get("windowSize"),
+                defaultValue: 32768
             },
             fftSize: {
                 ...analyserNode.parameters.get("fftSize")

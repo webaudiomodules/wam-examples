@@ -1,3 +1,0 @@
-# `midi virtual keyboard`
-
-This is a port of an old WAP midi keyboard...

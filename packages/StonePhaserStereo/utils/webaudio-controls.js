@@ -21,7 +21,7 @@
  *	 limitations under the License.
  *
  * */
-if (window.customElements) {
+ if (window.customElements) {
 	let styles = document.createElement("style");
 	styles.innerHTML =
 		`#webaudioctrl-context-menu {
@@ -290,13 +290,13 @@ if (window.customElements) {
 			}
 			get src() { return this._src; }
 			set src(v) { this._src = v; this.setupImage(); }
-			get value() { return this._value }
+			get value() { return this._value; }
 			set value(v) { this._value = +v; this.redraw(); }
-			get min() { return this._min }
+			get min() { return this._min; }
 			set min(v) { this._min = +v; this.redraw(); }
-			get max() { return this._max }
+			get max() { return this._max; }
 			set max(v) { this._max = +v; this.redraw(); }
-			get step() { return this._step }
+			get step() { return this._step; }
 			set step(v) { this._step = +v; this.redraw(); }
 			get sprites() { return this._sprites; }
 			set sprites(v) { this._sprites = +v; this.setupImage(); }
@@ -569,13 +569,13 @@ webaudio-knob{
 			set src(v) { this._src = v; this.setupImage(); }
 			get knobsrc() { return this._knobsrc; }
 			set knobsrc(v) { this._knobsrc = v; this.setupImage(); }
-			get value() { return this._value }
+			get value() { return this._value; }
 			set value(v) { this._value = +v; this.redraw(); }
-			get min() { return this._min }
+			get min() { return this._min; }
 			set min(v) { this._min = +v; this.redraw(); }
-			get max() { return this._max }
+			get max() { return this._max; }
 			set max(v) { this._max = +v; this.redraw(); }
-			get step() { return this._step }
+			get step() { return this._step; }
 			set step(v) { this._step = +v; this.redraw(); }
 			get sprites() { return this._sprites; }
 			set sprites(v) { this._sprites = +v; this.setupImage(); }
@@ -892,7 +892,7 @@ webaudio-slider{
 			}
 			get src() { return this._src; }
 			set src(v) { this._src = v; this.setupImage(); }
-			get value() { return this._value }
+			get value() { return this._value; }
 			set value(v) { this._value = +v; this.redraw(); }
 			get width() { return this._width; }
 			set width(v) { this._width = +v; this.setupImage(); }
@@ -1107,9 +1107,9 @@ webaudio-switch{
 			}
 			get src() { return this._src; }
 			set src(v) { this._src = v; this.setupImage(); }
-			get value() { return this._value }
+			get value() { return this._value; }
 			set value(v) { this._value = +v; this.redraw(); }
-			get fontsize() { return this._fontsize }
+			get fontsize() { return this._fontsize; }
 			set fontsize(v) { this._fontsize = +v; this.setupImage(); }
 			get width() { return this._width; }
 			set width(v) { this._width = +v; this.setupImage(); }
@@ -1273,9 +1273,13 @@ webaudio-param{
 			constructor() {
 				super();
 			}
-			get min() { return this._min }
+			get width() { return this._width; }
+			set width(v) { this._width = v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = v; this.setupImage(); }
+			get min() { return this._min; }
 			set min(v) { this._min = +v; this.redraw(); }
-			get step() { return this._step }
+			get step() { return this._step; }
 			set step(v) { this._step = +v; this.redraw(); }
 			get keys() { return this._keys; }
 			set keys(v) { this._keys = +v; this.setupImage(); }

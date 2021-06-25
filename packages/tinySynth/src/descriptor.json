@@ -4,7 +4,7 @@
     "description": "TinySynth GM synthesizer without GUI",
     "version": "1.0.0",
     "sdkVersion": "1.0.0",
-    "thumbnail": "",
+    "thumbnail": "screenshot.png",
     "keywords": [],
     "isInstrument": true,
 	"hasMidiInput":true,

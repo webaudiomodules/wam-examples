@@ -1,13 +1,3 @@
-import './main.css';
-
-window.process = {
-	...(window.process ?? {}),
-	env: {
-		...(window.process?.env ?? {}),
-		NODE_ENV: window.process?.env?.NODE_ENV || 'production',
-	},
-};
-
 const player = document.querySelector('#player');
 const mount = document.querySelector('#mount');
 
@@ -61,7 +51,7 @@ const setPlugin = async (pluginUrl) => {
 	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
 	//     "yourplugin": "dist"
 	// }
-	const { default: WAM } = await import('../../src/index.js');
+	const { default: WAM } = await import('../../dist/index.js');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
