@@ -12,39 +12,39 @@
 
 <body>
 	<header>
-		<h1>Example WAM Host</h1>
+		<h1 id="title">Example WAM Host</h1>
 	</header>
 	<main>
-		<p><b style="color:red">NEW:</b><a href="../../docs/typedoc/api/index.html">See WAM 2.0 API docs</a></p>
-		<p><b style="color:red">NEW:</b><a href="../../docs/typedoc/parammgr/index.html">See WAM 2.0 Parameter Manager docs</a></p>
+		<p><b style="color:white">NEW: </b><a href="../../docs/typedoc/api/index.html">See WAM 2.0 API docs</a></p>
+		<p><b style="color:white">NEW: </b><a href="../../docs/typedoc/parammgr/index.html">See WAM 2.0 Parameter Manager docs</a></p>
 		<div id="wrapper">
 			<div id="left">
 				<audio id="player" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3"
 					controls loop crossOrigin="anonymous">
 				</audio>
 				<p>Select MIDI input device
-					<select id="selectMidiInput">
+					<select id="selectMidiInput" class="widget">
 					</select>
 				</p>
 				<p>Select live input device
-					<select id="selectAudioInput">
+					<select id="selectAudioInput" class="widget">
 					</select>
 				</p>
 
 				<p>
-					<button id="toggleLiveInput">Live input:
-						<span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!</button>
+					<button id="toggleLiveInput" class="widget">Live input:
+						<span style='color:#cc7c6e;'>NOT ACTIVATED</span>, click to toggle on/off!</button>
 				</p>
 				<form id="form">
 					<div id="left">
 						<div>
 							<p>
 								<label>Enter any WAM Plugin URL</label>
-								<input type="text" name="pluginUrl" placeholder="Enter a plugin URL" />
+								<input type="text" class="widget" name="pluginUrl" placeholder="Enter a plugin URL" />
 							</p>
 						</div>
 						<div>
-							<input type="submit" value="LOAD PLUGIN" />
+							<input type="submit" class="widget" value="LOAD PLUGIN" />
 						</div>
 						<p></p>
 						<div>
@@ -90,26 +90,26 @@
 				<div id="pluginContainer">
 					<div id="mount"></div>
 					<br>
-					<button id="saveStateButton" disabled>SAVE STATE</button>&nbsp;
-					<button id="restoreStateButton" disabled>RESTORE STATE</button>
+					<button id="saveStateButton" class="widget" disabled>SAVE STATE</button>&nbsp;
+					<button id="restoreStateButton" class="widget" disabled>RESTORE STATE</button>
 				</div>
 				<div id="pluginInfoContainer">
 					<div id="pluginInfoDiv"></div>
 				</div>
 				<div id="pluginAutomationContainer">
 					<div id="pluginParamSelectorContainer">
-						<select name="pluginParamSelector" id="pluginParamSelector">
+						<select name="pluginParamSelector" id="pluginParamSelector" class="widget">
 							<option value="-1" disabled selected>Add Automation...</option>
 						</select>
 						<label for="pluginAutomationLength">Duration (sec):</label>
-						<input name="pluginAutomationLength" id="pluginAutomationLength" type="number" min="1" step="0.1" value="1" />
-						<input id="pluginAutomationApply" type="button" value="Apply" />
+						<input name="pluginAutomationLength" id="pluginAutomationLength" type="number" class="widget" min="1" step="0.1" value="1" />
+						<input id="pluginAutomationApply" type="button" class="widget" value="Apply" />
 					</div>
 					<div id="pluginAutomationEditor">
 					</div>
 				</div>
 				<div id="sendMIDIContainer">
-					<button id="sendMIDINoteButton">Send MIDI Note</button>
+					<button id="sendMIDINoteButton" class="widget">Send MIDI Note</button>
 				</div>
 			</div>
 		</div>
