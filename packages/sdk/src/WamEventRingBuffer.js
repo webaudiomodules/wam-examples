@@ -424,7 +424,7 @@ const executable = () => {
 			default: break;
 			}
 			// eslint-disable-next-line no-console
-			console.error('Failed to decode event!');
+			// console.warn('Failed to decode event!');
 			return false;
 		}
 
