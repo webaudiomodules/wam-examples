@@ -41,7 +41,12 @@ class OBXD_GUI extends HTMLElement
     let template = document.querySelector("#wam-obxd-template");
     this._root = this.attachShadow({ mode: 'open' });
     this._root.appendChild(template.content.cloneNode(true));
-    this._setupParams();
+
+    const handleAnimationFrame = () => {
+      //TODO
+      if (this.isConnected) $raf = window.requestAnimationFrame(handleAnimationFrame);
+    };
+    let $raf = window.requestAnimationFrame(handleAnimationFrame);
   }
 
   get (key) {
@@ -71,26 +76,8 @@ class OBXD_GUI extends HTMLElement
         break;
     }
   }
-
-  // -- obxd params are values in a float array
-  // -- just map control ids to indices here
-  _setupParams () {
-    this.map = ["?","MIDILEARN","VOLUME","VOICE_COUNT","TUNE","OCTAVE",
-      "BENDRANGE","BENDOSC2","LEGATOMODE","BENDLFORATE","VFLTENV","VAMPENV",
-      "ASPLAYEDALLOCATION","PORTAMENTO","UNISON","UDET","OSC2_DET",
-      "LFOFREQ","LFOSINWAVE","LFOSQUAREWAVE","LFOSHWAVE","LFO1AMT","LFO2AMT",
-      "LFOOSC1","LFOOSC2","LFOFILTER","LFOPW1","LFOPW2",
-      "OSC2HS","XMOD","OSC1P","OSC2P","OSCQuantize","OSC1Saw","OSC1Pul",
-      "OSC2Saw","OSC2Pul","PW","BRIGHTNESS","ENVPITCH",
-      "OSC1MIX","OSC2MIX","NOISEMIX",
-      "FLT_KF","CUTOFF","RESONANCE","MULTIMODE","FILTER_WARM","BANDPASS","FOURPOLE","ENVELOPE_AMT",
-      "LATK","LDEC","LSUS","LREL","FATK","FDEC","FSUS","FREL",
-      "ENVDER","FILTERDER","PORTADER",
-      "PAN1","PAN2","PAN3","PAN4","PAN5","PAN6","PAN7","PAN8",
-      "UNLEARN",
-      "ECONOMY_MODE_?","LFO_SYNC_?","PW_ENV_?","PW_ENV_BOTH_?","ENV_PITCH_BOTH_?",
-      "FENV_INVERT_?","PW_OSC2_OFS_?","LEVEL_DIF_?","SELF_OSC_PUSH_?"
-      ];
+  get map() {
+    return this._node.paramsMap;
   }
 
   _setupControls (skin) {
@@ -119,5 +106,9 @@ class OBXD_GUI extends HTMLElement
   _oncontrol (e) {
     let key = this.map.indexOf(e.detail.id);
     this._node.setParameterValues({ [key]: { id: key, value: e.detail.value } });
+  }
+
+  destroy() {
+    window.cancelAnimationFrame(this.$raf);
   }
 })

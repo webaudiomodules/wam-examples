@@ -135,7 +135,10 @@ export default class WamNode extends AudioWorkletNode {
 				const { instance } = found;
 				if (instance) {
 					const parameterInfo = await instance.audioNode.getParameterInfo(parameterId);
-					map[$parameterId] = new WamParameterInfo(i.toString(), parameterInfo[parameterId]);
+					map[$parameterId] = new WamParameterInfo(i.toString(), {
+						...parameterInfo[parameterId],
+						label: `${instance.name}/${parameterInfo[parameterId].label}`
+					});
 				}
 			}
 		}));

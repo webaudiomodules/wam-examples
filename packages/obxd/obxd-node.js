@@ -1,5 +1,6 @@
 import WamNode from "../sdk/src/WamNode.js";
 import WamParameter from "../sdk/src/WamParameter.js";
+import WamParameterInfo from "../sdk/src/WamParameterInfo.js";
 
 // OBXD WAM AudioNode
 // Jari Kleimola 2017-2020 (jari@webaudiomodules.org)
@@ -16,6 +17,11 @@ export class OBXDNode extends WamNode
     await actx.audioWorklet.addModule(new URL(prefix + "obxd.wasm.js", baseUrl));
     await actx.audioWorklet.addModule(new URL(prefix + "obxd.emsc.js", baseUrl));
     await actx.audioWorklet.addModule(new URL("obxd-proc.js", baseUrl));
+    const resp = await fetch(new URL("./obxd-gui.html", baseUrl).href);
+    const html = await resp.text();
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    return template;
   }
 
 	static generateWamParameters() {
@@ -25,13 +31,55 @@ export class OBXDNode extends WamNode
 		return params;
 	}
 
-	constructor(plug, options = {}) {
+	/**
+   * @param {import('../sdk').WebAudioModule} plug
+   * @param {HTMLTemplateElement} template
+   * @param {AudioWorkletNodeOptions} [options={}]
+   */
+  constructor(plug, template, options = {}) {
     options.numberOfInputs  = 0;
     options.numberOfOutputs = 1;
     options.outputChannelCount = [2];
 
 		super(plug, options);
+
+    /**
+     * obxd params are values in a float array,
+     * just map control ids to indices here
+     * @type {string[]}
+     */
+    this.paramsMap = ["?","MIDILEARN","VOLUME","VOICE_COUNT","TUNE","OCTAVE",
+      "BENDRANGE","BENDOSC2","LEGATOMODE","BENDLFORATE","VFLTENV","VAMPENV",
+      "ASPLAYEDALLOCATION","PORTAMENTO","UNISON","UDET","OSC2_DET",
+      "LFOFREQ","LFOSINWAVE","LFOSQUAREWAVE","LFOSHWAVE","LFO1AMT","LFO2AMT",
+      "LFOOSC1","LFOOSC2","LFOFILTER","LFOPW1","LFOPW2",
+      "OSC2HS","XMOD","OSC1P","OSC2P","OSCQuantize","OSC1Saw","OSC1Pul",
+      "OSC2Saw","OSC2Pul","PW","BRIGHTNESS","ENVPITCH",
+      "OSC1MIX","OSC2MIX","NOISEMIX",
+      "FLT_KF","CUTOFF","RESONANCE","MULTIMODE","FILTER_WARM","BANDPASS","FOURPOLE","ENVELOPE_AMT",
+      "LATK","LDEC","LSUS","LREL","FATK","FDEC","FSUS","FREL",
+      "ENVDER","FILTERDER","PORTADER",
+      "PAN1","PAN2","PAN3","PAN4","PAN5","PAN6","PAN7","PAN8",
+      "UNLEARN",
+      "ECONOMY_MODE_?","LFO_SYNC_?","PW_ENV_?","PW_ENV_BOTH_?","ENV_PITCH_BOTH_?",
+      "FENV_INVERT_?","PW_OSC2_OFS_?","LEVEL_DIF_?","SELF_OSC_PUSH_?"
+    ];
+    this.wamParameterInfo = this.paramsMap.map((label, id) => new WamParameterInfo(id.toString(), {
+      label,
+      minValue: 0,
+      maxValue: 1,
+      defaultValue: label.indexOf("?") >= 0 ? 0 : +template.querySelector(`#${label}`)?.getAttribute('value') || 0
+    }));
 	}
+
+  async getParameterInfo(...parameterIdQuery) {
+    if (!parameterIdQuery.length) parameterIdQuery = Object.keys(this.paramsMap);
+    return parameterIdQuery.reduce((acc, cur) => {
+      acc[cur] = this.wamParameterInfo[cur];
+      return acc;
+    }, {});
+  }
+
   
 
   // --------------------------------------------------------------------------

@@ -41,6 +41,7 @@ export default class ParamMappingConfigurator {
 				const internalParam = internalParamsConfig[id];
 				configs[id] = new WamParameterInfo(id, {
 					...config,
+					label: config.label ?? id,
 					defaultValue: config.defaultValue ?? internalParam?.defaultValue,
 					minValue: config.minValue ?? internalParam?.minValue,
 					maxValue: config.maxValue ?? internalParam?.maxValue,

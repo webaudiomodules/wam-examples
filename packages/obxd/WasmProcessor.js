@@ -179,6 +179,15 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     else this.wam_onparam(this.inst, key, value);
   }
 
+	/**
+	 * @param {boolean} normalized
+	 * @param {string[]=} parameterIds
+	 * @returns {WamParameterDataMap}
+	 */
+   _getParameterValues(normalized, parameterIds) {
+     //TODO
+   }
+
   onmsg (verb, prop, data) {
     if (data instanceof ArrayBuffer) {
       let buffer = new Uint8Array(data);
@@ -206,6 +215,10 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     WAM._free(buf);
   }
 
+  _getState() {
+    //TODO
+  }
+
 	/**
 	 * @param {import('../sdk/src/api/types').WamBinaryData} sysexData
 	 */
@@ -217,5 +230,10 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
 		this.wam_onsysex(this.inst, buf, data.length);
     WAM._free(buf);
 	}
+
+  destroy() {
+    super.destroy();
+    //TODO
+  }
 }
 }

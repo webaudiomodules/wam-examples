@@ -51,7 +51,7 @@ const connectPlugin = (audioNode) => {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
 			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
-		mediaElementSource.disconnect(currentPluginAudioNode);
+		if (currentPluginAudioNode.numberOfInputs) mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
 		currentPluginAudioNode.removeEventListener('wam-parameter-info', handleParameterInfo);
 		currentPluginAudioNode.destroy();
