@@ -46,3 +46,12 @@ export function shuffleArray(arrayLike: ArrayLike<any>) {
 			arrayLike[currentIndex]];
 	}
 }
+
+export function ensureTextEncoderDecoder() {
+	if (typeof TextEncoder === "undefined") {
+		globalThis.TextEncoder = require('util').TextEncoder;
+	}
+	if (typeof TextDecoder === "undefined") {
+		globalThis.TextDecoder = require('util').TextDecoder;
+	}
+}
