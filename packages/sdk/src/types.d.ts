@@ -139,6 +139,13 @@ export interface WamEventRingBuffer {
 }
 export const WamEventRingBuffer: {
 	prototype: WamEventRingBuffer;
+
+	/**
+	 * Default number of additional bytes allocated
+	 * per event (to support variable-size event objects)
+	 */
+	DefaultExtraBytesPerEvent: number;
+
 	/**
 	 * Number of bytes required for WamEventBase
 	 * {uint32} total event size in bytes

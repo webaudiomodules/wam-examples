@@ -2,10 +2,10 @@
 /* eslint-disable no-plusplus */
 
 import expect from './jestUtilities';
-import { shuffleArray } from './testUtilities';
+import { shuffleArray, ensureTextEncoderDecoder } from './testUtilities';
 import {
 	WamEvent, WamAutomationEvent, WamTransportEvent,
-	WamMidiEvent, WamMpeEvent, WamSysexEvent, WamOscEvent,
+	WamMidiEvent, WamMpeEvent, WamSysexEvent, WamOscEvent, WamInfoEvent
 } from '../src/api/types';
 
 import getRingBuffer from '../src/RingBuffer.js';
@@ -88,6 +88,14 @@ describe('WamEventRingBuffer Suite', () => {
 			bytes: sysexBytes,
 		},
 	};
+
+	const inputInfoEvent: WamInfoEvent = {
+		type: 'wam-info',
+		time: 10 * Math.random(),
+		data: {
+			instanceId: `some-wam-name.instance.${Date.now().toString()}`,
+		}
+	}
 
 	it('Should handle updating parameter indices', () => {
 		const xAutomationEvent: WamAutomationEvent = {
@@ -198,8 +206,8 @@ describe('WamEventRingBuffer Suite', () => {
 
 	it('Should only write number of events for which there is enough space', () => {
 		const inputEvents = [
-			inputTransportEvent,
-			inputTransportEvent,
+			inputSysexEvent,
+			inputSysexEvent,
 		];
 
 		const sab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, 1);
@@ -217,6 +225,7 @@ describe('WamEventRingBuffer Suite', () => {
 			inputMpeEvent,
 			inputSysexEvent,
 			inputOscEvent,
+			inputInfoEvent,
 		];
 		let written = 0;
 		let read: WamEvent[] = [];
@@ -242,6 +251,7 @@ describe('WamEventRingBuffer Suite', () => {
 			inputMpeEvent,
 			inputSysexEvent,
 			inputOscEvent,
+			inputInfoEvent,
 		];
 		const numEvents = inputEvents.length;
 
