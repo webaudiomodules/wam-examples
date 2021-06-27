@@ -136,9 +136,9 @@ const style = `.pedal {
 	position: absolute;
 	margin: auto;
 	color: #333333;
-	font-family: "Helvetica";
+	font-family: "Apple Chancery";
 	font-size: 18px;
-	font-style: bold;
+	font-weight: bold;
 	text-align: center;
 }
 
