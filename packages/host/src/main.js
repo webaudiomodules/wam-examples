@@ -352,10 +352,10 @@ const toggleLiveInput = () => {
 	const button = document.querySelector('#toggleLiveInput');
 
 	if (!liveInputActivated) {
-		button.innerHTML = "Live input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:#99c27a;'>ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(1, audioContext.currentTime);
 	} else {
-		button.innerHTML = "Live input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:#cc7c6e;'>NOT ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(0, audioContext.currentTime);
 	}
 	liveInputActivated = !liveInputActivated;
