@@ -1,3 +1,3 @@
-import { WamNode } from './api/types';
+import { WamNode } from './types';
 
 export default WamNode;

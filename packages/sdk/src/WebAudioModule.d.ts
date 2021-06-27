@@ -1,3 +1,3 @@
-import { WebAudioModule } from './api/types';
+import { WebAudioModule } from './types';
 
 export default WebAudioModule;

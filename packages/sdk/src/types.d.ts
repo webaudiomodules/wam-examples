@@ -1,6 +1,6 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamEvent, WamParameter, WamParameterInfo } from './api/types';
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -206,6 +206,109 @@ export const WamEventRingBuffer: {
 	 */
 	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIndices: { [parameterId: string]: number }, maxBytesPerEvent?: number): WamEventRingBuffer;
 };
+
+export interface WamNode extends IWamNode {
+	readonly moduleId: string;
+    /**
+     * Messages from audio thread
+     */
+    _onMessage(message: MessageEvent): void;
+    _audioToMainInterval: number;
+    _onEvent(event: WamEvent): void;
+    _generateMessageId(): number;
+}
+export const WamNode: {
+	prototype: WamNode;
+    new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
+};
+
+/**
+ * A WamEvent and corresponding message id used to trigger callbacks
+ * on the main thread once the event has been processed.
+ */
+export type PendingWamEvent = {
+    id: number;
+    event: WamEvent;
+};
+
+/**
+ * A range of sample indices and corresponding list of simultaneous
+ * WamEvents to be processed at the beginning of the slice.
+ */
+export type ProcessingSlice = {
+    range: [number, number];
+    events: WamEvent[];
+};
+
+export type WamParameterInterpolatorMap = {
+    [id: string]: WamParameterInterpolator;
+};
+
+export interface WamProcessor extends IWamProcessor {
+	readonly downstream: Set<IWamProcessor>
+    /**
+     * Messages from main thread appear here.
+     */
+    _onMessage(message: MessageEvent): Promise<void>;
+    _onTransport(transportData: WamTransportData): void;
+    _onMidi(midiData: WamMidiData): void;
+    _onSysex(sysexData: WamBinaryData): void;
+    _onMpe(mpeData: WamMidiData): void;
+    _onOsc(oscData: WamBinaryData): void;
+    _setState(state: any): void;
+    _getState(): any;
+	_getParameterValues(normalized: boolean, parameterIds?: string[] | undefined): WamParameterDataMap;
+    _setParameterValues(parameterUpdates: WamParameterDataMap, interpolate: boolean): void;
+    _setParameterValue(parameterUpdate: WamParameterData, interpolate: boolean): void;
+    _interpolateParameterValues(startIndex: number, endIndex: number): void;
+    _getProcessingSlices(): ProcessingSlice[];
+    _processEvent(event: WamEvent): void;
+    /**
+     * Override this to implement custom DSP.
+     * @param startSample beginning of processing slice
+     * @param endSample end of processing slice
+     * @param inputs
+     * @param outputs
+     * @param parameters
+     */
+    _process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
+    connectEvents(wamInstanceId: string, output?: number): void;
+	disconnectEvents(wamInstanceId?: string, output?: number): void;
+    /** Stop processing and remove the node from the WAM event graph. */
+    destroy(): void;
+}
+
+export const WamProcessor: {
+	prototype: WamProcessor;
+    /**
+     * Override to fetch plugin's params via whatever means desired.
+     */
+	generateWamParameterInfo(): WamParameterInfoMap;
+    new (options: AudioWorkletNodeOptions): WamProcessor;
+} & Pick<typeof IWamProcessor, "parameterDescriptors">;
+
+export interface WebAudioModule extends IWebAudioModule {
+	readonly _timestamp: number;
+    _audioNode: IWamNode;
+    _initialized: boolean;
+    /**
+     * Url to load the plugin's GUI HTML
+     */
+    _guiModuleUrl: string;
+    /**
+     * Url to load the plugin's `descriptor.json`
+     */
+    _descriptorUrl: string;
+    _descriptor: WamDescriptor;
+    _loadGui(): Promise<any>;
+    _loadDescriptor(): Promise<WamDescriptor>;
+}
+
+export const WebAudioModule: {
+	prototype: WebAudioModule;
+    createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
+	new (audioContext: BaseAudioContext): WebAudioModule;
+} & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
     RingBuffer: typeof RingBuffer;
