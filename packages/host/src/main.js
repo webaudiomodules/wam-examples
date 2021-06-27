@@ -47,6 +47,7 @@ const connectPlugin = (audioNode) => {
 		const { data } = i.detail;
 		if (data.instanceId === currentPluginAudioNode.instanceId) {
 			populateParamSelector(currentPluginAudioNode);
+			showPluginInfo(currentPluginAudioNode.module, currentPluginDomNode);
 		}
 	};
 	if (currentPluginAudioNode) {

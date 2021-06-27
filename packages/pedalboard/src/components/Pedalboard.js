@@ -35,8 +35,8 @@ fetch(new URL('./patches.json', import.meta.url).href).then((res) => res.json())
 });
 
 const PedalboardHeader = ({ audioNode, setSelectedType }) => {
-	const [types, setTypes] = useState([]);
-	const [patches, setPatches] = useState([]);
+	const [types, setTypes] = useState(Array.from(typesList));
+	const [patches, setPatches] = useState(patchesList);
 	setTypesList = setTypes;
 	setPatchesList = setPatches;
 	const handleImport = (e) => {
@@ -121,7 +121,7 @@ const PedalboardBoard = ({
 };
 
 const PedalboardSelector = ({ onClick, selectedType }) => {
-	const [pedals, setPedals] = useState([]);
+	const [pedals, setPedals] = useState(pedalsList);
 
 	const handleSelectedType = () => {
 		setPedals(pedalsList.filter((pedal) => selectedType === 'default' || pedal.keywords.indexOf(selectedType) !== -1));
