@@ -51,7 +51,7 @@ export default class WamNode extends AudioWorkletNode {
 		/** @type {number} */
 		this._messageId = 1;
 		/** @type {Set<WamEventType>} */
-		this._supportedEventTypes = new Set(['wam-event', 'wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
