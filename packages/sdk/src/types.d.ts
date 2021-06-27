@@ -133,9 +133,10 @@ export interface WamEventRingBuffer {
 	/**
 	 * In case parameter set changes, update the internal mappings.
 	 * May result in some invalid automation events, which will be
-	 * ignored.
+	 * ignored. Note that this must be called on corresponding
+	 * WamEventRingBuffers on both threads.
 	 */
-	 setParameterIndices(parameterIndices: Record<string, number>);
+	 setParameterIds(parameterIds: string[]);
 }
 export const WamEventRingBuffer: {
 	prototype: WamEventRingBuffer;
@@ -204,7 +205,7 @@ export const WamEventRingBuffer: {
 	 * a UInt8Array RingBuffer. Specify 'maxBytesPerEvent'
 	 * to support variable-size binary event types like sysex or osc.
 	 */
-	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIndices: { [parameterId: string]: number }, maxBytesPerEvent?: number): WamEventRingBuffer;
+	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIds: string[], maxBytesPerEvent?: number): WamEventRingBuffer;
 };
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {

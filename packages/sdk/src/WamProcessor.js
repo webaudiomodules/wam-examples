@@ -173,18 +173,14 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	}
 
 	_configureSab() {
-		/** @private @type {{[parameterId: string]: number}} */
-		this._parameterIndices = {};
-		Object.keys(this._parameterInfo).forEach((parameterId, index) => {
-			this._parameterIndices[parameterId] = index;
-		});
-		this.port.postMessage({
-			sab: {
-				eventCapacity: 2 ** 10,
-				// maxBytesPerEvent: undefined,
-				parameterIndices: this._parameterIndices,
-			},
-		});
+		const eventCapacity = 2 ** 10;
+		const parameterIds = Object.keys(this._parameterInfo);
+		if (this._sabReady) {
+			// if parameter set changes after initialization
+			this._eventWriter.setParameterIds(parameterIds);
+			this._eventReader.setParameterIds(parameterIds);
+		}
+		this.port.postMessage({ sab: { eventCapacity, parameterIds } });
 	}
 
 	/**
@@ -268,12 +264,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					/** @private @type {SharedArrayBuffer} */
 					this._mainToAudioSab = mainToAudioSab;
 
+					const parameterIds = Object.keys(this._parameterInfo);
 					/** @private @type {WamEventRingBuffer} */
 					this._eventWriter = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
-						this._parameterIndices);
+						parameterIds);
 					/** @private @type {WamEventRingBuffer} */
 					this._eventReader = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
-						this._parameterIndices);
+						parameterIds);
 
 					this._sabReady = true;
 					delete response.content;
