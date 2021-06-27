@@ -304,10 +304,14 @@ export default class WamNode extends AudioWorkletNode {
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
 		} else if (sab) {
 			this._useSab = true;
-			const { eventCapacity, parameterIndices } = sab;
+			const { eventCapacity, parameterIds } = sab;
 
-			/** @private @type {{[parameterId: string]: number}} */
-			this._parameterIndices = parameterIndices;
+			if (this._sabReady) {
+				// if parameter set changes after initialization
+				this._eventWriter.setParameterIds(parameterIds);
+				this._eventReader.setParameterIds(parameterIds);
+				return;
+			}
 
 			/** @private @type {SharedArrayBuffer} */
 			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
@@ -319,10 +323,10 @@ export default class WamNode extends AudioWorkletNode {
 
 			/** @private @type {WamEventRingBuffer} */
 			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
-				this._parameterIndices);
+				parameterIds);
 			/** @private @type {WamEventRingBuffer} */
 			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
-				this._parameterIndices);
+				parameterIds);
 
 			/** @private @type {number} */
 			this._eventReaderInterval = null;

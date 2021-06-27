@@ -125,10 +125,10 @@ const executable = () => {
 		 *
 		 * @param {RingBufferConstructor} RingBuffer
 		 * @param {SharedArrayBuffer} sab
-		 * @param {{[parameterId: string]: number}} parameterIndices
+		 * @param {string[]} parameterIds
 		 * @param {number} [maxBytesPerEvent=undefined]
 		 */
-		constructor(RingBuffer, sab, parameterIndices, maxBytesPerEvent = undefined) {
+		constructor(RingBuffer, sab, parameterIds, maxBytesPerEvent = undefined) {
 			/** @type {Record<string, number>} */
 			this._eventSizeBytes = {};
 
@@ -156,11 +156,15 @@ const executable = () => {
 				this._decodeEventType[encodedType] = type;
 			});
 
+			/** @type {number} */
+			this._parameterCode = 0;
+			/** @type {{[parameterId: string]: number}} */
+			this._parameterCodes = {};
 			/** @type {{[parameterId: string]: number}} */
 			this._encodeParameterId = {};
 			/** @type {{[parameterId: number]: string}} */
 			this._decodeParameterId = {};
-			this.setParameterIndices(parameterIndices);
+			this.setParameterIds(parameterIds);
 
 			/** @type {SharedArrayBuffer} */
 			this._sab = sab;
@@ -479,23 +483,36 @@ const executable = () => {
 		/**
 		 * In case parameter set changes, update the internal mappings.
 		 * May result in some invalid automation events, which will be
-	 	 * ignored.
-		 * @param {{[parameterId: string]: number}} parameterIndices
+	 	 * ignored. Note that this must be called on all corresponding
+		 * WamEventRingBuffers on both threads.
+		 * @param {string[]} parameterIds
 		 */
-		setParameterIndices(parameterIndices) {
-			/** @type {{[parameterId: string]: number}} */
+		setParameterIds(parameterIds) {
 			this._encodeParameterId = {};
-			Object.keys(parameterIndices).forEach((parameterId) => {
-				this._encodeParameterId[parameterId] = parameterIndices[parameterId];
-			});
-
-			/** @type {{[parameterId: number]: string}} */
 			this._decodeParameterId = {};
-			Object.keys(this._encodeParameterId).forEach((parameterId) => {
-				const encodedParameterId = this._encodeParameterId[parameterId];
-				this._decodeParameterId[encodedParameterId] = parameterId;
+			parameterIds.forEach((parameterId) => {
+				let parameterCode = -1
+				if (parameterId in this._parameterCodes) parameterCode = this._parameterCodes[parameterId];
+				else {
+					parameterCode = this._generateParameterCode();
+					this._parameterCodes[parameterId] = parameterCode;
+				}
+				this._encodeParameterId[parameterId] = parameterCode;
+				this._decodeParameterId[parameterCode] = parameterId;
 			});
 		}
+
+		/**
+		 * Generates a numeric parameter code in a range suitable for
+		 * encoding as uint16.
+		 *
+		 * @return {number}
+		 */
+		_generateParameterCode() {
+			if (this._parameterCode > 65535) throw Error('Too many parameters have been registered!');
+			return this._parameterCode++;
+		}
+
 	}
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
