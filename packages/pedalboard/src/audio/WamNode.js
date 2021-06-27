@@ -8,7 +8,7 @@
  * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
  * @typedef {import('sdk/src/api/types').WamEventMap} WamEventMap
  * @typedef {import('sdk/src/api/types').WamEventType} WamEventType
- * @typedef {import('sdk/src/api/types').WamParameterInfoEvent} WamParameterInfoEvent
+ * @typedef {import('sdk/src/api/types').WamInfoEvent} WamInfoEvent
  * @typedef {import('sdk/src/api/types').WamParameterConfiguration} WamParameterConfiguration
  */
 //@ts-check
@@ -102,13 +102,12 @@ export default class WamNode extends AudioWorkletNode {
 					this._parameterInfoMap.push({ instanceId, parameterId });
 				});
 			}
-			const parameterInfo = await this.getParameterInfo();
-			const parameterIds = Object.keys(parameterInfo);
+			const data = { instanceId: this.instanceId };
 			await this._call('updatePluginList', workletPluginList);
-			await this._call('updateParameterInfo', parameterIds);
-			/** @type {CustomEvent<WamParameterInfoEvent>} */
-			const wamParameterInfoEvent = new CustomEvent('wam-parameter-info', { detail: { type: 'wam-parameter-info', data: parameterIds, time: this.context.currentTime } });
-			this.pedalboardNode.dispatchEvent(wamParameterInfoEvent);
+			await this._call('updateParameterInfo', data);
+			/** @type {CustomEvent<WamInfoEvent>} */
+			const wamInfoEvent = new CustomEvent('wam-info', { detail: { type: 'wam-info', data, time: this.context.currentTime } });
+			this.pedalboardNode.dispatchEvent(wamInfoEvent);
 		};
 		this.pedalboardNode.addEventListener('change', this.handlePedalboardChange);
 	}

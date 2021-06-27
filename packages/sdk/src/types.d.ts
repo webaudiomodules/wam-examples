@@ -129,9 +129,23 @@ export interface WamEventRingBuffer {
 	 * the list of events successfully read.
 	 */
 	read(): WamEvent[];
+
+	/**
+	 * In case parameter set changes, update the internal mappings.
+	 * May result in some invalid automation events, which will be
+	 * ignored.
+	 */
+	 setParameterIndices(parameterIndices: Record<string, number>);
 }
 export const WamEventRingBuffer: {
 	prototype: WamEventRingBuffer;
+
+	/**
+	 * Default number of additional bytes allocated
+	 * per event (to support variable-size event objects)
+	 */
+	DefaultExtraBytesPerEvent: number;
+
 	/**
 	 * Number of bytes required for WamEventBase
 	 * {uint32} total event size in bytes

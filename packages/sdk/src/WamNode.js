@@ -38,20 +38,20 @@ export default class WamNode extends AudioWorkletNode {
 
 		/** @type {WebAudioModule} */
 		this.module = module;
-		/** @type {boolean} _useSab */
+		/** @private @type {boolean} _useSab */
 		this._useSab = false; // can override this via processorOptions;
-		/** @type {boolean} _sabReady */
+		/** @private @type {boolean} _sabReady */
 		this._sabReady = false;
 		/** @private @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
-		/**  @private @type {{[key: number]: () => any}} */
+		/** @private @type {{[key: number]: () => any}} */
 		this._pendingEvents = {};
-		/** @type {boolean} */
+		/** @private @type {boolean} */
 		this._destroyed = false;
-		/** @type {number} */
+		/** @private @type {number} */
 		this._messageId = 1;
-		/** @type {Set<WamEventType>} */
-		this._supportedEventTypes = new Set(['wam-event', 'wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
+		/** @private @type {Set<WamEventType>} */
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -306,25 +306,25 @@ export default class WamNode extends AudioWorkletNode {
 			this._useSab = true;
 			const { eventCapacity, parameterIndices } = sab;
 
-			/** @type {{[parameterId: string]: number}} */
+			/** @private @type {{[parameterId: string]: number}} */
 			this._parameterIndices = parameterIndices;
 
-			/** @type {SharedArrayBuffer} */
+			/** @private @type {SharedArrayBuffer} */
 			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @type {SharedArrayBuffer} */
+			/** @private @type {SharedArrayBuffer} */
 			this._audioToMainSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @type {WamEventRingBuffer} */
+			/** @private @type {WamEventRingBuffer} */
 			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
 				this._parameterIndices);
-			/** @type {WamEventRingBuffer} */
+			/** @private @type {WamEventRingBuffer} */
 			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
 				this._parameterIndices);
 
-			/** @type {number} */
+			/** @private @type {number} */
 			this._eventReaderInterval = null;
 
 			const request = 'initialize/sab';

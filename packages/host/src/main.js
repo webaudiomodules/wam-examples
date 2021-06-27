@@ -43,8 +43,12 @@ let liveInputGainNode;
  * @param {WamNode} audioNode
  */
 const connectPlugin = (audioNode) => {
-	// eslint-disable-next-line no-use-before-define
-	const handleParameterInfo = () => populateParamSelector(currentPluginAudioNode);
+	const handleInfoEvent = (i) => {
+		const { data } = i.detail;
+		if (data.instanceId === currentPluginAudioNode.instanceId) {
+			populateParamSelector(currentPluginAudioNode);
+		}
+	};
 	if (currentPluginAudioNode) {
 		liveInputGainNode.disconnect();
 		if (keyboardPluginAudioNode) {
@@ -53,7 +57,7 @@ const connectPlugin = (audioNode) => {
 		}
 		if (currentPluginAudioNode.numberOfInputs) mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
-		currentPluginAudioNode.removeEventListener('wam-parameter-info', handleParameterInfo);
+		currentPluginAudioNode.removeEventListener('wam-info', handleInfoEvent);
 		currentPluginAudioNode.destroy();
 		if (currentPluginDomNode) {
 			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
@@ -73,7 +77,7 @@ const connectPlugin = (audioNode) => {
 	if (audioNode.numberOfInputs) mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
-	currentPluginAudioNode.addEventListener('wam-parameter-info', handleParameterInfo);
+	currentPluginAudioNode.addEventListener('wam-info', handleInfoEvent);
 };
 
 /**
