@@ -129,6 +129,13 @@ export interface WamEventRingBuffer {
 	 * the list of events successfully read.
 	 */
 	read(): WamEvent[];
+
+	/**
+	 * In case parameter set changes, update the internal mappings.
+	 * May result in some invalid automation events, which will be
+	 * ignored.
+	 */
+	 setParameterIndices(parameterIndices: Record<string, number>);
 }
 export const WamEventRingBuffer: {
 	prototype: WamEventRingBuffer;

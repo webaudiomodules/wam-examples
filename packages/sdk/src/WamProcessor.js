@@ -124,14 +124,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
 		/** @private @type {boolean} */
 		this._sabReady = false;
-		if (this._useSab) {
-			/** @type {{[parameterId: string]: number}} */
-			this._parameterIndices = {};
-			Object.keys(this._parameterInfo).forEach((parameterId, index) => {
-				this._parameterIndices[parameterId] = index;
-			});
-			this._configureSab();
-		}
+		if (this._useSab) this._configureSab();
 	}
 
 	/**
@@ -180,6 +173,11 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	}
 
 	_configureSab() {
+		/** @private @type {{[parameterId: string]: number}} */
+		this._parameterIndices = {};
+		Object.keys(this._parameterInfo).forEach((parameterId, index) => {
+			this._parameterIndices[parameterId] = index;
+		});
 		this.port.postMessage({
 			sab: {
 				eventCapacity: 2 ** 10,

@@ -13,6 +13,7 @@ import getWamEventRingBuffer from '../src/WamEventRingBuffer.js';
 
 const RingBuffer = getRingBuffer();
 const WamEventRingBuffer = getWamEventRingBuffer();
+ensureTextEncoderDecoder(); // jest / JSDOM doesn't currently have these globals
 
 describe('WamEventRingBuffer Suite', () => {
 	const binaryBytesLength = 72;
@@ -87,6 +88,95 @@ describe('WamEventRingBuffer Suite', () => {
 			bytes: sysexBytes,
 		},
 	};
+
+	it('Should handle updating parameter indices', () => {
+		const xAutomationEvent: WamAutomationEvent = {
+			type: 'wam-automation',
+			time: 10 * Math.random(),
+			data: {
+				id: 'x',
+				value: Math.random(),
+				normalized: true,
+			},
+		};
+		const yAutomationEvent = inputAutomationEvent;
+		const zAutomationEvent: WamAutomationEvent = {
+			type: 'wam-automation',
+			time: 10 * Math.random(),
+			data: {
+				id: 'z',
+				value: Math.random(),
+				normalized: true,
+			},
+		};
+		const aAutomationEvent: WamAutomationEvent = {
+			type: 'wam-automation',
+			time: 10 * Math.random(),
+			data: {
+				id: 'a',
+				value: Math.random(),
+				normalized: true,
+			},
+		};
+		const bAutomationEvent: WamAutomationEvent = {
+			type: 'wam-automation',
+			time: 10 * Math.random(),
+			data: {
+				id: 'b',
+				value: Math.random(),
+				normalized: true,
+			},
+		};
+
+		const inputEvents = [
+			xAutomationEvent,
+			yAutomationEvent,
+			zAutomationEvent,
+			aAutomationEvent,
+			bAutomationEvent,
+		];
+
+		const sab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, inputEvents.length);
+		const test = new WamEventRingBuffer(RingBuffer, sab, parameterIndices, binaryBytesLength);
+
+		let numWritten = test.write(...inputEvents);
+		expect(numWritten).toEqual(inputEvents.length - 2);
+
+		let expectedOutputEvents = [
+			xAutomationEvent,
+			yAutomationEvent,
+			zAutomationEvent,
+		];
+
+		let outputEvents = test.read();
+		let numRead = outputEvents.length;
+		expect(numRead).toEqual(numWritten);
+		expect(outputEvents).toEqual(expectedOutputEvents);
+
+		const newParameterIndices = {
+			a: 0,
+			b: 1,
+			y: 2,
+			z: 3,
+		};
+
+		test.setParameterIndices(newParameterIndices);
+
+		numWritten = test.write(...inputEvents);
+		expect(numWritten).toEqual(inputEvents.length - 1);
+
+		expectedOutputEvents = [
+			yAutomationEvent,
+			zAutomationEvent,
+			aAutomationEvent,
+			bAutomationEvent,
+		];
+
+		outputEvents = test.read();
+		numRead = outputEvents.length;
+		expect(numRead).toEqual(numWritten);
+		expect(outputEvents).toEqual(expectedOutputEvents);
+	});
 
 	it('Should allocate enough bytes for events of all types', () => {
 		const defaultSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, 1);

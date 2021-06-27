@@ -142,14 +142,10 @@ const executable = () => {
 			});
 
 			/** @type {{[parameterId: string]: number}} */
-			this._encodeParameterId = parameterIndices;
-
+			this._encodeParameterId = {};
 			/** @type {{[parameterId: number]: string}} */
 			this._decodeParameterId = {};
-			Object.keys(this._encodeParameterId).forEach((parameterId) => {
-				const encodedParameterId = this._encodeParameterId[parameterId];
-				this._decodeParameterId[encodedParameterId] = parameterId;
-			});
+			this.setParameterIndices(parameterIndices);
 
 			/** @type {SharedArrayBuffer} */
 			this._sab = sab;
@@ -210,6 +206,7 @@ const executable = () => {
 			const { type, time } = event;
 			switch (event.type) {
 			case 'wam-automation': {
+				if (!(event.data.id in this._encodeParameterId)) break;
 				const byteSize = this._eventSizeBytes[type];
 				byteOffset = this._writeHeader(byteSize, type, time);
 
@@ -304,7 +301,7 @@ const executable = () => {
 		 * Read WamEvent from internal buffer.
 		 *
 		 * @private
-		 * @returns {WamEvent} Decoded WamEvent
+		 * @returns {WamEvent | false} Decoded WamEvent
 		 */
 		_decode() {
 			let byteOffset = 0;
@@ -316,13 +313,15 @@ const executable = () => {
 
 			switch (type) {
 			case 'wam-automation': {
-				const id = this._decodeParameterId[this._eventBytesView.getUint16(byteOffset)];
+				const encodedParameterId = this._eventBytesView.getUint16(byteOffset);
 				byteOffset += 2;
 				const value = this._eventBytesView.getFloat64(byteOffset);
 				byteOffset += 8;
 				const normalized = !!this._eventBytesView.getUint8(byteOffset);
 				byteOffset += 1;
 
+				if (!(encodedParameterId in this._decodeParameterId)) break;
+				const id = this._decodeParameterId[encodedParameterId];
 				/** @type {WamAutomationEvent} */
 				const event = {
 					type,
@@ -396,7 +395,7 @@ const executable = () => {
 			}
 			// eslint-disable-next-line no-console
 			console.error('Failed to decode event!');
-			return { type: 'wam-midi', time: undefined, data: { bytes: [0, 0, 0] } };
+			return false;
 		}
 
 		/**
@@ -409,19 +408,22 @@ const executable = () => {
 		write(...events) {
 			const numEvents = events.length;
 			let bytesAvailable = this._rb.availableWrite;
-			let bytesWritten = 0;
+			let numSkipped = 0;
 			let i = 0;
 			while (i < numEvents) {
 				const event = events[i];
 				const bytes = this._encode(event);
 				const eventSizeBytes = bytes.byteLength;
+
+				let bytesWritten = 0;
 				if (bytesAvailable >= eventSizeBytes) {
-					bytesWritten = this._rb.push(bytes);
+					if (eventSizeBytes === 0) numSkipped++;
+					else bytesWritten = this._rb.push(bytes);
 				} else break;
 				bytesAvailable -= bytesWritten;
 				i++;
 			}
-			return i;
+			return i - numSkipped;
 		}
 
 		/**
@@ -442,9 +444,31 @@ const executable = () => {
 				const eventBytes = new Uint8Array(this._eventBytes, 0, eventSizeBytes - 4);
 				bytesRead = this._rb.pop(eventBytes);
 				bytesAvailable -= bytesRead;
-				events.push(this._decode());
+				const decodedEvent = this._decode();
+				if (decodedEvent) events.push(decodedEvent);
 			}
 			return events;
+		}
+
+		/**
+		 * In case parameter set changes, update the internal mappings.
+		 * May result in some invalid automation events, which will be
+	 	 * ignored.
+		 * @param {{[parameterId: string]: number}} parameterIndices
+		 */
+		setParameterIndices(parameterIndices) {
+			/** @type {{[parameterId: string]: number}} */
+			this._encodeParameterId = {};
+			Object.keys(parameterIndices).forEach((parameterId) => {
+				this._encodeParameterId[parameterId] = parameterIndices[parameterId];
+			});
+
+			/** @type {{[parameterId: number]: string}} */
+			this._decodeParameterId = {};
+			Object.keys(this._encodeParameterId).forEach((parameterId) => {
+				const encodedParameterId = this._encodeParameterId[parameterId];
+				this._decodeParameterId[encodedParameterId] = parameterId;
+			});
 		}
 	}
 	/** @type {AudioWorkletGlobalScope} */
