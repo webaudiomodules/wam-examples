@@ -224,13 +224,6 @@ let template = `
 		<webaudio-switch id="switch1" class="switch" value="1" id="switch1" height="30" width="60"></webaudio-switch>
 	</div>
 
-
-
-
-
-
-
-
 	<select id="menuPresets" style="display:none">
 		<option value=0>Default</option>
 		<option value=1>Jimmy HDX</option>
@@ -310,24 +303,7 @@ export default class DistoMachineHTMLElement extends HTMLElement {
 		console.log("########### STYLE ###########");
 		console.log(style);
 	}
-	/*
-	constructor(plugin) {
-		super();
 
-		this.root = this.attachShadow({ mode: 'open' });
-		this.root.innerHTML = `<style>${style}</style>${template}`;
-
-		// MANDATORY for the GUI to observe the plugin state
-		this.plugin = plugin;
-
-		this.setResources();
-		this.setKnobs();
-		this.setSwitchListener();
-
-
-		window.requestAnimationFrame(this.handleAnimationFrame);
-	}
-*/
 static get observedAttributes() {
 
 	return ['state'];
@@ -374,21 +350,29 @@ attributeChangedCallback() {
 	}
 
 	handleAnimationFrame = () => {
-		/*
+
 		const {
-			lowGain,
-			midLowGain,
-			midHighGain,
-			highGain,
+			volume,
+			master,
+			drive,
+			bass,
+			middle,
+			treble,
+			reverb,
+			presence,
 			enabled,
 		} = this.plugin.audioNode.getParamsValues();
-		this.shadowRoot.querySelector('#knob1').value = lowGain;
-		this.shadowRoot.querySelector('#knob2').value = midLowGain;
-		this.shadowRoot.querySelector('#knob3').value = midHighGain;
-		this.shadowRoot.querySelector('#knob4').value = highGain;
+		this.shadowRoot.querySelector('#knob1').value = volume;
+		this.shadowRoot.querySelector('#knob2').value = master;
+		this.shadowRoot.querySelector('#knob3').value = drive;
+		this.shadowRoot.querySelector('#knob4').value = bass;
+		this.shadowRoot.querySelector('#knob5').value = middle;
+		this.shadowRoot.querySelector('#knob6').value = treble;
+		this.shadowRoot.querySelector('#knob7').value = reverb;
+		this.shadowRoot.querySelector('#knob8').value = presence;
 		this.shadowRoot.querySelector('#switch1').value = enabled;
 		window.requestAnimationFrame(this.handleAnimationFrame);
-		*/
+
 	}
 
 	/**
