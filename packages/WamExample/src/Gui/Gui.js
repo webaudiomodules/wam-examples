@@ -218,7 +218,6 @@ const template = `<div id="wamsdk-wamexample" class="wrapper">
 `;
 
 const backgroundImg = './assets/background.svg';
-const placeholderImg = './assets/pixel.png'; // not displayed, needed for webaudio-controls
 
 const getAssetUrl = (asset) => {
 	const base = new URL('.', import.meta.url);
@@ -495,10 +494,6 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		// Set up the background img & style
 		const background = this.root.querySelector('img');
 		background.src = getAssetUrl(backgroundImg);
-		// Setting up the knobs imgs, those are loaded from the assets
-		this.root.querySelector('webaudio-knob').setAttribute('src', getAssetUrl(placeholderImg));
-		// Setting up the switches imgs, those are loaded from the assets
-		this.root.querySelector('webaudio-switch').setAttribute('src', getAssetUrl(placeholderImg));
 	}
 
 	setKnobs() {
