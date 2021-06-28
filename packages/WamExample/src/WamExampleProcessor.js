@@ -85,16 +85,6 @@ class WamExampleProcessor extends WamProcessor {
 	 */
 	constructor(options) {
 		super(options);
-		this.destroyed = false;
-		const {
-			moduleId,
-			instanceId,
-		} = options.processorOptions;
-		this.moduleId = moduleId;
-		this.instanceId = instanceId;
-
-		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
-		else globalThis.WamProcessors = { [instanceId]: this };
 
 		const synthConfig = {
 			passInput: true,
@@ -233,11 +223,6 @@ class WamExampleProcessor extends WamProcessor {
 		if (updateLevels) {
 			super.port.postMessage({ id: -1, levels: { synth: this._synthLevel, effect: this._effectLevel } });
 		}
-	}
-
-	destroy() {
-		this.destroyed = true;
-		super.port.close();
 	}
 }
 try {
