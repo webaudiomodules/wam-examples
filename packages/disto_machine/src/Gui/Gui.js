@@ -179,51 +179,55 @@ let style = `
 
 let template = `
 <img id="background-image">
-	<div class="knob " id="volume">
+	<div class="knob" id="volume">
 			<webaudio-knob height="40" width="40" id="knob1" sprites="100" min="0" max="10" step="0.1" value="2" midilearn="1">
 			</webaudio-knob>
 			<div style="text-align:center">Volume</div>
 	</div>
-	<div class="knob " id="master">
+	<div class="knob" id="master">
 		<webaudio-knob height="40" width="40" id="knob2" sprites="100" min="0" max="10" step="0.1" value="5.5" midilearn="1">
 		</webaudio-knob>
 		<div style="text-align:center">Master</div>
 	</div>
-	<div class="knob " id="drive">
+	<div class="knob" id="drive">
 		<webaudio-knob height="40" width="40" id="knob3" sprites="100" min="0" max="10" step="0.1" value="5.2" midilearn="1">
 		</webaudio-knob>
 		<div style="text-align:center">Drive</div>
 	</div>
-
-	<div class="switchCont" id="switch1">
-		<webaudio-switch class="switch" value="1" id="switch1" height="30" width="60"></webaudio-switch>
-	</div>
-
-	<div class="knob  " id="presence">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="9.4" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Presence</div>
-	</div>
-	<div class="knob  " id="reverb">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="0.7" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Reverb</div>
-	</div>
-	<div class="knob " id="treble">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="3.8" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Treble</div>
-	</div>
-	<div class="knob " id="middle">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="8" midilearn="1">
-		</webaudio-knob>
-		<div style="text-align:center">Middle</div>
-	</div>
-	<div class="knob " id="bass">
-		<webaudio-knob height="40" width="40" sprites="100" min="0" max="10" step="0.1" value="8.7" midilearn="1">
+		<div class="knob" id="bass">
+		<webaudio-knob height="40" id="knob4" width="40" sprites="100" min="0" max="10" step="0.1" value="8.7" midilearn="1">
 		</webaudio-knob>
 		<div style="text-align:center">Bass</div>
 	</div>
+	<div class="knob" id="middle">
+		<webaudio-knob height="40" id="knob5" width="40" sprites="100" min="0" max="10" step="0.1" value="8" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Middle</div>
+	</div>
+	<div class="knob" id="treble">
+		<webaudio-knob height="40" id="knob6" width="40" sprites="100" min="0" max="10" step="0.1" value="3.8" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Treble</div>
+	</div>
+	<div class="knob" id="reverb">
+		<webaudio-knob height="40" id="knob7" width="40" sprites="100" min="0" max="10" step="0.1" value="0.7" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Reverb</div>
+	</div>
+	<div class="knob" id="presence">
+		<webaudio-knob height="40" id="knob8" width="40" sprites="100" min="0" max="10" step="0.1" value="9.4" midilearn="1">
+		</webaudio-knob>
+		<div style="text-align:center">Presence</div>
+	</div>
+
+	<div class="switchCont" >
+		<webaudio-switch id="switch1" class="switch" value="1" id="switch1" height="30" width="60"></webaudio-switch>
+	</div>
+
+
+
+
+
 
 
 
@@ -458,6 +462,31 @@ attributeChangedCallback() {
 			.querySelector('#knob3')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParamsValues({ drive: e.target.value});
+			});
+			this.root
+			.querySelector('#knob4')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ bass: e.target.value});
+			});
+			this.root
+			.querySelector('#knob5')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ middle: e.target.value});
+			});
+			this.root
+			.querySelector('#knob6')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ treble: e.target.value});
+			});
+			this.root
+			.querySelector('#knob7')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ reverb: e.target.value});
+			});
+			this.root
+			.querySelector('#knob8')
+			.addEventListener('input', (e) => {
+				this.plugin.audioNode.setParamsValues({ presence: e.target.value});
 			});
 			/*
 		this.root

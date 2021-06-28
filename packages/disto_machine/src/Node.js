@@ -158,7 +158,8 @@ export default class DistoMachineNode extends CompositeAudioNode {
 					this.overdrives[i].curve = this.getDistortionCurve(this.normalize(0.5, 0, 150));
 				}
 				*/
-		this._outputGain = this.context.createGain();
+				this._outputGain = this.context.createGain();
+				this._inputGain = this.context.createGain();
 
 		this.equalizer = new EqualizerDisto(this.context);
 		this.ampReverb = new ConvolverDisto(
@@ -184,29 +185,18 @@ export default class DistoMachineNode extends CompositeAudioNode {
 
 	connectNodes() {
 		/*
-		this.connect(this.wetGainNode);
-		this.connect(this.dryGainNode);
-		this._output = this.outputNode;
-		this.dryGainNode.connect(this._output);
-
-		const filters = [
-			this.lowpassLeft,
-			this.bandpass1Left,
-			this.bandpass2Left,
-			this.highpassLeft,
-		];
-		for (let i = 0; i < filters.length; i++) {
-			this.wetGainNode.connect(filters[i]);
-			filters[i].connect(this.overdrives[i]);
-			this.overdrives[i].connect(this._output);
-		}
-		*/
-
-
 		this.connect(this.amp.input);
 		// shihong....
 		this.amp.output.connect(this._outputGain);
 		this._output = this._outputGain;
+		*/
+
+		this.connect(this._inputGain);
+		this._inputGain.connect(this.amp.input);
+		this.amp.output.connect(this._outputGain);
+		this._output = this._outputGain;
+		this._input = this._inputGain;
+
 	}
 
 	setParam(key, value) {

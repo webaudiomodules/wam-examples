@@ -77,6 +77,36 @@ export default class DistoMachinePlugin extends WebAudioModule {
 				maxValue: 10,
 				onChange: (value) => { distoMachineNode.drive = value; },
 			},
+			bass: {
+				defaultValue: 8.7,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.bass = value; },
+			},
+			middle: {
+				defaultValue: 8.0,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.middle = value; },
+			},
+			treble: {
+				defaultValue: 3.8,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.treble = value; },
+			},
+			reverb: {
+				defaultValue: 0.7,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.reverb = value; },
+			},
+			presence: {
+				defaultValue: 9.4,
+				minValue: 0,
+				maxValue: 10,
+				onChange: (value) => { distoMachineNode.presence = value; },
+			},
 			/*
 			midHighGain: {
 				defaultValue: 0.5,
