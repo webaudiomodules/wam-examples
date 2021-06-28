@@ -123,7 +123,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		/** @private @type {boolean} */
 		this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
 		/** @private @type {boolean} */
-		this._sabReady = false;
+		this._eventSabReady = false;
 		if (this._useSab) this._configureSab();
 	}
 
@@ -175,12 +175,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_configureSab() {
 		const eventCapacity = 2 ** 10;
 		const parameterIds = Object.keys(this._parameterInfo);
-		if (this._sabReady) {
+		if (this._eventSabReady) {
 			// if parameter set changes after initialization
 			this._eventWriter.setParameterIds(parameterIds);
 			this._eventReader.setParameterIds(parameterIds);
 		}
-		this.port.postMessage({ sab: { eventCapacity, parameterIds } });
+		this.port.postMessage({ eventSab: { eventCapacity, parameterIds } });
 	}
 
 	/**
@@ -255,7 +255,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					delete response.content;
 				}
 			} else if (verb === 'initialize') {
-				if (noun === 'sab') {
+				if (noun === 'eventSab') {
 					const { mainToAudioSab, audioToMainSab } = content;
 
 					/** @private @type {SharedArrayBuffer} */
@@ -272,7 +272,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					this._eventReader = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
 						parameterIds);
 
-					this._sabReady = true;
+					this._eventSabReady = true;
 					delete response.content;
 				}
 			}
@@ -427,7 +427,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				else eventsBySampleIndex[sampleIndex] = [event];
 				// notify main thread
 				if (id) this.port.postMessage({ id, response });
-				else if (this._sabReady) this._eventWriter.write(event);
+				else if (this._eventSabReady) this._eventWriter.write(event);
 				else this.port.postMessage({ event });
 				this._eventQueue.shift();
 				i = -1;
@@ -484,7 +484,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 */
 	process(inputs, outputs, parameters) {
 		if (this._destroyed) return false;
-		if (this._sabReady) this.scheduleEvents(...this._eventReader.read());
+		if (this._eventSabReady) this.scheduleEvents(...this._eventReader.read());
 
 		const processingSlices = this._getProcessingSlices();
 		let i = 0;

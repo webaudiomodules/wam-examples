@@ -38,10 +38,10 @@ export default class WamNode extends AudioWorkletNode {
 
 		/** @type {WebAudioModule} */
 		this.module = module;
-		/** @private @type {boolean} _useSab */
+		/** @private @type {boolean} */
 		this._useSab = false; // can override this via processorOptions;
-		/** @private @type {boolean} _sabReady */
-		this._sabReady = false;
+		/** @private @type {boolean} */
+		this._eventSabReady = false;
 		/** @private @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
 		/** @private @type {{[key: number]: () => any}} */
@@ -197,7 +197,7 @@ export default class WamNode extends AudioWorkletNode {
 	scheduleEvents(...events) {
 		let i = 0;
 		const numEvents = events.length;
-		if (this._sabReady) {
+		if (this._eventSabReady) {
 			i = this._eventWriter.write(...events);
 			// fall back on message port if ring buffer gets full
 		}
@@ -293,7 +293,7 @@ export default class WamNode extends AudioWorkletNode {
 	 * */
 	_onMessage(message) {
 		const { data } = message;
-		const { response, sab, event } = data;
+		const { response, event, eventSab } = data;
 		if (response) {
 			const { id, content } = data;
 			const resolvePendingResponse = this._pendingResponses[id];
@@ -302,11 +302,11 @@ export default class WamNode extends AudioWorkletNode {
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
-		} else if (sab) {
+		} else if (eventSab) {
 			this._useSab = true;
-			const { eventCapacity, parameterIds } = sab;
+			const { eventCapacity, parameterIds } = eventSab;
 
-			if (this._sabReady) {
+			if (this._eventSabReady) {
 				// if parameter set changes after initialization
 				this._eventWriter.setParameterIds(parameterIds);
 				this._eventReader.setParameterIds(parameterIds);
@@ -331,7 +331,7 @@ export default class WamNode extends AudioWorkletNode {
 			/** @private @type {number} */
 			this._eventReaderInterval = null;
 
-			const request = 'initialize/sab';
+			const request = 'initialize/eventSab';
 			const id = this._generateMessageId();
 			let processed = false;
 			new Promise((resolve, reject) => {
@@ -347,7 +347,7 @@ export default class WamNode extends AudioWorkletNode {
 				});
 			}).then((resolved) => {
 				processed = true;
-				this._sabReady = true;
+				this._eventSabReady = true;
 				delete this._pendingEvents[id];
 
 				// periodically check for messages from audio thread
