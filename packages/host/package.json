@@ -2,17 +2,17 @@
   "name": "host",
   "version": "0.0.0",
   "private": true,
-  "author": "53JS",
+  "author": "WebAudioModules",
   "license": "UNLICENSED",
   "scripts": {
-    "clean": "del dist .cache",
+    "clean": "del-cli dist .cache",
     "start": "node server.js"
   },
   "dependencies": {
-    "chalk": "^4.1.0",
+    "chalk": "^4.1.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "parcel-bundler": "^1.12.4",
+    "parcel-bundler": "^1.12.5",
     "pingpongdelay": "^0.0.0",
     "quadrafuzz": "^0.0.0",
     "sdk": "^0.0.0",
@@ -32,6 +32,6 @@
     "wamexample": "dist"
   },
   "devDependencies": {
-    "del-cli": "^3.0.1"
+    "del-cli": "^4.0.0"
   }
 }

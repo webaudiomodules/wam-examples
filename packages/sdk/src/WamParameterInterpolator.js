@@ -12,15 +12,13 @@ const nullTableKey = '0_0';
  * with interpolation when applicable. Only one instance
  * should be created per WamParameter.
  * TODO write equivalent C++ code for WASM implementations?
- *
- * @class
  */
 export default class WamParameterInterpolator {
 	/**
 	 * Lookup tables to avoid recomputing interpolation curves. Keyed
 	 * by `'<samplesPerInterpolation>_<skew>'`. Not used for
 	 * discrete parameters.
-	 * @private @static @property {Record<string, Float32Array>} _tables
+	 * @private @static @type {Record<string, Float32Array>}
 	 */
 	static _tables;
 
@@ -28,7 +26,7 @@ export default class WamParameterInterpolator {
 	 * List of parameter ids currently using the lookup table associated
 	 * with the key. Keyed by `'<samplesPerInterpolation>_<skew>'`.
 	 * For purging unused lookup tables. Not used for discrete parameters.
-	 * @private @static @property {Record<string, string[]>} _tableReferences
+	 * @private @static @type {Record<string, string[]>}
 	 */
 	static _tableReferences;
 
@@ -45,25 +43,25 @@ export default class WamParameterInterpolator {
 
 		/**
 		 * Info object for corresponding WamParameter.
-		 * @readonly @property {WamParameterInfo} info
+		 * @readonly @type {WamParameterInfo}
 		 */
 		this.info = info;
 
 		/**
 		 * Buffer storing per-sample values.
-		 * @readonly @property {Float32Array} values
+		 * @readonly @type {Float32Array}
 		 */
 		this.values = new Float32Array(samplesPerQuantum);
 
 		/**
 		 * Composed by concatenating `'<samplesPerInterpolation>_<skew>'`.
-		 * @private @property {string} _tableKey
+		 * @private @type {string}
 		 */
 		this._tableKey = nullTableKey;
 
 		/**
 		 * The (static) lookup table used to avoid recomputing ramps.
-		 * @private @property {Float32Array}
+		 * @private @type {Float32Array}
 		 */
 		this._table = WamParameterInterpolator._tables[this._tableKey];
 
@@ -71,7 +69,7 @@ export default class WamParameterInterpolator {
 		 * Determines if interpolation will be linear / nonlinear.
 		 * Note that this is distinct from the corresponding
 		 * parameter's `exponent` value.
-		 * @private @property {number} _skew
+		 * @private @type {number}
 		 */
 		this._skew = 2; // intentionally initialized out of range, see setSkew
 
@@ -80,63 +78,63 @@ export default class WamParameterInterpolator {
 		/**
 		 * Whether or not to perform interpolation
 		 * (false for integer parameters, true otherwise).
-		 * @readonly @private @property {boolean} _discrete
+		 * @readonly @private @type {boolean}
 		 */
 		this._discrete = !!discreteStep;
 
 		/**
 		 * The interpolation period in samples.
-		 * @readonly @private @property {number} _N
+		 * @readonly @private @type {number}
 		 */
 		this._N = this._discrete ? 0 : samplesPerInterpolation;
 
 		/**
 		 * The current interpolation index.
-		 * @private @property {number} _n
+		 * @private @type {number}
 		 */
 		this._n = 0;
 
 		/**
 		 * The parameter value when interpolation starts.
-		 * @private @property {number} _startValue
+		 * @private @type {number}
 		*/
 		this._startValue = info.defaultValue;
 
 		/**
 		 * The parameter value when interpolation ends.
-		 * @private @property {number} _endValue
+		 * @private @type {number}
 		 */
 		this._endValue = info.defaultValue;
 
 		/**
 		 * The most recently computed parameter value.
-		 * @private @property {number} _currentValue
+		 * @private @type {number}
 		 */
 		this._currentValue = info.defaultValue;
 
 		/**
 		 * The difference between `startValue` and `endValue`.
-		 * @private @property {number} _deltaValue
+		 * @private @type {number}
 		 */
 		this._deltaValue = 0;
 
 		/**
 		 * Allows consistent output with respect to skew setting
 		 * whether increasing or decreasing during interpolation.
-		 * @private @property {boolean} _inverted
+		 * @private @type {boolean}
 		 */
 		this._inverted = false;
 
 		/**
 		 * Whether the most recently requested interpolation has completed.
-		 * @private @property {boolean} _changed
+		 * @private @type {boolean}
 		 */
 		this._changed = true;
 
 		/**
 		 * How many samples have been uniformly filled following
 		 * completion of most recently requested interpolation.
-		 * @private @property {number} _filled
+		 * @private @type {number}
 		 */
 		this._filled = 0;
 

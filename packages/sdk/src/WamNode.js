@@ -4,7 +4,7 @@
 /** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('./api/types').WamEvent} WamEvent */
 /** @typedef {import('./api/types').WamEventType} WamEventType */
-/** @typedef {import('./api/types').WamListenerType} WamListenerType */
+/** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
 
 import getRingBuffer from './RingBuffer.js';
 import getWamEventRingBuffer from './WamEventRingBuffer.js';
@@ -36,22 +36,22 @@ export default class WamNode extends AudioWorkletNode {
 		};
 		super(audioContext, moduleId, options);
 
-		/** @property {WebAudioModule} module */
+		/** @type {WebAudioModule} */
 		this.module = module;
-		/** @property {boolean} _useSab */
+		/** @private @type {boolean} _useSab */
 		this._useSab = false; // can override this via processorOptions;
-		/** @property {boolean} _sabReady */
+		/** @private @type {boolean} _sabReady */
 		this._sabReady = false;
-		/** @private @property {{[key: number]: Promise<any>}} _pendingResponses **/
+		/** @private @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
-		/** @private @property {{[key: number]: Promise<any>}} _pendingEvents **/
+		/** @private @type {{[key: number]: () => any}} */
 		this._pendingEvents = {};
-		/** @property {boolean} _destroyed */
+		/** @private @type {boolean} */
 		this._destroyed = false;
-		/** @property {number} _messageId */
+		/** @private @type {number} */
 		this._messageId = 1;
-		/** @property {Set<WamEventType>} _supportedEventTypes */
-		this._supportedEventTypes = new Set(['wam-event']);
+		/** @private @type {Set<WamEventType>} */
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -170,7 +170,7 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Register a callback function so it will be called
 	 * when matching events are processed.
-	 * @param {WamListenerType} type
+	 * @param {WamEventType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -181,7 +181,7 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Deregister a callback function so it will no longer
 	 * be called when matching events are processed.
-	 * @param {WamListenerType} type
+	 * @param {WamEventType} type
 	 * @param {EventListenerOrEventListenerObject | null} callback
 	 * @param {AddEventListenerOptions | boolean} options;
 	 */
@@ -304,27 +304,31 @@ export default class WamNode extends AudioWorkletNode {
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
 		} else if (sab) {
 			this._useSab = true;
-			const { eventCapacity, parameterIndices } = sab;
+			const { eventCapacity, parameterIds } = sab;
 
-			/** @property {{[parameterId: string]: number}} _parameterIndices */
-			this._parameterIndices = parameterIndices;
+			if (this._sabReady) {
+				// if parameter set changes after initialization
+				this._eventWriter.setParameterIds(parameterIds);
+				this._eventReader.setParameterIds(parameterIds);
+				return;
+			}
 
-			/** @property {SharedArrayBuffer} _mainToAudioSab */
+			/** @private @type {SharedArrayBuffer} */
 			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @property {SharedArrayBuffer} _audioToMainSab */
+			/** @private @type {SharedArrayBuffer} */
 			this._audioToMainSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
-			/** @property {WamEventRingBuffer} _eventWriter */
+			/** @private @type {WamEventRingBuffer} */
 			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
-				this._parameterIndices);
-			/** @property {WamEventRingBuffer} _eventReader */
+				parameterIds);
+			/** @private @type {WamEventRingBuffer} */
 			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
-				this._parameterIndices);
+				parameterIds);
 
-			/** @property {intervalID} _audioToMainInterval */
+			/** @private @type {number} */
 			this._eventReaderInterval = null;
 
 			const request = 'initialize/sab';

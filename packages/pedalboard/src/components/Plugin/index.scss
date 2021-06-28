@@ -1,0 +1,51 @@
+.PluginWrapper {
+	position: relative;
+	z-index: 99;
+    margin-right: 4px;
+	flex-grow: 0;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+
+	&_Container {
+		height: 100%;
+		overflow: hidden;
+		position: relative;
+	}
+
+	&_Ref {
+		display: inline-block;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+    &_Header {
+        background-color: black;
+        border-radius: 20px;
+        margin-bottom: 8px;
+		display: flow-root;
+		flex-grow: 0;
+		flex-shrink: 0;
+
+        p {
+            font-size: 0.6rem;
+        }
+
+        &_Icon {
+            width: 15px;
+            cursor: grab;
+            margin-right: 4px;
+            margin-top: 2px;
+            float: right;
+        }
+
+        &_Name {
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline;
+            padding: 4px;
+        }
+    }
+}

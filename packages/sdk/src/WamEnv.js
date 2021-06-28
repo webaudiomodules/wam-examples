@@ -100,6 +100,7 @@ const executable = () => {
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	if (!audioWorkletGlobalScope.webAudioModules) audioWorkletGlobalScope.webAudioModules = new WamEnv();
+	return WamEnv;
 };
 
 /** @type {AudioWorkletGlobalScope} */

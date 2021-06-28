@@ -25,7 +25,6 @@ const scale = (x, l1, h1, l2, h2) => {
 };
 const scaleClip = (x, l1, h1, l2, h2) => Math.max(l2, Math.min(h2, scale(x, l1, h1, l2, h2)));
 
-
 class BPF extends HTMLElement {
 	static get observedAttributes() {
 		return ['min', 'max', 'domain', 'default'];
@@ -197,10 +196,10 @@ class BPF extends HTMLElement {
 			let {
 				left, top, width, height,
 			} = svg.getBoundingClientRect();
-			left += 0.05 * width;
-			top += 0.05 * height;
-			width *= 0.9;
-			height *= 0.9;
+			left += 0.025 * width;
+			top += 0.025 * height;
+			width *= 0.95;
+			height *= 0.95;
 			const i = +circle.getAttribute('values');
 			const limits = [
 				points[i - 1] ? points[i - 1][0] / domain * width + left : left,
@@ -265,7 +264,7 @@ class BPF extends HTMLElement {
 		if (isNaN(value)) return;
 		if (name === 'min' || name === 'max') {
 			const prevRange = this.state.range;
-			const range = name === 'min' ? [value, this.state.range[1]] : [this.state.range[0], value];
+			const range = name === 'min' ? [Math.max(-128, value), this.state.range[1]] : [this.state.range[0], Math.min(128, value)];
 			const points = this.state.points.map((p) => [p[0], scaleClip(p[1], prevRange[0], prevRange[1], range[0], range[1]), p[2]]);
 			this.setState({ points, range });
 		} else if (name === 'domain') {
@@ -299,10 +298,10 @@ class BPF extends HTMLElement {
 		const { currentTime } = audioCtx;
 		wamNode.clearEvents();
 		const currentValue = (await wamNode.getParameterValues(false, wamParamId))[wamParamId].value;
-		wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
+		wamNode.scheduleEvents({ type: 'wam-automation', data: { id: wamParamId, value: currentValue }, time: currentTime });
 		for (let t = 0; t < this.domain; t += 0.01) {
 			const value = this.getYfromX(t);
-			wamNode.scheduleEvents({ type: 'automation', data: { id: wamParamId, value }, time: currentTime + t });
+			wamNode.scheduleEvents({ type: 'wam-automation', data: { id: wamParamId, value }, time: currentTime + t });
 		}
 	}
 
@@ -314,6 +313,7 @@ class BPF extends HTMLElement {
 		for (const key in state) {
 			this.state[key] = state[key];
 		}
+		this.state.range = [Math.max(-128, this.state.range[0]), Math.min(128, this.state.range[1])];
 		const { domain, points } = this.state;
 		const { normalizedPoints } = this;
 		if (ghostPoint) {

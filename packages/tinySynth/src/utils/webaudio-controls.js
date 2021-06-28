@@ -21,7 +21,7 @@
  *	 limitations under the License.
  *
  * */
-if (window.customElements) {
+ if (window.customElements) {
 	let styles = document.createElement("style");
 	styles.innerHTML =
 		`#webaudioctrl-context-menu {
@@ -288,6 +288,27 @@ if (window.customElements) {
 			constructor() {
 				super();
 			}
+			get src() { return this._src; }
+			set src(v) { this._src = v; this.setupImage(); }
+			get value() { return this._value; }
+			set value(v) { this._value = +v; this.redraw(); }
+			get min() { return this._min; }
+			set min(v) { this._min = +v; this.redraw(); }
+			get max() { return this._max; }
+			set max(v) { this._max = +v; this.redraw(); }
+			get step() { return this._step; }
+			set step(v) { this._step = +v; this.redraw(); }
+			get sprites() { return this._sprites; }
+			set sprites(v) { this._sprites = +v; this.setupImage(); }
+			get width() { return this._width; }
+			set width(v) { this._width = +v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = +v; this.setupImage(); }
+			get diameter() { return this._diameter; }
+			set diameter(v) { this._diameter = +v; this.setupImage(); }
+			get colors() { return this._colors; }
+			set colors(v) { this._colors = v; this.setupImage(); }
+
 			connectedCallback() {
 				let root;
 				//      if(this.attachShadow)
@@ -320,26 +341,16 @@ webaudio-knob{
 				this.ttframe = root.childNodes[3];
 				this.enable = this.getAttr("enable", 1);
 				this._src = this.getAttr("src", opt.knobSrc);
-				if (!this.hasOwnProperty("src")) Object.defineProperty(this, "src", { get: () => { return this._src }, set: (v) => { this._src = v; this.setupImage() } });
 				this._value = this.getAttr("value", 0);
-				if (!this.hasOwnProperty("value")) Object.defineProperty(this, "value", { get: () => { return this._value }, set: (v) => { this._value = v; this.redraw() } });
 				this.defvalue = this.getAttr("defvalue", 0);
 				this._min = this.getAttr("min", 0);
-				if (!this.hasOwnProperty("min")) Object.defineProperty(this, "min", { get: () => { return this._min }, set: (v) => { this._min = +v; this.redraw() } });
 				this._max = this.getAttr("max", 100);
-				if (!this.hasOwnProperty("max")) Object.defineProperty(this, "max", { get: () => { return this._max }, set: (v) => { this._max = +v; this.redraw() } });
 				this._step = this.getAttr("step", 1);
-				if (!this.hasOwnProperty("step")) Object.defineProperty(this, "step", { get: () => { return this._step }, set: (v) => { this._step = +v; this.redraw() } });
 				this._sprites = this.getAttr("sprites", opt.knobSprites);
-				if (!this.hasOwnProperty("sprites")) Object.defineProperty(this, "sprites", { get: () => { return this._sprites }, set: (v) => { this._sprites = v; this.setupImage() } });
 				this._width = this.getAttr("width", opt.knobWidth);
-				if (!this.hasOwnProperty("width")) Object.defineProperty(this, "width", { get: () => { return this._width }, set: (v) => { this._width = v; this.setupImage() } });
 				this._height = this.getAttr("height", opt.knobHeight);
-				if (!this.hasOwnProperty("height")) Object.defineProperty(this, "height", { get: () => { return this._height }, set: (v) => { this._height = v; this.setupImage() } });
 				this._diameter = this.getAttr("diameter", opt.knobDiameter);
-				if (!this.hasOwnProperty("diameter")) Object.defineProperty(this, "diameter", { get: () => { return this._diameter }, set: (v) => { this._diameter = v; this.setupImage() } });
 				this._colors = this.getAttr("colors", opt.knobColors);
-				if (!this.hasOwnProperty("colors")) Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
 				this.outline = this.getAttr("outline", opt.outline);
 				this.sensitivity = this.getAttr("sensitivity", 1);
 				this.valuetip = this.getAttr("valuetip", 1);
@@ -404,6 +415,7 @@ webaudio-knob{
 				this.redraw();
 			}
 			redraw() {
+				if (!this.isConnected) return;
 				this.digits = 0;
 				if (this.step && this.step < 1) {
 					for (let n = this.step; n < 1; n *= 10)
@@ -553,6 +565,35 @@ webaudio-knob{
 			constructor() {
 				super();
 			}
+			get src() { return this._src; }
+			set src(v) { this._src = v; this.setupImage(); }
+			get knobsrc() { return this._knobsrc; }
+			set knobsrc(v) { this._knobsrc = v; this.setupImage(); }
+			get value() { return this._value; }
+			set value(v) { this._value = +v; this.redraw(); }
+			get min() { return this._min; }
+			set min(v) { this._min = +v; this.redraw(); }
+			get max() { return this._max; }
+			set max(v) { this._max = +v; this.redraw(); }
+			get step() { return this._step; }
+			set step(v) { this._step = +v; this.redraw(); }
+			get sprites() { return this._sprites; }
+			set sprites(v) { this._sprites = +v; this.setupImage(); }
+			get direction() { return this._direction; }
+			set direction(v) { this._direction = +v; this.setupImage(); }
+			get width() { return this._width; }
+			set width(v) { this._width = +v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = +v; this.setupImage(); }
+			get knobwidth() { return this._knobwidth; }
+			set knobwidth(v) { this._knobwidth = +v; this.setupImage(); }
+			get knobheight() { return this._knobheight; }
+			set knobheight(v) { this._knobheight = +v; this.setupImage(); }
+			get ditchlength() { return this._ditchlength; }
+			set ditchlength(v) { this._ditchlength = +v; this.setupImage(); }
+			get colors() { return this._colors; }
+			set colors(v) { this._colors = v; this.setupImage(); }
+
 			connectedCallback() {
 				let root;
 				//      if(this.attachShadow)
@@ -591,26 +632,16 @@ webaudio-slider{
 				this.ttframe = root.childNodes[3];
 				this.enable = this.getAttr("enable", 1);
 				this._src = this.getAttr("src", opt.sliderSrc);
-				if (!this.hasOwnProperty("src")) Object.defineProperty(this, "src", { get: () => { return this._src }, set: (v) => { this._src = v; this.setupImage() } });
 				this._knobsrc = this.getAttr("knobsrc", opt.sliderKnobsrc);
-				if (!this.hasOwnProperty("knobsrc")) Object.defineProperty(this, "knobsrc", { get: () => { return this._knobsrc }, set: (v) => { this._knobsrc = v; this.setupImage() } });
 				this._value = this.getAttr("value", 0);
-				if (!this.hasOwnProperty("value")) Object.defineProperty(this, "value", { get: () => { return this._value }, set: (v) => { this._value = v; this.redraw() } });
 				this.defvalue = this.getAttr("defvalue", 0);
 				this._min = this.getAttr("min", 0);
-				if (!this.hasOwnProperty("min")) Object.defineProperty(this, "min", { get: () => { return this._min }, set: (v) => { this._min = v; this.redraw() } });
 				this._max = this.getAttr("max", 100);
-				if (!this.hasOwnProperty("max")) Object.defineProperty(this, "max", { get: () => { return this._max }, set: (v) => { this._max = v; this.redraw() } });
 				this._step = this.getAttr("step", 1);
-				if (!this.hasOwnProperty("step")) Object.defineProperty(this, "step", { get: () => { return this._step }, set: (v) => { this._step = v; this.redraw() } });
 				this._sprites = this.getAttr("sprites", 0);
-				if (!this.hasOwnProperty("sprites")) Object.defineProperty(this, "sprites", { get: () => { return this._sprites }, set: (v) => { this._sprites = v; this.setupImage() } });
 				this._direction = this.getAttr("direction", null);
-				if (!this.hasOwnProperty("direction")) Object.defineProperty(this, "direction", { get: () => { return this._direction }, set: (v) => { this._direction = v; this.setupImage() } });
 				this._width = this.getAttr("width", opt.sliderWidth);
-				if (!this.hasOwnProperty("width")) Object.defineProperty(this, "width", { get: () => { return this._width }, set: (v) => { this._width = v; this.setupImage() } });
 				this._height = this.getAttr("height", opt.sliderHeight);
-				if (!this.hasOwnProperty("height")) Object.defineProperty(this, "height", { get: () => { return this._height }, set: (v) => { this._height = v; this.setupImage() } });
 				if (this._direction == "horz") {
 					if (this._width == 0) this._width = 128;
 					if (this._height == 0) this._height = 24;
@@ -619,10 +650,10 @@ webaudio-slider{
 					if (this._width == 0) this._width = 24;
 					if (this._height == 0) this._height = 128;
 				}
-				this._knobwidth = this.getAttr("knobwidth", opt.sliderKnobwidth); Object.defineProperty(this, "knobwidth", { get: () => { return this._knobwidth }, set: (v) => { this._knobwidth = v; this.setupImage() } });
-				this._knobheight = this.getAttr("knbheight", opt.sliderKnobheight); Object.defineProperty(this, "knobheight", { get: () => { return this._knobheight }, set: (v) => { this._knobheight = v; this.setupImage() } });
-				this._ditchlength = this.getAttr("ditchlength", opt.sliderDitchlength); Object.defineProperty(this, "ditchlength", { get: () => { return this._ditchlength }, set: (v) => { this._ditchlength = v; this.setupImage() } });
-				this._colors = this.getAttr("colors", opt.sliderColors); Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
+				this._knobwidth = this.getAttr("knobwidth", opt.sliderKnobwidth);
+				this._knobheight = this.getAttr("knbheight", opt.sliderKnobheight);
+				this._ditchlength = this.getAttr("ditchlength", opt.sliderDitchlength);
+				this._colors = this.getAttr("colors", opt.sliderColors);
 				this.outline = this.getAttr("outline", opt.outline);
 				this.sensitivity = this.getAttr("sensitivity", 1);
 				this.valuetip = this.getAttr("valuetip", 1);
@@ -707,6 +738,7 @@ webaudio-slider{
 				this.redraw();
 			}
 			redraw() {
+				if (!this.isConnected) return;
 				this.digits = 0;
 				if (this.step && this.step < 1) {
 					for (let n = this.step; n < 1; n *= 10)
@@ -858,6 +890,19 @@ webaudio-slider{
 			constructor() {
 				super();
 			}
+			get src() { return this._src; }
+			set src(v) { this._src = v; this.setupImage(); }
+			get value() { return this._value; }
+			set value(v) { this._value = +v; this.redraw(); }
+			get width() { return this._width; }
+			set width(v) { this._width = +v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = +v; this.setupImage(); }
+			get diameter() { return this._diameter; }
+			set diameter(v) { this._diameter = +v; this.setupImage(); }
+			get colors() { return this._colors; }
+			set colors(v) { this._colors = v; this.setupImage(); }
+
 			connectedCallback() {
 				let root;
 				//      if(this.attachShadow)
@@ -888,21 +933,15 @@ webaudio-switch{
 
 				this.enable = this.getAttr("enable", 1);
 				this._src = this.getAttr("src", null);
-				if (!this.hasOwnProperty("src")) Object.defineProperty(this, "src", { get: () => { return this._src }, set: (v) => { this._src = v; this.setupImage() } });
 				this._value = this.getAttr("value", 0);
-				if (!this.hasOwnProperty("value")) Object.defineProperty(this, "value", { get: () => { return this._value }, set: (v) => { this._value = v; this.redraw() } });
 				this.defvalue = this.getAttr("defvalue", 0);
 				this.type = this.getAttr("type", "toggle");
 				this.group = this.getAttr("group", "");
 				this._width = this.getAttr("width", 0);
-				if (!this.hasOwnProperty("width")) Object.defineProperty(this, "width", { get: () => { return this._width }, set: (v) => { this._width = v; this.setupImage() } });
 				this._height = this.getAttr("height", 0);
-				if (!this.hasOwnProperty("height")) Object.defineProperty(this, "height", { get: () => { return this._height }, set: (v) => { this._height = v; this.setupImage() } });
 				this._diameter = this.getAttr("diameter", 0);
-				if (!this.hasOwnProperty("diameter")) Object.defineProperty(this, "diameter", { get: () => { return this._diameter }, set: (v) => { this._diameter = v; this.setupImage() } });
 				this.invert = this.getAttr("invert", 0);
 				this._colors = this.getAttr("colors", opt.switchColors);
-				if (!this.hasOwnProperty("colors")) Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
 				this.outline = this.getAttr("outline", opt.outline);
 				this.valuetip = 0;
 				this.tooltip = this.getAttr("tooltip", null);
@@ -952,6 +991,7 @@ webaudio-switch{
 				this.redraw();
 			}
 			redraw() {
+				if (!this.isConnected) return;
 				let style = this.elem.style;
 				if (this.value ^ this.invert)
 					style.backgroundPosition = "0px -100%";
@@ -1065,6 +1105,19 @@ webaudio-switch{
 				this.addEventListener("mouseout", this.pointerout);
 				this.addEventListener("contextmenu", this.contextMenu);
 			}
+			get src() { return this._src; }
+			set src(v) { this._src = v; this.setupImage(); }
+			get value() { return this._value; }
+			set value(v) { this._value = +v; this.redraw(); }
+			get fontsize() { return this._fontsize; }
+			set fontsize(v) { this._fontsize = +v; this.setupImage(); }
+			get width() { return this._width; }
+			set width(v) { this._width = +v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = +v; this.setupImage(); }
+			get colors() { return this._colors; }
+			set colors(v) { this._colors = v; this.setupImage(); }
+
 			connectedCallback() {
 				let root;
 				//      if(this.attachShadow)
@@ -1103,19 +1156,13 @@ webaudio-param{
 				this.ttframe = root.childNodes[3];
 				this.enable = this.getAttr("enable", 1);
 				this._value = this.getAttr("value", 0);
-				if (!this.hasOwnProperty("value")) Object.defineProperty(this, "value", { get: () => { return this._value }, set: (v) => { this._value = v; this.redraw() } });
 				this.defvalue = this.getAttr("defvalue", 0);
 				this._fontsize = this.getAttr("fontsize", 9);
-				if (!this.hasOwnProperty("fontsize")) Object.defineProperty(this, "fontsize", { get: () => { return this._fontsize }, set: (v) => { this._fontsize = v; this.setupImage() } });
 				this._src = this.getAttr("src", null);
-				if (!this.hasOwnProperty("src")) Object.defineProperty(this, "src", { get: () => { return this._src }, set: (v) => { this._src = v; this.setupImage() } });
 				this.link = this.getAttr("link", "");
 				this._width = this.getAttr("width", 32);
-				if (!this.hasOwnProperty("width")) Object.defineProperty(this, "width", { get: () => { return this._width }, set: (v) => { this._width = v; this.setupImage() } });
 				this._height = this.getAttr("height", 16);
-				if (!this.hasOwnProperty("height")) Object.defineProperty(this, "height", { get: () => { return this._height }, set: (v) => { this._height = v; this.setupImage() } });
 				this._colors = this.getAttr("colors", "#fff;#000");
-				if (!this.hasOwnProperty("colors")) Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
 				this.outline = this.getAttr("outline", opt.outline);
 				this.midiController = {};
 				this.midiMode = "normal";
@@ -1160,6 +1207,7 @@ webaudio-param{
 				this.redraw();
 			}
 			redraw() {
+				if (!this.isConnected) return;
 				this.elem.value = this.value;
 			}
 			setValue(v, f) {
@@ -1225,6 +1273,19 @@ webaudio-param{
 			constructor() {
 				super();
 			}
+			get width() { return this._width; }
+			set width(v) { this._width = v; this.setupImage(); }
+			get height() { return this._height; }
+			set height(v) { this._height = v; this.setupImage(); }
+			get min() { return this._min; }
+			set min(v) { this._min = +v; this.redraw(); }
+			get step() { return this._step; }
+			set step(v) { this._step = +v; this.redraw(); }
+			get keys() { return this._keys; }
+			set keys(v) { this._keys = +v; this.setupImage(); }
+			get colors() { return this._colors; }
+			set colors(v) { this._colors = v; this.setupImage(); }
+
 			connectedCallback() {
 				let root;
 				//      if(this.attachShadow)
@@ -1256,15 +1317,10 @@ webaudio-keyboard{
 				this._values = [];
 				this.enable = this.getAttr("enable", 1);
 				this._width = this.getAttr("width", 480);
-				if (!this.hasOwnProperty("width")) Object.defineProperty(this, "width", { get: () => { return this._width }, set: (v) => { this._width = v; this.setupImage() } });
 				this._height = this.getAttr("height", 128);
-				if (!this.hasOwnProperty("height")) Object.defineProperty(this, "height", { get: () => { return this._height }, set: (v) => { this._height = v; this.setupImage() } });
 				this._min = this.getAttr("min", 0);
-				if (!this.hasOwnProperty("min")) Object.defineProperty(this, "min", { get: () => { return this._min }, set: (v) => { this._min = +v; this.redraw() } });
 				this._keys = this.getAttr("keys", 25);
-				if (!this.hasOwnProperty("keys")) Object.defineProperty(this, "keys", { get: () => { return this._keys }, set: (v) => { this._keys = +v; this.setupImage() } });
 				this._colors = this.getAttr("colors", "#222;#eee;#ccc;#333;#000;#e88;#c44;#c33;#800");
-				if (!this.hasOwnProperty("colors")) Object.defineProperty(this, "colors", { get: () => { return this._colors }, set: (v) => { this._colors = v; this.setupImage() } });
 				this.outline = this.getAttr("outline", opt.outline);
 				this.midilearn = this.getAttr("midilearn", 0);
 				this.midicc = this.getAttr("midicc", null);
@@ -1316,6 +1372,7 @@ webaudio-keyboard{
 				this.redraw();
 			}
 			redraw() {
+				if (!this.isConnected) return;
 				function rrect(ctx, x, y, w, h, r, c1, c2) {
 					if (c2) {
 						let g = ctx.createLinearGradient(x, y, x + w, y);

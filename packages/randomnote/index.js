@@ -130,9 +130,10 @@ export default class RandomNotePlugin extends WebAudioModule {
 			Object.values(parameterValues).forEach((data) => {
 				const { id, value } = data;
 				const s = sliders[id];
-				s.value = value;
+				if (+s.value !== value) s.value = value;
 				const v = valueSpans[id];
-				v.innerText = value.toFixed(2);
+				const text = value.toFixed(2);
+				if (v.innerText !== text) v.innerText = text;
 			});
 			window.requestAnimationFrame(handleAnimationFrame);
 		};

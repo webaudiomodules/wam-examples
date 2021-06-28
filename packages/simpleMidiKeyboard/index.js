@@ -58,7 +58,7 @@ export default class KeyboardPlugin extends WebAudioModule {
 
 	async createGui() {
 		const keyboard = new KeyboardUI();
-		keyboard.onMidi = (bytes) => this.audioNode?._wamNode.emitEvents({ type: 'midi', time: this.audioContext.currentTime, data: { bytes } });
+		keyboard.onMidi = (bytes) => this.audioNode?._wamNode.emitEvents({ type: 'wam-midi', time: this.audioContext.currentTime, data: { bytes } });
 		return keyboard;
 	}
 }

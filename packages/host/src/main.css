@@ -1,5 +1,15 @@
 body {
 	padding: 20px;
+	color: #b0b0b0;
+	background-color: #1f1f1f;
+}
+
+a {
+	color: #e7c497;
+}
+
+#title {
+	color: #a892a3;
 }
 
 #wrapper {
@@ -20,7 +30,7 @@ body {
 }
 
 #pluginInfoContainer {
-	color: blueviolet;
+	color: #927e8d;
 	font-family: 'Courier New', Courier, monospace;
 	grid-row-start: 2;
 	grid-column-start: 1;
@@ -77,3 +87,7 @@ input[name="pluginUrl"] {
 	width: 300px;
 }
 
+.widget {
+	color: #d0d0d0;
+	background-color: #333333;
+}

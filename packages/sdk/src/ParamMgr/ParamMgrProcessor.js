@@ -204,7 +204,8 @@ const processor = (processorId, paramsConfig) => {
 		 */
 		scheduleEvents(...events) {
 			this.eventQueue.push(...events);
-			this.eventQueue.sort((a, b) => a.time - b.time);
+			const { currentTime } = audioWorkletGlobalScope;
+			this.eventQueue.sort((a, b) => (a.time || currentTime) - (b.time || currentTime));
 		}
 
 		get downstream() {
@@ -245,7 +246,6 @@ const processor = (processorId, paramsConfig) => {
 		 * @param {Float32Array[][]} inputs
 		 * @param {Float32Array[][]} outputs
 		 * @param {Record<string, Float32Array>} parameters
-		 * @memberof ParamMgrProcessor
 		 */
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;

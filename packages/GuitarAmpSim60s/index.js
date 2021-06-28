@@ -24,7 +24,7 @@ class GuitarAmpSim60sNode extends CompositeAudioNode {
 	 */
 	setup(output, paramMgr) {
 		this.connect(output, 0, 0);
-		paramMgr.addEventListener('midi', (e) => output.midiMessage(e.detail.data.bytes));
+		paramMgr.addEventListener('wam-midi', (e) => output.midiMessage(e.detail.data.bytes));
 		this._wamNode = paramMgr;
 		this._output = output;
 	}

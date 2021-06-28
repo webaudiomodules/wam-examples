@@ -57,6 +57,24 @@ export default class MidiVirtualKeyboardNoSoundHTMLElement extends HTMLElement {
 		this.midiout = null;
 		this.kbd = null;
 		this.synth = null;
+		this.ecb = (e) => {
+			console.log(e);
+		}
+	
+		this.scb = (midiaccess) => {
+			var i = 0;
+			var outputs = midiaccess.outputs.values();
+			// populate midi out device menu
+			for (var outit = outputs.next(); !outit.done; outit = outputs.next()) {
+				this.shadowRoot.querySelector('#midiout').options[i++] = new Option(
+					outit.value.name
+				);
+				this.midioutputs.push(outit.value);
+			}
+			if(!this.midiout)
+				this.midiout = this.midioutputs[0];
+		}
+	
 	}
 
 	connectedCallback() {
@@ -122,28 +140,10 @@ export default class MidiVirtualKeyboardNoSoundHTMLElement extends HTMLElement {
 			});
 	}
 
-	ecb(e) {
-		console.log(e);
-	}
-
-	scb(midiaccess) {
-		var i = 0;
-		var outputs = midiaccess.outputs.values();
-		// populate midi out device menu
-		for (var outit = outputs.next(); !outit.done; outit = outputs.next()) {
-			this.shadowRoot.querySelector('#midiout').options[i++] = new Option(
-				outit.value.name
-			);
-			this.midioutputs.push(outit.value);
-		}
-		if(this.midiout.length !== 0)
-			this.midiout = this.midioutputs[0];
-	}
-
 
 	sendMidiMessage(mess) {
 		// send message to wam env
-		this.plugin.audioNode._wamNode.emitEvents({ type: 'midi', time: this.plugin.audioContext.currentTime, data: { bytes: mess } });
+		this.plugin.audioNode._wamNode.emitEvents({ type: 'wam-midi', time: this.plugin.audioContext.currentTime, data: { bytes: mess } });
 		// send message to external midi devices
 		if (this.midiout) this.midiout.send(mess);
 	}

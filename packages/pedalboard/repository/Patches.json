@@ -1,0 +1,48 @@
+[
+    {
+        "name": "patch test 1",
+        "plugins": [
+            {
+                "url": "/packages/pingpongdelay/dist/index.js",
+                "params": {
+                "feedback": 0.05000000074505806,
+                "time": 0.14000000059604645,
+                "mix": 0.9200000166893005,
+                "enabled": 1
+                }
+            },
+            {
+                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "params": {
+                "/PingPongDelayFaust/bypass": 0,
+                "/PingPongDelayFaust/time": 1,
+                "/PingPongDelayFaust/feedback": 0,
+                "/PingPongDelayFaust/mix": 1
+                }
+            }
+        ]
+    },
+    {
+        "name": "patch test 2",
+        "plugins": [
+            {
+                "url": "/packages/pingpongdelay/dist/index.js",
+                "params": {
+                "feedback": 0.95000000074505806,
+                "time": 0.94000000059604645,
+                "mix": 0.0200000166893005,
+                "enabled": 1
+                }
+            },
+            {
+                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "params": {
+                "/PingPongDelayFaust/bypass": 1,
+                "/PingPongDelayFaust/time": 0,
+                "/PingPongDelayFaust/feedback": 1,
+                "/PingPongDelayFaust/mix": 0
+                }
+            }
+        ]
+    }
+]

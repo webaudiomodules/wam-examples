@@ -98,12 +98,12 @@ export interface WamNode extends AudioNode, Readonly<WamNodeOptions> {
     /** Compensation delay hint in samples */
     getCompensationDelay(): Promise<number>;
     /** Register a callback function so it will be called when matching events are processed. */
-    addEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: WamNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener<K extends keyof WamEventMap>(type: K, listener: (this: WamNode, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener<K extends keyof WamEventMap>(type: K, listener: (this: this, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: (this: this, ev: CustomEvent) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     /** Deregister a callback function so it will no longer be called when matching events are processed. */
-    removeEventListener<K extends keyof AudioWorkletNodeEventMap>(type: K, listener: (this: WamNode, ev: AudioWorkletNodeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener<K extends keyof WamEventMap>(type: K, listener: (this: WamNode, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener<K extends keyof WamEventMap>(type: K, listener: (this: this, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: (this: this, ev: CustomEvent) => any, options?: boolean | AddEventListenerOptions): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     /** From the main thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
     scheduleEvents(...event: WamEvent[]): void;
@@ -137,7 +137,7 @@ export interface WamProcessor extends AudioWorkletProcessor {
 export const WamProcessor: {
     prototype: WamProcessor;
     new (options: AudioWorkletNodeOptions): WamProcessor;
-};
+} & Pick<typeof AudioWorkletProcessor, "parameterDescriptors">;
 
 // PARAMETERS
 
@@ -203,8 +203,6 @@ export type WamParameterDataMap = Record<string, WamParameterData>;
 
 // EVENTS
 
-export type WamListenerType = 'wam-event' | 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
-
 export type WamEventType = keyof WamEventMap;
 
 export interface WamEventBase<T extends WamEventType = WamEventType, D = any> {
@@ -234,30 +232,37 @@ export interface WamBinaryData {
     bytes: Uint8Array;
 }
 
+export interface WamInfoData {
+    instanceId: string;
+}
+
 export type WamEventCallback<E extends WamEventType = WamEventType> = (event: WamEventMap[E]) => any;
 
 export interface WamEventMap {
-    "automation": WamAutomationEvent;
-    "transport": WamTransportEvent;
-    "midi": WamMidiEvent;
-    "sysex": WamSysexEvent;
-    "mpe": WamMpeEvent;
-    "osc": WamOscEvent;
+    'wam-automation': WamAutomationEvent;
+    'wam-transport': WamTransportEvent;
+    'wam-midi': WamMidiEvent;
+    'wam-sysex': WamSysexEvent;
+    'wam-mpe': WamMpeEvent;
+    'wam-osc': WamOscEvent;
+    'wam-info': WamInfoEvent;
 }
 
-export type WamEvent = WamAutomationEvent | WamTransportEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent;
-export type WamAutomationEvent = WamEventBase<'automation', WamParameterData>;
-export type WamTransportEvent = WamEventBase<'transport', WamTransportData>;
-export type WamMidiEvent = WamEventBase<'midi', WamMidiData>;
-export type WamSysexEvent = WamEventBase<'sysex', WamBinaryData>;
-export type WamMpeEvent = WamEventBase<'mpe', WamMidiData>;
-export type WamOscEvent = WamEventBase<'osc', WamBinaryData>;
+export type WamEvent = WamAutomationEvent | WamTransportEvent | WamMidiEvent | WamSysexEvent | WamMpeEvent | WamOscEvent | WamInfoEvent;
+export type WamAutomationEvent = WamEventBase<'wam-automation', WamParameterData>;
+export type WamTransportEvent = WamEventBase<'wam-transport', WamTransportData>;
+export type WamMidiEvent = WamEventBase<'wam-midi', WamMidiData>;
+export type WamSysexEvent = WamEventBase<'wam-sysex', WamBinaryData>;
+export type WamMpeEvent = WamEventBase<'wam-mpe', WamMidiData>;
+export type WamOscEvent = WamEventBase<'wam-osc', WamBinaryData>;
+export type WamInfoEvent = WamEventBase<'wam-info', WamInfoData>;
 
 export interface AudioWorkletProcessor {
     port: MessagePort;
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean;
 }
 export const AudioWorkletProcessor: {
+    prototype: AudioWorkletProcessor;
     parameterDescriptors: AudioParamDescriptor[];
     new (options: AudioWorkletNodeOptions): AudioWorkletProcessor;
 };
@@ -275,6 +280,10 @@ export interface WamEnv {
     disconnectEvents(from: WamProcessor, to?: WamProcessor, output?: number): void;
     /** The method should be called when a processor instance is destroyed */
     destroy(wam: WamProcessor): void;
+}
+export const WamEnv: {
+    prototype: WamEnv;
+    new (): WamEnv;
 }
 
 export interface AudioWorkletGlobalScope {

@@ -1,7 +1,80 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamEvent, WamParameter } from './api/types';
-import WamParameterInterpolator from './WamParameterInterpolator.d';
-
+/* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
+
+export interface WamParameterInterpolator {
+	/** Info object for corresponding WamParameter. */
+	readonly info: WamParameterInfo;
+
+	/** Buffer storing per-sample values. */
+	readonly values: Float32Array;
+
+	/**
+	 * Update interpolation curve based on skew factor in range `[-1, 1]`.
+	 * Setting to `0` results in linear interpolation. Positive values
+	 * result in convex exponential curves while negative vales result
+	 * in concave exponential curves.
+	 */
+	setSkew(skew: number): void;
+
+	/**
+	 * Reset the interpolator to specified value, setting all per-sample
+	 * values immediately if `fill` is `true`. Assumes `value` is within
+	 * parameter's valid range `[minValue, maxValue]`;
+	 */
+	setStartValue(value: number, fill?: boolean): void;
+
+	/**
+	 * Prepare to compute per-sample values interpolating to `value` on
+	 * next `process` call. Assumes `value` is within parameter's valid
+	 * range `[minValue, maxValue]`;
+	 */
+	setEndValue(value: number): void;
+
+	/**
+	 * Compute per-sample value updates in the specified range `[startIndex, endIndex)`,
+	 * interpolating if applicable. Results are stored in `values`. Assumes this will be
+	 * called once per parameter per processing slice in `WamProcessor.process`.
+	 */
+	process(startIndex: number, endIndex: number): void;
+
+	/**
+	 * Whether or not further processing is required before
+	 * accessing per-sample values.
+	 */
+	readonly done: boolean;
+
+	/**
+	 * Call this when no longer using the instance in order
+	 * to allow deletion of unused static lookup tables.
+	 */
+	destroy(): void;
+}
+
+export const WamParameterInterpolator: {
+	prototype: WamParameterInterpolator;
+	/**
+	 * Lookup tables to avoid recomputing interpolation curves. Keyed
+	 * by `'<samplesPerInterpolation>_<skew>'`. Not used for
+	 * discrete parameters.
+	 */
+	_tables: Record<string, Float32Array>;
+
+	/**
+	 * List of parameter ids currently using the lookup table associated
+	 * with the key. Keyed by `'<samplesPerInterpolation>_<skew>'`.
+	 * For purging unused lookup tables. Not used for discrete parameters.
+	 */
+	_tableReferences: Record<string, string[]>;
+
+	/**
+	 * Provides per-sample value updates for WamParameters
+	 * with interpolation when applicable. Only one instance
+	 * should be created per WamParameter.
+	 */
+	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number)
+	: WamParameterInterpolator;
+};
 
 // eslint-disable-next-line no-undef
 export type TypedArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigInt64ArrayConstructor;
@@ -35,6 +108,7 @@ export interface RingBuffer {
     readonly availableWrite: number;
 }
 export const RingBuffer: {
+	prototype: RingBuffer;
     getStorageForCapacity(capacity: number, Type: TypedArrayConstructor): SharedArrayBuffer;
     /**
      * `sab` is a SharedArrayBuffer with a capacity calculated by calling
@@ -55,8 +129,24 @@ export interface WamEventRingBuffer {
 	 * the list of events successfully read.
 	 */
 	read(): WamEvent[];
+
+	/**
+	 * In case parameter set changes, update the internal mappings.
+	 * May result in some invalid automation events, which will be
+	 * ignored. Note that this must be called on corresponding
+	 * WamEventRingBuffers on both threads.
+	 */
+	 setParameterIds(parameterIds: string[]);
 }
 export const WamEventRingBuffer: {
+	prototype: WamEventRingBuffer;
+
+	/**
+	 * Default number of additional bytes allocated
+	 * per event (to support variable-size event objects)
+	 */
+	DefaultExtraBytesPerEvent: number;
+
 	/**
 	 * Number of bytes required for WamEventBase
 	 * {uint32} total event size in bytes
@@ -115,8 +205,111 @@ export const WamEventRingBuffer: {
 	 * a UInt8Array RingBuffer. Specify 'maxBytesPerEvent'
 	 * to support variable-size binary event types like sysex or osc.
 	 */
-	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIndices: { [parameterId: string]: number }, maxBytesPerEvent?: number);
+	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIds: string[], maxBytesPerEvent?: number): WamEventRingBuffer;
 };
+
+export interface WamNode extends IWamNode {
+	readonly moduleId: string;
+    /**
+     * Messages from audio thread
+     */
+    _onMessage(message: MessageEvent): void;
+    _audioToMainInterval: number;
+    _onEvent(event: WamEvent): void;
+    _generateMessageId(): number;
+}
+export const WamNode: {
+	prototype: WamNode;
+    new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
+};
+
+/**
+ * A WamEvent and corresponding message id used to trigger callbacks
+ * on the main thread once the event has been processed.
+ */
+export type PendingWamEvent = {
+    id: number;
+    event: WamEvent;
+};
+
+/**
+ * A range of sample indices and corresponding list of simultaneous
+ * WamEvents to be processed at the beginning of the slice.
+ */
+export type ProcessingSlice = {
+    range: [number, number];
+    events: WamEvent[];
+};
+
+export type WamParameterInterpolatorMap = {
+    [id: string]: WamParameterInterpolator;
+};
+
+export interface WamProcessor extends IWamProcessor {
+	readonly downstream: Set<IWamProcessor>
+    /**
+     * Messages from main thread appear here.
+     */
+    _onMessage(message: MessageEvent): Promise<void>;
+    _onTransport(transportData: WamTransportData): void;
+    _onMidi(midiData: WamMidiData): void;
+    _onSysex(sysexData: WamBinaryData): void;
+    _onMpe(mpeData: WamMidiData): void;
+    _onOsc(oscData: WamBinaryData): void;
+    _setState(state: any): void;
+    _getState(): any;
+	_getParameterValues(normalized: boolean, parameterIds?: string[] | undefined): WamParameterDataMap;
+    _setParameterValues(parameterUpdates: WamParameterDataMap, interpolate: boolean): void;
+    _setParameterValue(parameterUpdate: WamParameterData, interpolate: boolean): void;
+    _interpolateParameterValues(startIndex: number, endIndex: number): void;
+    _getProcessingSlices(): ProcessingSlice[];
+    _processEvent(event: WamEvent): void;
+    /**
+     * Override this to implement custom DSP.
+     * @param startSample beginning of processing slice
+     * @param endSample end of processing slice
+     * @param inputs
+     * @param outputs
+     * @param parameters
+     */
+    _process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
+    connectEvents(wamInstanceId: string, output?: number): void;
+	disconnectEvents(wamInstanceId?: string, output?: number): void;
+    /** Stop processing and remove the node from the WAM event graph. */
+    destroy(): void;
+}
+
+export const WamProcessor: {
+	prototype: WamProcessor;
+    /**
+     * Override to fetch plugin's params via whatever means desired.
+     */
+	generateWamParameterInfo(): WamParameterInfoMap;
+    new (options: AudioWorkletNodeOptions): WamProcessor;
+} & Pick<typeof IWamProcessor, "parameterDescriptors">;
+
+export interface WebAudioModule extends IWebAudioModule {
+	readonly _timestamp: number;
+    _audioNode: IWamNode;
+    _initialized: boolean;
+    /**
+     * Url to load the plugin's GUI HTML
+     */
+    _guiModuleUrl: string;
+    /**
+     * Url to load the plugin's `descriptor.json`
+     */
+    _descriptorUrl: string;
+    _descriptor: WamDescriptor;
+    _loadGui(): Promise<any>;
+    _loadDescriptor(): Promise<WamDescriptor>;
+}
+
+export const WebAudioModule: {
+	prototype: WebAudioModule;
+    createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
+	new (audioContext: BaseAudioContext): WebAudioModule;
+} & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
     RingBuffer: typeof RingBuffer;

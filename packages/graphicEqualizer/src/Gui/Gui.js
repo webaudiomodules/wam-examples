@@ -5,7 +5,7 @@ import '../utils/webaudio-controls.js';
 // If you do no wan to use a bundler, then  look at other examples
 // that build in pure JS the syles and html template directly
 // in the code...
-let style = `   
+let style = `
 @font-face {
 	font-family: 'smallFont';
 	src: url('./assets/fonts/secrcode-Regular.ttf') format('truetype');
@@ -152,7 +152,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		this.setResources();
 		this.setKnobs();
 		this.setSwitchListener();
-		
+
 		this.gridColor = "rgb(235,235,235)";
 		this.textColor = "rgb(235, 235, 235)";
 		this.nyquist = 0.5 * this.plugin.audioContext.sampleRate;
@@ -226,7 +226,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			});
 	}
 	setCanvas() {
-		// canvas 
+		// canvas
 		this.canvas = document.createElement("canvas");
 		// get dimensions, by default the ones from the parent element
 		this.canvas.classList.add("graphicEQ");
@@ -249,7 +249,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		this.canvasParent.appendChild(this.canvas2);
 		this.ctx2 = this.canvas2.getContext("2d");
 		this.dbScale = 60;
-		//TODO: 
+		//TODO:
 		this.pixelsPerDb = (0.5 * this.height) / this.dbScale;
 
 		// listeners
@@ -258,7 +258,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		this.canvas.addEventListener("mouseup", this.processMouseUp.bind(this));
 
 		requestAnimationFrame(this.drawFrequencies.bind(this));
-		
+
 		this.canvas.addEventListener('mouseenter', this.setFocus, false);
 		this.canvas.addEventListener('mouseleave', this.unsetFocus, false);
 	   /*window.addEventListener('resize',
@@ -267,7 +267,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.resize(this.canvasParent.clientWidth,
 			this.canvasParent.clientHeight);
 		});*/
- 
+
 	}
 
 	setFocus(){
@@ -312,7 +312,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 			this.drawTooltip();
 
 
-		ctx.restore(); 
+		ctx.restore();
 	}
 
 	//TODO: how to manipulate this function about the zoom of pedalboard
@@ -483,12 +483,12 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 
 			ctx.textAlign = "center";
 			ctx.fillStyle = this.textColor;
-			
+
 			if(octave !== 0)
 				ctx.fillText(value + unit, x, 20);
 			else
 			ctx.fillText(value + unit, 10, 20);
-		}		
+		}
 
 
 		// Draw 0dB line.
@@ -524,7 +524,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 		ctx.strokeStyle = "white";
 		ctx.beginPath();
 		for (let x = 0; x < this.width; x++) {
-			//let y = this.dbToY(0) - 
+			//let y = this.dbToY(0) -
 			let dbResponse = this.sumCurveSerie[x];
 			let y = this.dbToY(dbResponse);
 
@@ -838,7 +838,7 @@ export default class GraphicEQHTMLElement extends HTMLElement {
 	// the plugin is visible
 	static is() {
         return 'wasabi-graphic-eq';
-    } 
+    }
 }
 
 if (!customElements.get(GraphicEQHTMLElement.is())) {

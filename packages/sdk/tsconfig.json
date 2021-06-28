@@ -7,6 +7,13 @@
 		"target": "es6",
 		"allowSyntheticDefaultImports": true,
 		"noEmit": true,
-		"experimentalDecorators": true,
-	}
+		"experimentalDecorators": true
+	},
+	"include": [
+	  "src/**/*"
+	],
+	"exclude": [
+	  "esm",
+	  "node_modules"
+	]
 }

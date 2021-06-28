@@ -222,7 +222,7 @@ let template = `
         <div class="container" id="txtcontainer">
       
 
-      <h4></h4>
+      
       <p class="pedalLabel" id="test"></p>
 
     </div>

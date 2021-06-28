@@ -39,7 +39,7 @@ const getBasetUrl = (relativeURL) => {
 };
 
 export default class CsoundPitchShifterPlugin extends WebAudioModule {
-	_baseURL = getBasetUrl(new URL('..', import.meta.url));
+	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
 	_descriptorUrl = `${this._baseURL}/descriptor.json`;
 

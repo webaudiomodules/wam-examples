@@ -6,6 +6,14 @@ import style from './Gui.css';
 import template from './Gui.template.html';
 import './utils/webaudio-controls.js';
 
+import knobImg from './assets/nux_black_white_stripe.png';
+import switchImg from './assets/switch_1.png';
+
+const getAssetUrl = (asset) => {
+	const base = new URL('.', import.meta.url);
+	return `${base}${asset}`;
+};
+
 // The GUI is a WebComponent. Not mandatory but useful.
 // MANDORY : the GUI should be a DOM node. WebComponents are
 // practical as they encapsulate everyhing in a shadow dom
@@ -20,9 +28,14 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 		super();
 
 		this.root = this.attachShadow({ mode: 'open' });
+		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
+
+		this.setResources();
+		this.setKnobs();
+		this.setSwitchListener();
 	}
 
 	handleAnimationFrame = () => {
@@ -42,11 +55,21 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 	// Provided by the WebComponent API, called when the plugin is
 	// connected to the DOM
 	connectedCallback() {
-		this.root.innerHTML = `<style>${style}</style>${template}`;
-
-		this.setKnobs();
-		this.setSwitchListener();
 		window.requestAnimationFrame(this.handleAnimationFrame);
+	}
+
+	/**
+	 * Change relative URLS to absolute URLs for CSS assets, webaudio controls spritesheets etc.
+	 */
+	setResources() {
+		// Set up the background img & style
+		// Setting up the knobs imgs, those are loaded from the assets
+		this.root.querySelectorAll('.knob').forEach((knob) => {
+			knob.setAttribute('src', getAssetUrl(knobImg));
+		});
+		this.root.querySelectorAll('.switch').forEach((sw) => {
+			sw.setAttribute('src', getAssetUrl(switchImg));
+		});
 	}
 
 	setKnobs() {

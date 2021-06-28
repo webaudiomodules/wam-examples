@@ -1,13 +1,12 @@
-// rollup.config.js
-import babel from 'rollup-plugin-babel';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import postcss from 'rollup-plugin-postcss';
+import babel from '@rollup/plugin-babel';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import css from 'rollup-plugin-import-css';
 import html from 'rollup-plugin-html';
 import copy from 'rollup-plugin-copy';
-import { terser } from 'rollup-plugin-terser';
 import url from '@rollup/plugin-url';
 
+/** @type {import('rollup').InputOptions} */
 const common = {
 	output: [
 		{
@@ -25,30 +24,32 @@ const common = {
 		copy({
 			targets: [
 				{ src: 'src/descriptor.json', dest: 'dist/' },
+				{ src: 'src/screenshot.png', dest: 'dist/' },
 			],
 		}),
-		postcss({
-			extract: false,
-			use: ['sass'],
-		}),
 		babel({
-			exclude: 'node_modules/**',
-			runtimeHelpers: true,
+			exclude: /node_modules/,
+			babelHelpers: 'bundled',
 		}),
 		resolve({
 			browser: true,
 		}),
 		commonjs(),
+		css(),
 		html(),
-		terser(),
 	],
+	onwarn(warning, warn) {
+		// suppress eval warnings
+		if (warning.code === 'EVAL') return;
+		warn(warning);
+	}
 };
 
 const plugin = {
 	...common,
 	input: './src',
 };
-
+/*
 const gui = {
 	...common,
 	input: './src/Gui',
@@ -57,8 +58,8 @@ const gui = {
 		dir: './dist/Gui',
 	}],
 };
-
+*/
 export default [
 	plugin,
-	gui,
+	// gui,
 ];

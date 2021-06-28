@@ -43,13 +43,23 @@ let liveInputGainNode;
  * @param {WamNode} audioNode
  */
 const connectPlugin = (audioNode) => {
+	const handleInfoEvent = (i) => {
+		const { data } = i.detail;
+		if (data.instanceId === currentPluginAudioNode.instanceId) {
+			populateParamSelector(currentPluginAudioNode);
+			showPluginInfo(currentPluginAudioNode.module, currentPluginDomNode);
+		}
+	};
 	if (currentPluginAudioNode) {
+		liveInputGainNode.disconnect();
 		if (keyboardPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
-		mediaElementSource.disconnect(currentPluginAudioNode);
+		if (currentPluginAudioNode.numberOfInputs) mediaElementSource.disconnect(currentPluginAudioNode);
 		currentPluginAudioNode.disconnect(audioContext.destination);
+		currentPluginAudioNode.removeEventListener('wam-info', handleInfoEvent);
+		currentPluginAudioNode.destroy();
 		if (currentPluginDomNode) {
 			currentPluginAudioNode.module.destroyGui(currentPluginDomNode);
 			mount.innerHTML = '';
@@ -58,16 +68,17 @@ const connectPlugin = (audioNode) => {
 		currentPluginAudioNode = null;
 	}
 
-	liveInputGainNode.connect(audioNode);
+	if (audioNode.numberOfInputs) liveInputGainNode.connect(audioNode);
 	console.log('connected live input node to plugin node');
 
 	if (keyboardPluginAudioNode) {
-		keyboardPluginAudioNode.connect(audioNode);
+		if (audioNode.numberOfInputs) keyboardPluginAudioNode.connect(audioNode);
 		keyboardPluginAudioNode.connectEvents(audioNode);
 	}
-	mediaElementSource.connect(audioNode);
+	if (audioNode.numberOfInputs) mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
 	currentPluginAudioNode = audioNode;
+	currentPluginAudioNode.addEventListener('wam-info', handleInfoEvent);
 };
 
 /**
@@ -101,8 +112,9 @@ const setMidiPlugin = async (pluginUrl) => {
 	if (keyboardPluginAudioNode) {
 		if (currentPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
-			keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
+			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
+		keyboardPluginAudioNode.destroy();
 		if (currentKeyboardPluginDomNode) {
 			keyboardPluginAudioNode.module.destroyGui(currentKeyboardPluginDomNode);
 		}
@@ -113,7 +125,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	keyboardContainer.innerHTML = '';
 	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
 	if (keyboardPluginAudioNode && currentPluginAudioNode) {
-		keyboardPluginAudioNode.connect(currentPluginAudioNode);
+		if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.connect(currentPluginAudioNode);
 		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
 	}
 };
@@ -178,8 +190,8 @@ pluginParamSelector.addEventListener('input', async (e) => {
 	const div = document.createElement('div');
 	div.classList.add('pluginAutomation');
 	const span = document.createElement('span');
-	span.textContent = paramId;
 	span.classList.add('pluginAutomationParamId');
+	span.textContent = paramId;
 	div.appendChild(span);
 	const bpf = document.createElement('webaudiomodules-host-bpf');
 	const info = await currentPluginAudioNode.getParameterInfo(paramId);
@@ -208,17 +220,16 @@ pluginAutomationApplyButton.addEventListener('click', () => {
 });
 
 /**
- * @param {import('sdk/src/api/types').WebAudioModule} instance
+ * @param {import('sdk/src/api/types').WamNode} wamNode
  */
-const populateParamSelector = async (instance) => {
+const populateParamSelector = async (wamNode) => {
 	bpfContainer.innerHTML = '';
 	pluginParamSelector.innerHTML = '<option value="-1" disabled selected>Add Automation...</option>';
-	const wamNode = instance.audioNode;
 	const info = await wamNode.getParameterInfo();
 	// eslint-disable-next-line
 	for (const paramId in info) {
-		const { minValue, maxValue } = info[paramId];
-		const option = new Option(`${paramId}: ${minValue} - ${maxValue}`, paramId);
+		const { minValue, maxValue, label } = info[paramId];
+		const option = new Option(`${paramId} (${label}): ${minValue} - ${maxValue}`, paramId);
 		pluginParamSelector.add(option);
 	}
 	pluginParamSelector.selectedIndex = 0;
@@ -263,7 +274,7 @@ const setPlugin = async (pluginUrl) => {
 	// Show plugin info
 	showPluginInfo(instance, pluginDomNode);
 
-	populateParamSelector(instance);
+	populateParamSelector(instance.audioNode);
 
 	mountPlugin(pluginDomNode);
 
@@ -341,10 +352,10 @@ const toggleLiveInput = () => {
 	const button = document.querySelector('#toggleLiveInput');
 
 	if (!liveInputActivated) {
-		button.innerHTML = "Live input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:#99c27a;'>ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(1, audioContext.currentTime);
 	} else {
-		button.innerHTML = "Live input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
+		button.innerHTML = "Live input: <span style='color:#cc7c6e;'>NOT ACTIVATED</span>, click to toggle on/off!";
 		liveInputGainNode.gain.setValueAtTime(0, audioContext.currentTime);
 	}
 	liveInputActivated = !liveInputActivated;
@@ -448,7 +459,7 @@ if (navigator.requestMIDIAccess) {
 		let currentInput;
 		const handleMidiMessage = (e) => {
 			if (!currentPluginAudioNode) return;
-			currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
+			currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: e.data } });
 		};
 		const handleStateChange = () => {
 			const { inputs } = midiAccess;
@@ -475,6 +486,6 @@ if (navigator.requestMIDIAccess) {
 // -------- generate MIDI note button ---------
 /** @type {HTMLButtonElement} */ const sendMIDINoteButton = document.querySelector('#sendMIDINoteButton');
 sendMIDINoteButton.onclick = async () => {
-	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
-	currentPluginAudioNode.scheduleEvents({ type: 'midi', time: currentPluginAudioNode.context.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
+	currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime, data: { bytes: new Uint8Array([0x90, 74, 100]) } });
+	currentPluginAudioNode.scheduleEvents({ type: 'wam-midi', time: currentPluginAudioNode.context.currentTime + 0.25, data: { bytes: new Uint8Array([0x80, 74, 100]) } });
 };

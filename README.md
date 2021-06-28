@@ -1,22 +1,20 @@
-# webaudiomodule
+# WebAudioModules
 
 ## Structure
 
 This is a monorepo with multiple packages located under the directory `packages/`.
 
-List of (relevant) packages
+Some important packages are:
 - `host`: a very simple host built with parceljs
-- `sdk`: draft of the new sdk
-- `pingpongdelay`: a simple PingPongDelay plugin based on the previous version from Michel
-- `livegain`: LiveGain plugin from Shihong
+- `sdk`: the current sdk
 
 ## Main dependencies
 
-The projet mainly uses the following packages for development :
-- [yarn](https://www.npmjs.com/package/yarn) : replacement of npm
-- [lerna](https://www.npmjs.com/package/lerna) : monorepo (multiple packages repository) manager
-- [babel](https://www.npmjs.com/package/@babel/core) : ES6 transpiler
-- [rollup](https://www.npmjs.com/package/rollup) : Module bundler (compatible es6 modules ouput)
+The project mainly uses the following packages for development:
+- [yarn](https://www.npmjs.com/package/yarn): replacement of npm
+- [lerna](https://www.npmjs.com/package/lerna): monorepo (multiple packages repository) manager
+- [babel](https://www.npmjs.com/package/@babel/core): ES6 transpiler
+- [rollup](https://www.npmjs.com/package/rollup): Module bundler (compatible es6 modules output)
 
 ## Installation
 
@@ -26,7 +24,7 @@ The projet mainly uses the following packages for development :
 yarn install
 ```
 
-2. Initliaze monorepo dependencies using lerna
+2. Initialize monorepo dependencies using lerna
 
 ```sh
 yarn lerna bootstrap
@@ -46,7 +44,7 @@ Available scripts :
 
 ### Create a plugin
 
-For this example we will create a very simple plugin named simplegain
+For this example we will create a very basic plugin named simplegain
 
 1. Create a plugin package
 
@@ -61,12 +59,9 @@ yarn lerna create simplegain
 
 2. Test your plugin in a host
 
-In order to test your plugin, you have to create a new html file in the src folder inside the package `host`.
-The html file may also link a JavaScript file that will load the plugin and play some sound etc.
-
 __lerna dependency__
-lerna allows to symlinks monorepo packages between each other as regular package dependencies.
-In order to use a plugin in the host, you must install the dependency.
+lerna facilitates symlinking monorepo packages between each other as regular package dependencies.
+In order to use a plugin in the host, you must install it as a dependency.
 Using lerna:
 (replace "simplegain" with your own plugin module name)
 ```sh
@@ -74,17 +69,17 @@ yarn lerna add simplegain --scope host
 ```
 
 __Parcel__
-The host is built with parcel which allows to write modern JavaScript with no efforts.
-Parcel allows for example to use ES6 static imports, loading assets from JavaScript etc.
+The host is built with parcel which makes it easy to write modern JavaScript.
+Parcel supports ES6 static imports, loading assets from JavaScript etc.
 
 __sdk plugin loader__
-The plugin loader uses es6 dynamic imports to load the plugins through HTTP.
-Thus every plugin code (descriptor.json, audio module, gui) must be available through a Web server.
+The plugin loader uses es6 dynamic imports to load plugins through HTTP.
+Thus every piece of plugin code (descriptor.json, audio module, gui) must be available through a web server.
 
 The host package provides a simple utility that make a plugin avaiable through a web server.
 In order to make your plugin available, it must be listed in the `webaudiomodules` field of the `package.json` of the host.
 
-Example :
+Example:
 ```json
 ...
   "webaudiomodules": {
@@ -123,7 +118,7 @@ export default class SimpleGainPlugin extends WebAudioModule {
 	}
 }
 ```
-More complex plugins can return a CompositeNode (i.e a graph of WebAudio nodes seen as a single node. See examples pingpongdelay or quadrafuzz in the src/packages folder) or an AudioWorkletNode...
+More complex plugins can return a CompositeNode (i.e a graph of WebAudio nodes seen as a single node. See examples pingpongdelay or quadrafuzz in the src/packages folder) or an AudioWorkletNode.
 
 __gui.js__
 If you want your plugin to export a gui, create a es module file named gui.js.
@@ -164,11 +159,11 @@ export async function createElement(plugin) {
     const { default: pluginFactory } = await import('./index.js'); // load main plugin file
 
 	// Create a new instance of the plugin
-	// You can can optionnally give more options such as the initial state of the 
+	// You can can optionally specify additional information such as the initial state of the
 	// plugin
 	const pluginInstance = await pluginFactory.createInstance(audioContext, {});
 
-	// instance.audioNode is the plugin WebAudio node (native, AudioWorklet or 
+	// instance.audioNode is the plugin WebAudio node (native, AudioWorklet or
 	// Composite). It can then be connected to the WebAudio graph.
 
 	...
@@ -206,8 +201,8 @@ simpleGainPluginAudioNode.connect(audioContext.destination);
 ```
 
 __Show the GUI__
-We now have to create the HTMLElement that hosts the plugin GUI thanks to the plugin method `async instance.createGui()`.
-The methods loads the GUI module if it was not loaded before and then call its exported method `async createElement()`.
+Now we have to create the HTMLElement that hosts the plugin GUI via the plugin method `async instance.createGui()`.
+The method loads the GUI module if it was not loaded before and then calls its exported method `async createElement()`.
 
 
 Now that you have an HTML element, append it to the host DOM.
@@ -220,6 +215,19 @@ const simpleGainPluginGui = simpleGainPluginInstance.createGui();
 body.appendChild(domNode);
 ```
 
-## sdk
+With all these pieces in place, we can now test the new plugin in the example host.
+In order to test your plugin, you have to update `index.html` in the `src` folder inside the package `host`,
+adding a link to your code in the list of available plugins like so:
+```html
+	<ul id="examples">
+	<!-- ... -->
+	<li data-plugin-url="simplegain/dist">Simple Gain</li>
+	<!-- ... -->
+```
 
-### WebAudioModule
+When clicked, this will automatically populate the test host's WAM Plugin URL entry. Next click the 'LOAD PLUGIN'
+button and your plugin should appear at the top of the page. Now you can test audio playback, MIDI, automation,
+and saving/loading your plugin's internal state.
+
+## sdk
+A detailed description of the WAM SDK can be found in the [WIKI](https://github.com/53js/webaudiomodule/wiki/SDK-Overview).

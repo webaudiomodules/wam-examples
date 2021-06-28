@@ -11,7 +11,6 @@ class FaustDefaultGui extends HTMLElement {
 	 * @param {AudioWorkletNode} faustNode
 	 * @param {any} ui
 	 * @param {string} style
-	 * @memberof FaustDefaultGui
 	 */
 	constructor(wamNode, faustNode, ui, style) {
 		super();
@@ -43,8 +42,10 @@ class FaustDefaultGui extends HTMLElement {
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
+
 	handleAnimationFrame = async () => {
 		const values = await this.wamNode.getParameterValues();
+		// eslint-disable-next-line no-restricted-syntax, guard-for-in
 		for (const key in values) {
 			const { value } = values[key];
 			this.faustUI.paramChangeByDSP(key, value);
@@ -72,6 +73,8 @@ const createElement = async (plugin) => {
 	const faustNode = wamNode._output;
 	const { ui } = faustNode.json_object;
 	const style = await (await fetch(new URL('./faust-ui/index.css', import.meta.url))).text();
-	return new FaustDefaultGui(wamNode, faustNode, ui, style);
+	/** @type {typeof FaustDefaultGui} */
+	const GuiElement = customElements.get('webaudiomodule-faustdefaultgui');
+	return new GuiElement(wamNode, faustNode, ui, style);
 };
 export default createElement;

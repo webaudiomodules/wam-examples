@@ -65,9 +65,13 @@ module.exports = (env, argv) => {
       new CopyWebpackPlugin({
         patterns: [
           { from: `./src/livegain/descriptor.json`, to: './livegain/' },
+          { from: `./src/livegain/screenshot.png`, to: './livegain/' },
           { from: `./src/oscilloscope/descriptor.json`, to: './oscilloscope/' },
+          { from: `./src/oscilloscope/screenshot.png`, to: './oscilloscope/' },
           { from: `./src/spectroscope/descriptor.json`, to: './spectroscope/' },
-          { from: `./src/spectrogram/descriptor.json`, to: './spectrogram/' }
+          { from: `./src/spectroscope/screenshot.png`, to: './spectroscope/' },
+          { from: `./src/spectrogram/descriptor.json`, to: './spectrogram/' },
+          { from: `./src/spectrogram/screenshot.png`, to: './spectrogram/' }
         ]
       }),
     ]

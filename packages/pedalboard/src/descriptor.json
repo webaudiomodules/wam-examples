@@ -1,0 +1,11 @@
+{
+    "name": "Pedalboard",
+    "vendor": "WebAudioModule",
+    "description": "A rack to load multiple WAMs",
+    "version": "1.0.0",
+    "sdkVersion": "1.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

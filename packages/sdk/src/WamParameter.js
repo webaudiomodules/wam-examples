@@ -9,9 +9,9 @@
 export default class WamParameter {
 	/** @param {WamParameterInfo} info */
 	constructor(info) {
-		/** @readonly @property {WamParameter} info */
+		/** @readonly @type {WamParameterInfo} */
 		this.info = info;
-		/** @private @property {number} _value */
+		/** @private @type {number} */
 		this._value = info.defaultValue;
 	}
 
