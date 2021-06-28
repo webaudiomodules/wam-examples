@@ -73,7 +73,7 @@ class WamExampleProcessor extends WamProcessor {
 			bypass: new WamParameterInfo('bypass', {
 				type: 'boolean',
 				label: 'Bypass',
-				defaultValue: 1,
+				defaultValue: 0,
 			}),
 			...WamExampleSynth.generateWamParameterInfo(),
 			...WamExampleEffect.generateWamParameterInfo(),
