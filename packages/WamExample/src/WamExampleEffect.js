@@ -56,32 +56,32 @@ class WamExampleDistortion {
 	 */
 	/* eslint-disable-next-line no-unused-vars */
 	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config) {
-		/** @property {number} _numChannels number of input/output channels */
+		/** @private @type {number} _numChannels number of input/output channels */
 		this._numChannels = config.numChannels ?? 2;
 
-		/** @property {WamParameterInfoMap} _parameterInfo */
+		/** @private @type {WamParameterInfoMap} _parameterInfo */
 		// @ts-ignore
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 
-		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
+		/** @private @type {WamParameterInterpolatorMap} _parameterInterpolators */
 		this._parameterInterpolators = {};
 		Object.keys(this._parameterInfo).forEach((parameterId) => {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @property {boolean} _driveDone whether or not drive parameter is changing */
+		/** @private @type {boolean} _driveDone whether or not drive parameter is changing */
 		this._driveDone = false;
 
-		/** @property {Float32Array} _dirty values for mapped parameter 'dirty' */
+		/** @private @type {Float32Array} _dirty values for mapped parameter 'dirty' */
 		this._dirty = new Float32Array(samplesPerQuantum);
 
-		/** @property {Float32Array} _clean values for mapped parameter 'clean' */
+		/** @private @type {Float32Array} _clean values for mapped parameter 'clean' */
 		this._clean = new Float32Array(samplesPerQuantum);
 
-		/** @property {Float32Array} _memory feedback memory for each channel */
+		/** @private @type {Float32Array} _memory feedback memory for each channel */
 		this._memory1 = new Float32Array(this._numChannels);
 
-		/** @property {Float32Array} _memory feedback memory for each channel */
+		/** @private @type {Float32Array} _memory feedback memory for each channel */
 		this._memory2 = new Float32Array(this._numChannels);
 
 		// dsp constants
@@ -173,20 +173,20 @@ export default class WamExampleEffect {
 	 * @param {Object} config optional config object
 	 */
 	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config = {}) {
-		/** @property {number} _numChannels number of input/output channels */
+		/** @private @type {number} _numChannels number of input/output channels */
 		this._numChannels = config.numChannels ?? 2;
 
-		/** @property {boolean} _inPlace whether to process the output in-place, ignoring input */
+		/** @private @type {boolean} _inPlace whether to process the output in-place, ignoring input */
 		this._inPlace = config.inPlace ?? false;
 
-		/** @property {Float32Array[]} _buffers scratch buffers for prefiltering */
+		/** @private @type {Float32Array[]} _buffers scratch buffers for prefiltering */
 		this._buffers = [];
 
 		const lowpassFrequencyHz = config.lowpassFrequencyHz ?? 12000.0;
-		/** @property {WamExampleLowpassFilter[]} _lowpasses lowpass filter components */
+		/** @private @type {WamExampleLowpassFilter[]} _lowpasses lowpass filter components */
 		this._lowpasses = [];
 
-		/** @property {WamExampleDcBlockerFilter[]} _dcblockers dc blocking filter components */
+		/** @private @type {WamExampleDcBlockerFilter[]} _dcblockers dc blocking filter components */
 		this._dcblockers = [];
 
 		for (let c = 0; c < this._numChannels; ++c) {
@@ -200,7 +200,7 @@ export default class WamExampleEffect {
 
 		if (!config.numChannels) config.numChannels = this._numChannels;
 
-		/** @property {WamExampleDistortion} _distortion distortion component */
+		/** @private @type {WamExampleDistortion} _distortion distortion component */
 		this._distortion = new WamExampleDistortion(parameterInterpolators, samplesPerQuantum, sampleRate, config);
 	}
 

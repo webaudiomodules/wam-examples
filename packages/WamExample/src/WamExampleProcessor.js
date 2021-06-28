@@ -99,7 +99,7 @@ class WamExampleProcessor extends WamProcessor {
 		const synthConfig = {
 			passInput: true,
 		};
-		/** @property {WamExampleSynth} _synth */
+		/** @private @type {WamExampleSynth} */
 		this._synth = new WamExampleSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			synthConfig);
 
@@ -107,30 +107,30 @@ class WamExampleProcessor extends WamProcessor {
 			numChannels: 2,
 			inPlace: true,
 		};
-		/** @property {WamExampleEffect} _effect */
+		/** @private @type {WamExampleEffect} */
 		this._effect = new WamExampleEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			effectConfig);
 
-		/** @property {Float32Array} _synthLevel */
+		/** @private @type {Float32Array} */
 		this._synthLevel = new Float32Array(2);
 
-		/** @property {Float32Array} _synthLevel */
+		/** @private @type {Float32Array} */
 		this._synthLevel = new Float32Array(2);
 
-		/** @property {Float32Array} _synthLevel */
+		/** @private @type {Float32Array} */
 		this._effectLevel = new Float32Array(2);
 
-		/** @property {number} _levelSmoothA coefficient for level smoothing */
+		/** @private @type {number} coefficient for level smoothing */
 		this._levelSmoothA = 0.667;
 
-		/** @property {number} _levelSmoothB coefficient for level smoothing */
+		/** @private @type {number} coefficient for level smoothing */
 		this._levelSmoothB = 1.0 - this._levelSmoothA;
 
 		const levelUpdatePeriodSec = 1.0 / 30.0;
-		/** @property {number} _levelUpdateRateQuantums how often levels should be computed (quantums) */
+		/** @private @type {number} how often levels should be computed (quantums) */
 		this._levelUpdateRateQuantums = Math.round((levelUpdatePeriodSec * globalThis.sampleRate) / this._samplesPerQuantum);
 
-		/** @property {number} _levelUpdateCounter levels will be computed when this reaches 0 */
+		/** @private @type {number} levels will be computed when this reaches 0 */
 		this._levelUpdateCounter = 0;
 
 		super.port.start();
