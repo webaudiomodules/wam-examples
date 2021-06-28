@@ -52,20 +52,15 @@ class ZigZag {
 	}
 }
 
-const red = '#F86234';
-const yellow = '#F5CB31';
-const green = '#A8D149';
+const orange = '#fcb365';
+const yellow = '#ffdb59';
+const green = '#bcd977';
+const blue = '#b5cfe6';
+const pink = '#edd8e8';//'#e8cae1';
 const grayDark = '#262626';
 const grayLight = '#545454';
+const black = '#000000';
 const transparent = '#00000000';
-
-// const modeStrings = [
-// 	'&#9636',
-// 	'&#9637',
-// 	'&#9639',
-// 	'&#9640',
-// 	'&#9641',
-// ];
 
 const modeStrings = [
 	'1',
@@ -75,170 +70,155 @@ const modeStrings = [
 	'?',
 ];
 
-const style = `.pedal {
-	display: block;
-	background-color: ${yellow};
-	width: 120px;
-	height: 180px;
-	border-radius: 12px;
-	position: relative;
-}
+function computeStyleForSize(scale) {
+	scale = Math.max(scale, 0.0);
 
-#background-image {
-	width: 120px;
-	height: 180px;
-	opacity: 1;
-	z-index: -999;
-}
+	const style = `.pedal {
+		display: inline-block;
+		background-color: ${blue};
+		width: ${16 * scale}vw;
+		height: ${24 * scale}vw;
+		border-radius: 1vw;
+		position: relative;
+		text-align: center;
+		margin: 0 auto;
+		overflow: hidden;
+	}
 
-.overlay {
-	position: absolute;
-	width: 120px;
-	height: 180px;
-}
+	#background-image {
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
 
-.switch,
-.icon,
-.label {
-	position: absolute;
-	cursor: pointer;
-}
+	.overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		z-index: 1;
+	}
 
-.knob {
-	position: absolute;
-	cursor: pointer;
-}
+	.centered {
+		position: absolute;
+	}
 
-.webaudioctrl-tooltip {
-	color: #000 !important;
-	font-size: 11px !important;
-}
+	.knob,
+	.switch,
+	.icon,
+	.mode,
+	.label {
+		cursor: pointer;
+		margin: 0;
+		padding: 0;
+		z-index: 1;
+	}
 
-#switch1 {
-	bottom: 10px;
-	right: 36px;
-}
+	.label {
+		user-select: none;
+	}
 
-#drive {
-	left: 46px;
-	top: 80px;
-}
+	#bypass-switch {
+		left: 41%;
+		top: 81%;
+		height: 12%;
+		width: 18%;
+		opacity: 0;
+	}
 
-#drive div {
-	color: #ffffff;
-	font-family: "Verdana";
-	font-size: 8px;;
-}
+	#drive-knob {
+		left: 39%;
+		top: 45%;
+		height: 14%;
+		width: 22%;
+		opacity: 0;
+	}
 
-#title {
-	left: 30px;
-	top: 8px;
-	position: absolute;
-	margin: auto;
-	color: #333333;
-	font-family: "Apple Chancery";
-	font-size: 18px;
-	font-weight: bold;
-	text-align: center;
-}
+	#title {
+		bottom: 101%;
+		margin: 0 auto;
+		position: relative;
+		color: #333333;
+		font-family: "Apple Chancery";
+		font-size: ${3 * scale}vw;
+		font-weight: bold;
+	}
 
-.mode {
-	opacity: 0;
-	cursor: pointer;
-	color: ${yellow};
-	font-family: "Helvetica";
-	font-size: 12px;
-	font-style: bold;
-	text-align: center;
-	user-select: none;
-	position: absolute;
-	padding: 25px;
-	top: 14px;
-	z-index: 0;
-}
+	.mode {
+		top: 15.5%;
+		padding: 10%;
+		margin: 0 auto;
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		color: ${pink};
+		font-family: "Helvetica";
+		font-size: ${1.5 * scale}vw;
+		font-style: bold;
+		text-align: left;
+		user-select: none;
+	}
 
-.mode:hover {
-	opacity: 1;
-}
+	.mode:hover {
+		opacity: 1;
+	}
 
-#leftVoiceMode {
-	left: -11px;
-	transform: rotate(-22deg);
-}
+	#leftVoiceMode {
+		left: 2.5%;
+		transform: rotate(-24deg);
+	}
 
-#rightVoiceMode {
-	left: 74px;
-	transform: rotate(22deg);
-}
+	#rightVoiceMode {
+		left: 72%;
+		transform: rotate(24deg);
+	}
 
-.pedalLabel {
-	position: absolute;
-	top: 24px;
-	font-size: 24px;
-	font-family: Sansita;
-	/*{font}*/
-	text-align: center;
-	line-height: 30px;
-	/*{pedalfontsize}*/
-	width: 160px;
-	color: ${grayDark};
-}
+	@keyframes drive-color-keyframes {
+		0% { color: ${green} }
+		60% { color: ${orange} }
+		100% { color: ${yellow} }
+	}
 
-.knob-label {
-	position: absolute;
-	font-size: 12px;
-	/*{knobfontsize}*/
-	line-height: 12px;
-	width: 64px;
-	max-width: 64px;
-	overflow: hidden;
-	text-align: center;
-	font-family: Sansita;
-	/*{font}*/
-	color: #6B0000;
-	/*{fontcolor}*/
-}
+	#drive-color-mixer {
+		height: 1px;
+		width: 1px;
+		animation: drive-color-keyframes 1s linear forwards paused;
+		background: currentColor;
+		visibility: hidden;
+	}
 
-#knob1-label {
-	top: 84px;
-	left: 43px;
+	polygon,
+	polyline,
+	ellipse,
+	circle {
+		stroke-width: ${0.1 * scale}vw;
+		vector-effect: non-scaling-stroke;
+	}
+	`;
+	return style;
 }
-
-@keyframes green-red-keyframes {
-	0% { color: ${green} }
-	100% { color: ${red} }
-}
-
-#green-red-mixer {
-	height: 1px;
-	width: 1px;
-	animation: green-red-keyframes 1s linear forwards paused;
-	background: currentColor;
-}
-`;
 
 const template = `<div id="wamsdk-wamexample" class="wrapper">
-<div class="pedal">
+<div class="pedal" id="workspace">
 	<svg class="overlay" id="visualization"></svg>
+
 	<img id="background-image">
-	<div class="switchCont">
-		<webaudio-switch class="switch" id="switch1" height="24" width="48"></webaudio-switch>
-	</div>
-	<div class="knob" id="drive">
-		<webaudio-knob id="knob1" height="26" width="26" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1" tooltip="Drive %.2f"></webaudio-knob>
-		<!-- <div style="text-align:center">Drive</div> -->
-	</div>
+
+	<webaudio-switch class="switch centered" id="bypass-switch" height="20" width="20"></webaudio-switch>
+	<webaudio-knob class="knob centered" id="drive-knob" height="20" width="20" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1"></webaudio-knob>
+
 	<div class="mode" id="leftVoiceMode">L</div>
 	<div class="mode" id="rightVoiceMode">R</div>
 	<div class="label" id="title">PurrBot</div>
-  	<div id="green-red-mixer"></div>
+
+	<div id="drive-color-mixer"></div>
 </div>
 </div>
 `;
 
-const backgroundImg = './assets/background.png';
-const knobImg = './assets/MiniMoog_Main.png';
-const switchImg = './assets/switch_1.png';
+const backgroundImg = './assets/background.svg';
+const placeholderImg = './assets/pixel.png'; // not displayed, needed for webaudio-controls
 
 const getAssetUrl = (asset) => {
 	const base = new URL('.', import.meta.url);
@@ -251,10 +231,11 @@ const getAssetUrl = (asset) => {
 export default class WamExampleHTMLElement extends HTMLElement {
 	// plugin = the same that is passed in the DSP part. It's the instance
 	// of the class that extends WebAudioModule. It's an Observable plugin
-	constructor(plugin) {
+	constructor(plugin, scale = 1.0) {
 		super();
 
 		this.root = this.attachShadow({ mode: 'open' });
+		const style = computeStyleForSize(scale);
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
@@ -268,7 +249,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.updateMode('leftVoiceMode');
 		this.updateMode('rightVoiceMode');
 
-		this.whiskers = [[], []];
+		this._guiReady = false;
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
 	}
@@ -332,7 +313,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	updateStatus = (status) => {
-		this.shadowRoot.querySelector('#switch1').value = status;
+		this.shadowRoot.querySelector('#bypass-switch').value = status;
 	}
 
 	updateMode = async (parameterId, increment = false) => {
@@ -346,62 +327,88 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	handleAnimationFrame = async () => {
-		const {
-			drive,
-			bypass,
-		} = await this.plugin.audioNode.getParameterValues();
+		if (!this._guiReady) {
+			const workspace = this.shadowRoot.querySelector('#workspace');
+			const computedStyle = getComputedStyle(workspace);
+			const workspaceWidth = parseFloat(computedStyle.getPropertyValue('width').replace('px', ''));
+			const workspaceHeight = parseFloat(computedStyle.getPropertyValue('height').replace('px', ''));
 
-		this.shadowRoot.querySelector('#knob1').value = drive.value;
-		this.shadowRoot.querySelector('#switch1').value = !bypass.value;
+			// ears
+			this._earUpperY = 0.196 * workspaceHeight;
+			this._earOuterY = 0.313 * workspaceHeight;
+			this._earInnerY = 0.263 * workspaceHeight;
+			this._earUpperX = [0.112 * workspaceWidth, 0.888 * workspaceWidth];
+			this._earOuterX = [0.087 * workspaceWidth, 0.913 * workspaceWidth];
+			this._earInnerX = [0.262 * workspaceWidth, 0.738 * workspaceWidth];
 
-		const greenRedMixer = this.shadowRoot.querySelector('#green-red-mixer');
-		if (bypass.value) {
-			greenRedMixer.style.backgroundColor = grayLight;
-		} else {
-			greenRedMixer.style = `animation-delay: -${drive.value}s`;
+			// eyes
+			this._eyeOriginY = 0.375 * workspaceHeight;
+			this._eyeOriginX = [0.315 * workspaceWidth, 0.685 * workspaceWidth];
+			this._eyeRadius = 0.085 * workspaceWidth;
+			this._pupilHeight = 0.067 * workspaceWidth;
+			this._laserY = this._eyeOriginY + 0.596 * workspaceHeight;
+
+			// whiskers
+			this._whiskerUpperOuterY = 0.451 * workspaceHeight;
+			this._whiskerUpperInnerY = 0.474 * workspaceHeight;
+			this._whiskerUpperOuterX = [0.185 * workspaceWidth, 0.815 * workspaceWidth];
+			this._whiskerUpperInnerX = [0.405 * workspaceWidth, 0.595 * workspaceWidth];
+
+			this._whiskerMiddleOuterY = 0.556 * workspaceHeight;
+			this._whiskerMiddleInnerY = 0.508 * workspaceHeight;
+			this._whiskerMiddleOuterX = [0.212 * workspaceWidth, 0.788 * workspaceWidth];
+			this._whiskerMiddleInnerX = [0.393 * workspaceWidth, 0.607 * workspaceWidth];
+
+			this._whiskerLowerOuterY = 0.943 * workspaceWidth;
+			this._whiskerLowerInnerY = 0.548 * workspaceHeight;
+			this._whiskerLowerOuterX = [0.287 * workspaceWidth, 0.713 * workspaceWidth];
+			this._whiskerLowerInnerX = [0.419 * workspaceWidth, 0.581 * workspaceWidth];
+
+			this._whiskers = [[], []];
+			const numSegments = 4;
+			for (let c = 0; c < 2; ++c) {
+				let startX = this._whiskerUpperOuterX[c];
+				let startY = this._whiskerUpperOuterY;
+				let endX = this._whiskerUpperInnerX[c];
+				let endY = this._whiskerUpperInnerY;
+				this._whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+
+				startX = this._whiskerMiddleOuterX[c];
+				startY = this._whiskerMiddleOuterY;
+				endX = this._whiskerMiddleInnerX[c];
+				endY = this._whiskerMiddleInnerY;
+				this._whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+
+				startX = this._whiskerLowerOuterX[c];
+				startY = this._whiskerLowerOuterY;
+				endX = this._whiskerLowerInnerX[c];
+				endY = this._whiskerLowerInnerY;
+				this._whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
+			}
+
+			this._ledOriginX = 0.5 * workspaceWidth;
+			this._ledOriginY = 0.87 * workspaceHeight;
+			this._ledRadius = 0.07 * workspaceWidth;
+
+			this._guiReady = true;
 		}
-		const driveColor = getComputedStyle(greenRedMixer).backgroundColor;
 
-		const {
-			synthLevels,
-			effectLevels,
-		} = this.plugin.audioNode;
+		const { drive, bypass } = await this.plugin.audioNode.getParameterValues();
+
+		this.shadowRoot.querySelector('#drive-knob').value = drive.value;
+		this.shadowRoot.querySelector('#bypass-switch').value = !bypass.value;
+
+		const driveColorMixer = this.shadowRoot.querySelector('#drive-color-mixer');
+		if (bypass.value) driveColorMixer.style.backgroundColor = grayLight;
+		else driveColorMixer.style = `animation-delay: -${drive.value}s`;
+		const driveColor = getComputedStyle(driveColorMixer).backgroundColor;
+
+		const { synthLevels, effectLevels } = this.plugin.audioNode;
 
 		const minOpacity = 0.333;
 		const maxOpacity = 0.85;
 
 		let svg = '';
-
-		// ears
-		const earUpperY = 35;
-		const earOuterY = 57;
-		const earInnerY = 47.5;
-		const earUpperX = [12, 107];
-		const earOuterX = [8.5, 110];
-		const earInnerX = [31, 88];
-
-		// eyes
-		const eyeOriginY = 67.5;
-		const eyeOriginX = [38, 82];
-		const eyeRadius = 10;
-		const pupilHeight = 8;
-		const laserY = eyeOriginY + 100;
-
-		// whiskers
-		const whiskerUpperOuterY = 81;
-		const whiskerUpperInnerY = 85;
-		const whiskerUpperOuterX = [21, 98];
-		const whiskerUpperInnerX = [47, 72];
-
-		const whiskerMiddleOuterY = 100;
-		const whiskerMiddleInnerY = 91;
-		const whiskerMiddleOuterX = [25, 95];
-		const whiskerMiddleInnerX = [46, 72];
-
-		const whiskerLowerOuterY = 113;
-		const whiskerLowerInnerY = 98;
-		const whiskerLowerOuterX = [34, 86];
-		const whiskerLowerInnerX = [50.5, 69];
 
 		const whiskerOpacity0 = Math.min(
 			Math.max(effectLevels[0], synthLevels[0]) * (1.0 - 0.4 * drive.value) + minOpacity,
@@ -418,83 +425,62 @@ export default class WamExampleHTMLElement extends HTMLElement {
 			const synthLevelB = 1.0 - synthLevelA;
 			const effectLevel = effectLevels[c];
 
-			const earOpacity = Math.min(effectLevel + synthLevelA + minOpacity, maxOpacity);
-			const earPoints = `${earUpperX[c]},${earUpperY} ${earOuterX[c]},${earOuterY} ${earInnerX[c]},${earInnerY}`;
+			const earOpacity = Math.min(0.5 * effectLevel + 0.1 * synthLevelA + minOpacity, maxOpacity);
+			const earPoints = `${this._earUpperX[c]},${this._earUpperY} ${this._earOuterX[c]},${this._earOuterY} ${this._earInnerX[c]},${this._earInnerY}`;
 			svg += `\
 				<polygon
 					points="${earPoints}"
-					style="fill:${transparent};stroke:${yellow};stroke-width:.5;opacity:${earOpacity};z-index:0"
+					style="fill:${pink};stroke:${grayDark};opacity:${earOpacity};z-index:1"
 				/>
 			`;
 
-			const laserOpacity = Math.min(1.75 * synthLevelA, maxOpacity);
-			const eyeOpacity = Math.min(2.0 * effectLevel + 0.5, maxOpacity);
+			const laserOpacity = Math.min(3.0 * synthLevelA, maxOpacity);
+			const eyeOpacity = Math.min(2.0 * effectLevel + (bypass.value ? minOpacity : 0.667), maxOpacity);
 
-			const laserWidthFactor = Math.max(0.5 + synthLevelB, 0.5);
-			const minPupilWidth = Math.min(0.9, Math.max(0.2, 1.0 - drive.value)) * pupilHeight;
-			const pupilWidth = minPupilWidth + (0.333 + drive.value) * pupilHeight * synthLevelA;
-			const laserLeftX = eyeOriginX[c] + eyeRadius * (c % 2 ? -0.5 : -3) * laserWidthFactor;
-			const laserRightX = eyeOriginX[c] + eyeRadius * (c % 2 ? 3 : 0.5) * laserWidthFactor;
+			const laserWidthFactor = Math.max(0.3 + synthLevelB, 0.3);
+			const minPupilWidth = Math.min(0.9, Math.max(0.2, 1.0 - drive.value)) * this._pupilHeight;
+			const pupilWidth = minPupilWidth + (0.333 + drive.value) * this._pupilHeight * synthLevelA;
+			const laserLeftX = this._eyeOriginX[c] + this._eyeRadius * (c % 2 ? -0.5 : -3) * laserWidthFactor;
+			const laserRightX = this._eyeOriginX[c] + this._eyeRadius * (c % 2 ? 3 : 0.5) * laserWidthFactor;
 
-			const laserPoints = `${eyeOriginX[c]},${eyeOriginY} ${laserLeftX},${laserY} ${laserRightX},${laserY}`;
+			const laserPoints = `${this._eyeOriginX[c]},${this._eyeOriginY} ${laserLeftX},${this._laserY} ${laserRightX},${this._laserY}`;
 			svg += `
 				<circle
-					cx="${eyeOriginX[c]}" cy="${eyeOriginY}" r="${eyeRadius}"
-					style="fill:${driveColor};stroke:${yellow};stroke-width:.5;opacity:${eyeOpacity};z-index:-2"
+					cx="${this._eyeOriginX[c]}" cy="${this._eyeOriginY}" r="${this._eyeRadius}"
+					style="fill:${driveColor};stroke:${pink};opacity:${eyeOpacity};z-index:1"
 				/>
 				<ellipse
-					cx="${eyeOriginX[c]}" cy="${eyeOriginY}" rx="${pupilWidth}" ry="${pupilHeight}"
-					style="fill:${grayDark};stroke:${grayLight};stroke-width:.5;z-index:-1;"
+					cx="${this._eyeOriginX[c]}" cy="${this._eyeOriginY}" rx="${pupilWidth}" ry="${this._pupilHeight}"
+					style="fill:${grayDark};stroke:${grayLight};z-index:2;"
 				/>
 				<polygon
 					points="${laserPoints}"
-					style="fill:${driveColor};stroke:${yellow};stroke-width:.5;opacity:${laserOpacity};z-index:0"
+					style="fill:${driveColor};stroke:${pink};opacity:${laserOpacity};z-index:3"
 				/>
 			`;
-
-			const numSegments = 4;
-			if (this.whiskers[c].length === 0) {
-				let startX = whiskerUpperOuterX[c];
-				let startY = whiskerUpperOuterY;
-				let endX = whiskerUpperInnerX[c];
-				let endY = whiskerUpperInnerY;
-				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
-
-				startX = whiskerMiddleOuterX[c];
-				startY = whiskerMiddleOuterY;
-				endX = whiskerMiddleInnerX[c];
-				endY = whiskerMiddleInnerY;
-				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
-
-				startX = whiskerLowerOuterX[c];
-				startY = whiskerLowerOuterY;
-				endX = whiskerLowerInnerX[c];
-				endY = whiskerLowerInnerY;
-				this.whiskers[c].push(new ZigZag(startX, startY, endX, endY, numSegments));
-			}
 
 			const jitter = (0.1 + 0.5 * drive.value) * Math.max(synthLevelA, effectLevel);
 			const smoothing = Math.min(0.25, 1.0 - jitter);
 			for (let i = 0; i < 3; ++i) {
-				const whiskerPoints = this.whiskers[c][i].updatePoints(jitter, smoothing);
+				const whiskerPoints = this._whiskers[c][i].updatePoints(jitter, smoothing);
 				svg += `
 					<polyline
 						points="${whiskerPoints}"
-						style="fill:${transparent};stroke:${yellow};stroke-width:.5;
-						opacity:${whiskerOpacity[Math.round(Math.random())]};z-index:-1"
+						style="fill:${transparent};stroke:${driveColor};
+						opacity:${whiskerOpacity[Math.round(Math.random())]};z-index:2"
 					/>
 				`;
 			}
 		}
 
-		const ledOriginX = 59;
-		const ledOriginY = 155;
-		const ledRadius = 9;
-
 		svg += `\
 			<circle
-				cx="${ledOriginX}" cy="${ledOriginY}" r="${ledRadius}"
-				style="fill:${driveColor};stroke:${yellow};stroke-width:.5;z-index:-1"
+				cx="${this._ledOriginX}" cy="${this._ledOriginY}" r="${this._ledRadius * 1.1}"
+				style="fill:${grayDark};stroke:${grayLight};z-index:1"
+			/>
+			<circle
+				cx="${this._ledOriginX}" cy="${this._ledOriginY}" r="${this._ledRadius}"
+				style="fill:${driveColor};stroke:${bypass.value ? black : grayDark};z-index:2"
 			/>
 		`;
 
@@ -509,19 +495,15 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		// Set up the background img & style
 		const background = this.root.querySelector('img');
 		background.src = getAssetUrl(backgroundImg);
-		//background.src = bgImage;
-		background.style = 'border-radius : 5px;';
 		// Setting up the knobs imgs, those are loaded from the assets
-		this.root.querySelectorAll('.knob').forEach((knob) => {
-			knob.querySelector('webaudio-knob').setAttribute('src', getAssetUrl(knobImg));
-		});
+		this.root.querySelector('webaudio-knob').setAttribute('src', getAssetUrl(placeholderImg));
 		// Setting up the switches imgs, those are loaded from the assets
-		this.root.querySelector('webaudio-switch').setAttribute('src', getAssetUrl(switchImg));
+		this.root.querySelector('webaudio-switch').setAttribute('src', getAssetUrl(placeholderImg));
 	}
 
 	setKnobs() {
 		this.shadowRoot
-			.querySelector('#knob1')
+			.querySelector('#drive-knob')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParameterValues({
 					drive: {
@@ -559,7 +541,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		});
 
 		this.shadowRoot
-			.querySelector('#switch1')
+			.querySelector('#bypass-switch')
 			.addEventListener('change', function onChange() {
 				plugin.audioNode.setParameterValues({
 					bypass: {
