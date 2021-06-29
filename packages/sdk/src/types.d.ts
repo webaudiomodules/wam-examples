@@ -92,7 +92,7 @@ export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array
 export interface RingBuffer {
     /** Returns the type of the underlying ArrayBuffer for this RingBuffer. This allows implementing crude type checking. */
     readonly type: string;
-    /** Push bytes to the ring buffer. `bytes` is a typed array of the same type as passed in the ctor, to be written to the queue. Returns the number of elements written to the queue. */
+    /** Push bytes to the ring buffer. `elements` is a typed array of the same type as passed in the ctor, to be written to the queue. Returns the number of elements written to the queue. */
     push(elements: TypedArray): number;
     /** Read `elements.length` elements from the ring buffer. `elements` is a typed array of the same type as passed in the ctor. Returns the number of elements read from the queue, they are placed at the beginning of the array passed as parameter. */
     pop(elements: TypedArray): number;

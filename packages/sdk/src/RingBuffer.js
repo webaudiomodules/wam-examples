@@ -68,7 +68,7 @@ const executable = () => {
 		}
 
 		/**
-		 * Push bytes to the ring buffer. `bytes` is a typed array of the same type
+		 * Push bytes to the ring buffer. `elements` is a typed array of the same type
 		 * as passed in the ctor, to be written to the queue.
 		 * Returns the number of elements written to the queue.
 		 *
