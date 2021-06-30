@@ -219,7 +219,7 @@ const template = `<div id="wamsdk-wamexample" class="wrapper">
 	<webaudio-knob class="knob absolute" id="leftVoiceMode-control" height="20" width="20" min="0" max="4" step="1" value="4" defvalue="4" midilearn="1"></webaudio-knob>
 	<webaudio-knob class="knob absolute" id="rightVoiceMode-control" height="20" width="20" min="0" max="4" step="1" value="4" defvalue="4" midilearn="1"></webaudio-knob>
 	<webaudio-knob class="knob absolute" id="drive-control" height="20" width="20" min="0" max="1" step="0.01" value="0.5" defvalue="0.5" midilearn="1"></webaudio-knob>
-	<webaudio-switch class="switch absolute" id="bypass-control" midilearn="1" value="0" defvalue="0"></webaudio-switch>
+	<webaudio-switch class="switch absolute" id="bypass-control" midilearn="1" invert="1" value="0" defvalue="0"></webaudio-switch>
 
 	<div class="mode" id="leftVoiceMode-text">L</div>
 	<div class="mode" id="rightVoiceMode-text">R</div>
@@ -260,7 +260,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		});
 
 		this.setResources();
-		this.setKnobs();
+		this.setKnobListener();
 		this.setSwitchListener();
 		this.setTextListener();
 
@@ -528,7 +528,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		background.src = getAssetUrl(backgroundImg);
 	}
 
-	setKnobs() {
+	setKnobListener() {
 		this.shadowRoot
 			.querySelector('#drive-control')
 			.addEventListener('input', (e) => {
