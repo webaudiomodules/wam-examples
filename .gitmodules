@@ -1,0 +1,3 @@
+[submodule "packages/pedalboard/Sortable"]
+	path = packages/pedalboard/Sortable
+	url = https://github.com/SortableJS/Sortable
