@@ -4,8 +4,11 @@ export class TemplateWamElement extends HTMLElement {
     }
     constructor() {
         super();
+
         /** @type {import('./Node.js').default} */
         this.audioNode = null;
+
+        // Append HTML elements
 		this.root = this.attachShadow({ mode: 'open' });
         const html = `
 <div id="container" style="position: relative; display: flex; flex-direction: column; height: 80px; width: 200px">
@@ -20,6 +23,8 @@ export class TemplateWamElement extends HTMLElement {
         this.gainInput.oninput = e => this.audioNode.setParameterValues({ gain: { id: 'gain', value: +e.currentTarget.value, normalized: false } });
         this.delayInput.oninput = e => this.audioNode.setParameterValues({ delay: { id: 'delay', value: +e.currentTarget.value, normalized: false } });
         this.root.appendChild(div);
+
+        // Update the sliders each animation frame
         this.handleAnimationFrame = async () => {
             if (!this.isConnected || !this.audioNode) {
                 this.raf = window.requestAnimationFrame(this.handleAnimationFrame);
