@@ -1,6 +1,8 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable import/prefer-default-export */
 
+import { TypedArray } from "../src/types";
+
 /**
  * Computes `n`th discrete difference of sequential values in `arrayLike`.
  * Note that length of the output array will be `n` elements shorter than
@@ -30,8 +32,8 @@ export function diffArray(arrayLike: ArrayLike<number>, n = 1) {
  * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
  * @param arrayLike the sequence of values to difference
  */
-export function shuffleArray(arrayLike: ArrayLike<any>) {
-	let currentIndex = arrayLike.length;
+export function shuffleArray(array: ArrayLike<any> | TypedArray) {
+	let currentIndex = array.length;
 	let randomIndex = -1;
 
 	// While there remain elements to shuffle...
@@ -42,8 +44,32 @@ export function shuffleArray(arrayLike: ArrayLike<any>) {
 
 		// And swap it with the current element.
 		// @ts-ignore
-		[arrayLike[currentIndex], arrayLike[randomIndex]] = [arrayLike[randomIndex],
-			arrayLike[currentIndex]];
+		[array[currentIndex], array[randomIndex]] = [array[randomIndex],
+			array[currentIndex]];
+	}
+}
+
+export function fillRandom(array: ArrayLike<any> | TypedArray | ArrayBuffer, min, max, integers) {
+	// @ts-ignore
+	const length = array.hasOwnProperty('length') ? array.length : array.byteLength;
+	let n = 0;
+	if (integers) {
+		if (typeof array[0] === 'bigint') {
+			while (n < length) {
+				array[n] = BigInt(Number(min) + Math.floor(Math.random() * Number(max)));
+				n++;
+			}
+		} else {
+			while (n < length) {
+				array[n] = min + Math.floor(Math.random() * max);
+				n++;
+			}
+		}
+	} else {
+		while (n < length) {
+			array[n] = min + Math.random() * max;
+			n++;
+		}
 	}
 }
 
