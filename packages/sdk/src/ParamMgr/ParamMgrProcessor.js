@@ -106,6 +106,9 @@ const processor = (processorId, paramsConfig) => {
 			/** @type {WamEvent[]} */
 			this.eventQueue = [];
 
+			/** @type {(event: WamEvent) => any} */
+			this.handleEvent = null;
+
 			audioWorkletGlobalScope.webAudioModules.create(this);
 
 			this.messagePortRequestId = -1;
@@ -219,6 +222,9 @@ const processor = (processorId, paramsConfig) => {
 			return wams;
 		}
 
+		/**
+		 * @param {WamEvent[]} events
+		 */
 		emitEvents(...events) {
 			const { eventGraph } = audioWorkletGlobalScope.webAudioModules;
 			if (!eventGraph.has(this)) return;
@@ -288,6 +294,7 @@ const processor = (processorId, paramsConfig) => {
 			for ($event = 0; $event < this.eventQueue.length; $event++) {
 				const event = this.eventQueue[$event];
 				if (event.time && event.time > currentTime) break;
+				if (typeof this.handleEvent === 'function') this.handleEvent(event);
 				this.call('dispatchWamEvent', event);
 			}
 			if ($event) this.eventQueue.splice(0, $event);
