@@ -104,7 +104,7 @@ const executable = () => {
 		 * @param {RingBufferConstructor} RingBuffer
 		 * @param {number} eventCapacity
 		 * @param {number} [maxBytesPerEvent=undefined]
-		 * @return {SharedArrayBuffer}
+		 * @returns {SharedArrayBuffer}
 		 */
 		static getStorageForEventCapacity(RingBuffer, eventCapacity, maxBytesPerEvent = undefined) {
 			if (maxBytesPerEvent === undefined) maxBytesPerEvent = WamEventRingBuffer.DefaultExtraBytesPerEvent;
@@ -201,7 +201,7 @@ const executable = () => {
 		 * @param {number} byteSize total size of event in bytes
 		 * @param {string} type
 		 * @param {number} time
-		 * @return {number} updated byte offset
+		 * @returns {number} updated byte offset
 		 */
 		_writeHeader(byteSize, type, time) {
 			let byteOffset = 0;
@@ -433,7 +433,7 @@ const executable = () => {
 		 * the number of events successfully written.
 		 *
 		 * @param {WamEvent[]} events
-		 * @return {number}
+		 * @returns {number}
 		 */
 		write(...events) {
 			const numEvents = events.length;
@@ -460,7 +460,7 @@ const executable = () => {
 		 * Read WamEvents from the ring buffer, returning
 		 * the list of events successfully read.
 		 *
-		 * @return {WamEvent[]}
+		 * @returns {WamEvent[]}
 		 */
 		read() {
 			if (this._rb.empty) return [];
@@ -506,7 +506,7 @@ const executable = () => {
 		 * Generates a numeric parameter code in a range suitable for
 		 * encoding as uint16.
 		 *
-		 * @return {number}
+		 * @returns {number}
 		 */
 		_generateParameterCode() {
 			if (this._parameterCode > 65535) throw Error('Too many parameters have been registered!');
