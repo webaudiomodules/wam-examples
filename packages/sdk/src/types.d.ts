@@ -94,8 +94,8 @@ export interface RingBuffer {
     readonly type: string;
     /** Push bytes to the ring buffer. `elements` is a typed array of the same type as passed in the ctor, to be written to the queue. Returns the number of elements written to the queue. */
     push(elements: TypedArray): number;
-    /** Read `elements.length` elements from the ring buffer. `elements` is a typed array of the same type as passed in the ctor. Returns the number of elements read from the queue, they are placed at the beginning of the array passed as parameter. */
-    pop(elements: TypedArray): number;
+    /** Read `elements.length` elements from the ring buffer if `elements` is a typed array of the same type as passed in the ctor. If `elements` is an integer, pop and discard that many elements from the ring buffer. Returns the number of elements read from the queue, they are placed at the beginning of the array passed as parameter if `elements` is not an integer. */
+    pop(elements: TypedArray | number): number;
     /** True if the ring buffer is empty false otherwise. This can be late on the reader side: it can return true even if something has just been pushed. */
     readonly empty: boolean;
     /** True if the ring buffer is full, false otherwise. This can be late on the write side: it can return true when something has just been popped. */
@@ -208,6 +208,44 @@ export const WamEventRingBuffer: {
 	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, parameterIds: string[], maxBytesPerEvent?: number): WamEventRingBuffer;
 };
 
+export interface WamArrayRingBuffer {
+	/**
+	 * Attempt to write array to the ring buffer, returning whether
+	 * or not it was successfully written.
+	 */
+	write(array: TypedArray): boolean;
+
+	/**
+	 * Attempt to read array from the ring buffer, returning whether
+	 * or not it was successfully read. If `newest` is true, skips
+	 * all pending arrays but the most recently written one.
+	 */
+	read(array: TypedArray, newest: boolean): boolean;
+}
+export const WamArrayRingBuffer: {
+	prototype: WamArrayRingBuffer;
+
+	/**
+	 * Default number of arrays for which memory will be allocated.
+	 */
+	DefaultArrayCapacity: number;
+
+	/**
+	 * Returns a SharedArrayBuffer large enough to safely store the
+	 * specified number of arrays of the specified length. Specify
+	 * `maxArrayCapacity` to support storing more than
+	 * `DefaultArrayCapacity` arrays in the buffer.
+	 */
+	getStorageForEventCapacity(RingBufferConstructor: typeof RingBuffer, arrayLength: number, arrayType: TypedArrayConstructor, maxArrayCapacity?: number): SharedArrayBuffer;
+
+	/**
+	 * Provides methods for writing / reading arrays to / from a
+	 * RingBuffer. Specify `maxArrayCapacity` to support storing more
+	 * than `DefaultArrayCapacity` arrays in the buffer.
+	 */
+	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, arrayLength: number, arrayType: TypedArrayConstructor, maxArrayCapacity?: number): WamArrayRingBuffer;
+};
+
 export interface WamNode extends IWamNode {
 	readonly moduleId: string;
     /**
@@ -314,6 +352,7 @@ export const WebAudioModule: {
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
     RingBuffer: typeof RingBuffer;
     WamEventRingBuffer: typeof WamEventRingBuffer;
+	WamArrayRingBuffer: typeof WamArrayRingBuffer;
     WamParameter: typeof WamParameter;
     WamParameterInterpolator: typeof WamParameterInterpolator;
 }

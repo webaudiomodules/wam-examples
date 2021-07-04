@@ -101,12 +101,13 @@ const executable = () => {
 		}
 
 		/**
-		 * Read `elements.length` elements from the ring buffer. `elements` is a typed
-		 * array of the same type as passed in the ctor.
+		 * Read `elements.length` elements from the ring buffer if `elements` is a typed
+		 * array of the same type as passed in the ctor. If `elements` is an integer,
+		 * pop and discard that many elements from the ring buffer.
 		 * Returns the number of elements read from the queue, they are placed at the
-		 * beginning of the array passed as parameter.
+		 * beginning of the array passed as parameter if `elements` is not an integer.
 		 *
-		 * @param {TypedArray} elements
+		 * @param {TypedArray | number} elements
 		 */
 		pop(elements) {
 			const rd = Atomics.load(this.read_ptr, 0);
@@ -116,14 +117,19 @@ const executable = () => {
 				return 0;
 			}
 
-			const toRead = Math.min(this._availableRead(rd, wr), elements.length);
+			const isArray = !Number.isInteger(elements);
+			// @ts-ignore
+			const toRead = Math.min(this._availableRead(rd, wr), isArray ? elements.length : elements);
 
-			const firstPart = Math.min(this._storageCapacity() - rd, toRead);
-			const secondPart = toRead - firstPart;
+			if (isArray) {
+				const firstPart = Math.min(this._storageCapacity() - rd, toRead);
+				const secondPart = toRead - firstPart;
 
-			this._copy(this.storage, rd, elements, 0, firstPart);
-			this._copy(this.storage, 0, elements, firstPart, secondPart);
-
+				// @ts-ignore
+				this._copy(this.storage, rd, elements, 0, firstPart);
+				// @ts-ignore
+				this._copy(this.storage, 0, elements, firstPart, secondPart);
+			}
 			Atomics.store(this.read_ptr, 0, (rd + toRead) % this._storageCapacity());
 
 			return toRead;
