@@ -328,9 +328,6 @@ export default class WamNode extends AudioWorkletNode {
 			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
 				parameterIds);
 
-			/** @private @type {number} */
-			this._eventReaderInterval = null;
-
 			const request = 'initialize/eventSab';
 			const id = this._generateMessageId();
 			let processed = false;
