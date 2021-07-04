@@ -47,13 +47,11 @@
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
 const {
-	// @ts-ignore
+	RingBuffer,
+	WamArrayRingBuffer,
 	WamProcessor,
-	// @ts-ignore
 	WamParameterInfo,
-	// @ts-ignore
 	WamExampleSynth,
-	// @ts-ignore
 	WamExampleEffect,
 	registerProcessor,
 } = globalThis;
