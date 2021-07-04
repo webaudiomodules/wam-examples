@@ -264,9 +264,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.setSwitchListener();
 		this.setTextListener();
 
-		this._updatePeriodMs = 50;
+		this._updatePeriodMs = -1;
 		this._timestamp = null;
 		this._sleep = (delayMs) => { return new Promise(resolve => { setTimeout(resolve, delayMs) }); };
+
 		this._guiReady = false;
 
 		window.requestAnimationFrame(this.handleAnimationFrame);
@@ -419,6 +420,8 @@ export default class WamExampleHTMLElement extends HTMLElement {
 			this.updateMode('rightVoiceMode');
 			this.plugin.audioNode.addEventListener('wam-automation', this._updateState);
 
+			this._updatePeriodMs = this.plugin.audioNode.levelsUpdatePeriodMs;
+
 			this._guiReady = true;
 		}
 
@@ -434,7 +437,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		else driveColorMixer.style = `animation-delay: -${drive.value}s`;
 		const driveColor = getComputedStyle(driveColorMixer).backgroundColor;
 
-		const { synthLevels, effectLevels } = this.plugin.audioNode;
+		const { synthLevels, effectLevels } = this.plugin.audioNode.levels;
 
 		const minOpacity = 0.333;
 		const maxOpacity = 0.85;
