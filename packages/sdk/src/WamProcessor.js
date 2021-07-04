@@ -256,20 +256,20 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				}
 			} else if (verb === 'initialize') {
 				if (noun === 'eventSab') {
-					const { mainToAudioSab, audioToMainSab } = content;
+					const { mainToAudioEventSab, audioToMainEventSab } = content;
 
 					/** @private @type {SharedArrayBuffer} */
-					this._audioToMainSab = audioToMainSab;
+					this._audioToMainEventSab = audioToMainEventSab;
 
 					/** @private @type {SharedArrayBuffer} */
-					this._mainToAudioSab = mainToAudioSab;
+					this._mainToAudioEventSab = mainToAudioEventSab;
 
 					const parameterIds = Object.keys(this._parameterInfo);
 					/** @private @type {WamEventRingBuffer} */
-					this._eventWriter = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
+					this._eventWriter = new WamEventRingBuffer(RingBuffer, this._audioToMainEventSab,
 						parameterIds);
 					/** @private @type {WamEventRingBuffer} */
-					this._eventReader = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
+					this._eventReader = new WamEventRingBuffer(RingBuffer, this._mainToAudioEventSab,
 						parameterIds);
 
 					this._eventSabReady = true;

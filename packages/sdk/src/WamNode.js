@@ -314,18 +314,18 @@ export default class WamNode extends AudioWorkletNode {
 			}
 
 			/** @private @type {SharedArrayBuffer} */
-			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
+			this._mainToAudioEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
 			/** @private @type {SharedArrayBuffer} */
-			this._audioToMainSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
+			this._audioToMainEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
 			/** @private @type {WamEventRingBuffer} */
-			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
+			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioEventSab,
 				parameterIds);
 			/** @private @type {WamEventRingBuffer} */
-			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
+			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainEventSab,
 				parameterIds);
 
 			const request = 'initialize/eventSab';
@@ -338,8 +338,8 @@ export default class WamNode extends AudioWorkletNode {
 					id,
 					request,
 					content: {
-						mainToAudioSab: this._mainToAudioSab,
-						audioToMainSab: this._audioToMainSab,
+						mainToAudioEventSab: this._mainToAudioEventSab,
+						audioToMainEventSab: this._audioToMainEventSab,
 					},
 				});
 			}).then((resolved) => {
