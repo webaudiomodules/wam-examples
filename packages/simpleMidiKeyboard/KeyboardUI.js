@@ -34,6 +34,7 @@ class KeyboardUI extends HTMLElement {
 		this._svg.setAttribute('width', '100%');
 		this._svg.setAttribute('height', '100%');
 		this._svg.style.touchAction = 'none';
+		this._svg.style.maxHeight = '160px';
 		this._rect = this._root.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'rect');
 		this._rect.setAttribute('x', '0');
 		this._rect.setAttribute('y', '0');

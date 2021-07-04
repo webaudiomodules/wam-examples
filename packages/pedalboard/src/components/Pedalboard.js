@@ -14,9 +14,9 @@ let typesList = new Set();
 let setPedalsList;
 let setPatchesList;
 let setTypesList;
-
-fetch(new URL('./pedals.json', import.meta.url).href).then((res) => res.json()).then((pedalsJSON) => {
-	Promise.all(pedalsJSON.map((url) => fetch(`${url}/descriptor.json`).then((res) => res.json()).then((json) => {
+const baseUrl = import.meta.url;
+fetch(new URL('./pedals.json', baseUrl).href).then((res) => res.json()).then((pedalsJSON) => {
+	Promise.all(pedalsJSON.map((url) => fetch(new URL(`${url}/descriptor.json`, baseUrl).href).then((res) => res.json()).then((json) => {
 		json.url = url;
 		if (!json.keywords) json.keywords = [];
 		json.keywords.forEach((k) => typesList.add(k));
@@ -29,7 +29,7 @@ fetch(new URL('./pedals.json', import.meta.url).href).then((res) => res.json()).
 	});
 });
 
-fetch(new URL('./patches.json', import.meta.url).href).then((res) => res.json()).then((patchesJSON) => {
+fetch(new URL('./patches.json', baseUrl).href).then((res) => res.json()).then((patchesJSON) => {
 	patchesList = patchesJSON;
 	if (setPatchesList) setPatchesList(patchesList);
 });
@@ -145,7 +145,7 @@ const PedalboardSelector = ({ onClick, selectedType }) => {
 					{
 						pedals.map((pedal) => (
 							<img
-								src={`${pedal.url}/${pedal.thumbnail || 'thumbnail.png'}`}
+								src={new URL(`${pedal.url}/${pedal.thumbnail || 'thumbnail.png'}`, baseUrl).href}
 								alt={`image_pedale_${pedal.url}`}
 								key={pedal.url}
 								className={css.PedalboardSelectorThumbnail}

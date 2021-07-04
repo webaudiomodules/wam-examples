@@ -326,9 +326,9 @@ export const WamProcessor: {
     new (options: AudioWorkletNodeOptions): WamProcessor;
 } & Pick<typeof IWamProcessor, "parameterDescriptors">;
 
-export interface WebAudioModule extends IWebAudioModule {
+export interface WebAudioModule<Node extends IWamNode = IWamNode> extends IWebAudioModule<Node> {
 	readonly _timestamp: number;
-    _audioNode: IWamNode;
+    _audioNode: Node;
     _initialized: boolean;
     /**
      * Url to load the plugin's GUI HTML
@@ -345,8 +345,8 @@ export interface WebAudioModule extends IWebAudioModule {
 
 export const WebAudioModule: {
 	prototype: WebAudioModule;
-    createInstance(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule>;
-	new (audioContext: BaseAudioContext): WebAudioModule;
+    createInstance<Node extends WamNode = WamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
+	new <Node extends WamNode = WamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
