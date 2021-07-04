@@ -46,11 +46,11 @@
 // @ts-ignore
 const {
 	AudioWorkletProcessor,
-	WamParameterInterpolator,
-	WamParameter,
-	WamEventRingBuffer,
 	webAudioModules,
 	RingBuffer,
+	WamEventRingBuffer,
+	WamParameter,
+	WamParameterInterpolator,
 } = globalThis;
 
 /**
