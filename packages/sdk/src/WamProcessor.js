@@ -61,20 +61,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * Override to fetch plugin's params via whatever means desired.
 	 * @returns {WamParameterInfoMap}
 	 */
-	static generateWamParameterInfo() {
-		return {};
-	}
-
-	static get parameterDescriptors() {
-		const allParameterInfos = WamProcessor.generateWamParameterInfo();
-		/* eslint-disable-next-line max-len */
-		return Object.entries(allParameterInfos).map(([name, { defaultValue, minValue, maxValue }]) => ({
-			name,
-			defaultValue,
-			minValue,
-			maxValue,
-		}));
-	}
+	static generateWamParameterInfo() { return {}; }
 
 	/** @param {AudioWorkletNodeOptions} options */
 	constructor(options) {
