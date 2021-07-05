@@ -22,6 +22,8 @@ const {
 	WamExampleDcBlockerFilter,
 } = WamExampleComponents;
 
+const piByTwo = Math.PI / 2;
+
 /**
  * Example drive effect.
  *
@@ -130,7 +132,7 @@ class WamExampleDrive {
 				const x = input[n];
 				const sign = x >= 0 ? 1 : -1;
 
-				let phi = dirty * this._phiWidth * x;
+				let phi = (piByTwo + piByTwo * dirty) * this._phiWidth * x;
 				while (phi > this._phiMax) {
 					phi -= this._phiWidth;
 				}
@@ -138,7 +140,7 @@ class WamExampleDrive {
 					phi += this._phiWidth;
 				}
 
-				const beta = 4.0 * phi * (this._phiMax - phi);
+				const beta = (2.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
 				const y = sign * ((4.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
 				output[n] = y - dirty * clean * this._memory2[c];
 
