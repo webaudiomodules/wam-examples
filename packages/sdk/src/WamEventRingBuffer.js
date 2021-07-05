@@ -69,10 +69,11 @@ const executable = () => {
 		 * {float64} tempo
 		 * {uint8} time signature numerator
 		 * {uint8} time signature denominator
+		 * {uint8} playing flag
 		 *
 		 * @type {number}
 		 */
-		static WamTransportEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1;
+		static WamTransportEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1;
 
 		/**
 		 * Number of bytes required for WamMidiEvent or WamMpeEvent
@@ -255,7 +256,7 @@ const executable = () => {
 				 */
 				const { data } = event;
 				const {
-					currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator,
+					currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator, playing
 				} = data;
 
 				this._eventBytesView.setUint32(byteOffset, currentBar);
@@ -267,6 +268,8 @@ const executable = () => {
 				this._eventBytesView.setUint8(byteOffset, timeSigNumerator);
 				byteOffset += 1;
 				this._eventBytesView.setUint8(byteOffset, timeSigDenominator);
+				byteOffset += 1;
+				this._eventBytesView.setUint8(byteOffset, playing ? 1 : 0);
 				byteOffset += 1;
 			} break;
 			case 'wam-mpe':
@@ -373,13 +376,15 @@ const executable = () => {
 				byteOffset += 1;
 				const timeSigDenominator = this._eventBytesView.getUint8(byteOffset);
 				byteOffset += 1;
+				const playing = (this._eventBytesView.getUint8(byteOffset) == 1);
+				byteOffset += 1;
 
 				/** @type {WamTransportEvent} */
 				const event = {
 					type,
 					time,
 					data: {
-						currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator,
+						currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator, playing
 					},
 				};
 				return event;

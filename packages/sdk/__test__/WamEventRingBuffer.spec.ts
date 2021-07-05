@@ -38,6 +38,7 @@ describe('WamEventRingBuffer Suite', () => {
 			tempo: 120,
 			timeSigNumerator: 3,
 			timeSigDenominator: 4,
+			playing: true,
 		},
 	};
 
