@@ -172,6 +172,7 @@ export const WamEventRingBuffer: {
 	 * {float64} tempo
 	 * {uint8} time signature numerator
 	 * {uint8} time signature denominator
+	 * {uint8} playing flag
 	 */
 	WamTransportEventBytes: number;
 
