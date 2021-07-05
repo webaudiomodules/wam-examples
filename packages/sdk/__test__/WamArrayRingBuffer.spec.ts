@@ -6,7 +6,6 @@ import expect from './jestUtilities';
 import getRingBuffer from '../src/RingBuffer.js';
 import getWamArrayRingBuffer from '../src/WamArrayRingBuffer.js';
 import { fillRandom, shuffleArray } from './testUtilities';
-import { TypedArray } from '../src/types';
 
 const RingBuffer = getRingBuffer();
 const WamArrayRingBuffer = getWamArrayRingBuffer();
