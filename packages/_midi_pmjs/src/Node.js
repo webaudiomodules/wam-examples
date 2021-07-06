@@ -31,7 +31,7 @@ export default class TemplateWamNode extends CompositeAudioNode {
 	/**
 	 * Connect all the nodes define the output
 	 *
-	 * @param {import('../../sdk/src/WebAudioModule').default} module
+	 * @param {import('./index.js').default} module
 	 */
 	async setup(module) {
 		await this.createNodes(module);
