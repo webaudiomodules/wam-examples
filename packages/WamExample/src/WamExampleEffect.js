@@ -226,8 +226,7 @@ export default class WamExampleEffect {
 
 		// dcblockers process in place
 		for (let c = 0; c < this._numChannels; ++c) {
-			const y = outputs[c];
-			this._dcblockers[c].process(startSample, endSample, y);
+			this._dcblockers[c].process(startSample, endSample, outputs[c]);
 		}
 	}
 }
