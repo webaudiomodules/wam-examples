@@ -85,7 +85,8 @@ export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array
 /**
  * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
  * The producer and the consumer can be on separate threads, but cannot change roles,
- * except with external synchronization.
+ * except with external synchronization. Adapted from https://github.com/padenot/ringbuf.js
+ * MPL-2.0 License (see RingBuffer_LICENSE.txt)
  *
  * @author padenot
  */
