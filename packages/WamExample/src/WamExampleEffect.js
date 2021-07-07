@@ -147,8 +147,8 @@ class WamExampleDrive {
 					phi += this._phiWidth;
 				}
 
-				const beta = (2.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
-				const y = sign * ((4.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
+				const beta = (3.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
+				const y = sign * ((3.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
 				output[n] = y - dirty * clean * this._memory2[c];
 
 				this._memory2[c] = this._memory1[c];
