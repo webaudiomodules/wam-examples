@@ -331,7 +331,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.plugin.audioNode.scheduleEvents(...noteEvents);
 	}
 
-	updateMode = async (parameterId, increment = false) => {
+	updateMode = (parameterId, increment = false) => {
 		this._controls[parameterId].value = Math.floor(this._controls[parameterId].value);
 		if (increment) this._controls[parameterId].value = (this._controls[parameterId].value + 1) % 5;
 		const text = modeStrings[this._controls[parameterId].value];
