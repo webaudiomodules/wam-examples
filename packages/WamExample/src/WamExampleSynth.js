@@ -317,6 +317,9 @@ class WamExampleSynthPart {
 	reset() {
 		this._active = false;
 		this._oscillator2Active = false;
+		this._lowpass1.reset();
+		this._lowpass2.reset();
+		this._dcblocker.reset();
 	}
 
 	/**
@@ -365,9 +368,11 @@ class WamExampleSynthPart {
 			this._oscillator2Active = true;
 		}
 
-		this._lowpass1.start(filterFreqHz, this._sampleRate);
-		this._lowpass2.start(filterFreqHz, this._sampleRate);
-		this._dcblocker.start();
+		this._lowpass1.reset();
+		this._lowpass2.reset();
+		this._dcblocker.reset();
+		this._lowpass1.update(filterFreqHz, this._sampleRate);
+		this._lowpass2.update(filterFreqHz, this._sampleRate);
 	}
 
 	/**
@@ -622,6 +627,16 @@ export default class WamExampleSynth {
 
 		/** @private @type {WamExampleSynthPart.Mode} waveform mode for right channel */
 		this._rightVoiceMode = WamExampleSynthPart.Mode.IDLE;
+	}
+
+	/** Put all voices into idle state */
+	reset() {
+		this._voiceStates.fill(0);
+		let i = 0;
+		while (i < this._numVoices) {
+			this._voices[i].reset();
+			i++;
+		}
 	}
 
 	/**

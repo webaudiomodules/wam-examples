@@ -139,6 +139,15 @@ class WamExampleProcessor extends WamProcessor {
 	}
 
 	/**
+	 * @param {any} state
+	 */
+	 _setState(state) {
+		this._effect.reset();
+		this._synth.reset();
+		super._setState(state);
+	}
+
+	/**
 	 * Messages from main thread appear here.
 	 * @param {MessageEvent} message
 	 */

@@ -93,6 +93,13 @@ class WamExampleDrive {
 		this._phiWidth = this._phiMax - this._phiMin;
 	}
 
+	/** Restore initial state */
+	reset() {
+		this._driveDone = false;
+		this._memory1.fill(0);
+		this._memory2.fill(0);
+	}
+
 	/**
 	 * Apply the effect
 	 * @param {number} startSample beginning of processing slice
@@ -195,7 +202,7 @@ export default class WamExampleEffect {
 			if (!this._inPlace) this._buffers.push(new Float32Array(samplesPerQuantum));
 
 			this._lowpasses.push(new WamExampleLowpassFilter());
-			this._lowpasses[c].start(lowpassFrequencyHz, sampleRate);
+			this._lowpasses[c].update(lowpassFrequencyHz, sampleRate);
 
 			this._dcblockers.push(new WamExampleDcBlockerFilter());
 		}
@@ -204,6 +211,15 @@ export default class WamExampleEffect {
 
 		/** @private @type {WamExampleDrive} drive component */
 		this._drive = new WamExampleDrive(parameterInterpolators, samplesPerQuantum, sampleRate, config);
+	}
+
+	/** Restore initial state */
+	reset() {
+		for (let c = 0; c < this._numChannels; ++c) {
+			this._lowpasses[c].reset();
+			this._dcblockers[c].reset();
+		}
+		this._drive.reset();
 	}
 
 	/**

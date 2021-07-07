@@ -17,19 +17,23 @@ const twoPi = 2.0 * Math.PI;
  */
 export class WamExampleLowpassFilter {
 	constructor() {
-		this._memoryY = 0.0;
 		this._alpha = 0.0;
 		this._beta = 0.0;
+		this.reset();
+	}
+
+	/** Reset the filter memory */
+	reset() {
+		this._memoryY = 0.0;
 	}
 
 	/**
-	 * Prepare the filter by resetting internal memory and computing
-	 * coefficients based on the chosen frequency in Hz and sample rate
+	 * Update filter coefficients based on the chosen frequency
+	 * in Hz and sample rate
 	 * @param {number} frequencyHz
 	 * @param {number} sampleRate
 	 */
-	start(frequencyHz, sampleRate) {
-		this._memoryY = 0.0;
+	update(frequencyHz, sampleRate) {
 		const wc = (twoPi * frequencyHz) / sampleRate;
 		const coswc = Math.cos(wc);
 		this._alpha = coswc - 1.0 + Math.sqrt(coswc * coswc - 4.0 * coswc + 3.0);
@@ -64,17 +68,21 @@ export class WamExampleDcBlockerFilter {
 	 * @param {number} alpha determines strength of filter [0.9, 0.999]
 	 */
 	constructor(alpha = 0.999) {
+		this._alpha = alpha;
+		this.reset();
+	}
+
+	/** Reset the filter memory */
+	reset() {
 		this._memoryX = 0.0;
 		this._memoryY = 0.0;
-		this._alpha = alpha;
 	}
 
 	/**
-	 * Prepare the filter by resetting internal memory
+	 * Update the filter coefficient
 	 */
-	start() {
-		this._memoryX = 0.0;
-		this._memoryY = 0.0;
+	update(alpha) {
+		this._alpha = alpha;
 	}
 
 	/**
