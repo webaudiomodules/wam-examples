@@ -56,7 +56,7 @@ const orange = '#fcb365';
 const yellow = '#ffdb59';
 const green = '#bcd977';
 const blue = '#b5cfe6';
-const pink = '#edd8e8';//'#e8cae1';
+const pink = '#edd8e8';
 const grayDark = '#262626';
 const grayLight = '#545454';
 const black = '#000000';
@@ -83,6 +83,7 @@ function computeStyleForSize(scale) {
 		text-align: center;
 		margin: 0 auto;
 		overflow: hidden;
+		user-select: none;
 	}
 
 	#background-image {
@@ -100,7 +101,7 @@ function computeStyleForSize(scale) {
 		z-index: 1;
 	}
 
-	.centered {
+	.absolute {
 		position: absolute;
 	}
 
@@ -115,11 +116,7 @@ function computeStyleForSize(scale) {
 		z-index: 1;
 	}
 
-	.label {
-		user-select: none;
-	}
-
-	#bypass-switch {
+	#bypass-control {
 		left: 41%;
 		top: 81%;
 		height: 12%;
@@ -127,7 +124,7 @@ function computeStyleForSize(scale) {
 		opacity: 0;
 	}
 
-	#drive-knob {
+	#drive-control {
 		left: 39%;
 		top: 45%;
 		height: 14%;
@@ -135,7 +132,18 @@ function computeStyleForSize(scale) {
 		opacity: 0;
 	}
 
-	#title {
+	#leftVoiceMode-control {
+		left: 10%;
+		top: 40%;
+		opacity: 0;
+	}
+	#rightVoiceMode-control {
+		left: 80%;
+		top: 40%;
+		opacity: 0;
+	}
+
+	#title-text {
 		bottom: 101%;
 		margin: 0 auto;
 		position: relative;
@@ -157,19 +165,18 @@ function computeStyleForSize(scale) {
 		font-size: ${1.5 * scale}vw;
 		font-style: bold;
 		text-align: left;
-		user-select: none;
 	}
 
 	.mode:hover {
 		opacity: 1;
 	}
 
-	#leftVoiceMode {
+	#leftVoiceMode-text {
 		left: 2.5%;
 		transform: rotate(-24deg);
 	}
 
-	#rightVoiceMode {
+	#rightVoiceMode-text {
 		left: 72%;
 		transform: rotate(24deg);
 	}
@@ -205,12 +212,14 @@ const template = `<div id="wamsdk-wamexample" class="wrapper">
 
 	<img id="background-image">
 
-	<webaudio-switch class="switch centered" id="bypass-switch" height="20" width="20"></webaudio-switch>
-	<webaudio-knob class="knob centered" id="drive-knob" height="20" width="20" sprites="100" min="0" max="1" step="0.01" value="0.5" midilearn="1"></webaudio-knob>
+	<webaudio-knob class="knob absolute" id="leftVoiceMode-control" height="20" width="20" min="0" max="4" step="1" value="4" defvalue="4" midilearn="1"></webaudio-knob>
+	<webaudio-knob class="knob absolute" id="rightVoiceMode-control" height="20" width="20" min="0" max="4" step="1" value="4" defvalue="4" midilearn="1"></webaudio-knob>
+	<webaudio-knob class="knob absolute" id="drive-control" height="20" width="20" min="0" max="1" step="0.01" value="0.5" defvalue="0.5" midilearn="1"></webaudio-knob>
+	<webaudio-switch class="switch absolute" id="bypass-control" midilearn="1" invert="1" value="0" defvalue="0"></webaudio-switch>
 
-	<div class="mode" id="leftVoiceMode">L</div>
-	<div class="mode" id="rightVoiceMode">R</div>
-	<div class="label" id="title">PurrBot</div>
+	<div class="mode" id="leftVoiceMode-text">L</div>
+	<div class="mode" id="rightVoiceMode-text">R</div>
+	<div class="label" id="title-text">PurrBot</div>
 
 	<div id="drive-color-mixer"></div>
 </div>
@@ -238,15 +247,22 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
-		/** @property {WebAudioModule} plugin */
+		/** @type {WebAudioModule} */
 		this.plugin = plugin;
+		this._controls = {};
+		const parameterIds = ['bypass', 'leftVoiceMode', 'rightVoiceMode', 'drive'];
+		parameterIds.forEach((parameterId) => {
+			this._controls[parameterId] = this.shadowRoot.querySelector(`#${parameterId}-control`);
+		});
 
 		this.setResources();
-		this.setKnobs();
+		this.setKnobListener();
 		this.setSwitchListener();
 		this.setTextListener();
-		this.updateMode('leftVoiceMode');
-		this.updateMode('rightVoiceMode');
+
+		this._updatePeriodMs = -1;
+		this._timestamp = null;
+		this._sleep = (delayMs) => { return new Promise(resolve => { setTimeout(resolve, delayMs) }); };
 
 		this._guiReady = false;
 
@@ -254,18 +270,20 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	triggerNotes(delayTimeSec) {
+		const minVelocity = 10;
+		const maxVelocity = 20;
 		const now = this.plugin.audioContext.getOutputTimestamp().contextTime;
 		const time1a = now + delayTimeSec;
 		const time1b = time1a + 2.0;
 		const chord1a = Math.floor(80 + Math.random() * 10);
 		const chord1b = chord1a - 5;
-		const velocity1 = Math.floor(1 + Math.random() * 126);
+		const velocity1 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		const time2a = time1a + 1.0;
 		const time2b = time1b;
 		const chord2a = chord1a - 7;
 		const chord2b = chord2a + 17;
-		const velocity2 = Math.floor(1 + Math.random() * 126);
+		const velocity2 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		const time3a = time2b;
 		const time3b = time3a + 2.0;
@@ -273,7 +291,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const chord3b = chord3a + 7;
 		const chord3c = chord3a - 8;
 		const chord3d = chord3b + 4;
-		const velocity3 = Math.floor(1 + Math.random() * 126);
+		const velocity3 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		/**
 		 * @type {WamMidiEvent[]}
@@ -311,21 +329,14 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.plugin.audioNode.scheduleEvents(...noteEvents);
 	}
 
-	updateStatus = (status) => {
-		this.shadowRoot.querySelector('#bypass-switch').value = status;
+	updateMode = (parameterId, increment = false) => {
+		this._controls[parameterId].value = Math.floor(this._controls[parameterId].value);
+		if (increment) this._controls[parameterId].value = (this._controls[parameterId].value + 1) % 5;
+		const text = modeStrings[this._controls[parameterId].value];
+		this.shadowRoot.querySelector(`#${parameterId}-text`).innerHTML = text;
 	}
 
-	updateMode = async (parameterId, increment = false) => {
-		const state = await this.plugin.audioNode.getParameterValues(false, parameterId);
-		if (increment) {
-			state[parameterId].value = (state[parameterId].value + 1) % 5;
-			this.plugin.audioNode.setParameterValues(state);
-		}
-		const text = modeStrings[state[parameterId].value];
-		this.shadowRoot.querySelector(`#${parameterId}`).innerHTML = text;
-	}
-
-	handleAnimationFrame = async () => {
+	handleAnimationFrame = async (timestamp) => {
 		if (!this._guiReady) {
 			const workspace = this.shadowRoot.querySelector('#workspace');
 			const computedStyle = getComputedStyle(workspace);
@@ -389,23 +400,45 @@ export default class WamExampleHTMLElement extends HTMLElement {
 			this._ledOriginY = 0.87 * workspaceHeight;
 			this._ledRadius = 0.07 * workspaceWidth;
 
+			const parameterValues = await this.plugin.audioNode.getParameterValues();
+			Object.keys(parameterValues).forEach((parameterId) => {
+				const value = parameterValues[parameterId].value;
+				this._controls[parameterId].value = value;
+			});
+			this._updateState = (e) => {
+				const event = e.detail;
+				const { type, data } = event;
+				if (type === 'wam-automation') {
+					const { id, value } = data;
+					this._controls[id].value = value;
+					if (id.endsWith('Mode')) this.updateMode(id, false);
+				}
+			}
+			this.updateMode('leftVoiceMode');
+			this.updateMode('rightVoiceMode');
+			this.plugin.audioNode.addEventListener('wam-automation', this._updateState);
+
+			this._updatePeriodMs = this.plugin.audioNode.levelsUpdatePeriodMs;
+
 			this._guiReady = true;
 		}
 
-		const { drive, bypass } = await this.plugin.audioNode.getParameterValues();
+		if (this._timestamp === null) this._timestamp = timestamp;
+		const elapsedMs = timestamp - this._timestamp;
+		if (elapsedMs < this._updatePeriodMs) await this._sleep(this._updatePeriodMs);
+		this._timestamp = timestamp;
 
-		this.shadowRoot.querySelector('#drive-knob').value = drive.value;
-		this.shadowRoot.querySelector('#bypass-switch').value = !bypass.value;
+		const { bypass, drive } = this._controls;
 
 		const driveColorMixer = this.shadowRoot.querySelector('#drive-color-mixer');
 		if (bypass.value) driveColorMixer.style.backgroundColor = grayLight;
 		else driveColorMixer.style = `animation-delay: -${drive.value}s`;
 		const driveColor = getComputedStyle(driveColorMixer).backgroundColor;
 
-		const { synthLevels, effectLevels } = this.plugin.audioNode;
+		const { synthLevels, effectLevels } = this.plugin.audioNode.levels;
 
 		const minOpacity = 0.333;
-		const maxOpacity = 0.85;
+		const maxOpacity = 0.95;
 
 		let svg = '';
 
@@ -433,7 +466,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const laserOpacity = Math.min(3.0 * synthLevelA, maxOpacity);
+			const laserOpacity = Math.min(10.0 * synthLevelA, maxOpacity);
 			const eyeOpacity = Math.min(2.0 * effectLevel + (bypass.value ? minOpacity : 0.667), maxOpacity);
 
 			const laserWidthFactor = Math.max(0.3 + synthLevelB, 0.3);
@@ -458,7 +491,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const jitter = (0.1 + 0.5 * drive.value) * Math.max(synthLevelA, effectLevel);
+			const jitter = (0.1 + drive.value) * 4.0 * Math.max(synthLevelA, effectLevel);
 			const smoothing = Math.min(0.25, 1.0 - jitter);
 			for (let i = 0; i < 3; ++i) {
 				const whiskerPoints = this._whiskers[c][i].updatePoints(jitter, smoothing);
@@ -496,9 +529,9 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		background.src = getAssetUrl(backgroundImg);
 	}
 
-	setKnobs() {
+	setKnobListener() {
 		this.shadowRoot
-			.querySelector('#drive-knob')
+			.querySelector('#drive-control')
 			.addEventListener('input', (e) => {
 				this.plugin.audioNode.setParameterValues({
 					drive: {
@@ -508,40 +541,59 @@ export default class WamExampleHTMLElement extends HTMLElement {
 					},
 				});
 			});
+
+		// DEBUG
+		this.shadowRoot
+			.querySelector('#leftVoiceMode-control')
+			.addEventListener('input', (e) => {
+				this.updateMode('leftVoiceMode');
+			});
+		this.shadowRoot
+			.querySelector('#rightVoiceMode-control')
+			.addEventListener('input', (e) => {
+				this.updateMode('rightVoiceMode');
+			});
 	}
 
 	setTextListener() {
 		this.shadowRoot
-			.querySelector('#title')
+			.querySelector('#title-text')
 			.addEventListener('click', () => { this.triggerNotes(0.1); });
-		const leftVoiceMode = this.shadowRoot.querySelector('#leftVoiceMode');
-		leftVoiceMode.addEventListener('click', () => {
-			this.updateMode('leftVoiceMode', true);
-		});
-		const rightVoiceMode = this.shadowRoot.querySelector('#rightVoiceMode');
-		rightVoiceMode.addEventListener('click', () => {
-			this.updateMode('rightVoiceMode', true);
-		});
+
+		this._updateMode = (parameterId) => {
+			this.updateMode(parameterId, true);
+			const value = this._controls[parameterId].value;
+			this.plugin.audioNode.setParameterValues({
+				bypass: {
+					id: parameterId,
+					value,
+					interpolate: false,
+				},
+			});
+			this.shadowRoot.querySelector(`#${parameterId}-control`).value = value;
+		}
+
+		this.shadowRoot
+			.querySelector('#leftVoiceMode-text')
+			.addEventListener('click', (e) => {
+				this._updateMode('leftVoiceMode');
+			});
+
+		this.shadowRoot
+			.querySelector('#rightVoiceMode-text')
+			.addEventListener('click', (e) => {
+				this._updateMode('rightVoiceMode');
+			});
 	}
 
 	setSwitchListener() {
-		const { plugin } = this;
-
-		plugin.audioNode.setParameterValues({
-			bypass: {
-				id: 'bypass',
-				value: 0,
-				interpolate: false,
-			},
-		});
-
 		this.shadowRoot
-			.querySelector('#bypass-switch')
-			.addEventListener('change', function onChange() {
-				plugin.audioNode.setParameterValues({
+			.querySelector('#bypass-control')
+			.addEventListener('change', () => {
+				this.plugin.audioNode.setParameterValues({
 					bypass: {
 						id: 'bypass',
-						value: +!this.checked,
+						value: this._controls['bypass'].value,
 						interpolate: false,
 					},
 				});

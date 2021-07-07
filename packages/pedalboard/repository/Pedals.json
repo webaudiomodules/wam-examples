@@ -1,7 +1,7 @@
 [
-  "/packages/BigMuff",
-  "/packages/csoundPitchShifter/dist",
-  "/packages/quadrafuzz/dist",
-  "/packages/pingpongdelay/dist",
-  "/packages/faustPingPongDelay/plugin"
+  "../../BigMuff",
+  "../../csoundPitchShifter/dist",
+  "../../quadrafuzz/dist",
+  "../../pingpongdelay/dist",
+  "../../faustPingPongDelay/plugin"
 ]

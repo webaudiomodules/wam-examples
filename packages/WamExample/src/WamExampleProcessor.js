@@ -8,19 +8,20 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletProcessor } AudioWorkletProcessor */
-/** @typedef { import('../../sdk/src/api/types').WamNodeOptions } WamNodeOptions */
-/** @typedef { import('../../sdk/src/api/types').WamParameter } WamParameter */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfo } WamParameterInfo */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterData } WamParameterData */
-/** @typedef { import('../../sdk/src/api/types').WamParameterDataMap } WamParameterDataMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterMap } WamParameterMap */
-/** @typedef { import('../../sdk/src/api/types').WamEvent } WamEvent */
-/** @typedef { import('../../sdk/src/api/types').WamMidiData } WamMidiData */
-/** @typedef { import('./WamExampleEffect').WamExampleEffect } WamExampleEffect */
-/** @typedef { import('./WamExampleSynth').WamExampleSynth } WamExampleSynth */
+/** @typedef {import('../../sdk/src/api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
+/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterMap} WamParameterMap */
+/** @typedef {import('../../sdk/src/api/types').WamEvent} WamEvent */
+/** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
+/** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
+/** @typedef {import('./WamExampleEffect').WamExampleEffect} WamExampleEffect */
+/** @typedef {import('./WamExampleSynth').WamExampleSynth} WamExampleSynth */
 
 /**
  * A WamEvent and corresponding message id used to trigger callbacks
@@ -47,16 +48,17 @@
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
 const {
-	// @ts-ignore
+	RingBuffer,
+	WamArrayRingBuffer,
 	WamProcessor,
-	// @ts-ignore
 	WamParameterInfo,
-	// @ts-ignore
 	WamExampleSynth,
-	// @ts-ignore
 	WamExampleEffect,
 	registerProcessor,
 } = globalThis;
+
+const LevelsUpdatePeriodSec = 1.0 / 30.0;
+const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;
 
 /**
  * `WamExample`'s `AudioWorkletProcessor`
@@ -73,7 +75,7 @@ class WamExampleProcessor extends WamProcessor {
 			bypass: new WamParameterInfo('bypass', {
 				type: 'boolean',
 				label: 'Bypass',
-				defaultValue: 1,
+				defaultValue: 0,
 			}),
 			...WamExampleSynth.generateWamParameterInfo(),
 			...WamExampleEffect.generateWamParameterInfo(),
@@ -85,21 +87,10 @@ class WamExampleProcessor extends WamProcessor {
 	 */
 	constructor(options) {
 		super(options);
-		this.destroyed = false;
-		const {
-			moduleId,
-			instanceId,
-		} = options.processorOptions;
-		this.moduleId = moduleId;
-		this.instanceId = instanceId;
-
-		if (globalThis.WamProcessors) globalThis.WamProcessors[instanceId] = this;
-		else globalThis.WamProcessors = { [instanceId]: this };
-
 		const synthConfig = {
 			passInput: true,
 		};
-		/** @property {WamExampleSynth} _synth */
+		/** @private @type {WamExampleSynth} */
 		this._synth = new WamExampleSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			synthConfig);
 
@@ -107,33 +98,88 @@ class WamExampleProcessor extends WamProcessor {
 			numChannels: 2,
 			inPlace: true,
 		};
-		/** @property {WamExampleEffect} _effect */
+		/** @private @type {WamExampleEffect} */
 		this._effect = new WamExampleEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			effectConfig);
 
-		/** @property {Float32Array} _synthLevel */
-		this._synthLevel = new Float32Array(2);
+		/** @private @type {Float32Array} */
+		this._levels = new Float32Array(4);
 
-		/** @property {Float32Array} _synthLevel */
-		this._synthLevel = new Float32Array(2);
+		/** @private @type {Float32Array} */
+		this._synthLevels = new Float32Array(this._levels.buffer, 0, 2);
 
-		/** @property {Float32Array} _synthLevel */
-		this._effectLevel = new Float32Array(2);
+		/** @private @type {Float32Array} */
+		this._effectLevels = new Float32Array(this._levels.buffer, 2 * Float32Array.BYTES_PER_ELEMENT, 2);
 
-		/** @property {number} _levelSmoothA coefficient for level smoothing */
+		/** @private @type {number} coefficient for level smoothing */
 		this._levelSmoothA = 0.667;
 
-		/** @property {number} _levelSmoothB coefficient for level smoothing */
+		/** @private @type {number} coefficient for level smoothing */
 		this._levelSmoothB = 1.0 - this._levelSmoothA;
 
-		const levelUpdatePeriodSec = 1.0 / 30.0;
-		/** @property {number} _levelUpdateRateQuantums how often levels should be computed (quantums) */
-		this._levelUpdateRateQuantums = Math.round((levelUpdatePeriodSec * globalThis.sampleRate) / this._samplesPerQuantum);
+		/** @private @type {number} how often levels should be computed (ms) */
+		this._levelsUpdatePeriodMs = LevelsUpdatePeriodMs;
 
-		/** @property {number} _levelUpdateCounter levels will be computed when this reaches 0 */
-		this._levelUpdateCounter = 0;
+		/** @private @type {number} how often levels should be computed (quantums) */
+		this._levelsUpdateRateQuantums = Math.round((LevelsUpdatePeriodSec * globalThis.sampleRate) / this._samplesPerQuantum);
 
-		super.port.start();
+		/** @private @type {number} levels will be computed when this reaches 0 */
+		this._levelsUpdateCounter = 0;
+
+		/** @private @type {boolean} */
+		this._levelsSabReady = false;
+
+		this.port.postMessage({ levelsUpdatePeriodMs: this._levelsUpdatePeriodMs });
+		this.port.start();
+	}
+
+	_configureSab() {
+		super._configureSab();
+		this.port.postMessage({ levelsSab: true, levelsLength: 4 });
+	}
+
+	/**
+	 * @param {any} state
+	 */
+	 _setState(state) {
+		this._effect.reset();
+		this._synth.reset();
+		super._setState(state);
+	}
+
+	/**
+	 * Messages from main thread appear here.
+	 * @param {MessageEvent} message
+	 */
+	async _onMessage(message) {
+		if (message.data.request) {
+			const {
+				id, request, content,
+			} = message.data;
+			const response = { id, response: request };
+			const requestComponents = request.split('/');
+			const verb = requestComponents[0];
+			const noun = requestComponents[1];
+			response.content = 'error';
+			if (verb === 'initialize') {
+				if (noun === 'levelsSab') {
+					const { levelsSab } = content;
+
+					/** @private @type {SharedArrayBuffer} */
+					this._levelsSab = levelsSab;
+
+					/** @private @type {WamArrayRingBuffer} */
+					this._levelsWriter = new WamArrayRingBuffer(RingBuffer, this._levelsSab,
+						this._levels.length, Float32Array);
+
+					this._levelsSabReady = true;
+					delete response.content;
+					this.port.postMessage(response);
+					return;
+				}
+			}
+		}
+		await super._onMessage(message);
 	}
 
 	/**
@@ -179,9 +225,9 @@ class WamExampleProcessor extends WamProcessor {
 
 		const bypass = !!this._parameterInterpolators.bypass.values[startSample];
 		const wasBypassed = !!this._parameterInterpolators.bypass.values[0]; // good enough most of the time
-		const updateLevels = bypass !== wasBypassed || this._levelUpdateCounter === 0;
-		if (updateLevels) this._levelUpdateCounter = this._levelUpdateRateQuantums;
-		else this._levelUpdateCounter--;
+		const updateLevels = bypass !== wasBypassed || this._levelsUpdateCounter === 0;
+		if (updateLevels) this._levelsUpdateCounter = this._levelsUpdateRateQuantums;
+		else this._levelsUpdateCounter--;
 
 		// combine input signal and synth signal -> output
 		if (!bypass) this._synth.process(startSample, endSample, input, output);
@@ -196,8 +242,8 @@ class WamExampleProcessor extends WamProcessor {
 					y[n] = x[n];
 					n++;
 				}
-				this._synthLevel[c] = 0.0;
-				this._effectLevel[c] = 0.0;
+				this._synthLevels[c] = 0.0;
+				this._effectLevels[c] = 0.0;
 			} else if (updateLevels) {
 				let synthLevel = 0.0;
 				let n = startSample;
@@ -206,9 +252,9 @@ class WamExampleProcessor extends WamProcessor {
 					n++;
 				}
 				if (Number.isNaN(synthLevel)) synthLevel = 0.0;
-				this._synthLevel[c] *= this._levelSmoothA;
-				this._synthLevel[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
-				this._synthLevel[c] = Math.min(Math.max(this._synthLevel[c], 0.0), 1.0);
+				this._synthLevels[c] *= this._levelSmoothA;
+				this._synthLevels[c] += this._levelSmoothB * (synthLevel / this._samplesPerQuantum);
+				this._synthLevels[c] = Math.min(Math.max(this._synthLevels[c], 0.0), 1.0);
 			}
 		}
 		if (!bypass) {
@@ -224,20 +270,16 @@ class WamExampleProcessor extends WamProcessor {
 						n++;
 					}
 					if (Number.isNaN(effectLevel)) effectLevel = 0.0;
-					this._effectLevel[c] *= this._levelSmoothA;
-					this._effectLevel[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
-					this._effectLevel[c] = Math.min(Math.max(this._effectLevel[c], 0.0), 1.0);
+					this._effectLevels[c] *= this._levelSmoothA;
+					this._effectLevels[c] += this._levelSmoothB * (effectLevel / this._samplesPerQuantum);
+					this._effectLevels[c] = Math.min(Math.max(this._effectLevels[c], 0.0), 1.0);
 				}
 			}
 		}
 		if (updateLevels) {
-			super.port.postMessage({ id: -1, levels: { synth: this._synthLevel, effect: this._effectLevel } });
+			if (this._levelsSabReady) this._levelsWriter.write(this._levels);
+			else super.port.postMessage({ id: -1, levels: this._levels });
 		}
-	}
-
-	destroy() {
-		this.destroyed = true;
-		super.port.close();
 	}
 }
 try {

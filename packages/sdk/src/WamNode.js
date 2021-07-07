@@ -38,10 +38,10 @@ export default class WamNode extends AudioWorkletNode {
 
 		/** @type {WebAudioModule} */
 		this.module = module;
-		/** @private @type {boolean} _useSab */
+		/** @private @type {boolean} */
 		this._useSab = false; // can override this via processorOptions;
-		/** @private @type {boolean} _sabReady */
-		this._sabReady = false;
+		/** @private @type {boolean} */
+		this._eventSabReady = false;
 		/** @private @type {{[key: number]: (...args: any[]) => any}} */
 		this._pendingResponses = {};
 		/** @private @type {{[key: number]: () => any}} */
@@ -197,7 +197,7 @@ export default class WamNode extends AudioWorkletNode {
 	scheduleEvents(...events) {
 		let i = 0;
 		const numEvents = events.length;
-		if (this._sabReady) {
+		if (this._eventSabReady) {
 			i = this._eventWriter.write(...events);
 			// fall back on message port if ring buffer gets full
 		}
@@ -249,19 +249,14 @@ export default class WamNode extends AudioWorkletNode {
 		if (!to.module?.isWebAudioModule) return;
 		const request = 'connect/events';
 		const id = this._generateMessageId();
-		let processed = false;
 		new Promise((resolve, reject) => {
 			this._pendingResponses[id] = resolve;
-			this._pendingEvents[id] = () => { if (!processed) reject(); };
 			this.port.postMessage({
 				id,
 				request,
 				content: { wamInstanceId: to.instanceId, output },
 			});
-		}).then((resolved) => {
-			processed = true;
-			delete this._pendingEvents[id];
-		}).catch((rejected) => { delete this._pendingResponses[id]; });
+		});
 	}
 
 	/**
@@ -272,19 +267,14 @@ export default class WamNode extends AudioWorkletNode {
 		if (to && !to.module?.isWebAudioModule) return;
 		const request = 'disconnect/events';
 		const id = this._generateMessageId();
-		let processed = false;
 		new Promise((resolve, reject) => {
 			this._pendingResponses[id] = resolve;
-			this._pendingEvents[id] = () => { if (!processed) reject(); };
 			this.port.postMessage({
 				id,
 				request,
 				content: { wamInstanceId: to?.instanceId, output },
 			});
-		}).then((resolved) => {
-			processed = true;
-			delete this._pendingEvents[id];
-		}).catch((rejected) => { delete this._pendingResponses[id]; });
+		});
 	}
 
 	/**
@@ -293,7 +283,7 @@ export default class WamNode extends AudioWorkletNode {
 	 * */
 	_onMessage(message) {
 		const { data } = message;
-		const { response, sab, event } = data;
+		const { response, event, eventSab } = data;
 		if (response) {
 			const { id, content } = data;
 			const resolvePendingResponse = this._pendingResponses[id];
@@ -302,11 +292,11 @@ export default class WamNode extends AudioWorkletNode {
 				resolvePendingResponse(content);
 			}
 			// else console.log(`unhandled message | response: ${response} content: ${content}`);
-		} else if (sab) {
+		} else if (eventSab) {
 			this._useSab = true;
-			const { eventCapacity, parameterIds } = sab;
+			const { eventCapacity, parameterIds } = eventSab;
 
-			if (this._sabReady) {
+			if (this._eventSabReady) {
 				// if parameter set changes after initialization
 				this._eventWriter.setParameterIds(parameterIds);
 				this._eventReader.setParameterIds(parameterIds);
@@ -314,48 +304,41 @@ export default class WamNode extends AudioWorkletNode {
 			}
 
 			/** @private @type {SharedArrayBuffer} */
-			this._mainToAudioSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
+			this._mainToAudioEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
 			/** @private @type {SharedArrayBuffer} */
-			this._audioToMainSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
+			this._audioToMainEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer,
 				eventCapacity);
 
 			/** @private @type {WamEventRingBuffer} */
-			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioSab,
+			this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioEventSab,
 				parameterIds);
 			/** @private @type {WamEventRingBuffer} */
-			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainSab,
+			this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainEventSab,
 				parameterIds);
 
-			/** @private @type {number} */
-			this._eventReaderInterval = null;
-
-			const request = 'initialize/sab';
+			const request = 'initialize/eventSab';
 			const id = this._generateMessageId();
-			let processed = false;
 			new Promise((resolve, reject) => {
 				this._pendingResponses[id] = resolve;
-				this._pendingEvents[id] = () => { if (!processed) reject(); };
 				this.port.postMessage({
 					id,
 					request,
 					content: {
-						mainToAudioSab: this._mainToAudioSab,
-						audioToMainSab: this._audioToMainSab,
+						mainToAudioEventSab: this._mainToAudioEventSab,
+						audioToMainEventSab: this._audioToMainEventSab,
 					},
 				});
 			}).then((resolved) => {
-				processed = true;
-				this._sabReady = true;
-				delete this._pendingEvents[id];
+				this._eventSabReady = true;
 
 				// periodically check for messages from audio thread
 				this._audioToMainInterval = setInterval(() => {
 					const events = this._eventReader.read();
 					events.forEach((e) => { this._onEvent(e); });
 				}, 100);
-			}).catch((rejected) => { delete this._pendingResponses[id]; });
+			});
 		} else if (event) this._onEvent(event);
 	}
 

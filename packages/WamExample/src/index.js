@@ -40,6 +40,7 @@ export default class WamExamplePlugin extends WebAudioModule {
 		// DSP is implemented in WamExampleProcessor.
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/RingBuffer.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamEventRingBuffer.js`);
+		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamArrayRingBuffer.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamEnv.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameter.js`);
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInfo.js`);

@@ -1,0 +1,93 @@
+body {
+	padding: 20px;
+	color: #b0b0b0;
+	background-color: #1f1f1f;
+}
+
+a {
+	color: #e7c497;
+}
+
+#title {
+	color: #a892a3;
+}
+
+#wrapper {
+	display: flex;
+}
+
+#left {
+	flex: 0 0 25%;
+}
+
+#right {
+	flex: 1;
+}
+
+#pluginContainer {
+	grid-row-start: 1;
+	grid-column-start: 1;
+}
+
+#pluginInfoContainer {
+	color: #927e8d;
+	font-family: 'Courier New', Courier, monospace;
+	grid-row-start: 2;
+	grid-column-start: 1;
+	border: 1px solid;
+	overflow: auto;
+	width: 700px;
+	height: 300px;
+
+}
+
+#pluginAutomationContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+#pluginAutomationEditor {
+	flex: 0 0 auto;
+}
+#pluginParamSelectorContainer {
+	display: flex;
+	flex-direction: row;
+}
+#pluginParamSelectorContainer label {
+	padding: 0px 6px;
+}
+#pluginParamSelector {
+	flex: 1 1 auto;
+}
+#pluginAutomationLength {
+	width: 50px;
+}
+
+#examples, #midi-emitters {
+	margin: 0;
+	padding: 0;
+	list-style-position: inside;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#form {
+	margin: 20px 0;
+}
+
+#form > div {
+	margin-bottom: 10px;
+}
+
+label {
+	display: block;
+}
+
+input[name="pluginUrl"] {
+	width: 300px;
+}
+
+.widget {
+	color: #d0d0d0;
+	background-color: #333333;
+}

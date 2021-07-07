@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 
 import expect from './jestUtilities';
-import { diffArray } from './testUtilities';
+import { diffArray, fillRandom, shuffleArray } from './testUtilities';
 
 describe('testUtilities Suite', () => {
 	it('diffArray should compute nth discrete difference of sequence', () => {
@@ -27,5 +27,25 @@ describe('testUtilities Suite', () => {
 
 		const dddyActual = diffArray(y, 3);
 		expect(dddyActual).toAllEqual(dddyExpected);
+	});
+
+	it('fillRandom should randomly fill array', () => {
+		const N = 16;
+		const y = Array(N);
+		fillRandom(y, -128, 127, true);
+		expect(y).not.toAllEqual(0);
+	});
+
+	it('shuffleArray should change order of sequence', () => {
+		const N = 16;
+		const x = new Float32Array(N);
+		fillRandom(x, -1.0, 1.0, false);
+		const y = Float32Array.from(x);
+		shuffleArray(y);
+		let allSame = true;
+		for (let n = 0; n < N; ++n) {
+			if (x[n] !== y[n]) allSame = false;
+		}
+		expect(allSame).not.toBeTruthy();
 	});
 });

@@ -22,15 +22,17 @@ const {
 	WamExampleDcBlockerFilter,
 } = WamExampleComponents;
 
+const piByTwo = Math.PI / 2;
+
 /**
- * Example distortion effect.
+ * Example drive effect.
  *
  * Based on Bhaskara I's sine approximation:
  * https://en.wikipedia.org/wiki/Bhaskara_I%27s_sine_approximation_formula
  *
  * @class
  */
-class WamExampleDistortion {
+class WamExampleDrive {
 	/**
 	 * Fetch params.
 	 * @returns {WamParameterInfoMap}
@@ -56,32 +58,32 @@ class WamExampleDistortion {
 	 */
 	/* eslint-disable-next-line no-unused-vars */
 	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config) {
-		/** @property {number} _numChannels number of input/output channels */
+		/** @private @type {number} number of input/output channels */
 		this._numChannels = config.numChannels ?? 2;
 
-		/** @property {WamParameterInfoMap} _parameterInfo */
+		/** @private @type {WamParameterInfoMap} */
 		// @ts-ignore
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 
-		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
+		/** @private @type {WamParameterInterpolatorMap} */
 		this._parameterInterpolators = {};
 		Object.keys(this._parameterInfo).forEach((parameterId) => {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @property {boolean} _driveDone whether or not drive parameter is changing */
+		/** @private @type {boolean} whether or not drive parameter is changing */
 		this._driveDone = false;
 
-		/** @property {Float32Array} _dirty values for mapped parameter 'dirty' */
+		/** @private @type {Float32Array} values for mapped parameter 'dirty' */
 		this._dirty = new Float32Array(samplesPerQuantum);
 
-		/** @property {Float32Array} _clean values for mapped parameter 'clean' */
+		/** @private @type {Float32Array} values for mapped parameter 'clean' */
 		this._clean = new Float32Array(samplesPerQuantum);
 
-		/** @property {Float32Array} _memory feedback memory for each channel */
+		/** @private @type {Float32Array} feedback memory for each channel */
 		this._memory1 = new Float32Array(this._numChannels);
 
-		/** @property {Float32Array} _memory feedback memory for each channel */
+		/** @private @type {Float32Array} feedback memory for each channel */
 		this._memory2 = new Float32Array(this._numChannels);
 
 		// dsp constants
@@ -89,6 +91,13 @@ class WamExampleDistortion {
 		this._phiMin = 0;
 		this._phiMax = Math.PI;
 		this._phiWidth = this._phiMax - this._phiMin;
+	}
+
+	/** Restore initial state */
+	reset() {
+		this._driveDone = false;
+		this._memory1.fill(0);
+		this._memory2.fill(0);
 	}
 
 	/**
@@ -128,9 +137,10 @@ class WamExampleDistortion {
 				const dirty = this._dirty[n];
 				const clean = this._clean[n];
 				const x = input[n];
-				const sign = x >= 0 ? 1 : -1;
+				const gain = (0.067 + clean) * dirty;
+				const sign = x >= 0 ? gain : -gain;
 
-				let phi = dirty * this._phiWidth * x;
+				let phi = (piByTwo + piByTwo * dirty) * this._phiWidth * x;
 				while (phi > this._phiMax) {
 					phi -= this._phiWidth;
 				}
@@ -138,7 +148,7 @@ class WamExampleDistortion {
 					phi += this._phiWidth;
 				}
 
-				const beta = 4.0 * phi * (this._phiMax - phi);
+				const beta = (2.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
 				const y = sign * ((4.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
 				output[n] = y - dirty * clean * this._memory2[c];
 
@@ -162,7 +172,7 @@ export default class WamExampleEffect {
 	 */
 	static generateWamParameterInfo() {
 		return {
-			...WamExampleDistortion.generateWamParameterInfo(),
+			...WamExampleDrive.generateWamParameterInfo(),
 		};
 	}
 
@@ -173,35 +183,44 @@ export default class WamExampleEffect {
 	 * @param {Object} config optional config object
 	 */
 	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config = {}) {
-		/** @property {number} _numChannels number of input/output channels */
+		/** @private @type {number} number of input/output channels */
 		this._numChannels = config.numChannels ?? 2;
 
-		/** @property {boolean} _inPlace whether to process the output in-place, ignoring input */
+		/** @private @type {boolean} whether to process the output in-place, ignoring input */
 		this._inPlace = config.inPlace ?? false;
 
-		/** @property {Float32Array[]} _buffers scratch buffers for prefiltering */
+		/** @private @type {Float32Array[]} scratch buffers for prefiltering */
 		this._buffers = [];
 
 		const lowpassFrequencyHz = config.lowpassFrequencyHz ?? 12000.0;
-		/** @property {WamExampleLowpassFilter[]} _lowpasses lowpass filter components */
+		/** @private @type {WamExampleLowpassFilter[]} lowpass filter components */
 		this._lowpasses = [];
 
-		/** @property {WamExampleDcBlockerFilter[]} _dcblockers dc blocking filter components */
+		/** @private @type {WamExampleDcBlockerFilter[]} dc blocking filter components */
 		this._dcblockers = [];
 
 		for (let c = 0; c < this._numChannels; ++c) {
 			if (!this._inPlace) this._buffers.push(new Float32Array(samplesPerQuantum));
 
 			this._lowpasses.push(new WamExampleLowpassFilter());
-			this._lowpasses[c].start(lowpassFrequencyHz, sampleRate);
+			this._lowpasses[c].update(lowpassFrequencyHz, sampleRate);
 
 			this._dcblockers.push(new WamExampleDcBlockerFilter());
 		}
 
 		if (!config.numChannels) config.numChannels = this._numChannels;
 
-		/** @property {WamExampleDistortion} _distortion distortion component */
-		this._distortion = new WamExampleDistortion(parameterInterpolators, samplesPerQuantum, sampleRate, config);
+		/** @private @type {WamExampleDrive} drive component */
+		this._drive = new WamExampleDrive(parameterInterpolators, samplesPerQuantum, sampleRate, config);
+	}
+
+	/** Restore initial state */
+	reset() {
+		for (let c = 0; c < this._numChannels; ++c) {
+			this._lowpasses[c].reset();
+			this._dcblockers[c].reset();
+		}
+		this._drive.reset();
 	}
 
 	/**
@@ -219,13 +238,12 @@ export default class WamExampleEffect {
 			this._lowpasses[c].process(startSample, endSample, this._buffers[c]);
 		}
 
-		// distortion processes its input to its output
-		this._distortion.process(startSample, endSample, this._buffers, outputs);
+		// drive processes its input to its output
+		this._drive.process(startSample, endSample, this._buffers, outputs);
 
 		// dcblockers process in place
 		for (let c = 0; c < this._numChannels; ++c) {
-			const y = outputs[c];
-			this._dcblockers[c].process(startSample, endSample, y);
+			this._dcblockers[c].process(startSample, endSample, outputs[c]);
 		}
 	}
 }

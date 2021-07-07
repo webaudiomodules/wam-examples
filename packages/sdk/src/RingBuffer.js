@@ -15,7 +15,8 @@ const executable = () => {
 	/**
 	 * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
 	 * The producer and the consumer can be on separate threads, but cannot change roles,
-	 * except with external synchronization.
+	 * except with external synchronization. Adapted from https://github.com/padenot/ringbuf.js
+	 * MPL-2.0 License (see RingBuffer_LICENSE.txt)
 	 *
 	 * @implements {IRingBuffer}
 	 * @author padenot
@@ -68,7 +69,7 @@ const executable = () => {
 		}
 
 		/**
-		 * Push bytes to the ring buffer. `bytes` is a typed array of the same type
+		 * Push bytes to the ring buffer. `elements` is a typed array of the same type
 		 * as passed in the ctor, to be written to the queue.
 		 * Returns the number of elements written to the queue.
 		 *
@@ -101,12 +102,13 @@ const executable = () => {
 		}
 
 		/**
-		 * Read `elements.length` elements from the ring buffer. `elements` is a typed
-		 * array of the same type as passed in the ctor.
+		 * Read `elements.length` elements from the ring buffer if `elements` is a typed
+		 * array of the same type as passed in the ctor. If `elements` is an integer,
+		 * pop and discard that many elements from the ring buffer.
 		 * Returns the number of elements read from the queue, they are placed at the
-		 * beginning of the array passed as parameter.
+		 * beginning of the array passed as parameter if `elements` is not an integer.
 		 *
-		 * @param {TypedArray} elements
+		 * @param {TypedArray | number} elements
 		 */
 		pop(elements) {
 			const rd = Atomics.load(this.read_ptr, 0);
@@ -116,14 +118,19 @@ const executable = () => {
 				return 0;
 			}
 
-			const toRead = Math.min(this._availableRead(rd, wr), elements.length);
+			const isArray = !Number.isInteger(elements);
+			// @ts-ignore
+			const toRead = Math.min(this._availableRead(rd, wr), isArray ? elements.length : elements);
 
-			const firstPart = Math.min(this._storageCapacity() - rd, toRead);
-			const secondPart = toRead - firstPart;
+			if (isArray) {
+				const firstPart = Math.min(this._storageCapacity() - rd, toRead);
+				const secondPart = toRead - firstPart;
 
-			this._copy(this.storage, rd, elements, 0, firstPart);
-			this._copy(this.storage, 0, elements, firstPart, secondPart);
-
+				// @ts-ignore
+				this._copy(this.storage, rd, elements, 0, firstPart);
+				// @ts-ignore
+				this._copy(this.storage, 0, elements, firstPart, secondPart);
+			}
 			Atomics.store(this.read_ptr, 0, (rd + toRead) % this._storageCapacity());
 
 			return toRead;

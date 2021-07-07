@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 
 // eslint-disable-next-line object-curly-newline
-import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent, WebAudioModule, WamEventMap, WamParameter } from '../api/types';
+import { WamNodeOptions, WamParameterInfoMap, WamNode, WamParameterConfiguration, WamEvent, WebAudioModule, WamEventMap, WamParameter, WamProcessor } from '../api/types';
 import { TypedAudioWorkletNode, TypedAudioWorkletNodeOptions } from './TypedAudioWorklet';
 
 export class AudioWorkletRegister {
@@ -317,6 +317,10 @@ export const ParamMgrNode: {
         options: ParamMgrOptions
     ): ParamMgrNode<Params, InternalParams>;
 };
+
+export interface ParamMgrProcessor extends WamProcessor {
+    handleEvent?: (event: WamEvent) => any;
+}
 
 /**
  * Use `create` static method to create a new `ParamMgr` instance

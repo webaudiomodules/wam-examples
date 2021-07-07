@@ -69,10 +69,11 @@ const executable = () => {
 		 * {float64} tempo
 		 * {uint8} time signature numerator
 		 * {uint8} time signature denominator
+		 * {uint8} playing flag
 		 *
 		 * @type {number}
 		 */
-		static WamTransportEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1;
+		static WamTransportEventBytes = WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1;
 
 		/**
 		 * Number of bytes required for WamMidiEvent or WamMpeEvent
@@ -104,7 +105,7 @@ const executable = () => {
 		 * @param {RingBufferConstructor} RingBuffer
 		 * @param {number} eventCapacity
 		 * @param {number} [maxBytesPerEvent=undefined]
-		 * @return {SharedArrayBuffer}
+		 * @returns {SharedArrayBuffer}
 		 */
 		static getStorageForEventCapacity(RingBuffer, eventCapacity, maxBytesPerEvent = undefined) {
 			if (maxBytesPerEvent === undefined) maxBytesPerEvent = WamEventRingBuffer.DefaultExtraBytesPerEvent;
@@ -201,7 +202,7 @@ const executable = () => {
 		 * @param {number} byteSize total size of event in bytes
 		 * @param {string} type
 		 * @param {number} time
-		 * @return {number} updated byte offset
+		 * @returns {number} updated byte offset
 		 */
 		_writeHeader(byteSize, type, time) {
 			let byteOffset = 0;
@@ -255,7 +256,7 @@ const executable = () => {
 				 */
 				const { data } = event;
 				const {
-					currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator,
+					currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator, playing
 				} = data;
 
 				this._eventBytesView.setUint32(byteOffset, currentBar);
@@ -267,6 +268,8 @@ const executable = () => {
 				this._eventBytesView.setUint8(byteOffset, timeSigNumerator);
 				byteOffset += 1;
 				this._eventBytesView.setUint8(byteOffset, timeSigDenominator);
+				byteOffset += 1;
+				this._eventBytesView.setUint8(byteOffset, playing ? 1 : 0);
 				byteOffset += 1;
 			} break;
 			case 'wam-mpe':
@@ -373,13 +376,15 @@ const executable = () => {
 				byteOffset += 1;
 				const timeSigDenominator = this._eventBytesView.getUint8(byteOffset);
 				byteOffset += 1;
+				const playing = (this._eventBytesView.getUint8(byteOffset) == 1);
+				byteOffset += 1;
 
 				/** @type {WamTransportEvent} */
 				const event = {
 					type,
 					time,
 					data: {
-						currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator,
+						currentBar, currentBarStarted, tempo, timeSigNumerator, timeSigDenominator, playing
 					},
 				};
 				return event;
@@ -433,7 +438,7 @@ const executable = () => {
 		 * the number of events successfully written.
 		 *
 		 * @param {WamEvent[]} events
-		 * @return {number}
+		 * @returns {number}
 		 */
 		write(...events) {
 			const numEvents = events.length;
@@ -460,7 +465,7 @@ const executable = () => {
 		 * Read WamEvents from the ring buffer, returning
 		 * the list of events successfully read.
 		 *
-		 * @return {WamEvent[]}
+		 * @returns {WamEvent[]}
 		 */
 		read() {
 			if (this._rb.empty) return [];
@@ -506,7 +511,7 @@ const executable = () => {
 		 * Generates a numeric parameter code in a range suitable for
 		 * encoding as uint16.
 		 *
-		 * @return {number}
+		 * @returns {number}
 		 */
 		_generateParameterCode() {
 			if (this._parameterCode > 65535) throw Error('Too many parameters have been registered!');

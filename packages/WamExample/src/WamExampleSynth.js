@@ -277,37 +277,37 @@ class WamExampleSynthPart {
 	 * @param {number} sampleRate
 	 */
 	constructor(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate) {
-		/** @property {number} _sampleRate current sample rate */
+		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
-		/** @property {boolean} _active whether or not the part is currently active */
+		/** @private @type {boolean} whether or not the part is currently active */
 		this._active = false;
 
-		/** @property {Float32Array} _buffer1 buffer to store output from oscillator 1 */
+		/** @private @type {Float32Array} buffer to store output from oscillator 1 */
 		this._buffer1 = new Float32Array(samplesPerQuantum);
 
-		/** @property {Float32Array} _buffer2 buffer to store output from oscillator 2 */
+		/** @private @type {Float32Array} buffer to store output from oscillator 2 */
 		this._buffer2 = new Float32Array(samplesPerQuantum);
 
-		/** @property {WamExampleEnvelopeShaper} _shaper envelope shaper component */
+		/** @private @type {WamExampleEnvelopeShaper} envelope shaper component */
 		this._shaper = new WamExampleEnvelopeShaper(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
 
-		/** @property {WamExampleOscillator} _oscillator1 oscillator component */
+		/** @private @type {WamExampleOscillator} oscillator component */
 		this._oscillator1 = new WamExampleOscillator(sampleRate);
 
-		/** @property {WamExampleOscillator} _oscillator2 oscillator component */
+		/** @private @type {WamExampleOscillator} oscillator component */
 		this._oscillator2 = new WamExampleOscillator(sampleRate);
 
-		/** @property {boolean} _oscillator2Active whether or not _oscillator2 is active */
+		/** @private @type {boolean} whether or not _oscillator2 is active */
 		this._oscillator2Active = false;
 
-		/** @property {WamExampleLowpassFilter} _lowpass1 lowpass filter component */
+		/** @private @type {WamExampleLowpassFilter} lowpass filter component */
 		this._lowpass1 = new WamExampleLowpassFilter();
 
-		/** @property {WamExampleLowpassFilter} _lowpass2 lowpass filter component */
+		/** @private @type {WamExampleLowpassFilter} lowpass filter component */
 		this._lowpass2 = new WamExampleLowpassFilter();
 
-		/** @property {WamExampleDcBlockerFilter} _dcblocker dc blocking filter component */
+		/** @private @type {WamExampleDcBlockerFilter} dc blocking filter component */
 		this._dcblocker = new WamExampleDcBlockerFilter();
 	}
 
@@ -317,6 +317,9 @@ class WamExampleSynthPart {
 	reset() {
 		this._active = false;
 		this._oscillator2Active = false;
+		this._lowpass1.reset();
+		this._lowpass2.reset();
+		this._dcblocker.reset();
 	}
 
 	/**
@@ -365,9 +368,11 @@ class WamExampleSynthPart {
 			this._oscillator2Active = true;
 		}
 
-		this._lowpass1.start(filterFreqHz, this._sampleRate);
-		this._lowpass2.start(filterFreqHz, this._sampleRate);
-		this._dcblocker.start();
+		this._lowpass1.reset();
+		this._lowpass2.reset();
+		this._dcblocker.reset();
+		this._lowpass1.update(filterFreqHz, this._sampleRate);
+		this._lowpass2.update(filterFreqHz, this._sampleRate);
 	}
 
 	/**
@@ -423,37 +428,37 @@ class WamExampleSynthVoice {
 	 * @param {number} voiceIdx unique int to identify voice
 	 */
 	constructor(samplesPerQuantum, sampleRate, voiceIdx) {
-		/** @property {number} _numChannels just two (stereo) */
+		/** @private @type {number} just two (stereo) */
 		this._numChannels = 2;
 
-		/** @property {number} _sampleRate current sample rate */
+		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
-		/** @property {number} idx unique int to identify voice */
+		/** @private @type {number} unique int to identify voice */
 		this.idx = voiceIdx;
 
-		/** @property {number} channel current MIDI channel (when active) */
+		/** @private @type {number} current MIDI channel (when active) */
 		this.channel = -1;
 
-		/** @property {number} note current MIDI note (when active) */
+		/** @private @type {number} current MIDI note (when active) */
 		this.note = -1;
 
-		/** @property {number} velocity current MIDI velocity (when active) */
+		/** @private @type {number} current MIDI velocity (when active) */
 		this.velocity = -1;
 
-		/** @property {number} timestamp time corresponding to when current note began (when active) */
+		/** @private @type {number} time corresponding to when current note began (when active) */
 		this.timestamp = -1;
 
-		/** @property {boolean} active whether or not the voice is currently active */
+		/** @private @type {boolean} whether or not the voice is currently active */
 		this.active = false;
 
 		const maxAttackMs = 500.0;
-		const maxLevel = 0.5;
+		const maxLevel = 0.25;
 
-		/** @property {WamExampleSynthPart} _leftPart part for rendering left channel */
+		/** @private @type {WamExampleSynthPart} part for rendering left channel */
 		this._leftPart = new WamExampleSynthPart(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
 
-		/** @property {WamExampleSynthPart} _rightPart part for rendering right channel */
+		/** @private @type {WamExampleSynthPart} part for rendering right channel */
 		this._rightPart = new WamExampleSynthPart(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
 	}
 
@@ -586,30 +591,30 @@ export default class WamExampleSynth {
 	 */
 	/* eslint-disable-next-line no-unused-vars */
 	constructor(parameterInterpolators, samplesPerQuantum, sampleRate, config = {}) {
-		/** @property {number} _numChannels just two (stereo) */
+		/** @private @type {number} just two (stereo) */
 		this._numChannels = 2;
 
-		/** @property {number} _numVoices number of voices allocated */
+		/** @private @type {number} number of voices allocated */
 		this._numVoices = config.numVoices ?? 16;
 
-		/** @property {boolean} _passInput whether or not to add the input to the synth's output */
+		/** @private @type {boolean} whether or not to add the input to the synth's output */
 		this._passInput = config.passInput ?? false;
 
-		/** @property {WamParameterInfoMap} _parameterInfo */
+		/** @private @type {WamParameterInfoMap} */
 		// @ts-ignore
 		this._parameterInfo = this.constructor.generateWamParameterInfo();
 
-		/** @property {WamParameterInterpolatorMap} _parameterInterpolators */
+		/** @private @type {WamParameterInterpolatorMap} */
 		this._parameterInterpolators = {};
 		Object.keys(this._parameterInfo).forEach((parameterId) => {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @property {UInt8Array} _voiceStates array of voice state flags */
+		/** @private @type {UInt8Array} array of voice state flags */
 		this._voiceStates = new Uint8Array(this._numVoices);
 		this._voiceStates.fill(0);
 
-		/** @property {WamExampleSynthVoice[]} _voices list of allocated voices */
+		/** @private @type {WamExampleSynthVoice[]} list of allocated voices */
 		this._voices = [];
 		let i = 0;
 		while (i < this._numVoices) {
@@ -617,11 +622,21 @@ export default class WamExampleSynth {
 			i++;
 		}
 
-		/** @property {WamExampleSynthPart.Mode} _leftVoiceMode waveform mode for left channel */
+		/** @private @type {WamExampleSynthPart.Mode} waveform mode for left channel */
 		this._leftVoiceMode = WamExampleSynthPart.Mode.IDLE;
 
-		/** @property {WamExampleSynthPart.Mode} _rightVoiceMode waveform mode for right channel */
+		/** @private @type {WamExampleSynthPart.Mode} waveform mode for right channel */
 		this._rightVoiceMode = WamExampleSynthPart.Mode.IDLE;
+	}
+
+	/** Put all voices into idle state */
+	reset() {
+		this._voiceStates.fill(0);
+		let i = 0;
+		while (i < this._numVoices) {
+			this._voices[i].reset();
+			i++;
+		}
 	}
 
 	/**
