@@ -36,5 +36,5 @@ window.audioContext = audioContext;
 	mount.appendChild(pluginDomNode);
 	mount.appendChild(synthPluginDomNode);
 
-	mount.onclick = audioContext.resume(); // audio context must be resumed because browser restrictions
+	mount.onclick = () => audioContext.resume(); // audio context must be resumed because browser restrictions
 })();
