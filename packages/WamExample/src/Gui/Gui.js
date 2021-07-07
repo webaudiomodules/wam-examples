@@ -438,7 +438,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const { synthLevels, effectLevels } = this.plugin.audioNode.levels;
 
 		const minOpacity = 0.333;
-		const maxOpacity = 0.85;
+		const maxOpacity = 0.95;
 
 		let svg = '';
 
@@ -491,7 +491,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const jitter = (0.1 + 0.5 * drive.value) * Math.max(synthLevelA, effectLevel);
+			const jitter = (0.1 + drive.value) * 4.0 * Math.max(synthLevelA, effectLevel);
 			const smoothing = Math.min(0.25, 1.0 - jitter);
 			for (let i = 0; i < 3; ++i) {
 				const whiskerPoints = this._whiskers[c][i].updatePoints(jitter, smoothing);

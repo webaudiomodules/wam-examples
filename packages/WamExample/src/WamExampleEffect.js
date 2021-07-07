@@ -137,7 +137,8 @@ class WamExampleDrive {
 				const dirty = this._dirty[n];
 				const clean = this._clean[n];
 				const x = input[n];
-				const sign = x >= 0 ? 1 : -1;
+				const gain = (0.067 + clean) * dirty;
+				const sign = x >= 0 ? gain : -gain;
 
 				let phi = (piByTwo + piByTwo * dirty) * this._phiWidth * x;
 				while (phi > this._phiMax) {
@@ -147,8 +148,8 @@ class WamExampleDrive {
 					phi += this._phiWidth;
 				}
 
-				const beta = (3.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
-				const y = sign * ((3.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
+				const beta = (2.0 + 6.0 * dirty) * phi * (this._phiMax - phi);
+				const y = sign * ((4.0 * beta) / (this._alpha - beta)) + clean * this._memory1[c];
 				output[n] = y - dirty * clean * this._memory2[c];
 
 				this._memory2[c] = this._memory1[c];
