@@ -249,19 +249,14 @@ export default class WamNode extends AudioWorkletNode {
 		if (!to.module?.isWebAudioModule) return;
 		const request = 'connect/events';
 		const id = this._generateMessageId();
-		let processed = false;
 		new Promise((resolve, reject) => {
 			this._pendingResponses[id] = resolve;
-			this._pendingEvents[id] = () => { if (!processed) reject(); };
 			this.port.postMessage({
 				id,
 				request,
 				content: { wamInstanceId: to.instanceId, output },
 			});
-		}).then((resolved) => {
-			processed = true;
-			delete this._pendingEvents[id];
-		}).catch((rejected) => { delete this._pendingResponses[id]; });
+		});
 	}
 
 	/**
@@ -272,19 +267,14 @@ export default class WamNode extends AudioWorkletNode {
 		if (to && !to.module?.isWebAudioModule) return;
 		const request = 'disconnect/events';
 		const id = this._generateMessageId();
-		let processed = false;
 		new Promise((resolve, reject) => {
 			this._pendingResponses[id] = resolve;
-			this._pendingEvents[id] = () => { if (!processed) reject(); };
 			this.port.postMessage({
 				id,
 				request,
 				content: { wamInstanceId: to?.instanceId, output },
 			});
-		}).then((resolved) => {
-			processed = true;
-			delete this._pendingEvents[id];
-		}).catch((rejected) => { delete this._pendingResponses[id]; });
+		});
 	}
 
 	/**
@@ -330,10 +320,8 @@ export default class WamNode extends AudioWorkletNode {
 
 			const request = 'initialize/eventSab';
 			const id = this._generateMessageId();
-			let processed = false;
 			new Promise((resolve, reject) => {
 				this._pendingResponses[id] = resolve;
-				this._pendingEvents[id] = () => { if (!processed) reject(); };
 				this.port.postMessage({
 					id,
 					request,
@@ -343,16 +331,14 @@ export default class WamNode extends AudioWorkletNode {
 					},
 				});
 			}).then((resolved) => {
-				processed = true;
 				this._eventSabReady = true;
-				delete this._pendingEvents[id];
 
 				// periodically check for messages from audio thread
 				this._audioToMainInterval = setInterval(() => {
 					const events = this._eventReader.read();
 					events.forEach((e) => { this._onEvent(e); });
 				}, 100);
-			}).catch((rejected) => { delete this._pendingResponses[id]; });
+			});
 		} else if (event) this._onEvent(event);
 	}
 

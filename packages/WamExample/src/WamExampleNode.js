@@ -128,20 +128,14 @@ export default class WamExampleNode extends WamNode {
 
 			const request = 'initialize/levelsSab';
 			const id = this._generateMessageId();
-			let processed = false;
 			new Promise((resolve, reject) => {
 				this._pendingResponses[id] = resolve;
-				this._pendingEvents[id] = () => { if (!processed) reject(); };
 				this.port.postMessage({
 					id,
 					request,
 					content: { levelsSab: this._levelsSab }
 				});
-			}).then((resolved) => {
-				processed = true;
-				this._levelsSabReady = true;
-				delete this._pendingEvents[id];
-			}).catch((rejected) => { delete this._pendingResponses[id]; });
+			}).then((resolved) => { this._levelsSabReady = true; });
 		} else if (levelsUpdatePeriodMs) this._levelsUpdatePeriodMs = Math.ceil(levelsUpdatePeriodMs);
 		else super._onMessage(message);
 	}
