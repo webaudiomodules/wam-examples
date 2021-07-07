@@ -83,6 +83,7 @@ function computeStyleForSize(scale) {
 		text-align: center;
 		margin: 0 auto;
 		overflow: hidden;
+		user-select: none;
 	}
 
 	#background-image {
