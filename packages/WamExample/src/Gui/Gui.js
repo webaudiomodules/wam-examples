@@ -116,10 +116,6 @@ function computeStyleForSize(scale) {
 		z-index: 1;
 	}
 
-	.label {
-		user-select: none;
-	}
-
 	#bypass-control {
 		left: 41%;
 		top: 81%;
@@ -169,7 +165,6 @@ function computeStyleForSize(scale) {
 		font-size: ${1.5 * scale}vw;
 		font-style: bold;
 		text-align: left;
-		user-select: none;
 	}
 
 	.mode:hover {
