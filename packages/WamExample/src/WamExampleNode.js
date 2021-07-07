@@ -1,3 +1,5 @@
+/** @typedef {import('../../sdk/src/api/types').WamAutomationEvent} WamAutomationEvent */
+/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
 
@@ -14,6 +16,13 @@ const WamArrayRingBuffer = getWamArrayRingBuffer();
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable lines-between-class-members */
+
+/**
+ * Object containing parameter state
+ *
+ * @typedef {Object} StateMap
+ * @property {WamParameterDataMap} parameterValues
+ */
 
 /**
  * Object containing the most recent levels values
@@ -55,6 +64,23 @@ export default class WamExampleNode extends WamNode {
 
 		/** @private @type {boolean} */
 		this._levelsSabReady = false;
+	}
+
+	/**
+	 * State object consists of parameter settings. Notify GUI by
+	 * emitting corresponding 'wam-automation' events.
+	 * @param {StateMap} state
+	 */
+	 async setState(state) {
+		await super.setState(state);
+		// notify GUI
+		const type = 'wam-automation';
+		Object.keys(state.parameterValues).forEach((parameterId) => {
+			const data = state.parameterValues[parameterId];
+			/** @type {WamAutomationEvent} */
+			const event = { type, data };
+			this._onEvent(event);
+		});
 	}
 
 	/**
