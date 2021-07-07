@@ -453,7 +453,7 @@ class WamExampleSynthVoice {
 		this.active = false;
 
 		const maxAttackMs = 500.0;
-		const maxLevel = 0.5;
+		const maxLevel = 0.25;
 
 		/** @private @type {WamExampleSynthPart} part for rendering left channel */
 		this._leftPart = new WamExampleSynthPart(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);

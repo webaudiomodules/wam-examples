@@ -466,7 +466,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const laserOpacity = Math.min(3.0 * synthLevelA, maxOpacity);
+			const laserOpacity = Math.min(10.0 * synthLevelA, maxOpacity);
 			const eyeOpacity = Math.min(2.0 * effectLevel + (bypass.value ? minOpacity : 0.667), maxOpacity);
 
 			const laserWidthFactor = Math.max(0.3 + synthLevelB, 0.3);
