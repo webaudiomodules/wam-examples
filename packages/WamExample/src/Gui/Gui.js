@@ -270,18 +270,20 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	triggerNotes(delayTimeSec) {
+		const minVelocity = 10;
+		const maxVelocity = 20;
 		const now = this.plugin.audioContext.getOutputTimestamp().contextTime;
 		const time1a = now + delayTimeSec;
 		const time1b = time1a + 2.0;
 		const chord1a = Math.floor(80 + Math.random() * 10);
 		const chord1b = chord1a - 5;
-		const velocity1 = Math.floor(1 + Math.random() * 126);
+		const velocity1 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		const time2a = time1a + 1.0;
 		const time2b = time1b;
 		const chord2a = chord1a - 7;
 		const chord2b = chord2a + 17;
-		const velocity2 = Math.floor(1 + Math.random() * 126);
+		const velocity2 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		const time3a = time2b;
 		const time3b = time3a + 2.0;
@@ -289,7 +291,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const chord3b = chord3a + 7;
 		const chord3c = chord3a - 8;
 		const chord3d = chord3b + 4;
-		const velocity3 = Math.floor(1 + Math.random() * 126);
+		const velocity3 = minVelocity + Math.floor(Math.random() * maxVelocity);
 
 		/**
 		 * @type {WamMidiEvent[]}
