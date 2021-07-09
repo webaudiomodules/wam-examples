@@ -265,8 +265,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this._sleep = (delayMs) => { return new Promise(resolve => { setTimeout(resolve, delayMs) }); };
 
 		this._guiReady = false;
+		this._raf = null;
 
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this.plugin.audioNode.gui = this;
+		if (this.plugin.audioNode.connected) this.onConnect();
 	}
 
 	triggerNotes(delayTimeSec) {
@@ -337,6 +339,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	handleAnimationFrame = async (timestamp) => {
+		if (!this._raf) return;
 		if (!this._guiReady) {
 			const workspace = this.shadowRoot.querySelector('#workspace');
 			const computedStyle = getComputedStyle(workspace);
@@ -517,7 +520,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		`;
 
 		this.shadowRoot.querySelector('#visualization').innerHTML = svg;
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	/**
@@ -606,6 +609,14 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	static is() {
 		return 'wam-example';
 	}
+
+	onConnect() {
+        this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
+    }
+
+    onDisconnect() {
+        window.cancelAnimationFrame(this._raf);
+    }
 }
 
 if (!customElements.get(WamExampleHTMLElement.is())) {

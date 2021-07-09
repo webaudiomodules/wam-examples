@@ -110,8 +110,10 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 		this.setSwitchListener();
 
 		this._guiReady = false;
+		this._raf = null;
 
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this.plugin.audioNode.gui = this;
+		if (this.plugin.audioNode.connected) this.onConnect();
 	}
 
 	triggerNotes(delayTimeSec, onOff) {
@@ -130,6 +132,7 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 	}
 
 	handleAnimationFrame = async () => {
+		if (!this._raf) return;
 		if (!this._guiReady) {
 			// rendered size of GUI
 			const workspace = this.shadowRoot.querySelector('#workspace');
@@ -154,7 +157,7 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 			this._guiReady = true;
 		}
 		// your GUI animation code here
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	/**
@@ -206,6 +209,14 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 	static is() {
 		return 'wam-example-template';
 	}
+
+	onConnect() {
+        this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
+    }
+
+    onDisconnect() {
+        window.cancelAnimationFrame(this._raf);
+    }
 }
 
 if (!customElements.get(WamExampleTemplateHTMLElement.is())) {

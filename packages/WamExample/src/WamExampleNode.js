@@ -2,6 +2,7 @@
 /** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
+/** @typedef {import('./Gui/index').WamExampleHTMLElement} WamExampleHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';
 
@@ -64,6 +65,53 @@ export default class WamExampleNode extends WamNode {
 
 		/** @private @type {boolean} */
 		this._levelsSabReady = false;
+
+		/** @private @type {WamExampleHTMLElement} */
+		this._gui = null;
+
+		/** @private @type {boolean} */
+		this._connected = false;
+	}
+
+	/**
+	 * Set / unset GUI element
+	 *
+	 * @param {WamExampleHTMLElement | null} element
+	 */
+	set gui(element) {
+		this._gui = element;
+	}
+
+	/**
+	 * Whether or not the node is currently connected
+	 *
+	 * @readonly
+	 * @returns {boolean}
+	 */
+	get connected() {
+		return this._connected;
+	}
+
+	/**
+	 * Make sure GUI starts updating
+	 *
+	 * @param {*} args
+	 */
+	connect(...args) {
+		super.connect(...args);
+		this._connected = true;
+		if (this._gui) this._gui.onConnect();
+	}
+
+	/**
+	 * Make sure GUI stops updating
+	 *
+	 * @param {*} args
+	 */
+	disconnect(...args) {
+		if (this._gui) this._gui.onDisconnect();
+		this._connected = false;
+		super.disconnect(...args);
 	}
 
 	/**
