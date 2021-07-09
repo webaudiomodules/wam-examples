@@ -77,7 +77,7 @@ export const WamParameterInterpolator: {
 	 * with interpolation when applicable. Only one instance
 	 * should be created per WamParameter.
 	 */
-	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number)
+	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number, useTables?: boolean)
 	: WamParameterInterpolator;
 };
 

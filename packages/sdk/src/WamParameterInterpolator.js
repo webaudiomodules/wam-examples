@@ -33,9 +33,10 @@ export default class WamParameterInterpolator {
 	/**
 	 * @param {WamParameterInfo} info
 	 * @param {number} samplesPerInterpolation
-	 * @param {number=} skew
+	 * @param {number} [skew=0]
+	 * @param {boolean} [useTables=true]
 	 */
-	constructor(info, samplesPerInterpolation, skew = 0) {
+	constructor(info, samplesPerInterpolation, skew = 0, useTables = false) {
 		if (!WamParameterInterpolator._tables) {
 			WamParameterInterpolator._tables = { nullTableKey: new Float32Array(0) };
 			WamParameterInterpolator._tableReferences = { nullTableKey: [] };
@@ -138,6 +139,9 @@ export default class WamParameterInterpolator {
 		 */
 		this._filled = 0;
 
+
+		this._useTables = useTables;
+
 		if (!this._discrete) this.setSkew(skew);
 		else this._skew = 0;
 		this.setStartValue(this._startValue);
@@ -188,14 +192,16 @@ export default class WamParameterInterpolator {
 			if (references) references.push(id);
 			else WamParameterInterpolator._tableReferences[newKey] = [id];
 		} else { // compute new lookup table
-			let e = Math.abs(skew);
-			/* eslint-disable-next-line */
-			e = Math.pow(3.0 - e, e * (e + 2.0));
-			const linear = e === 1.0;
+			const linear = skew === 0.0;
 			const N = this._N;
 			const table = new Float32Array(N + 1);
 			if (linear) for (let n = 0; n <= N; ++n) table[n] = (n / N);
-			else for (let n = 0; n <= N; ++n) table[n] = (n / N) ** e;
+			else {
+				let e = Math.abs(skew);
+				/* eslint-disable-next-line */
+				this._exponent = Math.pow(3.0 - e, e * (e + 2.0));
+				for (let n = 0; n <= N; ++n) table[n] = (n / N) ** this._exponent;
+			}
 
 			WamParameterInterpolator._tables[newKey] = table;
 			WamParameterInterpolator._tableReferences[newKey] = [id];
@@ -205,6 +211,10 @@ export default class WamParameterInterpolator {
 		this._skew = skew;
 		this._tableKey = newKey;
 		this._table = WamParameterInterpolator._tables[this._tableKey];
+
+		let e = Math.abs(skew);
+		/* eslint-disable-next-line */
+		this._exponent = Math.pow(3.0 - e, e * (e + 2.0));
 	}
 
 	/**
@@ -247,6 +257,9 @@ export default class WamParameterInterpolator {
 		|| (this._deltaValue <= 0 && this._skew < 0);
 		this._changed = false;
 		this._filled = 0;
+
+		this._linearPrevious = this._startValue;
+		this._linearStep = this._deltaValue / this._N;
 	}
 
 	/**
@@ -268,15 +281,38 @@ export default class WamParameterInterpolator {
 				endSample -= fill;
 			}
 			if (endSample > startSample) { // interpolate
-				if (this._inverted) {
-					for (let i = startSample; i < endSample; ++i) {
-						const tableValue = 1.0 - this._table[this._N - ++this._n];
-						this.values[i] = this._startValue + tableValue * this._deltaValue;
+				if (this._useTables) {
+					if (this._inverted) {
+						for (let i = startSample; i < endSample; ++i) {
+							const tableValue = 1.0 - this._table[this._N - ++this._n];
+							this.values[i] = this._startValue + tableValue * this._deltaValue;
+						}
+					} else {
+						for (let i = startSample; i < endSample; ++i) {
+							const tableValue = this._table[++this._n];
+							this.values[i] = this._startValue + tableValue * this._deltaValue;
+						}
 					}
 				} else {
-					for (let i = startSample; i < endSample; ++i) {
-						const tableValue = this._table[++this._n];
-						this.values[i] = this._startValue + tableValue * this._deltaValue;
+					if (this._skew === 0) {
+						for (let i = startSample; i < endSample; ++i) {
+							this.values[i] = this._linearPrevious + this._linearStep;
+							this._linearPrevious = this.values[i];
+						}
+						this._n += (endSample - startSample);
+					}
+					else {
+						if (this._inverted) {
+							for (let i = startSample; i < endSample; ++i) {
+								const curveValue = 1.0 - ((this._N - this._n++) / this._N) ** this._exponent;
+								this.values[i] = this._startValue + curveValue * this._deltaValue;
+							}
+						} else {
+							for (let i = startSample; i < endSample; ++i) {
+								const curveValue = (this._n++ / this._N) ** this._exponent;
+								this.values[i] = this._startValue + curveValue * this._deltaValue;
+							}
+						}
 					}
 				}
 			}
