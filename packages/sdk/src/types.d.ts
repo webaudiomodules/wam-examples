@@ -45,6 +45,11 @@ export interface WamParameterInterpolator {
 	readonly done: boolean;
 
 	/**
+	 * Whether or not interpolation is complete and internal state is equal to `value`.
+	 */
+	is(value: number): boolean;
+
+	/**
 	 * Call this when no longer using the instance in order
 	 * to allow deletion of unused static lookup tables.
 	 */

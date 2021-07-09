@@ -71,25 +71,31 @@ describe('WamParameterInterpolator Suite', () => {
 		const expectedValue = 0;
 		testA.setStartValue(expectedValue);
 		expect(testA.values).toAllEqual(expectedValue);
+		expect(testA.is(expectedValue)).toEqual(true);
 	});
 
 	it('Should only be done when filled with end value', () => {
 		testA.setStartValue(startValue);
+		expect(testA.is(startValue)).toEqual(true);
 		testA.setEndValue(endValue);
 		// No processing yet
 		expect(testA.done).toEqual(false);
+		expect(testA.is(startValue)).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
 
 		startIndex = 0;
 		endIndex = Math.round(samplesPerInterpolation / 3);
 		testA.process(startIndex, endIndex);
 		// Partial slice (less than samplesPerInterpolation)
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
 
 		startIndex = endIndex;
 		endIndex += samplesPerInterpolation - endIndex;
 		testA.process(startIndex, endIndex);
 		// Should have finished interpolating, but not yet filled
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
 
 		startIndex = samplesPerInterpolation;
 		endIndex = samplesPerRenderQuantum;
@@ -100,17 +106,22 @@ describe('WamParameterInterpolator Suite', () => {
 		expect(rampedSlice).toAllIncrease();
 		expect(filledSlice).toAllEqual(endValue);
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
 
 		startIndex = 0;
 		testA.process(startIndex, endIndex);
 		// Should have finishing filling values
 		expect(testA.done).toEqual(true);
 		expect(testA.values).toAllEqual(endValue);
+		expect(testA.is(endValue)).toEqual(true);
 	});
 
 	it('Should continue from current value when setting end value during interpolation', () => {
 		testA.setStartValue(startValue);
+		expect(testA.is(startValue)).toEqual(true);
 		testA.setEndValue(endValue);
+		expect(testA.is(startValue)).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
 		const partialInterpolation = Math.round(samplesPerInterpolation / 3);
 
 		startIndex = 0;
@@ -124,12 +135,16 @@ describe('WamParameterInterpolator Suite', () => {
 		testA.process(startIndex, endIndex);
 		// Should not have finished interpolating
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
+		expect(testA.is(startValue)).toEqual(false);
 
 		startIndex = endIndex;
 		endIndex = samplesPerRenderQuantum;
 		testA.process(startIndex, endIndex);
 		// Should have finished interpolating but not filled
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
+		expect(testA.is(startValue)).toEqual(false);
 
 		startIndex = 0;
 		endIndex = partialInterpolation;
@@ -145,12 +160,16 @@ describe('WamParameterInterpolator Suite', () => {
 		expect(decreasingSlice).toAllDecrease();
 		expect(filledSlice).toAllEqual(startValue);
 		expect(testA.done).toEqual(false);
+		expect(testA.is(endValue)).toEqual(false);
+		expect(testA.is(startValue)).toEqual(false);
 
 		startIndex = 0;
 		testA.process(startIndex, endIndex);
 		// Should have finishing filling values
 		expect(testA.done).toEqual(true);
 		expect(testA.values).toAllEqual(startValue);
+		expect(testA.is(endValue)).toEqual(false);
+		expect(testA.is(startValue)).toEqual(true);
 	});
 
 	it('Should not interpolate discrete parameters', () => {
@@ -198,13 +217,18 @@ describe('WamParameterInterpolator Suite', () => {
 			expect(testD.values).toAllIncrease();
 		}
 		expect(testD.done).toBe(false);
+		expect(testD.is(endValue)).toEqual(false);
+
 		testD.process(0, samplesPerRenderQuantum);
 		expect(testD.done).toBe(false);
+		expect(testD.is(endValue)).toEqual(false);
 		expect(testD.values.slice(0, remainder)).toAllIncrease();
 		expect(testD.values.slice(remainder, samplesPerRenderQuantum)).toAllEqual(endValue);
+
 		testD.process(0, remainder);
 		expect(testD.done).toBe(true);
 		expect(testD.values).toAllEqual(endValue);
+		expect(testD.is(endValue)).toEqual(true);
 	});
 
 	it('Should throw if skew is set out of range', () => {

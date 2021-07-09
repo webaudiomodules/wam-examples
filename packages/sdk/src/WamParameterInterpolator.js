@@ -311,6 +311,16 @@ export default class WamParameterInterpolator {
 	}
 
 	/**
+	 * Whether or not interpolation is complete and internal state
+	 * is equal to `value`.
+	 * @param {number} value
+	 * @returns {boolean}
+	 */
+	is(value) {
+		return this._endValue === value && this.done;
+	}
+
+	/**
 	 * Call this when no longer using the instance in order
 	 * to allow deletion of unused static lookup tables.
 	 */
