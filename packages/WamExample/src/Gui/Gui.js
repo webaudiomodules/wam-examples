@@ -469,7 +469,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const laserOpacity = Math.min(10.0 * synthLevelA, maxOpacity);
+			const laserOpacity = Math.min(4.0 * synthLevelA * (2.0 + drive.value), maxOpacity);
 			const eyeOpacity = Math.min(2.0 * effectLevel + (bypass.value ? minOpacity : 0.667), maxOpacity);
 
 			const laserWidthFactor = Math.max(0.3 + synthLevelB, 0.3);
@@ -494,8 +494,8 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const jitter = (0.1 + drive.value) * 4.0 * Math.max(synthLevelA, effectLevel);
-			const smoothing = Math.min(0.25, 1.0 - jitter);
+			const jitter = (3.0 + 3.0 * drive.value) * Math.max(synthLevelA, effectLevel);
+			const smoothing = Math.min(Math.max(0.1, 1.0 - drive.value), 0.5);
 			for (let i = 0; i < 3; ++i) {
 				const whiskerPoints = this._whiskers[c][i].updatePoints(jitter, smoothing);
 				svg += `
