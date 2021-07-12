@@ -115,20 +115,23 @@ export default class WamExampleNode extends WamNode {
 	}
 
 	/**
-	 * State object consists of parameter settings. Notify GUI by
-	 * emitting corresponding 'wam-automation' events.
+	 * Set parameter values for the specified parameter ids.
+	 * GUI must be notified to stay synchronized.
+	 * @param {WamParameterDataMap} parameterValues
+	 */
+	async setParameterValues(parameterValues) {
+		await super.setParameterValues(parameterValues);
+		this._syncGui({ parameterValues });
+	}
+
+	/**
+	 * State object contains parameter settings. GUI must be
+	 * notified to stay synchronized.
 	 * @param {StateMap} state
 	 */
-	 async setState(state) {
+	async setState(state) {
 		await super.setState(state);
-		// notify GUI
-		const type = 'wam-automation';
-		Object.keys(state.parameterValues).forEach((parameterId) => {
-			const data = state.parameterValues[parameterId];
-			/** @type {WamAutomationEvent} */
-			const event = { type, data };
-			this._onEvent(event);
-		});
+		this._syncGui(state);
 	}
 
 	/**
@@ -151,6 +154,21 @@ export default class WamExampleNode extends WamNode {
 	 */
 	get levelsUpdatePeriodMs() {
 		return this._levelsUpdatePeriodMs;
+	}
+
+	/**
+	 * Notify GUI that plugin state has changed by emitting
+	 * 'wam-automation' events corresponding to each parameter.
+	 * @param {StateMap} state
+	 */
+	_syncGui(state) {
+		const type = 'wam-automation';
+		Object.keys(state.parameterValues).forEach((parameterId) => {
+			const data = state.parameterValues[parameterId];
+			/** @type {WamAutomationEvent} */
+			const event = { type, data };
+			this._onEvent(event);
+		});
 	}
 
 	/**
