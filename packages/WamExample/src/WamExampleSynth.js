@@ -45,29 +45,31 @@ class WamExampleEnvelopeShaper {
 	});
 
 	/**
-	 * @param {number} maxAttackMs maximum duration of attack segment (ms)
-	 * @param {number} maxLevel maximum envelope level
+	 * @param {number} attackMaxMs maximum duration of attack segment (ms)
+	 * @param {number} levelMax maximum envelope level [0.0, 1.0]
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
 	 */
-	constructor(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate) {
+	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
 		this._sampleRate = sampleRate;
 
-		this._thresholdLevel = 0.000001;
-		this._maxLevel = maxLevel;
-		this._targetLevel = 0.0;
-		this._currentLevel = 0.0;
+		this._levelThreshold = 0.0001;
+		this._levelMin = Math.max(this._levelThreshold, 1.0 - levelMax);
+		this._levelMax = levelMax;
+		this._levelRange = this._levelMax - this._levelMin;
+		this._levelTarget = 0.0;
+		this._levelCurrent = 0.0;
 		this._levelInc = 0.0;
 
-		this._maxAttackSec = maxAttackMs / 1000.0;
-		this._minAttackSamples = 32;
-		this._minReleaseSamples = 256;
+		this._attackMaxSec = attackMaxMs / 1000.0;
+		this._attackMinSamples = 128;
+		this._releaseMinSamples = 512;
 
 		this._samplesPerQuantum = samplesPerQuantum;
 		this._envelope = new Float32Array(samplesPerQuantum);
 
 		this._rampIdx = 0;
-		this._rampDurSamples = 0;
+		this._rampSamples = 0;
 		this._segment = this.constructor.Segment.IDLE;
 	}
 
@@ -78,14 +80,14 @@ class WamExampleEnvelopeShaper {
 	 * @param {number} intensity controls amplitude and nonlinearity of envelope [0.0, 1.0]
 	 */
 	start(intensity) {
-		intensity = Math.min(1.0, intensity + this._thresholdLevel);
-		const rampSec = (1.0 - intensity) * this._maxAttackSec;
+		intensity = Math.min(1.0, intensity + this._levelThreshold);
+		const oneMinusIntensity = Math.max(this._levelThreshold, 1.0 - intensity);
+		const rampSec = oneMinusIntensity * this._attackMaxSec;
 		this._rampIdx = 0;
-		this._rampDurSamples = Math.max(this._minAttackSamples, Math.round(rampSec * this._sampleRate));
-		this._currentLevel = 0.0;
-		this._targetLevel = intensity * this._maxLevel; // Attenuating here to keep output under control
-		this._makeupGain = (1.0 + (2.0 * Math.exp(2.0 - intensity)) / Math.exp(intensity));
-		this._levelInc = this._targetLevel / this._rampDurSamples;
+		this._rampSamples = Math.max(this._attackMinSamples, Math.round(rampSec * this._sampleRate));
+		this._levelCurrent = 0.0;
+		this._levelTarget = this._levelMin + this._levelRange * intensity;// * intensity
+		this._levelInc = this._levelTarget / this._rampSamples;
 		this._segment = this.constructor.Segment.ATTACK;
 	}
 
@@ -99,17 +101,18 @@ class WamExampleEnvelopeShaper {
 		if (!force && this._segment === this.constructor.Segment.RELEASE) return;
 
 		this._rampIdx = 0;
-		this._targetLevel = 0.0;
-		if (this._currentLevel < this._thresholdLevel) this._rampDurSamples = 0; // almost silent anyway, don't ramp
+		this._levelTarget = 0.0;
+		if (this._levelCurrent < this._levelThreshold) this._rampSamples = 0; // almost silent anyway, don't ramp
 		else {
 			if (force) { // fast release
-				this._rampDurSamples = this._minReleaseSamples;
+				this._rampSamples = this._releaseMinSamples;
 				this._segment = this.constructor.Segment.CEASE;
 			} else { // normal release
-				this._rampDurSamples *= 2;
+				this._rampSamples *= 2;
+				this._rampSamples += this._releaseMinSamples;
 				this._segment = this.constructor.Segment.RELEASE;
 			}
-			this._levelInc = -this._currentLevel / this._rampDurSamples;
+			this._levelInc = -this._levelCurrent / this._rampSamples;
 		}
 	}
 
@@ -122,43 +125,43 @@ class WamExampleEnvelopeShaper {
 	 */
 	process(startSample, endSample, signal) {
 		let ramping = false;
-		if (this._rampIdx < this._rampDurSamples) {
+		if (this._rampIdx < this._rampSamples) {
 			ramping = true;
-			if ((this._levelInc < 0.0 && this._currentLevel <= this._thresholdLevel)
-				|| (this._levelInc > 0.0 && this._currentLevel >= this._targetLevel)) {
-				this._currentLevel = this._targetLevel;
-				this._rampIdx = this._rampDurSamples;
+			if ((this._levelInc < 0.0 && this._levelCurrent <= this._levelThreshold)
+				|| (this._levelInc > 0.0 && this._levelCurrent >= this._levelTarget)) {
+				this._levelCurrent = this._levelTarget;
+				this._rampIdx = this._rampSamples;
 				ramping = false;
 			} else {
-				const M = this._rampDurSamples - this._rampIdx;
+				const M = this._rampSamples - this._rampIdx;
 				let n = startSample;
 				const N = Math.min(startSample + M, endSample);
 				while (n < N) {
-					this._envelope[n] = this._currentLevel;
-					this._currentLevel += this._levelInc;
+					this._envelope[n] = this._levelCurrent;
+					this._levelCurrent += this._levelInc;
 					n++;
 				}
 				this._rampIdx += N - startSample;
-				if (N < endSample) this._envelope.fill(this._targetLevel, N, endSample);
+				if (N < endSample) this._envelope.fill(this._levelTarget, N, endSample);
 			}
 		}
 
 		if (!ramping) {
-			if (this._targetLevel === 0.0) {
+			if (this._levelTarget === 0.0) {
 				this._segment = this.constructor.Segment.IDLE;
 				signal.fill(0.0, startSample, endSample);
 				return false;
 			}
 			this._segment = this.constructor.Segment.SUSTAIN;
-			this._envelope.fill(this._targetLevel, startSample, endSample);
+			this._envelope.fill(this._levelTarget, startSample, endSample);
 		}
 
 		let n = startSample;
 		while (n < endSample) {
 			let x = signal[n] + this._levelInc;
-			const envelope = this._envelope[n];
 			const sign = x >= 0 ? 1.0 : -1.0;
-			x *= envelope * this._makeupGain;
+			const envelope = this._envelope[n];
+			x *= envelope
 			const xx = x * x;
 			signal[n] = (sign * envelope * xx) / (1.0 + xx);
 			n++;
@@ -207,9 +210,10 @@ class WamExampleOscillator {
 	 * Configure and start the oscillator
 	 * @param {string} mode ['clean', 'dirty']
 	 * @param {number} frequencyHz
+	 * @param {number} gain [0.0, 1.0]
 	 * @param {number} phaseOffsetNorm starting phase [0.0, 1.0]
 	 */
-	start(mode, frequencyHz, phaseOffsetNorm = 0.0) {
+	start(mode, frequencyHz, gain, phaseOffsetNorm = 0.0) {
 		this._phase = this._phaseMin + phaseOffsetNorm * this._phaseWidth;
 		while (this._phase > this._phaseMax) this._phase -= this._phaseWidth;
 		while (this._phase < this._phaseMin) this._phase += this._phaseWidth;
@@ -227,7 +231,7 @@ class WamExampleOscillator {
 		}
 
 		this._phaseInc = this._phaseWidth * frequencyNorm;
-		this._amplitude = Math.min(0.7, Math.max(0.1, 0.7 - frequencyNorm)) + 0.2;
+		this._amplitude = gain * Math.min(0.5, Math.max(0.1, 0.5 - frequencyNorm)) + 0.1;
 	}
 
 	/**
@@ -271,12 +275,12 @@ class WamExampleSynthPart {
 	});
 
 	/**
-	 * @param {number} maxAttackMs maximum duration of envelope attack segment (ms)
-	 * @param {number} maxLevel maximum level of envelope
+	 * @param {number} attackMaxMs maximum duration of envelope attack segment (ms)
+	 * @param {number} levelMax maximum level of envelope [0.0, 1.0]
 	 * @param {number} samplesPerQuantum
 	 * @param {number} sampleRate
 	 */
-	constructor(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate) {
+	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
@@ -290,7 +294,7 @@ class WamExampleSynthPart {
 		this._buffer2 = new Float32Array(samplesPerQuantum);
 
 		/** @private @type {WamExampleEnvelopeShaper} envelope shaper component */
-		this._shaper = new WamExampleEnvelopeShaper(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
+		this._shaper = new WamExampleEnvelopeShaper(attackMaxMs, levelMax, samplesPerQuantum, sampleRate);
 
 		/** @private @type {WamExampleOscillator} oscillator component */
 		this._oscillator1 = new WamExampleOscillator(sampleRate);
@@ -334,6 +338,10 @@ class WamExampleSynthPart {
 		this._active = true;
 		let mode1 = this.constructor.Mode.IDLE;
 		let mode2 = this.constructor.Mode.IDLE;
+		let gain1 = 0.0;
+		let gain2 = 0.0
+		let phaseOffsetNorm1 = phaseOffsetNorm;
+		let phaseOffsetNorm2 = phaseOffsetNorm;
 
 		if (mode === this.constructor.Mode.RANDOM) {
 			const modeKeys = Object.keys(this.constructor.Mode);
@@ -345,26 +353,35 @@ class WamExampleSynthPart {
 		switch (mode) {
 		case this.constructor.Mode.CLEAN:
 			mode1 = mode;
+			gain1 = 0.5;
 			break;
 		case this.constructor.Mode.DIRTY:
 			mode1 = mode;
+			gain1 = 1.0;
 			break;
 		case this.constructor.Mode.CLEANDIRTY:
 			mode1 = this.constructor.Mode.CLEAN;
 			mode2 = this.constructor.Mode.DIRTY;
+			gain1 = 0.5;
+			gain2 = 0.5;
+			phaseOffsetNorm1 += 0.5
+			phaseOffsetNorm2 += 0.25;
 			break;
 		case this.constructor.Mode.DIRTYDIRTY:
 			mode1 = this.constructor.Mode.DIRTY;
 			mode2 = this.constructor.Mode.DIRTY;
+			gain1 = 0.667
+			gain2 = 1.333;
+			phaseOffsetNorm2 += 0.25;
 			break;
 		default: break;
 		}
 
 		this._shaper.start(intensity, this._sampleRate);
 
-		this._oscillator1.start(mode1, oscillatorFreqHz, phaseOffsetNorm);
+		this._oscillator1.start(mode1, oscillatorFreqHz, gain1, phaseOffsetNorm1);
 		if (mode2 !== this.constructor.Mode.IDLE) {
-			this._oscillator2.start(mode2, oscillatorFreqHz, phaseOffsetNorm + 0.25);
+			this._oscillator2.start(mode2, oscillatorFreqHz, gain2, phaseOffsetNorm2);
 			this._oscillator2Active = true;
 		}
 
@@ -395,10 +412,18 @@ class WamExampleSynthPart {
 		this._oscillator1.process(startSample, endSample, this._buffer1);
 		if (this._oscillator2Active) {
 			this._oscillator2.process(startSample, endSample, this._buffer2);
-			let n = startSample;
-			while (n < endSample) {
-				this._buffer1[n] -= this._buffer2[n];
-				n++;
+			if (this._mode === this.constructor.Mode.CLEANDIRTY) {
+				let n = startSample;
+				while (n < endSample) {
+					this._buffer1[n] -= this._buffer2[n];
+					n++;
+				}
+			} else { // DIRTYDIRTY
+				let n = startSample;
+				while (n < endSample) {
+					this._buffer1[n] += this._buffer2[n];
+					n++;
+				}
 			}
 		}
 		this._lowpass1.process(startSample, endSample, this._buffer1);
@@ -452,14 +477,14 @@ class WamExampleSynthVoice {
 		/** @private @type {boolean} whether or not the voice is currently active */
 		this.active = false;
 
-		const maxAttackMs = 500.0;
-		const maxLevel = 0.25;
+		const attackMaxMs = 500.0;
+		const levelMax = 0.9;
 
 		/** @private @type {WamExampleSynthPart} part for rendering left channel */
-		this._leftPart = new WamExampleSynthPart(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
+		this._leftPart = new WamExampleSynthPart(attackMaxMs, levelMax, samplesPerQuantum, sampleRate);
 
 		/** @private @type {WamExampleSynthPart} part for rendering right channel */
-		this._rightPart = new WamExampleSynthPart(maxAttackMs, maxLevel, samplesPerQuantum, sampleRate);
+		this._rightPart = new WamExampleSynthPart(attackMaxMs, levelMax, samplesPerQuantum, sampleRate);
 	}
 
 	/**
@@ -502,19 +527,18 @@ class WamExampleSynthVoice {
 		this.active = true;
 		this.deactivating = 0;
 
-		const intensity = 0.5 + 0.5 * ((velocity + 1) / 128.0);
+		const intensity = Math.min(0.999, (velocity + 73.0) / 200.0);
 
-		const nyquist = this._sampleRate / 2.0;
-		const maxFrequencyHz = 0.9 * nyquist;
-		const minFrequencyHz = 20.0;
+		const frequencyMaxHz = 18000.0;
+		const frequencyMinHz = 20.0;
 		let oscillatorFreqHz = noteToHz(note);
-		oscillatorFreqHz = Math.max(Math.min(oscillatorFreqHz, maxFrequencyHz), minFrequencyHz);
+		oscillatorFreqHz = Math.max(Math.min(oscillatorFreqHz, frequencyMaxHz), frequencyMinHz);
 
-		let filterFreqHz = oscillatorFreqHz * (1.0 + (2.0 * intensity * intensity) * Math.log(nyquist / oscillatorFreqHz));
-		filterFreqHz = Math.max(Math.min(filterFreqHz, maxFrequencyHz), minFrequencyHz);
+		let filterFreqHz = oscillatorFreqHz + (frequencyMaxHz - oscillatorFreqHz) ** intensity;
+		filterFreqHz = Math.max(Math.min(filterFreqHz, frequencyMaxHz), frequencyMinHz);
 
 		this._leftPart.start(leftMode, intensity, oscillatorFreqHz, filterFreqHz);
-		this._rightPart.start(rightMode, intensity, oscillatorFreqHz, filterFreqHz, 0.75);
+		this._rightPart.start(rightMode, intensity, oscillatorFreqHz, filterFreqHz, 0.25);
 	}
 
 	/**
