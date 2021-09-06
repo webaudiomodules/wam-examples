@@ -264,6 +264,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				}
 			}
 			this.port.postMessage(response);
+		} else if (message.data.destroy) {
+			this.destroy();
 		}
 	}
 
