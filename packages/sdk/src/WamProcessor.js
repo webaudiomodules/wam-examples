@@ -264,6 +264,8 @@ export default class WamProcessor extends AudioWorkletProcessor {
 				}
 			}
 			this.port.postMessage(response);
+		} else if (message.data.destroy) {
+			this.destroy();
 		}
 	}
 
@@ -334,7 +336,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_getParameterValues(normalized, parameterIds) {
 		/** @type {WamParameterDataMap} */
 		const parameterValues = {};
-		if (!parameterIds) parameterIds = Object.keys(this._parameterState);
+		if (!parameterIds || !parameterIds.length) parameterIds = Object.keys(this._parameterState);
 		let i = 0;
 		while (i < parameterIds.length) {
 			const id = parameterIds[i];
