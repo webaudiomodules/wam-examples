@@ -1,0 +1,30 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Initialize dependencies
+        run: yarn lerna bootstrap
+
+      - name: Build
+        run: yarn build
+
+      - name: Test SDK
+        run: cd packages/sdk && yarn test
+
