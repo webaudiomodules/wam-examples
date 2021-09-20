@@ -265,25 +265,29 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this._sleep = (delayMs) => { return new Promise(resolve => { setTimeout(resolve, delayMs) }); };
 
 		this._guiReady = false;
+		this._raf = null;
 
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this.plugin.audioNode.gui = this;
+		if (this.plugin.audioNode.connected) this.onConnect();
 	}
 
 	triggerNotes(delayTimeSec) {
-		const minVelocity = 10;
-		const maxVelocity = 20;
+		const noteMin = 80;
+		const noteRange = 10;
+		const velocityMin = 70;
+		const velocityRange = 30;
 		const now = this.plugin.audioContext.getOutputTimestamp().contextTime;
 		const time1a = now + delayTimeSec;
 		const time1b = time1a + 2.0;
-		const chord1a = Math.floor(80 + Math.random() * 10);
+		const chord1a = noteMin + Math.floor(Math.random() * noteRange);
 		const chord1b = chord1a - 5;
-		const velocity1 = minVelocity + Math.floor(Math.random() * maxVelocity);
+		const velocity1 = velocityMin + Math.floor(Math.random() * velocityRange);
 
 		const time2a = time1a + 1.0;
 		const time2b = time1b;
 		const chord2a = chord1a - 7;
 		const chord2b = chord2a + 17;
-		const velocity2 = minVelocity + Math.floor(Math.random() * maxVelocity);
+		const velocity2 = velocityMin + Math.floor(Math.random() * velocityRange);
 
 		const time3a = time2b;
 		const time3b = time3a + 2.0;
@@ -291,7 +295,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const chord3b = chord3a + 7;
 		const chord3c = chord3a - 8;
 		const chord3d = chord3b + 4;
-		const velocity3 = minVelocity + Math.floor(Math.random() * maxVelocity);
+		const velocity3 = velocityMin + Math.floor(Math.random() * velocityRange);
 
 		/**
 		 * @type {WamMidiEvent[]}
@@ -337,6 +341,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	}
 
 	handleAnimationFrame = async (timestamp) => {
+		if (!this._raf) return;
 		if (!this._guiReady) {
 			const workspace = this.shadowRoot.querySelector('#workspace');
 			const computedStyle = getComputedStyle(workspace);
@@ -466,7 +471,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const laserOpacity = Math.min(10.0 * synthLevelA, maxOpacity);
+			const laserOpacity = Math.min(4.0 * synthLevelA * (2.0 + drive.value), maxOpacity);
 			const eyeOpacity = Math.min(2.0 * effectLevel + (bypass.value ? minOpacity : 0.667), maxOpacity);
 
 			const laserWidthFactor = Math.max(0.3 + synthLevelB, 0.3);
@@ -491,8 +496,8 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				/>
 			`;
 
-			const jitter = (0.1 + drive.value) * 4.0 * Math.max(synthLevelA, effectLevel);
-			const smoothing = Math.min(0.25, 1.0 - jitter);
+			const jitter = (3.0 + 3.0 * drive.value) * Math.max(synthLevelA, effectLevel);
+			const smoothing = Math.min(Math.max(0.1, 1.0 - drive.value), 0.5);
 			for (let i = 0; i < 3; ++i) {
 				const whiskerPoints = this._whiskers[c][i].updatePoints(jitter, smoothing);
 				svg += `
@@ -517,7 +522,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		`;
 
 		this.shadowRoot.querySelector('#visualization').innerHTML = svg;
-		window.requestAnimationFrame(this.handleAnimationFrame);
+		this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	/**
@@ -606,6 +611,14 @@ export default class WamExampleHTMLElement extends HTMLElement {
 	static is() {
 		return 'wam-example';
 	}
+
+	onConnect() {
+        this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
+    }
+
+    onDisconnect() {
+        window.cancelAnimationFrame(this._raf);
+    }
 }
 
 if (!customElements.get(WamExampleHTMLElement.is())) {
