@@ -20,7 +20,9 @@ const executable = () => {
 		/** @param {AudioWorkletNodeOptions} options */
 		constructor(options = {}) {
 			super(options);
+			this.parameterUpdateQueue = new Map();
 			this.init(options);
+			this.$defer = 10;
 		}
 
 		/**
@@ -88,7 +90,16 @@ const executable = () => {
 		 * @param {{[x: string]: Float32Array}} parameters
 		 */
 		_process(startSample, endSample, inputs, outputs, parameters) {
-
+			if (this.$defer) {
+				this.$defer--;
+			} else {
+				this.parameterUpdateQueue.forEach((value, key) => {
+					if (typeof key === "string") this.wam_onmessageN(this.inst, "set", key, value);
+					else this.wam_onparam(this.inst, key, value);
+				});
+				this.parameterUpdateQueue.clear();
+				this.$defer = 10;
+			}
 			// -- inputs
 			for (var i=0; i<this.numInputs; i++) {
 				let waain = inputs[i][0];
@@ -204,9 +215,7 @@ const executable = () => {
 		_setParameterValue(parameterUpdate, interpolate) {
 			super._setParameterValue(parameterUpdate, interpolate);
 			const { id: key, value } = parameterUpdate;
-			if (typeof key === "string")
-				this.wam_onmessageN(this.inst, "set", key, value);
-			else this.wam_onparam(this.inst, +key, value);
+			this.parameterUpdateQueue.set(key, value);
 		}
 
 		/**

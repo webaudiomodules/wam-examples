@@ -38,15 +38,17 @@ export default class OBXDPlugin extends WebAudioModule
 	/**
 	 * @param {any} initialState
 	 */
-	async createAudioNode (initialState) {
+	async createAudioNode(initialState) {
 		await OBXDNode.importScripts(this.audioContext, "wasm/");
-		return new OBXDNode(this, initialState);
+		const obxd = new OBXDNode(this, initialState);
+		await obxd.loadBank(`${this._baseURL}/presets/factory.fxb`);
+		return obxd;
 	}
 
 	/**
 	 * @param {{ skin?: string }} options
 	 */
-	async createGui (options = {}) {
+	async createGui(options = {}) {
     	const { createElement } = await import("./obxd-gui.js");
 		return createElement(this, options);
   	}

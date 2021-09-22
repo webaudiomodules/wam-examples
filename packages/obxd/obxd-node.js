@@ -23,11 +23,10 @@ const paramsMap = ["?","MIDILEARN","VOLUME","VOICE_COUNT","TUNE","OCTAVE",
 
 const parameterValues = [0, 0.2759999930858612, 0.1428571492433548, 0.5, 0.41600000858306885, 0, 0, 0, 0.6000000238418579, 0.8080000281333923, 0, 1, 0, 1, 0.20400001108646393, 0.25600001215934753, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.8920000195503235, 0, 0.18799999356269836, 0, 1, 1, 1, 1, 0, 0, 0, 0.9760000109672546, 0.7639999985694885, 0, 1, 0.08400000631809235, 0.03200000897049904, 0.8199999928474426, 0, 0, 1, 0.6559999585151672, 0, 0, 1, 0, 0.004000000189989805, 0.29600000381469727, 0.13199999928474426, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0];
 
-export class OBXDNode extends WamNode
-{
+export class OBXDNode extends WamNode {
   // -- scripts need to be loaded first, and in order
   //
-  static async importScripts (actx, prefix) {
+  static async importScripts(actx, prefix) {
     const baseUrl = import.meta.url;
     await actx.audioWorklet.addModule(new URL("../sdk/src/WamEnv.js", baseUrl));
     await actx.audioWorklet.addModule(new URL("../sdk/src/WamProcessor.js", baseUrl));
@@ -86,7 +85,7 @@ export class OBXDNode extends WamNode
   //   </programs>
   // </Datsounds>
   //
-  async loadBank (url) {
+  async loadBank(url) {
     let resp = await fetch(url);
     let data = new Uint8Array(await resp.arrayBuffer());
 
@@ -133,7 +132,17 @@ export class OBXDNode extends WamNode
       }
     }
 
-    this.setState(this.bank.patches[0].params.buffer);
+    this.setPatch(0);
     return this.bank;
+  }
+
+  setPatch(index) {
+    const patch = this.bank.patches?.[index];
+    if (!patch) return;
+    const state = Array.from(patch.params).reduce((acc, cur, idx) => {
+      acc.parameterValues[idx] = { id: idx, value: cur, normalized: false };
+      return acc;
+    }, { parameterValues: {} })
+    return this.setState(state);
   }
 }
