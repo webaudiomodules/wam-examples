@@ -8,7 +8,6 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../sdk/src/api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
 /** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
@@ -19,6 +18,7 @@
 /** @typedef {import('../../sdk/src/api/types').WamParameterMap} WamParameterMap */
 /** @typedef {import('../../sdk/src/api/types').WamEvent} WamEvent */
 /** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
+/** @typedef {import('../../sdk/src/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
 /** @typedef {import('./WamExampleEffect').WamExampleEffect} WamExampleEffect */
 /** @typedef {import('./WamExampleSynth').WamExampleSynth} WamExampleSynth */

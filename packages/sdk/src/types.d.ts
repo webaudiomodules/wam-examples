@@ -1,6 +1,6 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor, WamParameterMap } from './api/types';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -291,7 +291,16 @@ export type WamParameterInterpolatorMap = {
 };
 
 export interface WamProcessor extends IWamProcessor {
-	readonly downstream: Set<IWamProcessor>
+	readonly downstream: Set<IWamProcessor>;
+	_parameterinfo: WamParameterInfoMap;
+	_parameterState: WamParameterMap;
+	_samplesPerQuantum: number;
+	_parameterInterpolators: WamParameterInterpolatorMap;
+	_compensationDelay: number;
+	readonly _eventQueue: PendingWamEvent[];
+	readonly _destroyed: boolean;
+	readonly _useSab: boolean;
+	readonly _eventSabReady: boolean;
     /**
      * Messages from main thread appear here.
      */
@@ -362,4 +371,5 @@ export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
 	WamArrayRingBuffer: typeof WamArrayRingBuffer;
     WamParameter: typeof WamParameter;
     WamParameterInterpolator: typeof WamParameterInterpolator;
+	WamProcessor: typeof WamProcessor;
 }
