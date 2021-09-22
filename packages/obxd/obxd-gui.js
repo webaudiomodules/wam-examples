@@ -42,9 +42,18 @@ class OBXD_GUI extends HTMLElement
     this._root = this.attachShadow({ mode: 'open' });
     this._root.appendChild(template.content.cloneNode(true));
 
-    const handleAnimationFrame = () => {
+    const handleAnimationFrame = async () => {
       //TODO
-      if (this.isConnected) $raf = window.requestAnimationFrame(handleAnimationFrame);
+      if (this._node && this.isConnected) {
+        const values = await this._node.getParameterValues();
+        for (const key in values) {
+          const label = this.map[key];
+          const { value } = values[key];
+          const widget = this._root.querySelector(`#${label}`);
+          widget.value = value;
+        }
+      }
+      $raf = window.requestAnimationFrame(handleAnimationFrame);
     };
     let $raf = window.requestAnimationFrame(handleAnimationFrame);
   }
