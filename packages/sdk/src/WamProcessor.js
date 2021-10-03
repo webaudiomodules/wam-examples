@@ -58,12 +58,8 @@ const {
  */
 export default class WamProcessor extends AudioWorkletProcessor {
 	/**
-	 * Override to fetch plugin's params via whatever means desired.
-	 * @returns {WamParameterInfoMap}
+	 * @param {AudioWorkletNodeOptions} options
 	 */
-	static generateWamParameterInfo() { return {}; }
-
-	/** @param {AudioWorkletNodeOptions} options */
 	constructor(options) {
 		super(options);
 		const {
@@ -79,27 +75,34 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		this.moduleId = moduleId;
 		/** @type {string} */
 		this.instanceId = instanceId;
-		/** @private @type {WamParameterInfoMap} */
-		// @ts-ignore
-		this._parameterInfo = this.constructor.generateWamParameterInfo();
-		/** @private @type {WamParameterMap} */
-		this._parameterState = {};
 		/** @private @type {number} */
 		this._samplesPerQuantum = 128;
-
-		/** @private @type {WamParameterInterpolatorMap} */
-		this._parameterInterpolators = {};
-		Object.keys(this._parameterInfo).forEach((parameterId) => {
-			const info = this._parameterInfo[parameterId];
-			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
-			this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
-		});
-
-		/** @private @type {PendingWamEvent[]} */
-		this._eventQueue = [];
-
 		/** @private @type {number} */
 		this._compensationDelay = 0;
+		/** @private @type {WamParameterInfoMap} */
+		this._parameterInfo = {};
+		/** @private @type {WamParameterMap} */
+		this._parameterState = {};
+		/** @private @type {WamParameterInterpolatorMap} */
+		this._parameterInterpolators = {};
+		/** @private @type {PendingWamEvent[]} */
+		this._eventQueue = [];
+		/** @private @type {Record<number, (...args: any[]) => any>} */
+		this._pendingResponses = {};
+		/** @private @type {boolean} */
+		this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
+		/** @private @type {boolean} */
+		this._eventSabReady = false;
+		/** @private @type {SharedArrayBuffer} */
+		this._audioToMainEventSab = null;
+		/** @private @type {SharedArrayBuffer} */
+		this._mainToAudioEventSab = null;
+		/** @private @type {WamEventRingBuffer} */
+		this._eventWriter = null;
+		/** @private @type {WamEventRingBuffer} */
+		this._eventReader = null;
+		/** @private @type {boolean} */
+		this._initialized = false;
 		/** @private @type {boolean} */
 		this._destroyed = false;
 
@@ -107,11 +110,23 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 		this.port.onmessage = this._onMessage.bind(this);
 
-		/** @private @type {boolean} */
-		this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
-		/** @private @type {boolean} */
-		this._eventSabReady = false;
 		if (this._useSab) this._configureSab();
+	}
+
+	/**
+	 * List of WAMs connected to this processor via event streams.
+	 * @readonly
+	 * @type {Set<WamProcessor>}
+	 */
+	get downstream() {
+		const wams = new Set();
+		const { eventGraph } = webAudioModules;
+		if (!eventGraph.has(this)) return wams;
+		const outputMap = eventGraph.get(this);
+		outputMap.forEach((set) => {
+			if (set) set.forEach((wam) => wams.add(wam));
+		});
+		return wams;
 	}
 
 	/**
@@ -121,7 +136,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	getCompensationDelay() { return this._compensationDelay; }
 
 	/**
-	 * From the audio thread, schedule a WamEvent.
+	 * Schedule a WamEvent.
 	 * Listeners will be triggered when the event is processed.
 	 * @param {WamEvent[]} events
 	 */
@@ -134,17 +149,10 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		}
 	}
 
-	get downstream() {
-		const wams = new Set();
-		const { eventGraph } = webAudioModules;
-		if (!eventGraph.has(this)) return wams;
-		const outputMap = eventGraph.get(this);
-		outputMap.forEach((set) => {
-			if (set) set.forEach((wam) => wams.add(wam));
-		});
-		return wams;
-	}
-
+	/**
+	 * Schedule events for all the downstream WAMs
+	 * @param {WamEvent[]} events
+	 */
 	emitEvents(...events) {
 		const { eventGraph } = webAudioModules;
 		if (!eventGraph.has(this)) return;
@@ -154,11 +162,100 @@ export default class WamProcessor extends AudioWorkletProcessor {
 		});
 	}
 
-	/** From the audio thread, clear all pending WamEvents. */
+	/**
+	 * Clear all pending WamEvents.
+	 */
 	clearEvents() {
 		this._eventQueue = [];
 	}
 
+	/**
+	 * @param {string} wamInstanceId
+	 * @param {number} [output]
+	 */
+	connectEvents(wamInstanceId, output) {
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.connectEvents(this, wam, output);
+	}
+
+	/**
+	 * @param {string} [wamInstanceId]
+	 * @param {number} [output]
+	 */
+	disconnectEvents(wamInstanceId, output) {
+		if (typeof wamInstanceId === 'undefined') {
+			webAudioModules.disconnectEvents(this);
+			return;
+		}
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.disconnectEvents(this, wam, output);
+	}
+
+	/**
+	 * Process a block of samples. Note that `parameters` argument is ignored.
+	 * @param {Float32Array[][]} inputs
+	 * @param {Float32Array[][]} outputs
+	 * @param {{[x: string]: Float32Array}} parameters
+	 */
+	process(inputs, outputs, parameters) {
+		if (!this._initialized) return true;
+		if (this._destroyed) return false;
+		if (this._eventSabReady) this.scheduleEvents(...this._eventReader.read());
+
+		const processingSlices = this._getProcessingSlices();
+		let i = 0;
+		while (i < processingSlices.length) {
+			const { range, events } = processingSlices[i];
+			const [startSample, endSample] = range;
+			// pause to process events at proper sample
+			let j = 0;
+			while (j < events.length) {
+				this._processEvent(events[j]);
+				j++;
+			}
+			// perform parameter interpolation
+			this._interpolateParameterValues(startSample, endSample);
+			// continue processing
+			this._process(startSample, endSample, inputs, outputs, parameters);
+			i++;
+		}
+		return true;
+	}
+
+	/**
+	 * Stop processing and remove the node from the WAM event graph.
+	 */
+	destroy() {
+		this._destroyed = true;
+		this.port.close();
+		webAudioModules.destroy(this);
+	}
+
+	/**
+	 * Override to generate map of WamParameterInfo objects.
+	 * @returns {WamParameterInfoMap}
+	 */
+	_generateWamParameterInfo() { return {}; }
+
+	/**
+	 * Post-constructor initialization method.
+	 */
+	 _initialize() {
+		this._parameterState = {};
+		this._parameterInterpolators = {};
+		this._parameterInfo = this._generateWamParameterInfo();
+		Object.keys(this._parameterInfo).forEach((parameterId) => {
+			const info = this._parameterInfo[parameterId];
+			this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
+			this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
+		});
+	}
+
+	/**
+	 * Communicate with WamNode to configure SharedArrayBuffers.
+	 */
 	_configureSab() {
 		const eventCapacity = 2 ** 10;
 		const parameterIds = Object.keys(this._parameterInfo);
@@ -242,7 +339,12 @@ export default class WamProcessor extends AudioWorkletProcessor {
 					delete response.content;
 				}
 			} else if (verb === 'initialize') {
-				if (noun === 'eventSab') {
+				if (noun === 'processor') {
+					this._initialize();
+					this._initialized = true;
+					delete response.content;
+				}
+				else if (noun === 'eventSab') {
 					const { mainToAudioEventSab, audioToMainEventSab } = content;
 
 					/** @private @type {SharedArrayBuffer} */
@@ -463,66 +565,10 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	 * @param {Float32Array[][]} outputs
 	 * @param {{[x: string]: Float32Array}} parameters
 	 */
-	_process(startSample, endSample, inputs, outputs, parameters) {}
-
-	/**
-	 * @param {Float32Array[][]} inputs
-	 * @param {Float32Array[][]} outputs
-	 * @param {{[x: string]: Float32Array}} parameters
-	 */
-	process(inputs, outputs, parameters) {
-		if (this._destroyed) return false;
-		if (this._eventSabReady) this.scheduleEvents(...this._eventReader.read());
-
-		const processingSlices = this._getProcessingSlices();
-		let i = 0;
-		while (i < processingSlices.length) {
-			const { range, events } = processingSlices[i];
-			const [startSample, endSample] = range;
-			// pause to process events at proper sample
-			let j = 0;
-			while (j < events.length) {
-				this._processEvent(events[j]);
-				j++;
-			}
-			// perform parameter interpolation
-			this._interpolateParameterValues(startSample, endSample);
-			// continue processing
-			this._process(startSample, endSample, inputs, outputs, parameters);
-			i++;
-		}
-		return true;
-	}
-
-	/**
-	 * @param {string} wamInstanceId
-	 * @param {number} [output]
-	 */
-	connectEvents(wamInstanceId, output) {
-		const wam = webAudioModules.processors[wamInstanceId];
-		if (!wam) return;
-		webAudioModules.connectEvents(this, wam, output);
-	}
-
-	/**
-	 * @param {string} [wamInstanceId]
-	 * @param {number} [output]
-	 */
-	disconnectEvents(wamInstanceId, output) {
-		if (typeof wamInstanceId === 'undefined') {
-			webAudioModules.disconnectEvents(this);
-			return;
-		}
-		const wam = webAudioModules.processors[wamInstanceId];
-		if (!wam) return;
-		webAudioModules.disconnectEvents(this, wam, output);
-	}
-
-	/** Stop processing and remove the node from the WAM event graph. */
-	destroy() {
-		this._destroyed = true;
-		this.port.close();
-		webAudioModules.destroy(this);
+	_process(startSample, endSample, inputs, outputs, parameters) {
+		// Override for custom processing
+		// eslint-disable-next-line no-console
+		console.error('_process not implemented!');
 	}
 }
 

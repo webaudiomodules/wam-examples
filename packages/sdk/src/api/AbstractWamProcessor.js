@@ -22,5 +22,9 @@ export default class WamProcessor extends AudioWorkletProcessor {
 
 	clearEvents() { throw new Error('Not Implemented.'); }
 
+	connectEvents(to, output) { throw new Error('Not Implemented.'); }
+
+	disconnectEvents(to, output) { throw new Error('Not Implemented.'); }
+
 	destroy() { throw new Error('Not Implemented.'); }
 }

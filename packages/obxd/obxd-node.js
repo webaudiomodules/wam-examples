@@ -24,13 +24,6 @@ export class OBXDNode extends WamNode
     return template;
   }
 
-	static generateWamParameters() {
-    let params = {}
-    for (let i = 0; i < 71; i++)
-      params[i] = new WamParameter(i);
-		return params;
-	}
-
 	/**
    * @param {import('../sdk').WebAudioModule} plug
    * @param {HTMLTemplateElement} template
@@ -80,7 +73,7 @@ export class OBXDNode extends WamNode
     }, {});
   }
 
-  
+
 
   // --------------------------------------------------------------------------
   // bank parser

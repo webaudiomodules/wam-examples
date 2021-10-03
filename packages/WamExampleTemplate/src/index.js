@@ -50,8 +50,9 @@ export default class WamExampleTemplatePlugin extends WebAudioModule {
 		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleTemplateProcessor.js`);
 
 		const wamExampleTemplateNode = new WamExampleTemplateNode(this, {});
+		await wamExampleTemplateNode._initialize();
 
-		// Initialize if applicable
+		// Set initial state if applicable
 		if (initialState) wamExampleTemplateNode.setState(initialState);
 
 		return wamExampleTemplateNode;

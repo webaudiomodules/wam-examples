@@ -105,9 +105,9 @@ export interface WamNode extends AudioNode, Readonly<WamNodeOptions> {
     removeEventListener<K extends keyof WamEventMap>(type: K, listener: (this: this, ev: CustomEvent<WamEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
     removeEventListener(type: string, listener: (this: this, ev: CustomEvent) => any, options?: boolean | AddEventListenerOptions): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-    /** From the main thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
+    /** Schedule a WamEvent. Listeners will be triggered when the event is processed. */
     scheduleEvents(...event: WamEvent[]): void;
-    /** From the main thread, clear all pending WamEvents. */
+    /** Clear all pending WamEvents. */
     clearEvents(): void;
     /** Connect an event output stream to another WAM. If no output index is given, assume output 0. */
     connectEvents(to: WamNode, output?: number): void;
@@ -123,15 +123,22 @@ export const WamNode: {
 export interface WamProcessor extends AudioWorkletProcessor {
     readonly moduleId: string;
     readonly instanceId: string;
+
     /** Compensation delay hint in seconds. */
     getCompensationDelay(): number;
-    /** From the audio thread, schedule a WamEvent. Listeners will be triggered when the event is processed. */
+    /** Schedule a WamEvent. Listeners will be triggered when the event is processed. */
     scheduleEvents(...event: WamEvent[]): void;
     /** Schedule events for all the downstream WAMs */
     emitEvents(...events: WamEvent[]): void;
-    /** From the audio thread, clear all pending WamEvents. */
+    /** Clear all pending WamEvents. */
     clearEvents(): void;
-    /** Stop processing and remove the node from the graph. */
+    /** Connect an event output stream to another WAM. If no output index is given, assume output 0. */
+    connectEvents(wamInstanceId: string, output?: number): void;
+	/** Disconnect an event output stream from another WAM. If no arguments are given, all event streams will be disconnected. */
+    disconnectEvents(wamInstanceId?: string, output?: number): void;
+    /** Process a block of samples. Note that `parameters` argument is ignored. */
+    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>)
+    /** Stop processing and remove the node from the WAM event graph. */
     destroy(): void;
 }
 export const WamProcessor: {

@@ -1,6 +1,6 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable max-len */
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -255,13 +255,26 @@ export const WamArrayRingBuffer: {
 
 export interface WamNode extends IWamNode {
 	readonly moduleId: string;
-    /**
-     * Messages from audio thread
-     */
-    _onMessage(message: MessageEvent): void;
-    _audioToMainInterval: number;
-    _onEvent(event: WamEvent): void;
+	readonly instanceId: string;
+	readonly processorId: string;
+
+	/** Note: methods and members starting with underscore should not be accessed by host. */
     _generateMessageId(): number;
+	_initialize(): Promise<void>;
+    _onMessage(message: MessageEvent): void;
+    _onEvent(event: WamEvent): void;
+
+	_supportedEventTypes: Set<WamEventType>;
+	_messageId: number;
+	_pendingResponses: Record<number, (...args: any[]) => any>
+	_pendingEvents: Record<number, () => any>
+	_useSab: boolean;
+	_eventSabReady: boolean;
+	_mainToAudioEventSab?: SharedArrayBuffer;
+	_audioToMainEventSab?: SharedArrayBuffer;
+	_eventWriter?: WamEventRingBuffer;
+	_eventReader?: WamEventRingBuffer;
+	_destroyed: boolean;
 }
 export const WamNode: {
 	prototype: WamNode;
@@ -292,9 +305,11 @@ export type WamParameterInterpolatorMap = {
 
 export interface WamProcessor extends IWamProcessor {
 	readonly downstream: Set<IWamProcessor>
-    /**
-     * Messages from main thread appear here.
-     */
+
+	/** Note: methods and members starting with underscore should not be accessed by host. */
+	_generateWamParameterInfo(): WamParameterInfoMap;
+    _initialize(): void;
+	_configureSab(): void;
     _onMessage(message: MessageEvent): Promise<void>;
     _onTransport(transportData: WamTransportData): void;
     _onMidi(midiData: WamMidiData): void;
@@ -309,27 +324,27 @@ export interface WamProcessor extends IWamProcessor {
     _interpolateParameterValues(startIndex: number, endIndex: number): void;
     _getProcessingSlices(): ProcessingSlice[];
     _processEvent(event: WamEvent): void;
-    /**
-     * Override this to implement custom DSP.
-     * @param startSample beginning of processing slice
-     * @param endSample end of processing slice
-     * @param inputs
-     * @param outputs
-     * @param parameters
-     */
     _process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
-    connectEvents(wamInstanceId: string, output?: number): void;
-	disconnectEvents(wamInstanceId?: string, output?: number): void;
-    /** Stop processing and remove the node from the WAM event graph. */
-    destroy(): void;
+
+	_samplesPerQuantum: number;
+	_compensationDelay: number;
+	_parameterInfo: WamParameterInfoMap;
+	_parameterState: WamParameterMap;
+	_parameterInterpolators: WamParameterInterpolatorMap;
+	_eventQueue: PendingWamEvent[];
+	_pendingResponses: Record<number, (...args: any[]) => any>;
+	_useSab: boolean;
+	_eventSabReady: boolean;
+	_audioToMainEventSab?: SharedArrayBuffer;
+	_mainToAudioEventSab?: SharedArrayBuffer;
+	_eventWriter?: WamEventRingBuffer;
+	_eventReader?: WamEventRingBuffer;
+	_initialized: boolean;
+	_destroyed: boolean;
 }
 
 export const WamProcessor: {
 	prototype: WamProcessor;
-    /**
-     * Override to fetch plugin's params via whatever means desired.
-     */
-	generateWamParameterInfo(): WamParameterInfoMap;
     new (options: AudioWorkletNodeOptions): WamProcessor;
 } & Pick<typeof IWamProcessor, "parameterDescriptors">;
 

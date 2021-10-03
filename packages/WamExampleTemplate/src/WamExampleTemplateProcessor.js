@@ -43,10 +43,23 @@ const {
  */
 class WamExampleTemplateProcessor extends WamProcessor {
 	/**
+	 * @param {AudioWorkletNodeOptions} options
+	 */
+	constructor(options) {
+		super(options);
+		// your plugin initialization code here
+		/** @private @type {WamExampleTemplateSynth} */
+		this._synth = null;
+
+		/** @private @type {WamExampleTemplateEffect} */
+		this._effect = null;
+	}
+
+	/**
 	 * Fetch plugin's params.
 	 * @returns {WamParameterInfoMap}
 	 */
-	static generateWamParameterInfo() {
+	_generateWamParameterInfo() {
 		return {
 			// your plugin parameters here
 			bypass: new WamParameterInfo('bypass', {
@@ -60,15 +73,13 @@ class WamExampleTemplateProcessor extends WamProcessor {
 	}
 
 	/**
-	 * @param {AudioWorkletNodeOptions} options
+	 * Post-constructor initialization method.
 	 */
-	constructor(options) {
-		super(options);
-		// your plugin initialization code here
+	 _initialize() {
+		super._initialize();
 		const synthConfig = {
 			passInput: true,
 		};
-		/** @private @type {WamExampleTemplateSynth} */
 		this._synth = new WamExampleTemplateSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			synthConfig);
 
@@ -76,11 +87,9 @@ class WamExampleTemplateProcessor extends WamProcessor {
 			numChannels: 2,
 			inPlace: true,
 		};
-		/** @private @type {WamExampleTemplateEffect} */
 		this._effect = new WamExampleTemplateEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			effectConfig);
-		super.port.start();
-	}
+	 }
 
 	/**
 	 *

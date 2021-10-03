@@ -38,20 +38,20 @@ export default class WamNode extends AudioWorkletNode {
 
 		/** @type {WebAudioModule} */
 		this.module = module;
+		/** @private @type {Set<WamEventType>} */
+		this._supportedEventTypes = new Set(['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
+		/** @private @type {number} */
+		this._messageId = 1;
+		/** @private @type {Record<number, (...args: any[]) => any>} */
+		this._pendingResponses = {};
+		/** @private @type {Record<number, () => any>} */
+		this._pendingEvents = {};
 		/** @private @type {boolean} */
 		this._useSab = false; // can override this via processorOptions;
 		/** @private @type {boolean} */
 		this._eventSabReady = false;
-		/** @private @type {{[key: number]: (...args: any[]) => any}} */
-		this._pendingResponses = {};
-		/** @private @type {{[key: number]: () => any}} */
-		this._pendingEvents = {};
 		/** @private @type {boolean} */
 		this._destroyed = false;
-		/** @private @type {number} */
-		this._messageId = 1;
-		/** @private @type {Set<WamEventType>} */
-		this._supportedEventTypes = new Set(['wam-automation', 'wam-transport', 'wam-midi', 'wam-sysex', 'wam-mpe', 'wam-osc']);
 
 		this.port.onmessage = this._onMessage.bind(this);
 	}
@@ -277,6 +277,32 @@ export default class WamNode extends AudioWorkletNode {
 		});
 	}
 
+	/** Stop processing and remove the node from the graph. */
+	destroy() {
+		if (this._audioToMainInterval) clearInterval(this._audioToMainInterval);
+		this.port.postMessage({ destroy: true });
+		this.port.close();
+		this.disconnect();
+		this._destroyed = true;
+	}
+
+	_generateMessageId() {
+		/* eslint-disable-next-line no-plusplus */
+		return this._messageId++;
+	}
+
+	/**
+	 * Post-constructor (asynchronous) initialization method.
+	 */
+	async _initialize() {
+		const request = 'initialize/processor';
+		const id = this._generateMessageId();
+		return new Promise((resolve) => {
+			this._pendingResponses[id] = resolve;
+			this.port.postMessage({ id, request });
+		});
+	}
+
 	/**
 	 * Messages from audio thread
 	 * @param {MessageEvent} message
@@ -348,19 +374,5 @@ export default class WamNode extends AudioWorkletNode {
 			bubbles: true,
 			detail: event,
 		}));
-	}
-
-	_generateMessageId() {
-		/* eslint-disable-next-line no-plusplus */
-		return this._messageId++;
-	}
-
-	/** Stop processing and remove the node from the graph. */
-	destroy() {
-		if (this._audioToMainInterval) clearInterval(this._audioToMainInterval);
-		this.port.postMessage({ destroy: true });
-		this.port.close();
-		this.disconnect();
-		this._destroyed = true;
 	}
 }
