@@ -132,10 +132,6 @@ export interface WamProcessor extends AudioWorkletProcessor {
     emitEvents(...events: WamEvent[]): void;
     /** Clear all pending WamEvents. */
     clearEvents(): void;
-    /** Connect an event output stream to another WAM. If no output index is given, assume output 0. */
-    connectEvents(wamInstanceId: string, output?: number): void;
-	/** Disconnect an event output stream from another WAM. If no arguments are given, all event streams will be disconnected. */
-    disconnectEvents(wamInstanceId?: string, output?: number): void;
     /** Process a block of samples. Note that `parameters` argument is ignored. */
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>)
     /** Stop processing and remove the node from the WAM event graph. */

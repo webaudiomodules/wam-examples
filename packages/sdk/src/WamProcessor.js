@@ -170,30 +170,6 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	}
 
 	/**
-	 * @param {string} wamInstanceId
-	 * @param {number} [output]
-	 */
-	connectEvents(wamInstanceId, output) {
-		const wam = webAudioModules.processors[wamInstanceId];
-		if (!wam) return;
-		webAudioModules.connectEvents(this, wam, output);
-	}
-
-	/**
-	 * @param {string} [wamInstanceId]
-	 * @param {number} [output]
-	 */
-	disconnectEvents(wamInstanceId, output) {
-		if (typeof wamInstanceId === 'undefined') {
-			webAudioModules.disconnectEvents(this);
-			return;
-		}
-		const wam = webAudioModules.processors[wamInstanceId];
-		if (!wam) return;
-		webAudioModules.disconnectEvents(this, wam, output);
-	}
-
-	/**
 	 * Process a block of samples. Note that `parameters` argument is ignored.
 	 * @param {Float32Array[][]} inputs
 	 * @param {Float32Array[][]} outputs
@@ -329,13 +305,13 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			} else if (verb === 'connect') {
 				if (noun === 'events') {
 					const { wamInstanceId, output } = content;
-					this.connectEvents(wamInstanceId, output);
+					this._connectEvents(wamInstanceId, output);
 					delete response.content;
 				}
 			} else if (verb === 'disconnect') {
 				if (noun === 'events') {
 					const { wamInstanceId, output } = content;
-					this.disconnectEvents(wamInstanceId, output);
+					this._disconnectEvents(wamInstanceId, output);
 					delete response.content;
 				}
 			} else if (verb === 'initialize') {
@@ -494,6 +470,30 @@ export default class WamProcessor extends AudioWorkletProcessor {
 			this._parameterInterpolators[parameterIds[i]].process(startIndex, endIndex);
 			i++;
 		}
+	}
+
+	/**
+	 * @param {string} wamInstanceId
+	 * @param {number} [output]
+	 */
+	_connectEvents(wamInstanceId, output) {
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.connectEvents(this, wam, output);
+	}
+
+	/**
+	 * @param {string} [wamInstanceId]
+	 * @param {number} [output]
+	 */
+	_disconnectEvents(wamInstanceId, output) {
+		if (typeof wamInstanceId === 'undefined') {
+			webAudioModules.disconnectEvents(this);
+			return;
+		}
+		const wam = webAudioModules.processors[wamInstanceId];
+		if (!wam) return;
+		webAudioModules.disconnectEvents(this, wam, output);
 	}
 
 	/**

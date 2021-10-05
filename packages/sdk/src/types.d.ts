@@ -321,7 +321,9 @@ export interface WamProcessor extends IWamProcessor {
 	_getParameterValues(normalized: boolean, parameterIds?: string[] | undefined): WamParameterDataMap;
     _setParameterValues(parameterUpdates: WamParameterDataMap, interpolate: boolean): void;
     _setParameterValue(parameterUpdate: WamParameterData, interpolate: boolean): void;
-    _interpolateParameterValues(startIndex: number, endIndex: number): void;
+	_interpolateParameterValues(startIndex: number, endIndex: number): void;
+	_connectEvents(wamInstanceId: string, output?: number): void;
+    _disconnectEvents(wamInstanceId?: string, output?: number): void;
     _getProcessingSlices(): ProcessingSlice[];
     _processEvent(event: WamEvent): void;
     _process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
