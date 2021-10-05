@@ -278,6 +278,7 @@ export interface WamNode extends IWamNode {
 }
 export const WamNode: {
 	prototype: WamNode;
+	addModules(audioContext: AudioContext, baseURL: string): Promise<void>;
     new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 

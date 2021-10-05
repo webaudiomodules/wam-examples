@@ -19,6 +19,18 @@ import WamNode from '../../sdk/src/WamNode.js';
 
 export default class WamExampleTemplateNode extends WamNode {
 	/**
+	 * Register scripts required for the processor. Must be called before constructor.
+	 * @param {AudioContext} audioContext
+	 * @param {string} baseURL
+	 */
+	static async addModules(audioContext, baseURL) {
+		await super.addModules(audioContext, baseURL);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateSynth.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateEffect.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateProcessor.js`);
+	}
+
+	/**
 	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */

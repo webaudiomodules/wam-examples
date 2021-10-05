@@ -36,6 +36,19 @@ const WamArrayRingBuffer = getWamArrayRingBuffer();
 
 export default class WamExampleNode extends WamNode {
 	/**
+	 * Register scripts required for the processor. Must be called before constructor.
+	 * @param {AudioContext} audioContext
+	 * @param {string} baseURL
+	 */
+	static async addModules(audioContext, baseURL) {
+		await super.addModules(audioContext, baseURL);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleComponents.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleSynth.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleEffect.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleProcessor.js`);
+	}
+
+	/**
 	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */

@@ -24,6 +24,22 @@ const WamEventRingBuffer = getWamEventRingBuffer();
  */
 export default class WamNode extends AudioWorkletNode {
 	/**
+	 * Register scripts required for the processor. Must be called before constructor.
+	 * @param {AudioContext} audioContext
+	 * @param {string} baseURL
+	 */
+	static async addModules(audioContext, baseURL) {
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/RingBuffer.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEventRingBuffer.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamArrayRingBuffer.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEnv.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameter.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInfo.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInterpolator.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamProcessor.js`);
+	}
+
+	/**
 	 * @param {WebAudioModule} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
