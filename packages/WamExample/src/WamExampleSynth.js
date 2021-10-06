@@ -58,8 +58,7 @@ class WamExampleEnvelopeShaper {
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
 		/** @type {typeof WamExampleEnvelopeShaper} */
-		// @ts-ignore
-		this.Ctor = this.constructor;
+		this.constructor;
 		this._sampleRate = sampleRate;
 
 		this._levelThreshold = 0.0001;
@@ -79,7 +78,7 @@ class WamExampleEnvelopeShaper {
 
 		this._rampIdx = 0;
 		this._rampSamples = 0;
-		this._segment = this.Ctor.Segment.IDLE;
+		this._segment = this.constructor.Segment.IDLE;
 	}
 
 	/**
@@ -97,7 +96,7 @@ class WamExampleEnvelopeShaper {
 		this._levelCurrent = 0.0;
 		this._levelTarget = this._levelMin + this._levelRange * intensity;// * intensity
 		this._levelInc = this._levelTarget / this._rampSamples;
-		this._segment = this.Ctor.Segment.ATTACK;
+		this._segment = this.constructor.Segment.ATTACK;
 	}
 
 	/**
@@ -106,8 +105,8 @@ class WamExampleEnvelopeShaper {
 	 */
 	stop(force) {
 		// allow ramp to finish if already underway
-		if (this._segment === this.Ctor.Segment.CEASE) return;
-		if (!force && this._segment === this.Ctor.Segment.RELEASE) return;
+		if (this._segment === this.constructor.Segment.CEASE) return;
+		if (!force && this._segment === this.constructor.Segment.RELEASE) return;
 
 		this._rampIdx = 0;
 		this._levelTarget = 0.0;
@@ -115,11 +114,11 @@ class WamExampleEnvelopeShaper {
 		else {
 			if (force) { // fast release
 				this._rampSamples = this._releaseMinSamples;
-				this._segment = this.Ctor.Segment.CEASE;
+				this._segment = this.constructor.Segment.CEASE;
 			} else { // normal release
 				this._rampSamples *= 2;
 				this._rampSamples += this._releaseMinSamples;
-				this._segment = this.Ctor.Segment.RELEASE;
+				this._segment = this.constructor.Segment.RELEASE;
 			}
 			this._levelInc = -this._levelCurrent / this._rampSamples;
 		}
@@ -157,11 +156,11 @@ class WamExampleEnvelopeShaper {
 
 		if (!ramping) {
 			if (this._levelTarget === 0.0) {
-				this._segment = this.Ctor.Segment.IDLE;
+				this._segment = this.constructor.Segment.IDLE;
 				signal.fill(0.0, startSample, endSample);
 				return false;
 			}
-			this._segment = this.Ctor.Segment.SUSTAIN;
+			this._segment = this.constructor.Segment.SUSTAIN;
 			this._envelope.fill(this._levelTarget, startSample, endSample);
 		}
 
@@ -204,10 +203,9 @@ class WamExampleOscillator {
 	 */
 	constructor(sampleRate) {
 		/** @type {typeof WamExampleOscillator} */
-		// @ts-ignore
-		this.Ctor = this.constructor;
+		this.constructor;
 		this._sampleRate = sampleRate;
-		this._mode = this.Ctor.Mode.IDLE;
+		this._mode = this.constructor.Mode.IDLE;
 		this._alpha = 5 * Math.PI ** 2.0;
 		this._phase = 0.0;
 		this._phaseInc = 0.0;
@@ -232,11 +230,11 @@ class WamExampleOscillator {
 		let frequencyNorm = frequencyHz / this._sampleRate;
 		this._mode = mode;
 
-		if (this._mode === this.Ctor.Mode.DIRTY) {
+		if (this._mode === this.constructor.Mode.DIRTY) {
 			this._bias = -0.5;
 			this._flip = 1.0;
 			frequencyNorm *= 0.5;
-		} else if (this._mode === this.Ctor.Mode.CLEAN) {
+		} else if (this._mode === this.constructor.Mode.CLEAN) {
 			this._bias = 0.0;
 			this._flip = -1.0;
 		}
@@ -292,8 +290,7 @@ class WamExampleSynthPart {
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
 		/** @type {typeof WamExampleSynthPart} */
-		// @ts-ignore
-		this.Ctor = this.constructor;
+		this.constructor;
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
@@ -349,40 +346,40 @@ class WamExampleSynthPart {
 	 */
 	start(mode, intensity, oscillatorFreqHz, filterFreqHz, phaseOffsetNorm = 0.0) {
 		this._active = true;
-		let mode1 = this.Ctor.Mode.IDLE;
-		let mode2 = this.Ctor.Mode.IDLE;
+		let mode1 = this.constructor.Mode.IDLE;
+		let mode2 = this.constructor.Mode.IDLE;
 		let gain1 = 0.0;
 		let gain2 = 0.0
 		let phaseOffsetNorm1 = phaseOffsetNorm;
 		let phaseOffsetNorm2 = phaseOffsetNorm;
 
-		if (mode === this.Ctor.Mode.RANDOM) {
-			const modeKeys = Object.keys(this.Ctor.Mode);
+		if (mode === this.constructor.Mode.RANDOM) {
+			const modeKeys = Object.keys(this.constructor.Mode);
 			const modeMin = 1; // exclude IDLE
 			const modeMax = modeKeys.length - 2; // exclude RANDOM
 			const modeRange = modeMax - modeMin;
-			mode = this.Ctor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
+			mode = this.constructor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
 		}
 		switch (mode) {
-		case this.Ctor.Mode.CLEAN:
+		case this.constructor.Mode.CLEAN:
 			mode1 = mode;
 			gain1 = 0.5;
 			break;
-		case this.Ctor.Mode.DIRTY:
+		case this.constructor.Mode.DIRTY:
 			mode1 = mode;
 			gain1 = 1.0;
 			break;
-		case this.Ctor.Mode.CLEANDIRTY:
-			mode1 = this.Ctor.Mode.CLEAN;
-			mode2 = this.Ctor.Mode.DIRTY;
+		case this.constructor.Mode.CLEANDIRTY:
+			mode1 = this.constructor.Mode.CLEAN;
+			mode2 = this.constructor.Mode.DIRTY;
 			gain1 = 0.5;
 			gain2 = 0.5;
 			phaseOffsetNorm1 += 0.5
 			phaseOffsetNorm2 += 0.25;
 			break;
-		case this.Ctor.Mode.DIRTYDIRTY:
-			mode1 = this.Ctor.Mode.DIRTY;
-			mode2 = this.Ctor.Mode.DIRTY;
+		case this.constructor.Mode.DIRTYDIRTY:
+			mode1 = this.constructor.Mode.DIRTY;
+			mode2 = this.constructor.Mode.DIRTY;
 			gain1 = 0.667
 			gain2 = 1.333;
 			phaseOffsetNorm2 += 0.25;
@@ -393,7 +390,7 @@ class WamExampleSynthPart {
 		this._shaper.start(intensity/*, this._sampleRate*/);
 
 		this._oscillator1.start(mode1, oscillatorFreqHz, gain1, phaseOffsetNorm1);
-		if (mode2 !== this.Ctor.Mode.IDLE) {
+		if (mode2 !== this.constructor.Mode.IDLE) {
 			this._oscillator2.start(mode2, oscillatorFreqHz, gain2, phaseOffsetNorm2);
 			this._oscillator2Active = true;
 		}
@@ -425,7 +422,7 @@ class WamExampleSynthPart {
 		this._oscillator1.process(startSample, endSample, this._buffer1);
 		if (this._oscillator2Active) {
 			this._oscillator2.process(startSample, endSample, this._buffer2);
-			if (this._mode === this.Ctor.Mode.CLEANDIRTY) {
+			if (this._mode === this.constructor.Mode.CLEANDIRTY) {
 				let n = startSample;
 				while (n < endSample) {
 					this._buffer1[n] -= this._buffer2[n];
