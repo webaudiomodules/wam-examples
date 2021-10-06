@@ -42,8 +42,9 @@
  * @typedef {{[id: string]: WamParameterInterpolator}} WamParameterInterpolatorMap
  */
 
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
 	AudioWorkletProcessor,
 	webAudioModules,
@@ -51,7 +52,7 @@ const {
 	WamEventRingBuffer,
 	WamParameter,
 	WamParameterInterpolator,
-} = globalThis;
+} = audioWorkletGlobalScope;
 
 /**
  * @implements {IWamProcessor}
@@ -503,7 +504,7 @@ export default class WamProcessor extends AudioWorkletProcessor {
 	_getProcessingSlices() {
 		const response = 'add/event';
 		/** @ts-ignore */
-		const { currentTime, sampleRate } = globalThis;
+		const { currentTime, sampleRate } = audioWorkletGlobalScope;
 		/** @type {{[sampleIndex: number]: WamEvent[]}} */
 		const eventsBySampleIndex = {};
 		// assumes events arrive sorted by time

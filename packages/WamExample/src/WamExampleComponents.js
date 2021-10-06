@@ -8,6 +8,12 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+
+/** @type {AudioWorkletGlobalScope} */
+// @ts-ignore
+const audioWorkletGlobalScope = globalThis;
+
 const twoPi = 2.0 * Math.PI;
 
 /**
@@ -44,7 +50,7 @@ export class WamExampleLowpassFilter {
 	 * Pass the signal buffer through the filter
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		let n = startSample;
@@ -89,7 +95,7 @@ export class WamExampleDcBlockerFilter {
 	 * Pass the signal buffer through the filter
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		let n = startSample;
@@ -104,9 +110,9 @@ export class WamExampleDcBlockerFilter {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	if (!globalThis.WamExampleComponents) globalThis.WamExampleComponents = {};
-	globalThis.WamExampleComponents.WamExampleLowpassFilter = WamExampleLowpassFilter;
-	globalThis.WamExampleComponents.WamExampleDcBlockerFilter = WamExampleDcBlockerFilter;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	if (!audioWorkletGlobalScope.WamExampleComponents) audioWorkletGlobalScope.WamExampleComponents = {
+		WamExampleLowpassFilter,
+		WamExampleDcBlockerFilter
+	};
 }

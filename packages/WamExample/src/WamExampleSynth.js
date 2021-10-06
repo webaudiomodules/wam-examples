@@ -8,20 +8,27 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('./WamExampleComponents').WamExampleComponents } WamExampleComponents */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./WamExampleComponents').WamExampleLowpassFilter} WamExampleLowpassFilter */
+/** @typedef {import('./WamExampleComponents').WamExampleDcBlockerFilter} WamExampleDcBlockerFilter */
 
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
-	// @ts-ignore
-	WamExampleComponents,
-} = globalThis;
+	WamExampleComponents
+} = audioWorkletGlobalScope;
 
 const {
 	WamExampleLowpassFilter,
 	WamExampleDcBlockerFilter,
 } = WamExampleComponents;
 
+/**
+ * @param {number} note
+ */
 function noteToHz(note) { return 2.0 ** ((note - 69) / 12.0) * 440.0; }
 
 /**
@@ -34,7 +41,6 @@ class WamExampleEnvelopeShaper {
 	/**
 	 * enum for envelope segments.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Segment = Object.freeze({
 		IDLE: 'idle',
@@ -51,6 +57,9 @@ class WamExampleEnvelopeShaper {
 	 * @param {number} sampleRate
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
+		/** @type {typeof WamExampleEnvelopeShaper} */
+		// @ts-ignore
+		this.Ctor = this.constructor;
 		this._sampleRate = sampleRate;
 
 		this._levelThreshold = 0.0001;
@@ -70,7 +79,7 @@ class WamExampleEnvelopeShaper {
 
 		this._rampIdx = 0;
 		this._rampSamples = 0;
-		this._segment = this.constructor.Segment.IDLE;
+		this._segment = this.Ctor.Segment.IDLE;
 	}
 
 	/**
@@ -88,7 +97,7 @@ class WamExampleEnvelopeShaper {
 		this._levelCurrent = 0.0;
 		this._levelTarget = this._levelMin + this._levelRange * intensity;// * intensity
 		this._levelInc = this._levelTarget / this._rampSamples;
-		this._segment = this.constructor.Segment.ATTACK;
+		this._segment = this.Ctor.Segment.ATTACK;
 	}
 
 	/**
@@ -97,8 +106,8 @@ class WamExampleEnvelopeShaper {
 	 */
 	stop(force) {
 		// allow ramp to finish if already underway
-		if (this._segment === this.constructor.Segment.CEASE) return;
-		if (!force && this._segment === this.constructor.Segment.RELEASE) return;
+		if (this._segment === this.Ctor.Segment.CEASE) return;
+		if (!force && this._segment === this.Ctor.Segment.RELEASE) return;
 
 		this._rampIdx = 0;
 		this._levelTarget = 0.0;
@@ -106,11 +115,11 @@ class WamExampleEnvelopeShaper {
 		else {
 			if (force) { // fast release
 				this._rampSamples = this._releaseMinSamples;
-				this._segment = this.constructor.Segment.CEASE;
+				this._segment = this.Ctor.Segment.CEASE;
 			} else { // normal release
 				this._rampSamples *= 2;
 				this._rampSamples += this._releaseMinSamples;
-				this._segment = this.constructor.Segment.RELEASE;
+				this._segment = this.Ctor.Segment.RELEASE;
 			}
 			this._levelInc = -this._levelCurrent / this._rampSamples;
 		}
@@ -120,7 +129,7 @@ class WamExampleEnvelopeShaper {
 	 * Apply envelope to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 * @returns {boolean} whether or not the envelope is still active
 	 */
 	process(startSample, endSample, signal) {
@@ -148,11 +157,11 @@ class WamExampleEnvelopeShaper {
 
 		if (!ramping) {
 			if (this._levelTarget === 0.0) {
-				this._segment = this.constructor.Segment.IDLE;
+				this._segment = this.Ctor.Segment.IDLE;
 				signal.fill(0.0, startSample, endSample);
 				return false;
 			}
-			this._segment = this.constructor.Segment.SUSTAIN;
+			this._segment = this.Ctor.Segment.SUSTAIN;
 			this._envelope.fill(this._levelTarget, startSample, endSample);
 		}
 
@@ -183,7 +192,6 @@ class WamExampleOscillator {
 	/**
 	 * enum for oscillator modes.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Mode = Object.freeze({
 		IDLE: 'idle',
@@ -195,8 +203,11 @@ class WamExampleOscillator {
 	 * @param {number} sampleRate
 	 */
 	constructor(sampleRate) {
+		/** @type {typeof WamExampleOscillator} */
+		// @ts-ignore
+		this.Ctor = this.constructor;
 		this._sampleRate = sampleRate;
-		this._mode = this.constructor.Mode.IDLE;
+		this._mode = this.Ctor.Mode.IDLE;
 		this._alpha = 5 * Math.PI ** 2.0;
 		this._phase = 0.0;
 		this._phaseInc = 0.0;
@@ -221,11 +232,11 @@ class WamExampleOscillator {
 		let frequencyNorm = frequencyHz / this._sampleRate;
 		this._mode = mode;
 
-		if (this._mode === this.constructor.Mode.DIRTY) {
+		if (this._mode === this.Ctor.Mode.DIRTY) {
 			this._bias = -0.5;
 			this._flip = 1.0;
 			frequencyNorm *= 0.5;
-		} else if (this._mode === this.constructor.Mode.CLEAN) {
+		} else if (this._mode === this.Ctor.Mode.CLEAN) {
 			this._bias = 0.0;
 			this._flip = -1.0;
 		}
@@ -238,7 +249,7 @@ class WamExampleOscillator {
 	 * Fill the signal buffer with oscillator output
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		let n = startSample;
@@ -265,7 +276,6 @@ class WamExampleSynthPart {
 	/**
 	 * enum for synth part modes.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Mode = Object.freeze({
 		...WamExampleOscillator.Mode,
@@ -281,6 +291,9 @@ class WamExampleSynthPart {
 	 * @param {number} sampleRate
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
+		/** @type {typeof WamExampleSynthPart} */
+		// @ts-ignore
+		this.Ctor = this.constructor;
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
@@ -336,40 +349,40 @@ class WamExampleSynthPart {
 	 */
 	start(mode, intensity, oscillatorFreqHz, filterFreqHz, phaseOffsetNorm = 0.0) {
 		this._active = true;
-		let mode1 = this.constructor.Mode.IDLE;
-		let mode2 = this.constructor.Mode.IDLE;
+		let mode1 = this.Ctor.Mode.IDLE;
+		let mode2 = this.Ctor.Mode.IDLE;
 		let gain1 = 0.0;
 		let gain2 = 0.0
 		let phaseOffsetNorm1 = phaseOffsetNorm;
 		let phaseOffsetNorm2 = phaseOffsetNorm;
 
-		if (mode === this.constructor.Mode.RANDOM) {
-			const modeKeys = Object.keys(this.constructor.Mode);
+		if (mode === this.Ctor.Mode.RANDOM) {
+			const modeKeys = Object.keys(this.Ctor.Mode);
 			const modeMin = 1; // exclude IDLE
 			const modeMax = modeKeys.length - 2; // exclude RANDOM
 			const modeRange = modeMax - modeMin;
-			mode = this.constructor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
+			mode = this.Ctor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
 		}
 		switch (mode) {
-		case this.constructor.Mode.CLEAN:
+		case this.Ctor.Mode.CLEAN:
 			mode1 = mode;
 			gain1 = 0.5;
 			break;
-		case this.constructor.Mode.DIRTY:
+		case this.Ctor.Mode.DIRTY:
 			mode1 = mode;
 			gain1 = 1.0;
 			break;
-		case this.constructor.Mode.CLEANDIRTY:
-			mode1 = this.constructor.Mode.CLEAN;
-			mode2 = this.constructor.Mode.DIRTY;
+		case this.Ctor.Mode.CLEANDIRTY:
+			mode1 = this.Ctor.Mode.CLEAN;
+			mode2 = this.Ctor.Mode.DIRTY;
 			gain1 = 0.5;
 			gain2 = 0.5;
 			phaseOffsetNorm1 += 0.5
 			phaseOffsetNorm2 += 0.25;
 			break;
-		case this.constructor.Mode.DIRTYDIRTY:
-			mode1 = this.constructor.Mode.DIRTY;
-			mode2 = this.constructor.Mode.DIRTY;
+		case this.Ctor.Mode.DIRTYDIRTY:
+			mode1 = this.Ctor.Mode.DIRTY;
+			mode2 = this.Ctor.Mode.DIRTY;
 			gain1 = 0.667
 			gain2 = 1.333;
 			phaseOffsetNorm2 += 0.25;
@@ -377,10 +390,10 @@ class WamExampleSynthPart {
 		default: break;
 		}
 
-		this._shaper.start(intensity, this._sampleRate);
+		this._shaper.start(intensity/*, this._sampleRate*/);
 
 		this._oscillator1.start(mode1, oscillatorFreqHz, gain1, phaseOffsetNorm1);
-		if (mode2 !== this.constructor.Mode.IDLE) {
+		if (mode2 !== this.Ctor.Mode.IDLE) {
 			this._oscillator2.start(mode2, oscillatorFreqHz, gain2, phaseOffsetNorm2);
 			this._oscillator2Active = true;
 		}
@@ -404,7 +417,7 @@ class WamExampleSynthPart {
 	 * Add output to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		if (!this._active) return false;
@@ -412,7 +425,7 @@ class WamExampleSynthPart {
 		this._oscillator1.process(startSample, endSample, this._buffer1);
 		if (this._oscillator2Active) {
 			this._oscillator2.process(startSample, endSample, this._buffer2);
-			if (this._mode === this.constructor.Mode.CLEANDIRTY) {
+			if (this._mode === this.Ctor.Mode.CLEANDIRTY) {
 				let n = startSample;
 				while (n < endSample) {
 					this._buffer1[n] -= this._buffer2[n];
@@ -516,8 +529,8 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
-	 * @param {WamExampleSynthPart.Mode} leftMode mode for voice's left channel
-	 * @param {WamExampleSynthPart.Mode} rightMode mode for voice's right channel
+	 * @param {string} leftMode mode for voice's left channel
+	 * @param {string} rightMode mode for voice's right channel
 	 */
 	noteOn(channel, note, velocity, leftMode, rightMode) {
 		this.channel = channel;
@@ -634,7 +647,7 @@ export default class WamExampleSynth {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @private @type {UInt8Array} array of voice state flags */
+		/** @private @type {Uint8Array} array of voice state flags */
 		this._voiceStates = new Uint8Array(this._numVoices);
 		this._voiceStates.fill(0);
 
@@ -646,10 +659,10 @@ export default class WamExampleSynth {
 			i++;
 		}
 
-		/** @private @type {WamExampleSynthPart.Mode} waveform mode for left channel */
+		/** @private @type {string} waveform mode for left channel */
 		this._leftVoiceMode = WamExampleSynthPart.Mode.IDLE;
 
-		/** @private @type {WamExampleSynthPart.Mode} waveform mode for right channel */
+		/** @private @type {string} waveform mode for right channel */
 		this._rightVoiceMode = WamExampleSynthPart.Mode.IDLE;
 	}
 
@@ -763,7 +776,6 @@ export default class WamExampleSynth {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	globalThis.WamExampleSynth = WamExampleSynth;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	audioWorkletGlobalScope.WamExampleSynth = WamExampleSynth;
 }

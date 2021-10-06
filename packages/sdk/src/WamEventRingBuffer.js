@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('./types').RingBuffer} RingBuffer */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
@@ -20,6 +19,7 @@
 /** @typedef {typeof import('./types').WamEventRingBuffer} WamEventRingBufferConstructor */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
+/* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 

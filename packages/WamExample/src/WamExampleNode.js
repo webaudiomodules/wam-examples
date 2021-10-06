@@ -1,7 +1,7 @@
+/** @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule */
 /** @typedef {import('../../sdk/src/api/types').WamAutomationEvent} WamAutomationEvent */
 /** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
-/** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
 /** @typedef {import('./Gui/index').WamExampleHTMLElement} WamExampleHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';
@@ -37,7 +37,7 @@ const WamArrayRingBuffer = getWamArrayRingBuffer();
 export default class WamExampleNode extends WamNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
-	 * @param {AudioContext} audioContext
+	 * @param {BaseAudioContext} audioContext
 	 * @param {string} baseURL
 	 */
 	static async addModules(audioContext, baseURL) {
@@ -49,7 +49,7 @@ export default class WamExampleNode extends WamNode {
 	}
 
 	/**
-	 * @param {WebAudioModule} module
+	 * @param {WebAudioModule<WamExampleNode>} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
@@ -61,7 +61,7 @@ export default class WamExampleNode extends WamNode {
 		};
 		super(module, options);
 
-		/** @private @type {Set<WamEventType>} */
+		/** @type {Set<WamEventType>} */
 		this._supportedEventTypes = new Set(['wam-automation', 'wam-midi']);
 
 		/** @private @type {number} */
@@ -111,9 +111,10 @@ export default class WamExampleNode extends WamNode {
 	 * @param {*} args
 	 */
 	connect(...args) {
-		super.connect(...args);
+		const r = super.connect(...args);
 		this._connected = true;
 		if (this._gui) this._gui.onConnect();
+		return r;
 	}
 
 	/**

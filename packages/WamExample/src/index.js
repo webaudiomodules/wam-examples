@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-
 // SDK
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 // DSP
@@ -16,20 +15,13 @@ const getBaseUrl = (relativeURL) => {
 	return baseURL;
 };
 
-// Definition of a new plugin
-// All plugins must inherit from WebAudioModule
+/**
+ * @extends {WebAudioModule<WamExampleNode>}
+ */
 export default class WamExamplePlugin extends WebAudioModule {
 	_baseURL = getBaseUrl(new URL('.', import.meta.url));
 
 	_descriptorUrl = `${this._baseURL}/descriptor.json`;
-
-	async _loadDescriptor() {
-		const url = this._descriptorUrl;
-		if (!url) throw new TypeError('Descriptor not found');
-		const response = await fetch(url);
-		const descriptor = await response.json();
-		Object.assign(this.descriptor, descriptor);
-	}
 
 	async initialize(state) {
 		await this._loadDescriptor();
@@ -38,7 +30,7 @@ export default class WamExamplePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		// DSP is implemented in WamExampleProcessor.
-		await WamExampleNode.addModules(this._audioContext, this._baseURL);
+		await WamExampleNode.addModules(this.audioContext, this._baseURL);
 		const wamExampleNode = new WamExampleNode(this, {});
 		await wamExampleNode._initialize();
 

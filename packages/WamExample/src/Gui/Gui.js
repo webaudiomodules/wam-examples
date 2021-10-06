@@ -247,7 +247,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
-		/** @type {WebAudioModule} */
+		/** @type {import("../index").default} */
 		this.plugin = plugin;
 		this._controls = {};
 		const parameterIds = ['bypass', 'leftVoiceMode', 'rightVoiceMode', 'drive'];
@@ -298,7 +298,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const velocity3 = velocityMin + Math.floor(Math.random() * velocityRange);
 
 		/**
-		 * @type {WamMidiEvent[]}
+		 * @type {import("../../../sdk/src/api/types").WamMidiEvent[]}
 		 */
 		const noteEvents = [
 			// start chord1
@@ -435,6 +435,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 
 		const { bypass, drive } = this._controls;
 
+		/** @type {HTMLDivElement} */
 		const driveColorMixer = this.shadowRoot.querySelector('#drive-color-mixer');
 		if (bypass.value) driveColorMixer.style.backgroundColor = grayLight;
 		else driveColorMixer.style = `animation-delay: -${drive.value}s`;

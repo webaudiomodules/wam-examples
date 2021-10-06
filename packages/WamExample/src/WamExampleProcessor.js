@@ -8,7 +8,6 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../sdk/src/api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
 /** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
@@ -20,33 +19,14 @@
 /** @typedef {import('../../sdk/src/api/types').WamEvent} WamEvent */
 /** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
-/** @typedef {import('./WamExampleEffect').WamExampleEffect} WamExampleEffect */
-/** @typedef {import('./WamExampleSynth').WamExampleSynth} WamExampleSynth */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolator} WamParameterInterpolator */
+/** @typedef {import('./WamExampleEffect').default} WamExampleEffect */
+/** @typedef {import('./WamExampleSynth').default} WamExampleSynth */
 
-/**
- * A WamEvent and corresponding message id used to trigger callbacks
- * on the main thread once the event has been processed.
- * @typedef {Object} PendingWamEvent
- * @property {number} id
- * @property {WamEvent} event
-*/
-
-/**
- * A range of sample indices and corresponding list of simultaneous
- * WamEvents to be processed at the beginning of the slice.
- * @typedef {Object} ProcessingSlice
- * @property {[number, number]} range
- * @property {WamEvent[]} events
- */
-
-/**
- * @typedef {Object} WamParameterInterpolatorMap
- * @property {string} id
- * @property {WamParameterInterpolator} interpolator
- */
-
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
 	RingBuffer,
 	WamArrayRingBuffer,
@@ -55,7 +35,7 @@ const {
 	WamExampleSynth,
 	WamExampleEffect,
 	registerProcessor,
-} = globalThis;
+} = audioWorkletGlobalScope;
 
 const LevelsUpdatePeriodSec = 1.0 / 30.0;
 const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;

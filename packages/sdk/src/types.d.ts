@@ -77,8 +77,7 @@ export const WamParameterInterpolator: {
 	 * with interpolation when applicable. Only one instance
 	 * should be created per WamParameter.
 	 */
-	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number)
-	: WamParameterInterpolator;
+	new (info: WamParameterInfo, samplesPerInterpolation: number, skew?: number): WamParameterInterpolator;
 };
 
 // eslint-disable-next-line no-undef
@@ -142,7 +141,7 @@ export interface WamEventRingBuffer {
 	 * ignored. Note that this must be called on corresponding
 	 * WamEventRingBuffers on both threads.
 	 */
-	 setParameterIds(parameterIds: string[]);
+	setParameterIds(parameterIds: string[]): void;
 }
 export const WamEventRingBuffer: {
 	prototype: WamEventRingBuffer;
@@ -253,7 +252,7 @@ export const WamArrayRingBuffer: {
 	new (RingBufferConstructor: typeof RingBuffer, sab: SharedArrayBuffer, arrayLength: number, arrayType: TypedArrayConstructor, maxArrayCapacity?: number): WamArrayRingBuffer;
 };
 
-export interface WamNode extends IWamNode {
+export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListener" | "removeEventListener"> {
 	readonly moduleId: string;
 	readonly instanceId: string;
 	readonly processorId: string;
@@ -278,7 +277,7 @@ export interface WamNode extends IWamNode {
 }
 export const WamNode: {
 	prototype: WamNode;
-	addModules(audioContext: AudioContext, baseURL: string): Promise<void>;
+	addModules(audioContext: BaseAudioContext, baseURL: string): Promise<void>;
 	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 
@@ -379,5 +378,7 @@ export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
 	WamEventRingBuffer: typeof WamEventRingBuffer;
 	WamArrayRingBuffer: typeof WamArrayRingBuffer;
 	WamParameter: typeof WamParameter;
+	WamParameterInfo: typeof WamParameterInfo;
 	WamParameterInterpolator: typeof WamParameterInterpolator;
+	WamProcessor: typeof WamProcessor;
 }

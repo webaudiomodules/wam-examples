@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /**
  * Main `WebAudioModule` interface,
  * its constructor should be the `export default` of the ESM of each WAM.
@@ -123,7 +122,6 @@ export const WamNode: {
 export interface WamProcessor extends AudioWorkletProcessor {
     readonly moduleId: string;
     readonly instanceId: string;
-
     /** Compensation delay hint in seconds. */
     getCompensationDelay(): number;
     /** Schedule a WamEvent. Listeners will be triggered when the event is processed. */
@@ -133,7 +131,7 @@ export interface WamProcessor extends AudioWorkletProcessor {
     /** Clear all pending WamEvents. */
     clearEvents(): void;
     /** Process a block of samples. Note that `parameters` argument is ignored. */
-    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>)
+    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean;
     /** Stop processing and remove the node from the WAM event graph. */
     destroy(): void;
 }
@@ -262,6 +260,13 @@ export type WamMpeEvent = WamEventBase<'wam-mpe', WamMidiData>;
 export type WamOscEvent = WamEventBase<'wam-osc', WamBinaryData>;
 export type WamInfoEvent = WamEventBase<'wam-info', WamInfoData>;
 
+export interface AudioParamDescriptor {
+    automationRate?: AutomationRate;
+    defaultValue?: number;
+    maxValue?: number;
+    minValue?: number;
+    name: string;
+}
 export interface AudioWorkletProcessor {
     port: MessagePort;
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean;
@@ -292,6 +297,8 @@ export const WamEnv: {
 }
 
 export interface AudioWorkletGlobalScope {
+    AudioWorkletGlobalScope: any;
+    globalThis: AudioWorkletGlobalScope;
     registerProcessor: (name: string, constructor: new (options: any) => AudioWorkletProcessor) => void;
     currentFrame: number;
     currentTime: number;
