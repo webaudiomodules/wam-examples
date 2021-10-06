@@ -18,7 +18,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 	/**
 	 * @param {BaseAudioContext} audioContext
 	 * @param {any} [initialState]
-	 * @returns {Promise<WebAudioModule>}
+	 * @returns {Promise<AbstractWebAudioModule<any>>}
 	 */
 	static createInstance(audioContext, initialState) {
 		return new this(audioContext).initialize(initialState);

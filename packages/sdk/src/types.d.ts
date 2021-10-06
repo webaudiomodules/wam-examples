@@ -96,31 +96,31 @@ export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array
  * @author padenot
  */
 export interface RingBuffer {
-    /** Returns the type of the underlying ArrayBuffer for this RingBuffer. This allows implementing crude type checking. */
-    readonly type: string;
-    /** Push bytes to the ring buffer. `elements` is a typed array of the same type as passed in the ctor, to be written to the queue. Returns the number of elements written to the queue. */
-    push(elements: TypedArray): number;
-    /** Read `elements.length` elements from the ring buffer if `elements` is a typed array of the same type as passed in the ctor. If `elements` is an integer, pop and discard that many elements from the ring buffer. Returns the number of elements read from the queue, they are placed at the beginning of the array passed as parameter if `elements` is not an integer. */
-    pop(elements: TypedArray | number): number;
-    /** True if the ring buffer is empty false otherwise. This can be late on the reader side: it can return true even if something has just been pushed. */
-    readonly empty: boolean;
-    /** True if the ring buffer is full, false otherwise. This can be late on the write side: it can return true when something has just been popped. */
-    readonly full: boolean;
-    /** The usable capacity for the ring buffer: the number of elements that can be stored. */
-    readonly capacity: number;
-    /** Number of elements available for reading. This can be late, and report less elements that is actually in the queue, when something has just been enqueued. */
-    readonly availableRead: number;
-    /** Number of elements available for writing. This can be late, and report less elements that is actually available for writing, when something has just been dequeued. */
-    readonly availableWrite: number;
+	/** Returns the type of the underlying ArrayBuffer for this RingBuffer. This allows implementing crude type checking. */
+	readonly type: string;
+	/** Push bytes to the ring buffer. `elements` is a typed array of the same type as passed in the ctor, to be written to the queue. Returns the number of elements written to the queue. */
+	push(elements: TypedArray): number;
+	/** Read `elements.length` elements from the ring buffer if `elements` is a typed array of the same type as passed in the ctor. If `elements` is an integer, pop and discard that many elements from the ring buffer. Returns the number of elements read from the queue, they are placed at the beginning of the array passed as parameter if `elements` is not an integer. */
+	pop(elements: TypedArray | number): number;
+	/** True if the ring buffer is empty false otherwise. This can be late on the reader side: it can return true even if something has just been pushed. */
+	readonly empty: boolean;
+	/** True if the ring buffer is full, false otherwise. This can be late on the write side: it can return true when something has just been popped. */
+	readonly full: boolean;
+	/** The usable capacity for the ring buffer: the number of elements that can be stored. */
+	readonly capacity: number;
+	/** Number of elements available for reading. This can be late, and report less elements that is actually in the queue, when something has just been enqueued. */
+	readonly availableRead: number;
+	/** Number of elements available for writing. This can be late, and report less elements that is actually available for writing, when something has just been dequeued. */
+	readonly availableWrite: number;
 }
 export const RingBuffer: {
 	prototype: RingBuffer;
-    getStorageForCapacity(capacity: number, Type: TypedArrayConstructor): SharedArrayBuffer;
-    /**
-     * `sab` is a SharedArrayBuffer with a capacity calculated by calling
-     * `getStorageForCapacity` with the desired capacity.
-     */
-    new (sab: SharedArrayBuffer, Type: TypedArrayConstructor): RingBuffer;
+	getStorageForCapacity(capacity: number, Type: TypedArrayConstructor): SharedArrayBuffer;
+	/**
+	 * `sab` is a SharedArrayBuffer with a capacity calculated by calling
+	 * `getStorageForCapacity` with the desired capacity.
+	 */
+	new (sab: SharedArrayBuffer, Type: TypedArrayConstructor): RingBuffer;
 };
 
 export interface WamEventRingBuffer {
@@ -259,10 +259,10 @@ export interface WamNode extends IWamNode {
 	readonly processorId: string;
 
 	/** Note: methods and members starting with underscore should not be accessed by host. */
-    _generateMessageId(): number;
+	_generateMessageId(): number;
 	_initialize(): Promise<void>;
-    _onMessage(message: MessageEvent): void;
-    _onEvent(event: WamEvent): void;
+	_onMessage(message: MessageEvent): void;
+	_onEvent(event: WamEvent): void;
 
 	_supportedEventTypes: Set<WamEventType>;
 	_messageId: number;
@@ -279,7 +279,7 @@ export interface WamNode extends IWamNode {
 export const WamNode: {
 	prototype: WamNode;
 	addModules(audioContext: AudioContext, baseURL: string): Promise<void>;
-    new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
+	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 
 /**
@@ -287,8 +287,8 @@ export const WamNode: {
  * on the main thread once the event has been processed.
  */
 export type PendingWamEvent = {
-    id: number;
-    event: WamEvent;
+	id: number;
+	event: WamEvent;
 };
 
 /**
@@ -296,12 +296,12 @@ export type PendingWamEvent = {
  * WamEvents to be processed at the beginning of the slice.
  */
 export type ProcessingSlice = {
-    range: [number, number];
-    events: WamEvent[];
+	range: [number, number];
+	events: WamEvent[];
 };
 
 export type WamParameterInterpolatorMap = {
-    [id: string]: WamParameterInterpolator;
+	[id: string]: WamParameterInterpolator;
 };
 
 export interface WamProcessor extends IWamProcessor {
@@ -309,25 +309,25 @@ export interface WamProcessor extends IWamProcessor {
 
 	/** Note: methods and members starting with underscore should not be accessed by host. */
 	_generateWamParameterInfo(): WamParameterInfoMap;
-    _initialize(): void;
+	_initialize(): void;
 	_configureSab(): void;
-    _onMessage(message: MessageEvent): Promise<void>;
-    _onTransport(transportData: WamTransportData): void;
-    _onMidi(midiData: WamMidiData): void;
-    _onSysex(sysexData: WamBinaryData): void;
-    _onMpe(mpeData: WamMidiData): void;
-    _onOsc(oscData: WamBinaryData): void;
-    _setState(state: any): void;
-    _getState(): any;
+	_onMessage(message: MessageEvent): Promise<void>;
+	_onTransport(transportData: WamTransportData): void;
+	_onMidi(midiData: WamMidiData): void;
+	_onSysex(sysexData: WamBinaryData): void;
+	_onMpe(mpeData: WamMidiData): void;
+	_onOsc(oscData: WamBinaryData): void;
+	_setState(state: any): void;
+	_getState(): any;
 	_getParameterValues(normalized: boolean, parameterIds?: string[] | undefined): WamParameterDataMap;
-    _setParameterValues(parameterUpdates: WamParameterDataMap, interpolate: boolean): void;
-    _setParameterValue(parameterUpdate: WamParameterData, interpolate: boolean): void;
+	_setParameterValues(parameterUpdates: WamParameterDataMap, interpolate: boolean): void;
+	_setParameterValue(parameterUpdate: WamParameterData, interpolate: boolean): void;
 	_interpolateParameterValues(startIndex: number, endIndex: number): void;
 	_connectEvents(wamInstanceId: string, output?: number): void;
-    _disconnectEvents(wamInstanceId?: string, output?: number): void;
-    _getProcessingSlices(): ProcessingSlice[];
-    _processEvent(event: WamEvent): void;
-    _process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
+	_disconnectEvents(wamInstanceId?: string, output?: number): void;
+	_getProcessingSlices(): ProcessingSlice[];
+	_processEvent(event: WamEvent): void;
+	_process(startSample: number, endSample: number, inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): void;
 
 	_samplesPerQuantum: number;
 	_compensationDelay: number;
@@ -348,36 +348,36 @@ export interface WamProcessor extends IWamProcessor {
 
 export const WamProcessor: {
 	prototype: WamProcessor;
-    new (options: AudioWorkletNodeOptions): WamProcessor;
+	new (options: AudioWorkletNodeOptions): WamProcessor;
 } & Pick<typeof IWamProcessor, "parameterDescriptors">;
 
 export interface WebAudioModule<Node extends IWamNode = IWamNode> extends IWebAudioModule<Node> {
 	readonly _timestamp: number;
-    _audioNode: Node;
-    _initialized: boolean;
-    /**
-     * Url to load the plugin's GUI HTML
-     */
-    _guiModuleUrl: string;
-    /**
-     * Url to load the plugin's `descriptor.json`
-     */
-    _descriptorUrl: string;
-    _descriptor: WamDescriptor;
-    _loadGui(): Promise<any>;
-    _loadDescriptor(): Promise<WamDescriptor>;
+	_audioNode: Node;
+	_initialized: boolean;
+	/**
+	 * Url to load the plugin's GUI HTML
+	 */
+	_guiModuleUrl: string;
+	/**
+	 * Url to load the plugin's `descriptor.json`
+	 */
+	_descriptorUrl: string;
+	_descriptor: WamDescriptor;
+	_loadGui(): Promise<any>;
+	_loadDescriptor(): Promise<WamDescriptor>;
 }
 
 export const WebAudioModule: {
 	prototype: WebAudioModule;
-    createInstance<Node extends WamNode = WamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
+	createInstance<Node extends WamNode = WamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
 	new <Node extends WamNode = WamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
-    RingBuffer: typeof RingBuffer;
-    WamEventRingBuffer: typeof WamEventRingBuffer;
+	RingBuffer: typeof RingBuffer;
+	WamEventRingBuffer: typeof WamEventRingBuffer;
 	WamArrayRingBuffer: typeof WamArrayRingBuffer;
-    WamParameter: typeof WamParameter;
-    WamParameterInterpolator: typeof WamParameterInterpolator;
+	WamParameter: typeof WamParameter;
+	WamParameterInterpolator: typeof WamParameterInterpolator;
 }
