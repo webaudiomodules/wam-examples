@@ -297,6 +297,9 @@ class WamExampleSynthPart {
 		/** @private @type {boolean} whether or not the part is currently active */
 		this._active = false;
 
+		/** @private @type {string} current oscillator mode */
+		this._mode = this.constructor.Mode.RANDOM;
+
 		/** @private @type {Float32Array} buffer to store output from oscillator 1 */
 		this._buffer1 = new Float32Array(samplesPerQuantum);
 
@@ -360,6 +363,7 @@ class WamExampleSynthPart {
 			const modeRange = modeMax - modeMin;
 			mode = this.constructor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
 		}
+		this._mode = mode;
 		switch (mode) {
 		case this.constructor.Mode.CLEAN:
 			mode1 = mode;
@@ -469,23 +473,23 @@ class WamExampleSynthVoice {
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
-		/** @private @type {number} unique int to identify voice */
-		this.idx = voiceIdx;
-
 		/** @private @type {number} current MIDI channel (when active) */
-		this.channel = -1;
+		this._channel = -1;
 
 		/** @private @type {number} current MIDI note (when active) */
-		this.note = -1;
+		this._note = -1;
 
 		/** @private @type {number} current MIDI velocity (when active) */
-		this.velocity = -1;
+		this._velocity = -1;
 
 		/** @private @type {number} time corresponding to when current note began (when active) */
-		this.timestamp = -1;
+		this._timestamp = -1;
 
 		/** @private @type {boolean} whether or not the voice is currently active */
-		this.active = false;
+		this._active = false;
+
+		/** @private @type {number} counter to track number of times note-off has been received */
+		this._deactivating = 0;
 
 		const attackMaxMs = 500.0;
 		const levelMax = 0.9;
@@ -497,6 +501,13 @@ class WamExampleSynthVoice {
 		this._rightPart = new WamExampleSynthPart(attackMaxMs, levelMax, samplesPerQuantum, sampleRate);
 	}
 
+	// read-only properties
+	get channel() { return this._channel; }
+	get note() { return this._note; }
+	get velocity() { return this._velocity; }
+	get timestamp() { return this._timestamp; }
+	get active() { return this._active; }
+
 	/**
 	 * Check if the voice is on the channel and note
 	 * @param {number} channel MIDI channel number
@@ -504,18 +515,19 @@ class WamExampleSynthVoice {
 	 * @returns {boolean}
 	*/
 	matches(channel, note) {
-		return this.channel === channel && this.note === note;
+		return this._channel === channel && this._note === note;
 	}
 
 	/**
 	 * Put the voice into idle state
 	 */
 	reset() {
-		this.channel = -1;
-		this.note = -1;
-		this.velocity = -1;
-		this.timestamp = -1;
-		this.active = false;
+		this._channel = -1;
+		this._note = -1;
+		this._velocity = -1;
+		this._timestamp = -1;
+		this._active = false;
+		this._deactivating = 0;
 
 		this._leftPart.reset();
 		this._rightPart.reset();
@@ -530,12 +542,12 @@ class WamExampleSynthVoice {
 	 * @param {string} rightMode mode for voice's right channel
 	 */
 	noteOn(channel, note, velocity, leftMode, rightMode) {
-		this.channel = channel;
-		this.note = note;
-		this.velocity = velocity;
-		this.timestamp = globalThis.currentTime;
-		this.active = true;
-		this.deactivating = 0;
+		this._channel = channel;
+		this._note = note;
+		this._velocity = velocity;
+		this._timestamp = globalThis.currentTime;
+		this._active = true;
+		this._deactivating = 0;
 
 		const intensity = Math.min(0.999, (velocity + 73.0) / 200.0);
 
@@ -556,7 +568,6 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
-	 * @param {boolean} force whether or not to force a fast release
 	 */
 	// eslint-disable-next-line no-unused-vars
 	noteOff(channel, note, velocity) {
@@ -575,13 +586,13 @@ class WamExampleSynthVoice {
 	 * @returns {boolean} whether or not the voice is still active
 	 */
 	process(startSample, endSample, inputs, outputs) {
-		if (!this.active) return false;
+		if (!this._active) return false;
 
 		const leftActive = this._leftPart.process(startSample, endSample, outputs[0]);
 		const rightActive = this._rightPart.process(startSample, endSample, outputs[1]);
 
-		this.active = (leftActive || rightActive);
-		return this.active;
+		this._active = (leftActive || rightActive);
+		return this._active;
 	}
 }
 

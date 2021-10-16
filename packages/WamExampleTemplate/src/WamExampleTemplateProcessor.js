@@ -8,19 +8,18 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletProcessor } AudioWorkletProcessor */
-/** @typedef { import('../../sdk/src/api/types').WamNodeOptions } WamNodeOptions */
-/** @typedef { import('../../sdk/src/api/types').WamParameter } WamParameter */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfo } WamParameterInfo */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterData } WamParameterData */
-/** @typedef { import('../../sdk/src/api/types').WamParameterDataMap } WamParameterDataMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterMap } WamParameterMap */
-/** @typedef { import('../../sdk/src/api/types').WamEvent } WamEvent */
-/** @typedef { import('../../sdk/src/api/types').WamMidiData } WamMidiData */
-/** @typedef { import('./WamExampleTemplateEffect').WamExampleTemplateEffect } WamExampleTemplateEffect */
-/** @typedef { import('./WamExampleTemplateSynth').WamExampleTemplateSynth } WamExampleTemplateSynth */
+/** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../sdk/src/api/types').WamProcessor} WamProcessor */
+/** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
+/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./WamExampleTemplateEffect').default} WamExampleTemplateEffect */
+/** @typedef {import('./WamExampleTemplateSynth').default} WamExampleTemplateSynth */
 
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore

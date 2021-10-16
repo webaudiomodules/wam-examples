@@ -8,7 +8,15 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+
 function noteToHz(note) { return 2.0 ** ((note - 69) / 12.0) * 440.0; }
+
+/** @type {AudioWorkletGlobalScope} */
+// @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 
 /**
  * Template for synth part (mono output)
@@ -61,7 +69,7 @@ class WamExampleTemplateSynthPart {
 	 * Add output to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		if (!this._active) return false;
@@ -95,23 +103,23 @@ class WamExampleTemplateSynthVoice {
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
-		/** @private @type {number} unique int to identify voice */
-		this.idx = voiceIdx;
-
 		/** @private @type {number} current MIDI channel (when active) */
-		this.channel = -1;
+		this._channel = -1;
 
 		/** @private @type {number} current MIDI note (when active) */
-		this.note = -1;
+		this._note = -1;
 
 		/** @private @type {number} current MIDI velocity (when active) */
-		this.velocity = -1;
+		this._velocity = -1;
 
 		/** @private @type {number} time corresponding to when current note began (when active) */
-		this.timestamp = -1;
+		this._timestamp = -1;
 
 		/** @private @type {boolean} whether or not the voice is currently active */
-		this.active = false;
+		this._active = false;
+
+		/** @private @type {number} counter to track number of times note-off has been received */
+		this._deactivating = 0;
 
 		/** @private @type {WamExampleTemplateSynthPart} part for rendering left channel */
 		this._leftPart = new WamExampleTemplateSynthPart(samplesPerQuantum, sampleRate);
@@ -120,6 +128,13 @@ class WamExampleTemplateSynthVoice {
 		this._rightPart = new WamExampleTemplateSynthPart(samplesPerQuantum, sampleRate);
 	}
 
+	// read-only properties
+	get channel() { return this._channel; }
+	get note() { return this._note; }
+	get velocity() { return this._velocity; }
+	get timestamp() { return this._timestamp; }
+	get active() { return this._active; }
+
 	/**
 	 * Check if the voice is on the channel and note
 	 * @param {number} channel MIDI channel number
@@ -127,18 +142,19 @@ class WamExampleTemplateSynthVoice {
 	 * @returns {boolean}
 	*/
 	matches(channel, note) {
-		return this.channel === channel && this.note === note;
+		return this._channel === channel && this._note === note;
 	}
 
 	/**
 	 * Put the voice into idle state
 	 */
 	reset() {
-		this.channel = -1;
-		this.note = -1;
-		this.velocity = -1;
-		this.timestamp = -1;
-		this.active = false;
+		this._channel = -1;
+		this._note = -1;
+		this._velocity = -1;
+		this._timestamp = -1;
+		this._active = false;
+		this._deactivating = 0;
 
 		this._leftPart.reset();
 		this._rightPart.reset();
@@ -151,12 +167,12 @@ class WamExampleTemplateSynthVoice {
 	 * @param {number} velocity MIDI velocity number
 	 */
 	noteOn(channel, note, velocity) {
-		this.channel = channel;
-		this.note = note;
-		this.velocity = velocity;
-		this.timestamp = globalThis.currentTime;
-		this.active = true;
-		this.deactivating = 0;
+		this._channel = channel;
+		this._note = note;
+		this._velocity = velocity;
+		this._timestamp = globalThis.currentTime;
+		this._active = true;
+		this._deactivating = 0;
 		const gain = this.velocity / 127;
 
 		this._leftPart.start(gain);
@@ -168,7 +184,6 @@ class WamExampleTemplateSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
-	 * @param {boolean} force whether or not to force a fast release
 	 */
 	// eslint-disable-next-line no-unused-vars
 	noteOff(channel, note, velocity) {
@@ -187,13 +202,13 @@ class WamExampleTemplateSynthVoice {
 	 * @returns {boolean} whether or not the voice is still active
 	 */
 	process(startSample, endSample, inputs, outputs) {
-		if (!this.active) return false;
+		if (!this._active) return false;
 
 		const leftActive = this._leftPart.process(startSample, endSample, outputs[0]);
 		const rightActive = this._rightPart.process(startSample, endSample, outputs[1]);
 
-		this.active = (leftActive || rightActive);
-		return this.active;
+		this._active = (leftActive || rightActive);
+		return this._active;
 	}
 }
 
@@ -240,7 +255,7 @@ export default class WamExampleTemplateSynth {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @private @type {UInt8Array} array of voice state flags */
+		/** @private @type {Uint8Array} array of voice state flags */
 		this._voiceStates = new Uint8Array(this._numVoices);
 		this._voiceStates.fill(0);
 
@@ -285,7 +300,7 @@ export default class WamExampleTemplateSynth {
 			allocatedIdx = oldestIdx;
 		}
 		this._voiceStates[allocatedIdx] = 1;
-		this._voices[allocatedIdx].noteOn(channel, note, velocity, this._leftVoiceMode, this._rightVoiceMode);
+		this._voices[allocatedIdx].noteOn(channel, note, velocity);
 	}
 
 	/**
@@ -346,7 +361,6 @@ export default class WamExampleTemplateSynth {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	globalThis.WamExampleTemplateSynth = WamExampleTemplateSynth;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	audioWorkletGlobalScope.WamExampleTemplateSynth = WamExampleTemplateSynth;
 }

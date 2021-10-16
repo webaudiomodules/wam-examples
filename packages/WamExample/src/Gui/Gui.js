@@ -2,8 +2,13 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 
+/** @typedef {import("../../../sdk/src/api/types").WamMidiEvent} WamMidiEvent */
+/** @typedef {import('../types').WebAudioControlsWidget} WebAudioControlsWidget */
+/** @typedef {import("../index").default} WamExamplePlugin */
+
+
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
-import '../utils/webaudio-controls.js';
+import '../../lib/webaudio-controls.js';
 
 class ZigZag {
 	constructor(startX, startY, endX, endY, numSegments) {
@@ -239,20 +244,34 @@ const getAssetUrl = (asset) => {
 export default class WamExampleHTMLElement extends HTMLElement {
 	// plugin = the same that is passed in the DSP part. It's the instance
 	// of the class that extends WebAudioModule. It's an Observable plugin
+
+	/**
+	 * Creates an instance of WamExampleHTMLElement.
+	 * @param {WamExamplePlugin} plugin
+	 * @param {number} [scale=1.0]
+	 */
 	constructor(plugin, scale = 1.0) {
 		super();
 
+		/** @type {ShadowRoot} */
 		this.root = this.attachShadow({ mode: 'open' });
+
+		/** @type {string} */
 		const style = computeStyleForSize(scale);
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
-		/** @type {import("../index").default} */
+		/** @type {WamExamplePlugin} */
 		this.plugin = plugin;
+
+		/** @type {Record<string, WebAudioControlsWidget>} */
 		this._controls = {};
+
 		const parameterIds = ['bypass', 'leftVoiceMode', 'rightVoiceMode', 'drive'];
 		parameterIds.forEach((parameterId) => {
-			this._controls[parameterId] = this.shadowRoot.querySelector(`#${parameterId}-control`);
+			/** @type {WebAudioControlsWidget} */
+			const control = this.shadowRoot.querySelector(`#${parameterId}-control`);
+			this._controls[parameterId] = control;
 		});
 
 		this.setResources();
@@ -275,7 +294,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const noteRange = 10;
 		const velocityMin = 70;
 		const velocityRange = 30;
-		const now = this.plugin.audioContext.getOutputTimestamp().contextTime;
+		const now = this.plugin.audioContext.currentTime;
 		const time1a = now + delayTimeSec;
 		const time1b = time1a + 2.0;
 		const chord1a = noteMin + Math.floor(Math.random() * noteRange);
@@ -296,9 +315,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		const chord3d = chord3b + 4;
 		const velocity3 = velocityMin + Math.floor(Math.random() * velocityRange);
 
-		/**
-		 * @type {import("../../../sdk/src/api/types").WamMidiEvent[]}
-		 */
+		/** @type {WamMidiEvent[]} */
 		const noteEvents = [
 			// start chord1
 			{ type: 'wam-midi', data: { bytes: [0x90, chord1a, velocity1] }, time: time1a },
@@ -437,7 +454,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		/** @type {HTMLDivElement} */
 		const driveColorMixer = this.shadowRoot.querySelector('#drive-color-mixer');
 		if (bypass.value) driveColorMixer.style.backgroundColor = grayLight;
-		else driveColorMixer.style = `animation-delay: -${drive.value}s`;
+		else driveColorMixer.style.animationDelay = `-${drive.value}s`;
 		const driveColor = getComputedStyle(driveColorMixer).backgroundColor;
 
 		const { synthLevels, effectLevels } = this.plugin.audioNode.levels;
@@ -541,8 +558,8 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				this.plugin.audioNode.setParameterValues({
 					drive: {
 						id: 'drive',
-						value: e.target.value,
-						interpolate: true,
+						value: parseFloat(/** @type {HTMLInputElement} **/(e.target).value),
+						normalized: false,
 					},
 				});
 			});
@@ -572,10 +589,12 @@ export default class WamExampleHTMLElement extends HTMLElement {
 				bypass: {
 					id: parameterId,
 					value,
-					interpolate: false,
+					normalized: false
 				},
 			});
-			this.shadowRoot.querySelector(`#${parameterId}-control`).value = value;
+			/** @type {WebAudioControlsWidget} **/
+			const control = this.shadowRoot.querySelector(`#${parameterId}-control`);
+			control.value = value;
 		}
 
 		this.shadowRoot
@@ -599,7 +618,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 					bypass: {
 						id: 'bypass',
 						value: this._controls['bypass'].value,
-						interpolate: false,
+						normalized: false,
 					},
 				});
 			});

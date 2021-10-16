@@ -2,8 +2,12 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 
+/** @typedef {import("../../../sdk/src/api/types").WamMidiEvent} WamMidiEvent */
+/** @typedef {import('../types').WebAudioControlsWidget} WebAudioControlsWidget */
+/** @typedef {import("../index").default} WamExampleTemplatePlugin */
+
 // https://github.com/g200kg/webaudio-controls/blob/master/webaudio-controls.js
-import '../utils/webaudio-controls.js';
+import '../../lib/webaudio-controls.js';
 
 function computeStyleForSize(scale) {
 	scale = Math.max(scale, 0.0);
@@ -89,20 +93,33 @@ const getAssetUrl = (asset) => {
 export default class WamExampleTemplateHTMLElement extends HTMLElement {
 	// plugin = the same that is passed in the DSP part. It's the instance
 	// of the class that extends WebAudioModule. It's an Observable plugin
+
+	/**
+	 * Creates an instance of WamExampleTemplateHTMLElement.
+	 * @param {WamExampleTemplatePlugin} plugin
+	 * @param {number} [scale=1.0]
+	 */
 	constructor(plugin, scale = 1.0) {
 		super();
 
+		/** @type {ShadowRoot} */
 		this.root = this.attachShadow({ mode: 'open' });
+
+		/** @type {string} */
 		const style = computeStyleForSize(scale);
 		this.root.innerHTML = `<style>${style}</style>${template}`;
 
 		// MANDATORY for the GUI to observe the plugin state
-		/** @type {WebAudioModule} */
+		/** @type {WamExampleTemplatePlugin} */
 		this.plugin = plugin;
+
+		/** @type {Record<string, WebAudioControlsWidget>} */
 		this._controls = {};
 		const parameterIds = ['bypass', 'gain', 'trigger']; // trigger isn't a real parameter
 		parameterIds.forEach((parameterId) => {
-			this._controls[parameterId] = this.shadowRoot.querySelector(`#${parameterId}-control`);
+			/** @type {WebAudioControlsWidget} */
+			const control = this.shadowRoot.querySelector(`#${parameterId}-control`);
+			this._controls[parameterId] = control;
 		});
 
 		this.setResources();
@@ -116,14 +133,12 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 	}
 
 	triggerNotes(delayTimeSec, onOff) {
-		const now = this.plugin.audioContext.getOutputTimestamp().contextTime;
+		const now = this.plugin.audioContext.currentTime;
 		const time = now + delayTimeSec;
 		const note = 100;
 		const velocity = 40;
 
-		/**
-		 * @type {WamMidiEvent}
-		 */
+		/** @type {WamMidiEvent} */
 		const noteEvent = onOff ?
 			{ type: 'wam-midi', data: { bytes: [0x90, note, velocity] }, time } :
 			{ type: 'wam-midi', data: { bytes: [0x80, note, 0] }, time };
@@ -175,8 +190,8 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 				this.plugin.audioNode.setParameterValues({
 					drive: {
 						id: 'gain',
-						value: e.target.value,
-						interpolate: true,
+						value: parseFloat(/** @type {HTMLInputElement} **/(e.target).value),
+						normalized: false,
 					},
 				});
 			});
@@ -190,7 +205,7 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 					bypass: {
 						id: 'bypass',
 						value: this._controls['bypass'].value,
-						interpolate: false,
+						normalized: false,
 					},
 				});
 			});

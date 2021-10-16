@@ -8,6 +8,14 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+
+/** @type {AudioWorkletGlobalScope} */
+// @ts-ignore
+const audioWorkletGlobalScope = globalThis;
+
 /**
  * Example effect template
  *
@@ -94,7 +102,6 @@ export default class WamExampleTemplateEffect {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	globalThis.WamExampleTemplateEffect = WamExampleTemplateEffect;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	audioWorkletGlobalScope.WamExampleTemplateEffect = WamExampleTemplateEffect;
 }

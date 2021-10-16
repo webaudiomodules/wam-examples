@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+
 // SDK
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
 // DSP

@@ -10,7 +10,9 @@
 
 /** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../sdk/src/api/types').WamProcessor} WamProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
@@ -20,7 +22,6 @@
 /** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/** @typedef {import('../../sdk/src/types').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('./WamExampleEffect').default} WamExampleEffect */
 /** @typedef {import('./WamExampleSynth').default} WamExampleSynth */
 
