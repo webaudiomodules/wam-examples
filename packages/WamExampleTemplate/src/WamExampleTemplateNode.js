@@ -48,9 +48,6 @@ export default class WamExampleTemplateNode extends WamNode {
 
 		/** @private @type {WamExampleTemplateHTMLElement} */
 		this._gui = null;
-
-		/** @private @type {boolean} */
-		this._connected = false;
 	}
 
 	/**
@@ -60,38 +57,6 @@ export default class WamExampleTemplateNode extends WamNode {
 	 */
 	set gui(element) {
 		this._gui = element;
-	}
-
-	/**
-	 * Whether or not the node is currently connected
-	 *
-	 * @readonly
-	 * @returns {boolean}
-	 */
-	get connected() {
-		return this._connected;
-	}
-
-	/**
-	 * Make sure GUI starts updating
-	 *
-	 * @param {*} args
-	 */
-	connect(...args) {
-		super.connect(...args);
-		this._connected = true;
-		if (this._gui) this._gui.onConnect();
-	}
-
-	/**
-	 * Make sure GUI stops updating
-	 *
-	 * @param {*} args
-	 */
-	disconnect(...args) {
-		if (this._gui) this._gui.onDisconnect();
-		this._connected = false;
-		super.disconnect(...args);
 	}
 
 	/**
@@ -127,5 +92,10 @@ export default class WamExampleTemplateNode extends WamNode {
 			const event = { type, data };
 			this._onEvent(event);
 		});
+	}
+
+	destroy() {
+		if (this._gui) this._gui.destroy();
+		super.destroy();
 	}
 }

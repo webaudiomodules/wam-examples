@@ -265,10 +265,9 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		this._sleep = (delayMs) => { return new Promise(resolve => { setTimeout(resolve, delayMs) }); };
 
 		this._guiReady = false;
-		this._raf = null;
 
 		this.plugin.audioNode.gui = this;
-		if (this.plugin.audioNode.connected) this.onConnect();
+		this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	triggerNotes(delayTimeSec) {
@@ -613,11 +612,7 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		return 'wam-example';
 	}
 
-	onConnect() {
-        this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
-    }
-
-    onDisconnect() {
+    destroy() {
         window.cancelAnimationFrame(this._raf);
     }
 }

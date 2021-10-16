@@ -110,10 +110,9 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 		this.setSwitchListener();
 
 		this._guiReady = false;
-		this._raf = null;
 
 		this.plugin.audioNode.gui = this;
-		if (this.plugin.audioNode.connected) this.onConnect();
+		this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
 	}
 
 	triggerNotes(delayTimeSec, onOff) {
@@ -210,11 +209,7 @@ export default class WamExampleTemplateHTMLElement extends HTMLElement {
 		return 'wam-example-template';
 	}
 
-	onConnect() {
-        this._raf = window.requestAnimationFrame(this.handleAnimationFrame);
-    }
-
-    onDisconnect() {
+    destroy() {
         window.cancelAnimationFrame(this._raf);
     }
 }

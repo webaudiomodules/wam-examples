@@ -81,9 +81,6 @@ export default class WamExampleNode extends WamNode {
 
 		/** @private @type {WamExampleHTMLElement} */
 		this._gui = null;
-
-		/** @private @type {boolean} */
-		this._connected = false;
 	}
 
 	/**
@@ -93,39 +90,6 @@ export default class WamExampleNode extends WamNode {
 	 */
 	set gui(element) {
 		this._gui = element;
-	}
-
-	/**
-	 * Whether or not the node is currently connected
-	 *
-	 * @readonly
-	 * @returns {boolean}
-	 */
-	get connected() {
-		return this._connected;
-	}
-
-	/**
-	 * Make sure GUI starts updating
-	 *
-	 * @param {*} args
-	 */
-	connect(...args) {
-		const r = super.connect(...args);
-		this._connected = true;
-		if (this._gui) this._gui.onConnect();
-		return r;
-	}
-
-	/**
-	 * Make sure GUI stops updating
-	 *
-	 * @param {*} args
-	 */
-	disconnect(...args) {
-		if (this._gui) this._gui.onDisconnect();
-		this._connected = false;
-		super.disconnect(...args);
 	}
 
 	/**
@@ -218,5 +182,10 @@ export default class WamExampleNode extends WamNode {
 			}).then((resolved) => { this._levelsSabReady = true; });
 		} else if (levelsUpdatePeriodMs) this._levelsUpdatePeriodMs = Math.ceil(levelsUpdatePeriodMs);
 		else super._onMessage(message);
+	}
+
+	destroy() {
+		if (this._gui) this._gui.destroy();
+		super.destroy();
 	}
 }
