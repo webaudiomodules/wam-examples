@@ -16,6 +16,13 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
     this.init(options);
   }
 
+  _generateWamParameters() {
+    let params = {}
+    for (let i = 0; i < 71; i++)
+      params[i] = new WamParameter(i);
+		return params;
+	}
+
 	onMessage (message) {
     if (message.type == "msg") this.onmsg(msg.verb, msg.prop, msg.data);
     else super.onMessage(message);

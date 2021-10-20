@@ -8,28 +8,21 @@ import WamExampleTemplateNode from './WamExampleTemplateNode.js';
 import { createElement } from './Gui/index.js';
 
 /**
- * @param {URL} relativeURL
+ * @param {URL} relativeUrl
  * @returns {string}
  */
-const getBaseUrl = (relativeURL) => {
-	const baseURL = relativeURL.href.substring(0, relativeURL.href.lastIndexOf('/'));
-	return baseURL;
+const getBaseUrl = (relativeUrl) => {
+	const baseUrl = relativeUrl.href.substring(0, relativeUrl.href.lastIndexOf('/'));
+	return baseUrl;
 };
 
-// Definition of a new plugin
-// All plugins must inherit from WebAudioModule
+/**
+ * @extends {WebAudioModule<WamExampleTemplateNode>}
+ */
 export default class WamExampleTemplatePlugin extends WebAudioModule {
-	_baseURL = getBaseUrl(new URL('.', import.meta.url));
+	_baseUrl = getBaseUrl(new URL('.', import.meta.url));
 
-	_descriptorUrl = `${this._baseURL}/descriptor.json`;
-
-	async _loadDescriptor() {
-		const url = this._descriptorUrl;
-		if (!url) throw new TypeError('Descriptor not found');
-		const response = await fetch(url);
-		const descriptor = await response.json();
-		Object.assign(this.descriptor, descriptor);
-	}
+	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
 
 	async initialize(state) {
 		await this._loadDescriptor();
@@ -38,20 +31,11 @@ export default class WamExampleTemplatePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		// DSP is implemented in WamExampleTemplateProcessor.
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/RingBuffer.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamEventRingBuffer.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamEnv.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameter.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInfo.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamParameterInterpolator.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/../../sdk/src/WamProcessor.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleTemplateSynth.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleTemplateEffect.js`);
-		await this._audioContext.audioWorklet.addModule(`${this._baseURL}/WamExampleTemplateProcessor.js`);
-
+		await WamExampleTemplateNode.addModules(this.audioContext, this._baseUrl);
 		const wamExampleTemplateNode = new WamExampleTemplateNode(this, {});
+		await wamExampleTemplateNode._initialize();
 
-		// Initialize if applicable
+		// Set initial state if applicable
 		if (initialState) wamExampleTemplateNode.setState(initialState);
 
 		return wamExampleTemplateNode;

@@ -8,19 +8,18 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletGlobalScope } AudioWorkletGlobalScope */
-/** @typedef { import('../../sdk/src/api/types').AudioWorkletProcessor } AudioWorkletProcessor */
-/** @typedef { import('../../sdk/src/api/types').WamNodeOptions } WamNodeOptions */
-/** @typedef { import('../../sdk/src/api/types').WamParameter } WamParameter */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfo } WamParameterInfo */
-/** @typedef { import('../../sdk/src/api/types').WamParameterInfoMap } WamParameterInfoMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterData } WamParameterData */
-/** @typedef { import('../../sdk/src/api/types').WamParameterDataMap } WamParameterDataMap */
-/** @typedef { import('../../sdk/src/api/types').WamParameterMap } WamParameterMap */
-/** @typedef { import('../../sdk/src/api/types').WamEvent } WamEvent */
-/** @typedef { import('../../sdk/src/api/types').WamMidiData } WamMidiData */
-/** @typedef { import('./WamExampleTemplateEffect').WamExampleTemplateEffect } WamExampleTemplateEffect */
-/** @typedef { import('./WamExampleTemplateSynth').WamExampleTemplateSynth } WamExampleTemplateSynth */
+/** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../sdk/src/api/types').WamProcessor} WamProcessor */
+/** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
+/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./WamExampleTemplateEffect').default} WamExampleTemplateEffect */
+/** @typedef {import('./WamExampleTemplateSynth').default} WamExampleTemplateSynth */
 
 /** @type {AudioWorkletGlobalScope & globalThis} */
 // @ts-ignore
@@ -43,10 +42,23 @@ const {
  */
 class WamExampleTemplateProcessor extends WamProcessor {
 	/**
+	 * @param {AudioWorkletNodeOptions} options
+	 */
+	constructor(options) {
+		super(options);
+		// your plugin initialization code here
+		/** @private @type {WamExampleTemplateSynth} */
+		this._synth = null;
+
+		/** @private @type {WamExampleTemplateEffect} */
+		this._effect = null;
+	}
+
+	/**
 	 * Fetch plugin's params.
 	 * @returns {WamParameterInfoMap}
 	 */
-	static generateWamParameterInfo() {
+	_generateWamParameterInfo() {
 		return {
 			// your plugin parameters here
 			bypass: new WamParameterInfo('bypass', {
@@ -60,15 +72,13 @@ class WamExampleTemplateProcessor extends WamProcessor {
 	}
 
 	/**
-	 * @param {AudioWorkletNodeOptions} options
+	 * Post-constructor initialization method.
 	 */
-	constructor(options) {
-		super(options);
-		// your plugin initialization code here
+	 _initialize() {
+		super._initialize();
 		const synthConfig = {
 			passInput: true,
 		};
-		/** @private @type {WamExampleTemplateSynth} */
 		this._synth = new WamExampleTemplateSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			synthConfig);
 
@@ -76,11 +86,9 @@ class WamExampleTemplateProcessor extends WamProcessor {
 			numChannels: 2,
 			inPlace: true,
 		};
-		/** @private @type {WamExampleTemplateEffect} */
 		this._effect = new WamExampleTemplateEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
 			effectConfig);
-		super.port.start();
-	}
+	 }
 
 	/**
 	 *

@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"module": "ES2020",
+		"moduleResolution": "node",
+		"baseUrl": "../",
+		"target": "es6",
+		"allowSyntheticDefaultImports": true,
+		"noEmit": true,
+		"experimentalDecorators": true
+	},
+	"include": [
+	  "src/**/*"
+	]
+}

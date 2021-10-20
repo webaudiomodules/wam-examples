@@ -1,5 +1,7 @@
+/** @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule */
 /** @typedef {import('../../sdk/src/api/types').WamAutomationEvent} WamAutomationEvent */
 /** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
 /** @typedef {import('./Gui/index').WamExampleTemplateHTMLElement} WamExampleTemplateHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';
@@ -19,7 +21,19 @@ import WamNode from '../../sdk/src/WamNode.js';
 
 export default class WamExampleTemplateNode extends WamNode {
 	/**
-	 * @param {WebAudioModule} module
+	 * Register scripts required for the processor. Must be called before constructor.
+	 * @param {BaseAudioContext} audioContext
+	 * @param {string} baseURL
+	 */
+	static async addModules(audioContext, baseURL) {
+		await super.addModules(audioContext, baseURL);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateSynth.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateEffect.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateProcessor.js`);
+	}
+
+	/**
+	 * @param {WebAudioModule<WamExampleTemplateNode>} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
@@ -31,14 +45,11 @@ export default class WamExampleTemplateNode extends WamNode {
 		};
 		super(module, options);
 
-		// 'wam-automation' | 'wam-transport' | 'wam-midi' | 'wam-sysex' | 'wam-mpe' | 'wam-osc';
+		/** @type {Set<WamEventType>} */
 		this._supportedEventTypes = new Set(['wam-automation', 'wam-midi']);
 
 		/** @private @type {WamExampleTemplateHTMLElement} */
 		this._gui = null;
-
-		/** @private @type {boolean} */
-		this._connected = false;
 	}
 
 	/**
@@ -48,38 +59,6 @@ export default class WamExampleTemplateNode extends WamNode {
 	 */
 	set gui(element) {
 		this._gui = element;
-	}
-
-	/**
-	 * Whether or not the node is currently connected
-	 *
-	 * @readonly
-	 * @returns {boolean}
-	 */
-	get connected() {
-		return this._connected;
-	}
-
-	/**
-	 * Make sure GUI starts updating
-	 *
-	 * @param {*} args
-	 */
-	connect(...args) {
-		super.connect(...args);
-		this._connected = true;
-		if (this._gui) this._gui.onConnect();
-	}
-
-	/**
-	 * Make sure GUI stops updating
-	 *
-	 * @param {*} args
-	 */
-	disconnect(...args) {
-		if (this._gui) this._gui.onDisconnect();
-		this._connected = false;
-		super.disconnect(...args);
 	}
 
 	/**
@@ -115,5 +94,10 @@ export default class WamExampleTemplateNode extends WamNode {
 			const event = { type, data };
 			this._onEvent(event);
 		});
+	}
+
+	destroy() {
+		if (this._gui) this._gui.destroy();
+		super.destroy();
 	}
 }

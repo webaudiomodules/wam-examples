@@ -1,7 +1,7 @@
+/** @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule */
 /** @typedef {import('../../sdk/src/api/types').WamAutomationEvent} WamAutomationEvent */
 /** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
-/** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
 /** @typedef {import('./Gui/index').WamExampleHTMLElement} WamExampleHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';
@@ -36,7 +36,20 @@ const WamArrayRingBuffer = getWamArrayRingBuffer();
 
 export default class WamExampleNode extends WamNode {
 	/**
-	 * @param {WebAudioModule} module
+	 * Register scripts required for the processor. Must be called before constructor.
+	 * @param {BaseAudioContext} audioContext
+	 * @param {string} baseURL
+	 */
+	static async addModules(audioContext, baseURL) {
+		await super.addModules(audioContext, baseURL);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleComponents.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleSynth.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleEffect.js`);
+		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleProcessor.js`);
+	}
+
+	/**
+	 * @param {WebAudioModule<WamExampleNode>} module
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
@@ -48,7 +61,7 @@ export default class WamExampleNode extends WamNode {
 		};
 		super(module, options);
 
-		/** @private @type {Set<WamEventType>} */
+		/** @type {Set<WamEventType>} */
 		this._supportedEventTypes = new Set(['wam-automation', 'wam-midi']);
 
 		/** @private @type {number} */
@@ -68,9 +81,6 @@ export default class WamExampleNode extends WamNode {
 
 		/** @private @type {WamExampleHTMLElement} */
 		this._gui = null;
-
-		/** @private @type {boolean} */
-		this._connected = false;
 	}
 
 	/**
@@ -80,38 +90,6 @@ export default class WamExampleNode extends WamNode {
 	 */
 	set gui(element) {
 		this._gui = element;
-	}
-
-	/**
-	 * Whether or not the node is currently connected
-	 *
-	 * @readonly
-	 * @returns {boolean}
-	 */
-	get connected() {
-		return this._connected;
-	}
-
-	/**
-	 * Make sure GUI starts updating
-	 *
-	 * @param {*} args
-	 */
-	connect(...args) {
-		super.connect(...args);
-		this._connected = true;
-		if (this._gui) this._gui.onConnect();
-	}
-
-	/**
-	 * Make sure GUI stops updating
-	 *
-	 * @param {*} args
-	 */
-	disconnect(...args) {
-		if (this._gui) this._gui.onDisconnect();
-		this._connected = false;
-		super.disconnect(...args);
 	}
 
 	/**
@@ -204,5 +182,10 @@ export default class WamExampleNode extends WamNode {
 			}).then((resolved) => { this._levelsSabReady = true; });
 		} else if (levelsUpdatePeriodMs) this._levelsUpdatePeriodMs = Math.ceil(levelsUpdatePeriodMs);
 		else super._onMessage(message);
+	}
+
+	destroy() {
+		if (this._gui) this._gui.destroy();
+		super.destroy();
 	}
 }

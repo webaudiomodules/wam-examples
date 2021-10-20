@@ -8,10 +8,11 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../sdk/src/api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../sdk/src/api/types').WamProcessor} WamProcessor */
 /** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
@@ -20,33 +21,13 @@
 /** @typedef {import('../../sdk/src/api/types').WamEvent} WamEvent */
 /** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
 /** @typedef {import('../../sdk/src/types').WamArrayRingBuffer} WamArrayRingBuffer */
-/** @typedef {import('./WamExampleEffect').WamExampleEffect} WamExampleEffect */
-/** @typedef {import('./WamExampleSynth').WamExampleSynth} WamExampleSynth */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./WamExampleEffect').default} WamExampleEffect */
+/** @typedef {import('./WamExampleSynth').default} WamExampleSynth */
 
-/**
- * A WamEvent and corresponding message id used to trigger callbacks
- * on the main thread once the event has been processed.
- * @typedef {Object} PendingWamEvent
- * @property {number} id
- * @property {WamEvent} event
-*/
-
-/**
- * A range of sample indices and corresponding list of simultaneous
- * WamEvents to be processed at the beginning of the slice.
- * @typedef {Object} ProcessingSlice
- * @property {[number, number]} range
- * @property {WamEvent[]} events
- */
-
-/**
- * @typedef {Object} WamParameterInterpolatorMap
- * @property {string} id
- * @property {WamParameterInterpolator} interpolator
- */
-
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
 	RingBuffer,
 	WamArrayRingBuffer,
@@ -55,7 +36,7 @@ const {
 	WamExampleSynth,
 	WamExampleEffect,
 	registerProcessor,
-} = globalThis;
+} = audioWorkletGlobalScope;
 
 const LevelsUpdatePeriodSec = 1.0 / 30.0;
 const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;
@@ -67,40 +48,16 @@ const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;
  */
 class WamExampleProcessor extends WamProcessor {
 	/**
-	 * Fetch plugin's params.
-	 * @returns {WamParameterInfoMap}
-	 */
-	static generateWamParameterInfo() {
-		return {
-			bypass: new WamParameterInfo('bypass', {
-				type: 'boolean',
-				label: 'Bypass',
-				defaultValue: 0,
-			}),
-			...WamExampleSynth.generateWamParameterInfo(),
-			...WamExampleEffect.generateWamParameterInfo(),
-		};
-	}
-
-	/**
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(options) {
 		super(options);
-		const synthConfig = {
-			passInput: true,
-		};
-		/** @private @type {WamExampleSynth} */
-		this._synth = new WamExampleSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
-			synthConfig);
 
-		const effectConfig = {
-			numChannels: 2,
-			inPlace: true,
-		};
+		/** @private @type {WamExampleSynth} */
+		this._synth = null;
+
 		/** @private @type {WamExampleEffect} */
-		this._effect = new WamExampleEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
-			effectConfig);
+		this._effect = null;
 
 		/** @private @type {Float32Array} */
 		this._levels = new Float32Array(4);
@@ -128,9 +85,43 @@ class WamExampleProcessor extends WamProcessor {
 
 		/** @private @type {boolean} */
 		this._levelsSabReady = false;
+	}
+
+	/**
+	 * Fetch plugin's params.
+	 * @returns {WamParameterInfoMap}
+	 */
+	_generateWamParameterInfo() {
+		return {
+			bypass: new WamParameterInfo('bypass', {
+				type: 'boolean',
+				label: 'Bypass',
+				defaultValue: 0,
+			}),
+			...WamExampleSynth.generateWamParameterInfo(),
+			...WamExampleEffect.generateWamParameterInfo(),
+		};
+	}
+
+	/**
+	 * Post-constructor initialization method.
+	 */
+	_initialize() {
+		super._initialize();
+		const synthConfig = {
+			passInput: true,
+		};
+		this._synth = new WamExampleSynth(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
+			synthConfig);
+
+		const effectConfig = {
+			numChannels: 2,
+			inPlace: true,
+		};
+		this._effect = new WamExampleEffect(this._parameterInterpolators, this._samplesPerQuantum, globalThis.sampleRate,
+			effectConfig);
 
 		this.port.postMessage({ levelsUpdatePeriodMs: this._levelsUpdatePeriodMs });
-		this.port.start();
 	}
 
 	_configureSab() {

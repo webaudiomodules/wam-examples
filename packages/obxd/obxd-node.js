@@ -11,8 +11,7 @@ export class OBXDNode extends WamNode
   //
   static async importScripts (actx, prefix) {
     const baseUrl = import.meta.url;
-    await actx.audioWorklet.addModule(new URL("../sdk/src/WamEnv.js", baseUrl));
-    await actx.audioWorklet.addModule(new URL("../sdk/src/WamProcessor.js", baseUrl));
+    await super.addModules(actx, baseUrl);
     await actx.audioWorklet.addModule(new URL("WasmProcessor.js", baseUrl));
     await actx.audioWorklet.addModule(new URL(prefix + "obxd.wasm.js", baseUrl));
     await actx.audioWorklet.addModule(new URL(prefix + "obxd.emsc.js", baseUrl));
@@ -23,13 +22,6 @@ export class OBXDNode extends WamNode
     template.innerHTML = html;
     return template;
   }
-
-	static generateWamParameters() {
-    let params = {}
-    for (let i = 0; i < 71; i++)
-      params[i] = new WamParameter(i);
-		return params;
-	}
 
 	/**
    * @param {import('../sdk').WebAudioModule} plug
@@ -80,7 +72,7 @@ export class OBXDNode extends WamNode
     }, {});
   }
 
-  
+
 
   // --------------------------------------------------------------------------
   // bank parser

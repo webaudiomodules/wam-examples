@@ -8,14 +8,18 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('./WamExampleComponents').WamExampleComponents } WamExampleComponents */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./WamExampleComponents').WamExampleLowpassFilter} WamExampleLowpassFilter */
+/** @typedef {import('./WamExampleComponents').WamExampleDcBlockerFilter} WamExampleDcBlockerFilter */
 
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
-	// @ts-ignore
-	WamExampleComponents,
-} = globalThis;
+	WamExampleComponents
+} = audioWorkletGlobalScope;
 
 const {
 	WamExampleLowpassFilter,
@@ -62,8 +66,7 @@ class WamExampleDrive {
 		this._numChannels = config.numChannels ?? 2;
 
 		/** @private @type {WamParameterInfoMap} */
-		// @ts-ignore
-		this._parameterInfo = this.constructor.generateWamParameterInfo();
+		this._parameterInfo = WamExampleDrive.generateWamParameterInfo();
 
 		/** @private @type {WamParameterInterpolatorMap} */
 		this._parameterInterpolators = {};
@@ -248,7 +251,6 @@ export default class WamExampleEffect {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	globalThis.WamExampleEffect = WamExampleEffect;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	audioWorkletGlobalScope.WamExampleEffect = WamExampleEffect;
 }

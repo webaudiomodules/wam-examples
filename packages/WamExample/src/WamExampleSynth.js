@@ -8,20 +8,27 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef { import('./WamExampleComponents').WamExampleComponents } WamExampleComponents */
+/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./WamExampleComponents').WamExampleLowpassFilter} WamExampleLowpassFilter */
+/** @typedef {import('./WamExampleComponents').WamExampleDcBlockerFilter} WamExampleDcBlockerFilter */
 
-/** @type {AudioWorkletGlobalScope & globalThis} */
+/** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
+const audioWorkletGlobalScope = globalThis;
 const {
-	// @ts-ignore
-	WamExampleComponents,
-} = globalThis;
+	WamExampleComponents
+} = audioWorkletGlobalScope;
 
 const {
 	WamExampleLowpassFilter,
 	WamExampleDcBlockerFilter,
 } = WamExampleComponents;
 
+/**
+ * @param {number} note
+ */
 function noteToHz(note) { return 2.0 ** ((note - 69) / 12.0) * 440.0; }
 
 /**
@@ -34,7 +41,6 @@ class WamExampleEnvelopeShaper {
 	/**
 	 * enum for envelope segments.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Segment = Object.freeze({
 		IDLE: 'idle',
@@ -51,6 +57,8 @@ class WamExampleEnvelopeShaper {
 	 * @param {number} sampleRate
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
+		/** @type {typeof WamExampleEnvelopeShaper} */
+		this.constructor;
 		this._sampleRate = sampleRate;
 
 		this._levelThreshold = 0.0001;
@@ -120,7 +128,7 @@ class WamExampleEnvelopeShaper {
 	 * Apply envelope to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 * @returns {boolean} whether or not the envelope is still active
 	 */
 	process(startSample, endSample, signal) {
@@ -183,7 +191,6 @@ class WamExampleOscillator {
 	/**
 	 * enum for oscillator modes.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Mode = Object.freeze({
 		IDLE: 'idle',
@@ -195,6 +202,8 @@ class WamExampleOscillator {
 	 * @param {number} sampleRate
 	 */
 	constructor(sampleRate) {
+		/** @type {typeof WamExampleOscillator} */
+		this.constructor;
 		this._sampleRate = sampleRate;
 		this._mode = this.constructor.Mode.IDLE;
 		this._alpha = 5 * Math.PI ** 2.0;
@@ -238,7 +247,7 @@ class WamExampleOscillator {
 	 * Fill the signal buffer with oscillator output
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		let n = startSample;
@@ -265,7 +274,6 @@ class WamExampleSynthPart {
 	/**
 	 * enum for synth part modes.
 	 * @readonly
-	 * @enum {string}
 	 */
 	static Mode = Object.freeze({
 		...WamExampleOscillator.Mode,
@@ -281,11 +289,16 @@ class WamExampleSynthPart {
 	 * @param {number} sampleRate
 	 */
 	constructor(attackMaxMs, levelMax, samplesPerQuantum, sampleRate) {
+		/** @type {typeof WamExampleSynthPart} */
+		this.constructor;
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
 		/** @private @type {boolean} whether or not the part is currently active */
 		this._active = false;
+
+		/** @private @type {string} current oscillator mode */
+		this._mode = this.constructor.Mode.RANDOM;
 
 		/** @private @type {Float32Array} buffer to store output from oscillator 1 */
 		this._buffer1 = new Float32Array(samplesPerQuantum);
@@ -350,6 +363,7 @@ class WamExampleSynthPart {
 			const modeRange = modeMax - modeMin;
 			mode = this.constructor.Mode[modeKeys[modeMin + Math.floor(modeRange * Math.random())]];
 		}
+		this._mode = mode;
 		switch (mode) {
 		case this.constructor.Mode.CLEAN:
 			mode1 = mode;
@@ -377,7 +391,7 @@ class WamExampleSynthPart {
 		default: break;
 		}
 
-		this._shaper.start(intensity, this._sampleRate);
+		this._shaper.start(intensity/*, this._sampleRate*/);
 
 		this._oscillator1.start(mode1, oscillatorFreqHz, gain1, phaseOffsetNorm1);
 		if (mode2 !== this.constructor.Mode.IDLE) {
@@ -404,7 +418,7 @@ class WamExampleSynthPart {
 	 * Add output to the signal buffer
 	 * @param {number} startSample beginning of processing slice
 	 * @param {number} endSample end of processing slice
-	 * @param {Float32Array[]} signal single-channel signal buffer
+	 * @param {Float32Array} signal single-channel signal buffer
 	 */
 	process(startSample, endSample, signal) {
 		if (!this._active) return false;
@@ -459,23 +473,23 @@ class WamExampleSynthVoice {
 		/** @private @type {number} current sample rate */
 		this._sampleRate = sampleRate;
 
-		/** @private @type {number} unique int to identify voice */
-		this.idx = voiceIdx;
-
 		/** @private @type {number} current MIDI channel (when active) */
-		this.channel = -1;
+		this._channel = -1;
 
 		/** @private @type {number} current MIDI note (when active) */
-		this.note = -1;
+		this._note = -1;
 
 		/** @private @type {number} current MIDI velocity (when active) */
-		this.velocity = -1;
+		this._velocity = -1;
 
 		/** @private @type {number} time corresponding to when current note began (when active) */
-		this.timestamp = -1;
+		this._timestamp = -1;
 
 		/** @private @type {boolean} whether or not the voice is currently active */
-		this.active = false;
+		this._active = false;
+
+		/** @private @type {number} counter to track number of times note-off has been received */
+		this._deactivating = 0;
 
 		const attackMaxMs = 500.0;
 		const levelMax = 0.9;
@@ -487,6 +501,13 @@ class WamExampleSynthVoice {
 		this._rightPart = new WamExampleSynthPart(attackMaxMs, levelMax, samplesPerQuantum, sampleRate);
 	}
 
+	// read-only properties
+	get channel() { return this._channel; }
+	get note() { return this._note; }
+	get velocity() { return this._velocity; }
+	get timestamp() { return this._timestamp; }
+	get active() { return this._active; }
+
 	/**
 	 * Check if the voice is on the channel and note
 	 * @param {number} channel MIDI channel number
@@ -494,18 +515,19 @@ class WamExampleSynthVoice {
 	 * @returns {boolean}
 	*/
 	matches(channel, note) {
-		return this.channel === channel && this.note === note;
+		return this._channel === channel && this._note === note;
 	}
 
 	/**
 	 * Put the voice into idle state
 	 */
 	reset() {
-		this.channel = -1;
-		this.note = -1;
-		this.velocity = -1;
-		this.timestamp = -1;
-		this.active = false;
+		this._channel = -1;
+		this._note = -1;
+		this._velocity = -1;
+		this._timestamp = -1;
+		this._active = false;
+		this._deactivating = 0;
 
 		this._leftPart.reset();
 		this._rightPart.reset();
@@ -516,16 +538,16 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
-	 * @param {WamExampleSynthPart.Mode} leftMode mode for voice's left channel
-	 * @param {WamExampleSynthPart.Mode} rightMode mode for voice's right channel
+	 * @param {string} leftMode mode for voice's left channel
+	 * @param {string} rightMode mode for voice's right channel
 	 */
 	noteOn(channel, note, velocity, leftMode, rightMode) {
-		this.channel = channel;
-		this.note = note;
-		this.velocity = velocity;
-		this.timestamp = globalThis.currentTime;
-		this.active = true;
-		this.deactivating = 0;
+		this._channel = channel;
+		this._note = note;
+		this._velocity = velocity;
+		this._timestamp = globalThis.currentTime;
+		this._active = true;
+		this._deactivating = 0;
 
 		const intensity = Math.min(0.999, (velocity + 73.0) / 200.0);
 
@@ -546,7 +568,6 @@ class WamExampleSynthVoice {
 	 * @param {number} channel MIDI channel number
 	 * @param {number} note MIDI note number
 	 * @param {number} velocity MIDI velocity number
-	 * @param {boolean} force whether or not to force a fast release
 	 */
 	// eslint-disable-next-line no-unused-vars
 	noteOff(channel, note, velocity) {
@@ -565,13 +586,13 @@ class WamExampleSynthVoice {
 	 * @returns {boolean} whether or not the voice is still active
 	 */
 	process(startSample, endSample, inputs, outputs) {
-		if (!this.active) return false;
+		if (!this._active) return false;
 
 		const leftActive = this._leftPart.process(startSample, endSample, outputs[0]);
 		const rightActive = this._rightPart.process(startSample, endSample, outputs[1]);
 
-		this.active = (leftActive || rightActive);
-		return this.active;
+		this._active = (leftActive || rightActive);
+		return this._active;
 	}
 }
 
@@ -634,7 +655,7 @@ export default class WamExampleSynth {
 			this._parameterInterpolators[parameterId] = parameterInterpolators[parameterId];
 		});
 
-		/** @private @type {UInt8Array} array of voice state flags */
+		/** @private @type {Uint8Array} array of voice state flags */
 		this._voiceStates = new Uint8Array(this._numVoices);
 		this._voiceStates.fill(0);
 
@@ -646,10 +667,10 @@ export default class WamExampleSynth {
 			i++;
 		}
 
-		/** @private @type {WamExampleSynthPart.Mode} waveform mode for left channel */
+		/** @private @type {string} waveform mode for left channel */
 		this._leftVoiceMode = WamExampleSynthPart.Mode.IDLE;
 
-		/** @private @type {WamExampleSynthPart.Mode} waveform mode for right channel */
+		/** @private @type {string} waveform mode for right channel */
 		this._rightVoiceMode = WamExampleSynthPart.Mode.IDLE;
 	}
 
@@ -763,7 +784,6 @@ export default class WamExampleSynth {
 	}
 }
 
-// @ts-ignore
-if (globalThis instanceof AudioWorkletGlobalScope) {
-	globalThis.WamExampleSynth = WamExampleSynth;
+if (audioWorkletGlobalScope.AudioWorkletGlobalScope) {
+	audioWorkletGlobalScope.WamExampleSynth = WamExampleSynth;
 }

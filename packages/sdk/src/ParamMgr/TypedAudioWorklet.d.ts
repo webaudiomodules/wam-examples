@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable max-len */
 
-import { WamProcessor, AudioWorkletGlobalScope as IAudioWorkletGlobalScope } from '../api/types';
+import { WamProcessor, AudioWorkletGlobalScope as IAudioWorkletGlobalScope, AudioParamDescriptor } from '../api/types';
 
 export interface TypedAudioWorkletNodeOptions<T = any> extends AudioWorkletNodeOptions {
 	processorOptions?: T;

@@ -7,8 +7,6 @@
  * @implements {IWamNode}
  */
 export default class WamNode extends AudioWorkletNode {
-	static generateWamParameters() { throw new Error('Not Implemented.'); return null; }
-
 	constructor(module, options) {
 		super(module.audioContext, module.moduleId, options);
 	}
@@ -28,6 +26,7 @@ export default class WamNode extends AudioWorkletNode {
 	async setParameterValues(parameterValues) { throw new Error('Not Implemented.'); }
 
 	async getState() { throw new Error('Not Implemented.'); return null; }
+
 	async setState(state) { throw new Error('Not Implemented.'); }
 
 	scheduleEvents(...events) { throw new Error('Not Implemented.'); }
