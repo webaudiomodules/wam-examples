@@ -46,8 +46,14 @@ module.exports = (env, argv) => {
           exclude: /node_modules/
         }, {
           test: /\.(ts|js)x?$/,
-          use: 'babel-loader',
-          exclude: /node_modules/,
+          use: {
+            loader: 'esbuild-loader',
+            options: {
+              loader: 'tsx',
+              target: 'es2017'
+            }
+          },
+          exclude: /node_modules/
         }
       ]
     },
