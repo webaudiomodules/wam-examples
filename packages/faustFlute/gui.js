@@ -2,7 +2,7 @@
 import { FaustUI } from './faust-ui/index.js';
 
 /**
- * @typedef {import('../sdk/src/api/types').WebAudioModule} WebAudioModule
+ * @typedef {import('../api').WebAudioModule} WebAudioModule
  */
 
 class FaustDefaultGui extends HTMLElement {
@@ -65,7 +65,7 @@ try {
 
 /**
  * A mandatory method if you want a gui for your plugin
- * @param {WebAudioModule} plugin - the plugin instance
+ * @param {import('../../../api').WebAudioModule} plugin - the plugin instance
  * @returns {Node} - the plugin root node that is inserted in the DOM of the host
  */
 const createElement = async (plugin) => {

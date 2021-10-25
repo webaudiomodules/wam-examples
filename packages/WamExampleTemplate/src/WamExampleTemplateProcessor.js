@@ -8,15 +8,15 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
-/** @typedef {import('../../sdk/src/api/types').WamNodeOptions} WamNodeOptions */
-/** @typedef {import('../../sdk/src/api/types').WamProcessor} WamProcessor */
-/** @typedef {import('../../sdk/src/api/types').WamParameter} WamParameter */
-/** @typedef {import('../../sdk/src/api/types').WamParameterInfo} WamParameterInfo */
-/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('../../sdk/src/api/types').WamParameterData} WamParameterData */
-/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('../../sdk/src/api/types').WamMidiData} WamMidiData */
+/** @typedef {import('../../api').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../../api').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../api').WamProcessor} WamProcessor */
+/** @typedef {import('../../api').WamParameter} WamParameter */
+/** @typedef {import('../../api').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../api').WamParameterData} WamParameterData */
+/** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../api').WamMidiData} WamMidiData */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./WamExampleTemplateEffect').default} WamExampleTemplateEffect */
 /** @typedef {import('./WamExampleTemplateSynth').default} WamExampleTemplateSynth */

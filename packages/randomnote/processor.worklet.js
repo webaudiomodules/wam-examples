@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable no-undef */
-/** @typedef {import('../sdk/src/api/types').AudioWorkletProcessor} AudioWorkletProcessor */
-/** @typedef {import('../sdk/src/api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/** @template T @typedef {import('../sdk/src/ParamMgr/TypedAudioWorklet').TypedAudioParamDescriptor} TypedAudioParamDescriptor */
+/** @typedef {import('../api').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @template T @typedef {import('../sdk-parammgr/src/TypedAudioWorklet').TypedAudioParamDescriptor} TypedAudioParamDescriptor */
 
 /** @typedef {'pause' | 'length' | 'pitchMin' | 'pitchMax' | 'velocityMin' | 'velocityMax' | 'destroyed'} P */
 

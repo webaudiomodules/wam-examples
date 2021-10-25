@@ -7,8 +7,8 @@
 import '../utils/webaudio-controls.js';
 
 /**
- * @typedef {import('../../sdk/src/ParamMgr/types').ParamMgrNode} ParamMgrNode
- * @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule
+ * @typedef {import('../../sdk-parammgr').ParamMgrNode} ParamMgrNode
+ * @template Node @typedef {import('../../api').WebAudioModule<Node>} WebAudioModule
  */
 
 const getBaseURL = () => {

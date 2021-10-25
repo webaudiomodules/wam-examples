@@ -1,4 +1,4 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope } from "sdk/src/types";
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope } from "../../sdk";
 import WamExampleTemplateSynth from "./WamExampleTemplateSynth";
 import WamExampleTemplateEffect from "./WamExampleTemplateEffect";
 

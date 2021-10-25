@@ -1,4 +1,4 @@
-/** @type {import('../../sdk/src/api/types').AudioWorkletGlobalScope} */
+/** @type {import('../../api').AudioWorkletGlobalScope} */
 const audioWorkletGlobalScope = globalThis;
 const { AudioWorkletProcessor, registerProcessor } = audioWorkletGlobalScope;
 
@@ -31,7 +31,7 @@ class TemplateMidiWamProcessor extends AudioWorkletProcessor {
 
 	}
 
-    /** @type {import('../../sdk/src/ParamMgr/types').ParamMgrProcessor} */
+    /** @type {import('../../sdk-parammgr').ParamMgrProcessor} */
 	get proxy() {
 		const { webAudioModules } = audioWorkletGlobalScope;
 		return webAudioModules?.processors[this.proxyId];

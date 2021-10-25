@@ -2,8 +2,8 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 import WebAudioModule from '../sdk/src/WebAudioModule.js';
-import ParamMgrFactory from '../sdk/src/ParamMgr/ParamMgrFactory.js';
-import CompositeAudioNode from '../sdk/src/ParamMgr/CompositeAudioNode.js';
+import ParamMgrFactory from '../sdk-parammgr/src/ParamMgrFactory.js';
+import CompositeAudioNode from '../sdk-parammgr/src/CompositeAudioNode.js';
 
 /**
  * @param {URL} relativeURL
@@ -18,7 +18,7 @@ class Node extends CompositeAudioNode {
 	destroyed = false;
 	/**
 	 * @param {AudioWorkletNode} output
-	 * @param {import('../sdk/src/ParamMgr/types').ParamMgrNode} paramMgr
+	 * @param {import('../sdk-parammgr').ParamMgrNode} paramMgr
 	 */
 
 	setup(output, paramMgr) {

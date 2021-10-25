@@ -1,5 +1,5 @@
-import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
+import CompositeAudioNode from '../../sdk-parammgr/src/CompositeAudioNode.js';
+import ParamMgrFactory from '../../sdk-parammgr/src/ParamMgrFactory.js';
 
 /**
  * The CompositeAudioNode will proxy all the WamNode API via the `_wamNode` property.
@@ -20,7 +20,7 @@ export default class TemplateWamNode extends CompositeAudioNode {
 		const setting1 = this.midiProcessorNode.parameters.get('setting1');
 
 		// Create a Parameter Manager that takes care of these parameters.
-		/** @type {import('../../sdk/src/ParamMgr/types').ParametersMappingConfiguratorOptions<'gain' | 'delay', 'gain' | 'delay'>} */
+		/** @type {import('../../sdk-parammgr').ParametersMappingConfiguratorOptions<'gain' | 'delay', 'gain' | 'delay'>} */
 		const optionsIn = {
 			internalParamsConfig: { setting1 }
 		};

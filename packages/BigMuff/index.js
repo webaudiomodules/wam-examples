@@ -2,13 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable max-classes-per-file */
 import WebAudioModule from '../sdk/src/WebAudioModule.js';
-import CompositeAudioNode from '../sdk/src/ParamMgr/CompositeAudioNode.js';
-import ParamMgrFactory from '../sdk/src/ParamMgr/ParamMgrFactory.js';
+import CompositeAudioNode from '../sdk-parammgr/src/CompositeAudioNode.js';
+import ParamMgrFactory from '../sdk-parammgr/src/ParamMgrFactory.js';
 import fetchModule from './fetchModule.js';
 import createElement from './Gui/index.js';
 
 /**
- * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
+ * @typedef {import('../sdk-parammgr').ParamMgrNode} ParamMgrNode
  */
 
 class BigMuffNode extends CompositeAudioNode {

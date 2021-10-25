@@ -12,8 +12,8 @@
 /**
  * @typedef {{ from: number; to: number; mode: 'mono' | 'poly' | 'touch'; keys: number[]; selected: number }} State
  * @typedef {[number, number, number]} TBPFPoint
- * @typedef {import("../sdk/src/api/types").WamNode} WamNode
- * @typedef {import("../sdk/src/api/types").WamParameter} WamParameter
+ * @typedef {import("../api").WamNode} WamNode
+ * @typedef {import("../api").WamParameter} WamParameter
  */
 
 const BLACKS = [1, 3, 6, 8, 10];

@@ -9,8 +9,8 @@
 /* eslint-disable max-classes-per-file */
 
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/** @typedef {import('../../sdk/src/types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
-/** @typedef {import('../../sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../sdk').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
 
 function noteToHz(note) { return 2.0 ** ((note - 69) / 12.0) * 440.0; }
 

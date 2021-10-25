@@ -5,7 +5,7 @@
  * @typedef {import('sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
  * @typedef {import('sdk/src/api/types').WamInfoData} WamInfoData
- * @typedef {import('sdk/src/ParamMgr/TypedAudioWorklet')
+ * @typedef {import('sdk-parammgr/src/TypedAudioWorklet')
  * .AudioWorkletGlobalScope} AudioWorkletGlobalScope
  */
 //@ts-check
