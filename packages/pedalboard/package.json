@@ -17,9 +17,12 @@
     "@rollup/plugin-replace": "^2.4.2",
     "@rollup/plugin-url": "^6.0.0",
     "@types/sortablejs": "^1.10.6",
+    "@webaudiomodules/api": "^2.0.0-alpha.1",
+    "@webaudiomodules/sdk": "^0.0.5",
+    "@webaudiomodules/sdk-parammgr": "^0.0.3",
     "del-cli": "^4.0.0",
     "node-sass": "^6.0.1",
-    "postcss": "8.1.0",
+    "postcss": "^8.3.11",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-sortablejs": "^6.0.0",
@@ -33,5 +36,6 @@
     "clean": "del-cli dist",
     "build": "rollup -c",
     "start": "node demo/server.js"
-  }
+  },
+  "dependencies": {}
 }

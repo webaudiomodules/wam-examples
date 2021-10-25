@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
-import { CompositeAudioNode } from 'sdk';
+import { CompositeAudioNode } from '@webaudiomodules/sdk-parammgr';
 import WamNode from './WamNode.js';
 /**
- * @typedef {import('sdk').WebAudioModule} WebAudioModule
+ * @typedef {import('@webaudiomodules/api').WebAudioModule} WebAudioModule
  */
 
 export default class PedalboardAudioNode extends CompositeAudioNode {

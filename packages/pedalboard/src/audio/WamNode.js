@@ -1,18 +1,18 @@
 /* eslint-disable no-underscore-dangle */
 /**
- * @typedef {import('sdk').WamNode} IWamNode
- * @typedef {import('sdk').WebAudioModule} WebAudioModule
+ * @typedef {import('@webaudiomodules/api').WamNode} IWamNode
+ * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
  * @typedef {import('./PedalboardAudioNode').default} PedalboardAudioNode
- * @typedef {import('sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap
- * @typedef {import('sdk/src/api/types').WamParameterDataMap} WamParameterDataMap
- * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
- * @typedef {import('sdk/src/api/types').WamEventMap} WamEventMap
- * @typedef {import('sdk/src/api/types').WamEventType} WamEventType
- * @typedef {import('sdk/src/api/types').WamInfoEvent} WamInfoEvent
- * @typedef {import('sdk/src/api/types').WamParameterConfiguration} WamParameterConfiguration
+ * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
+ * @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap
+ * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
+ * @typedef {import('@webaudiomodules/api').WamEventMap} WamEventMap
+ * @typedef {import('@webaudiomodules/api').WamEventType} WamEventType
+ * @typedef {import('@webaudiomodules/api').WamInfoEvent} WamInfoEvent
+ * @typedef {import('@webaudiomodules/api').WamParameterConfiguration} WamParameterConfiguration
  */
 //@ts-check
-import { WamParameterInfo } from 'sdk';
+import { WamParameterInfo } from '@webaudiomodules/sdk';
 /**
  * @implements {IWamNode}
  * @implements {AudioWorkletNode}

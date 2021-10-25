@@ -3,7 +3,7 @@
         "name": "patch test 1",
         "plugins": [
             {
-                "url": "/packages/pingpongdelay/dist/index.js",
+                "url": "../../pingpongdelay/dist/index.js",
                 "params": {
                 "feedback": 0.05000000074505806,
                 "time": 0.14000000059604645,
@@ -12,7 +12,7 @@
                 }
             },
             {
-                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "url": "../../faustPingPongDelay/plugin/index.js",
                 "params": {
                 "/PingPongDelayFaust/bypass": 0,
                 "/PingPongDelayFaust/time": 1,
@@ -26,7 +26,7 @@
         "name": "patch test 2",
         "plugins": [
             {
-                "url": "/packages/pingpongdelay/dist/index.js",
+                "url": "../../pingpongdelay/dist/index.js",
                 "params": {
                 "feedback": 0.95000000074505806,
                 "time": 0.94000000059604645,
@@ -35,7 +35,7 @@
                 }
             },
             {
-                "url": "/packages/faustPingPongDelay/plugin/index.js",
+                "url": "../../faustPingPongDelay/plugin/index.js",
                 "params": {
                 "/PingPongDelayFaust/bypass": 1,
                 "/PingPongDelayFaust/time": 0,
