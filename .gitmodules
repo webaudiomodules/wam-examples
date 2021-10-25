@@ -1,0 +1,9 @@
+[submodule "packages/api"]
+	path = packages/api
+	url = https://github.com/webaudiomodules/api
+[submodule "packages/sdk-parammgr"]
+	path = packages/sdk-parammgr
+	url = https://github.com/webaudiomodules/sdk-parammgr
+[submodule "packages/sdk"]
+	path = packages/sdk
+	url = https://github.com/webaudiomodules/sdk
