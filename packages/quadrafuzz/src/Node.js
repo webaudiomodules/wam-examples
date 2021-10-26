@@ -2,7 +2,7 @@
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
-import { CompositeAudioNode } from 'sdk';
+import { CompositeAudioNode } from '@webaudiomodules/sdk-parammgr';
 
 // name is not so important here, the file Node.js is imported
 // Normally the class does no need to be exported as

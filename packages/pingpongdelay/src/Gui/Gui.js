@@ -21,7 +21,7 @@ export default class PingPongDelayHTMLElement extends HTMLElement {
 	/**
 	 * plugin = the same that is passed in the DSP part. It's the instance
 	 * of the class that extends WebAudioModule. It's an Observable plugin
-	 * @param {import('sdk').WebAudioModule<import('../Node').default>} plugin
+	 * @param {import('@webaudiomodules/sdk').WebAudioModule<import('../Node').default>} plugin
 	 * @memberof PingPongDelayHTMLElement
 	 */
 	constructor(plugin) {

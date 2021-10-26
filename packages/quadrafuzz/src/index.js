@@ -4,7 +4,8 @@
 // 2 - This makes the instance of the current class an Observable
 //     (state in WebAudioModule, initialized with the default values of
 //      the params variable below...)
-import { WebAudioModule, ParamMgrFactory } from 'sdk';
+import { WebAudioModule } from '@webaudiomodules/sdk';
+import { ParamMgrFactory } from '@webaudiomodules/sdk-parammgr';
 import QuadrafuzzNode from './Node.js';
 import { createElement } from './Gui/index.js';
 
