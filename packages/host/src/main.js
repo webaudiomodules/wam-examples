@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import './main.css';
 /**
- * @typedef {import('sdk/src/api/types').WebAudioModule} WebAudioModule
- * @typedef {import('sdk/src/api/types').WamNode} WamNode
+ * @typedef {import('../../api').WebAudioModule} WebAudioModule
+ * @typedef {import('../../api').WamNode} WamNode
  */
 
 /** @type {HTMLAudioElement} */
@@ -220,7 +220,7 @@ pluginAutomationApplyButton.addEventListener('click', () => {
 });
 
 /**
- * @param {import('sdk/src/api/types').WamNode} wamNode
+ * @param {import('../../api').WamNode} wamNode
  */
 const populateParamSelector = async (wamNode) => {
 	bpfContainer.innerHTML = '';

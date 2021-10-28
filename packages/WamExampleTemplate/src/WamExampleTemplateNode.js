@@ -1,7 +1,7 @@
-/** @template Node @typedef {import('../../sdk/src/api/types').WebAudioModule<Node>} WebAudioModule */
-/** @typedef {import('../../sdk/src/api/types').WamAutomationEvent} WamAutomationEvent */
-/** @typedef {import('../../sdk/src/api/types').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('../../sdk/src/api/types').WamEventType} WamEventType */
+/** @template Node @typedef {import('../../api').WebAudioModule<Node>} WebAudioModule */
+/** @typedef {import('../../api').WamAutomationEvent} WamAutomationEvent */
+/** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../api').WamEventType} WamEventType */
 /** @typedef {import('./Gui/index').WamExampleTemplateHTMLElement} WamExampleTemplateHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';

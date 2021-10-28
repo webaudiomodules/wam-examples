@@ -1,9 +1,9 @@
-/** @typedef { import('../../sdk/src/ParamMgr/ParamMgrNode').default } ParamMgrNode */
+/** @typedef { import('../../sdk-parammgr').ParamMgrNode } ParamMgrNode */
 /* eslint-disable no-console */
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
-import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
+import CompositeAudioNode from '../../sdk-parammgr/src/CompositeAudioNode.js';
 
 // name is not so important here, the file Node.js is imported by the main plugin file (index.js)
 export default class GraphicEQNode extends CompositeAudioNode {

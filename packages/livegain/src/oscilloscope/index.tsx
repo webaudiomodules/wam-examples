@@ -1,6 +1,5 @@
-
-import { WebAudioModule, ParamMgrFactory } from "sdk";
-import { ParametersMappingConfiguratorOptions } from "sdk/src/ParamMgr/types";
+import { WebAudioModule } from "@webaudiomodules/sdk";
+import { ParamMgrFactory, ParametersMappingConfiguratorOptions } from "@webaudiomodules/sdk-parammgr";
 import Node from "./OscilloscopeNode";
 import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
 import { createElement, destroyElement } from "../gui";

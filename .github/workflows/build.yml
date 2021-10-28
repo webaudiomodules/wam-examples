@@ -24,7 +24,3 @@ jobs:
 
       - name: Build
         run: yarn build
-
-      - name: Test SDK
-        run: cd packages/sdk && yarn test
-

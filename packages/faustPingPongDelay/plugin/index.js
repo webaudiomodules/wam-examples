@@ -4,13 +4,13 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
-import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
-import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
+import CompositeAudioNode from '../../sdk-parammgr/src/CompositeAudioNode.js';
+import ParamMgrFactory from '../../sdk-parammgr/src/ParamMgrFactory.js';
 import { createElement } from './Gui/index.js';
 import fetchModule from './fetchModule.js';
 
 /**
- * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
+ * @typedef {import('../../sdk-parammgr').ParamMgrNode} ParamMgrNode
  */
 
 class FaustPingPongDelayNode extends CompositeAudioNode {

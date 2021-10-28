@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-/** @template P @template I @typedef { import('sdk').ParamMgrNode<P, I> } ParamMgrNode */
-import { CompositeAudioNode } from 'sdk';
+/** @template P @template I @typedef { import('@webaudiomodules/sdk-parammgr').ParamMgrNode<P, I> } ParamMgrNode */
+import { CompositeAudioNode } from '@webaudiomodules/sdk-parammgr';
 
 /**
  * @typedef {"feedback" | "time" | "mix" | "enabled"} Params

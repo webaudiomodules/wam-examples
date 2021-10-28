@@ -7,7 +7,7 @@ export { Gui };
 
 /**
  * A mandatory method if you want a gui for your plugin
- * @param {import('../../sdk/src/WebAudioModule.js').default} plugin - the plugin instance
+ * @param {import('../../api').WebAudioModule} plugin - the plugin instance
  * @returns {HTMLElement} - the HTML element that contains the GUI
  */
 export default async function createElement(plugin, ...args) {

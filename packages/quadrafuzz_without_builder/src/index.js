@@ -7,7 +7,7 @@
 
 // IMPORT NECESSARY DSK FILES
 import WebAudioModule from '../../sdk/src/WebAudioModule.js';
-import ParamMgrFactory from '../../sdk/src/ParamMgr/ParamMgrFactory.js';
+import ParamMgrFactory from '../../sdk-parammgr/src/ParamMgrFactory.js';
 
 // DSP part
 import QuadrafuzzNode from './Node.js';

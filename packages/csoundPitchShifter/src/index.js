@@ -2,7 +2,8 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable max-classes-per-file */
-import { WebAudioModule, ParamMgrFactory, CompositeAudioNode } from 'sdk';
+import { WebAudioModule } from '@webaudiomodules/sdk';
+import { ParamMgrFactory, CompositeAudioNode } from '@webaudiomodules/sdk-parammgr';
 import CsoundObj from '@kunstmusik/csound';
 import { createElement } from './Gui/index.js';
 

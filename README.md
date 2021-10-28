@@ -21,6 +21,7 @@ The project mainly uses the following packages for development:
 1. Install dependencies
 
 ```sh
+git submodule update --init --recursive --remote
 yarn install
 ```
 

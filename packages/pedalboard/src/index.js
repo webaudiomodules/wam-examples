@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-use-before-define
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { WebAudioModule } from 'sdk';
-import wamEnvProcessor from 'sdk/src/WamEnv.js';
+import { WebAudioModule } from '@webaudiomodules/sdk';
+import wamEnvProcessor from '@webaudiomodules/sdk/src/WamEnv.js';
 
 import Pedalboard from './components/Pedalboard.js';
 import PedalboardAudioNode from './audio/PedalboardAudioNode.js';

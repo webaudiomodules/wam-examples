@@ -159,7 +159,7 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
   // event handlers
 
 	/**
-	 * @param {import('../sdk/src/api/types').WamMidiData} midiData
+	 * @param {import('../api').WamMidiData} midiData
 	 */
   _onMidi (midiData) {
     const [status, data1, data2] = midiData.bytes;
@@ -167,7 +167,7 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
   }
 
 	/**
-	 * @param {import('../sdk/src/api/types').WamParameterData} parameterUpdate
+	 * @param {import('../api').WamParameterData} parameterUpdate
 	 * @param {boolean} interpolate
 	 */
   _setParameterValue (parameterUpdate, interpolate) {
@@ -227,7 +227,7 @@ AWGS.WasmProcessor = class WasmProcessor extends AWGS.WamProcessor
   }
 
 	/**
-	 * @param {import('../sdk/src/api/types').WamBinaryData} sysexData
+	 * @param {import('../api').WamBinaryData} sysexData
 	 */
 	_onSysex ({ bytes: data }) {
     let WAM = this.WAM;

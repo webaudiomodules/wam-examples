@@ -2,7 +2,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 
-/** @typedef {import("../../../sdk/src/api/types").WamMidiEvent} WamMidiEvent */
+/** @typedef {import("../../../api").WamMidiEvent} WamMidiEvent */
 /** @typedef {import('../types').WebAudioControlsWidget} WebAudioControlsWidget */
 /** @typedef {import("../index").default} WamExampleTemplatePlugin */
 

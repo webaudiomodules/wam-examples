@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-/** @template P @template I @typedef { import('sdk').ParamMgrNode<P, I> } ParamMgrNode */
-import { CompositeAudioNode, ParamMgrNode } from 'sdk';
+import { CompositeAudioNode, ParamMgrNode } from '@webaudiomodules/sdk-parammgr';
 import { constantSource, noiseSource } from './util'
 
 const shaperLength = 44100;

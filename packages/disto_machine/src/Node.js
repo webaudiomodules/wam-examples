@@ -1,9 +1,9 @@
-/** @typedef { import('../../sdk/src/ParamMgr/ParamMgrNode').default } ParamMgrNode */
+/** @typedef { import('../../sdk-parammgr').ParamMgrNode } ParamMgrNode */
 /* eslint-disable no-console */
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
-import CompositeAudioNode from '../../sdk/src/ParamMgr/CompositeAudioNode.js';
+import CompositeAudioNode from '../../sdk-parammgr/src/CompositeAudioNode.js';
 import ConvolverDisto from './convolverdisto.js';
 import AmpDisto from './ampdisto.js';
 import EqualizerDisto from './equalizerdisto.js';

@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 /**
- * @typedef {import('sdk/src/api/types').WamProcessor} IWamProcessor
- * @typedef {import('sdk/src/api/types').WamNodeOptions} WamNodeOptions
- * @typedef {import('sdk/src/api/types').WamParameterInfoMap} WamParameterInfoMap
- * @typedef {import('sdk/src/api/types').WamEvent} WamEvent
- * @typedef {import('sdk/src/api/types').WamInfoData} WamInfoData
- * @typedef {import('sdk/src/ParamMgr/TypedAudioWorklet')
+ * @typedef {import('@webaudiomodules/api').WamProcessor} IWamProcessor
+ * @typedef {import('@webaudiomodules/api').WamNodeOptions} WamNodeOptions
+ * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
+ * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
+ * @typedef {import('@webaudiomodules/api').WamInfoData} WamInfoData
+ * @typedef {import('@webaudiomodules/sdk-parammgr/src/TypedAudioWorklet')
  * .AudioWorkletGlobalScope} AudioWorkletGlobalScope
  */
 //@ts-check

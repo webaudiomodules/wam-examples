@@ -1,4 +1,4 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamProcessor, WamArrayRingBuffer } from "sdk/src/types";
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamProcessor, WamArrayRingBuffer } from "../../sdk";
 import WamExampleSynth from "./WamExampleSynth";
 import WamExampleEffect from "./WamExampleEffect";
 import { WamExampleDcBlockerFilter, WamExampleLowpassFilter } from "./WamExampleComponents";

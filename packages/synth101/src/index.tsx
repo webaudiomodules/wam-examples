@@ -4,15 +4,11 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 
-import { WebAudioModule, ParamMgrFactory } from 'sdk';
+import { WebAudioModule } from '@webaudiomodules/sdk';
+import { ParamMgrFactory, InternalParametersDescriptor, ParamMgrNode } from '@webaudiomodules/sdk-parammgr';
 import Synth101Node, { InternalParams, Params } from './Node';
 import { h, render } from 'preact';
 import { SynthView } from './SynthView';
-import { InternalParametersDescriptor } from '../../sdk/src/ParamMgr/types';
-
-/**
- * @typedef {import('../sdk/src/ParamMgr/ParamMgrNode.js').default} ParamMgrNode
- */
 
 /**
  * @param {URL} relativeURL
@@ -33,7 +29,6 @@ let envTriggers = ["Gate", "Trig", "Both"]
 let portamentoModes = ["Off", "Auto", "On"]
 
 export default class Synth101 extends WebAudioModule<Synth101Node> {
-	//@ts-ignore
 	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
 	_descriptorUrl = `${this._baseURL}/descriptor.json`;
@@ -44,6 +39,7 @@ export default class Synth101 extends WebAudioModule<Synth101Node> {
 		const response = await fetch(url);
 		const descriptor = await response.json();
 		Object.assign(this.descriptor, descriptor);
+		return this.descriptor;
 	}
 
 	async initialize(state: any) {
