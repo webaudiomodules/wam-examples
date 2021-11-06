@@ -7,3 +7,5 @@
 [submodule "packages/sdk"]
 	path = packages/sdk
 	url = https://github.com/webaudiomodules/sdk
+[submodule ".\\packages\\api"]
+	branch = 2.0.0-alpha.2

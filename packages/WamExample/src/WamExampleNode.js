@@ -2,12 +2,19 @@
 /** @typedef {import('../../api').WamAutomationEvent} WamAutomationEvent */
 /** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../api').WamEventType} WamEventType */
+/** @typedef {import('../../sdk').WamArrayRingBuffer} IWamArrayRingBuffer */
 /** @typedef {import('./Gui/index').WamExampleHTMLElement} WamExampleHTMLElement */
 
 import WamNode from '../../sdk/src/WamNode.js';
+import addFunctionModule from '../../sdk/src/addFunctionModule.js';
+import uuid from '../../sdk/src/uuid.js';
 
 import getRingBuffer from '../../sdk/src/RingBuffer.js';
 import getWamArrayRingBuffer from '../../sdk/src/WamArrayRingBuffer.js';
+import getWamExampleComponents from './WamExampleComponents.js';
+import getWamExampleSynth from './WamExampleSynth.js';
+import getWamExampleEffect from './WamExampleEffect.js';
+import initializeWamExampleProcessor from './WamExampleProcessor.js';
 
 const RingBuffer = getRingBuffer();
 const WamArrayRingBuffer = getWamArrayRingBuffer();
@@ -39,13 +46,21 @@ export default class WamExampleNode extends WamNode {
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
 	 * @param {string} baseURL
+	 * @param {string} [moduleId]
 	 */
-	static async addModules(audioContext, baseURL) {
-		await super.addModules(audioContext, baseURL);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleComponents.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleSynth.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleEffect.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleProcessor.js`);
+	static async addModules(audioContext, baseURL, moduleId) {
+		const deps = await super.addModules(audioContext, baseURL);
+		const { RingBuffer, WamParameterInfo, WamArrayRingBuffer, WamProcessor } = deps;
+		const { audioWorklet } = audioContext;
+		const WamExampleComponents = uuid();
+		const WamExampleSynth = uuid();
+		const WamExampleEffect = uuid();
+		const WamExampleProcessor = moduleId;
+		await addFunctionModule(audioWorklet, getWamExampleComponents, WamExampleComponents);
+		await addFunctionModule(audioWorklet, getWamExampleSynth, WamExampleSynth, { WamExampleComponents, WamParameterInfo });
+		await addFunctionModule(audioWorklet, getWamExampleEffect, WamExampleEffect, { WamExampleComponents, WamParameterInfo });
+		await addFunctionModule(audioWorklet, initializeWamExampleProcessor, WamExampleProcessor, { RingBuffer, WamArrayRingBuffer, WamProcessor, WamExampleEffect, WamExampleSynth, WamParameterInfo });
+		return { ...deps, WamExampleComponents, WamExampleSynth, WamExampleEffect, WamExampleProcessor };
 	}
 
 	/**
@@ -166,7 +181,7 @@ export default class WamExampleNode extends WamNode {
 			this._levelsSab = WamArrayRingBuffer.getStorageForEventCapacity(RingBuffer,
 				levelsLength, Float32Array);
 
-			/** @private @type {WamArrayRingBuffer} */
+			/** @private @type {IWamArrayRingBuffer} */
 			this._levelsReader = new WamArrayRingBuffer(RingBuffer, this._levelsSab,
 				levelsLength, Float32Array);
 

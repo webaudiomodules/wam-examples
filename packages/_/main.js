@@ -37,6 +37,21 @@ let currentPluginDomNode;
 /** @type {GainNode} */
 let liveInputGainNode;
 
+let isWamEnvSet = false;
+
+/**
+ * @param {AudioContext} audioContext
+ */
+const initWamEnv = async (audioContext) => {
+	const { default: apiVersion } = await import("../api/src/version.js");
+	const { default: addFunctionModule } = await import("../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	isWamEnvSet = true;
+};
+
+initWamEnv(audioContext);
+
 /**
  * Very simple function to connect the plugin audionode to the host
  * @param {WamNode} audioNode
