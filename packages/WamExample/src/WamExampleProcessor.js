@@ -56,13 +56,12 @@ const initializeWamExampleProcessor = (uuid, dependencies) => {
 	const WamExampleSynth = audioWorkletGlobalScope[dependencies?.WamExampleSynth || "WamExampleSynth"];
 	/** @type {AudioWorkletGlobalScope["WamExampleEffect"]} */
 	const WamExampleEffect = audioWorkletGlobalScope[dependencies?.WamExampleEffect || "WamExampleEffect"];
+
 	const LevelsUpdatePeriodSec = 1.0 / 30.0;
 	const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;
-	
+
 	/**
 	 * `WamExample`'s `AudioWorkletProcessor`
-	 *
-	 * @extends {WamProcessor}
 	 */
 	class WamExampleProcessor extends WamProcessor {
 		/**

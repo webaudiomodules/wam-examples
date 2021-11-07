@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { WebAudioModule } from '@webaudiomodules/sdk';
-import wamEnvProcessor from '@webaudiomodules/sdk/src/WamEnv.js';
 
 import Pedalboard from './components/Pedalboard.js';
 import PedalboardAudioNode from './audio/PedalboardAudioNode.js';
@@ -16,9 +15,7 @@ export default class PedalboardPlugin extends WebAudioModule {
 	}
 
 	async createAudioNode(initialState) {
-		const wamEnv = window.URL.createObjectURL(new Blob([`(${wamEnvProcessor.toString()})();`], { type: 'text/javascript' }));
 		const url = window.URL.createObjectURL(new Blob([`(${processor.toString()})(${JSON.stringify(this.moduleId)});`], { type: 'text/javascript' }));
-		await this.audioContext.audioWorklet.addModule(wamEnv);
 		await this.audioContext.audioWorklet.addModule(url);
 		const pedalboardAudioNode = new PedalboardAudioNode(this);
 

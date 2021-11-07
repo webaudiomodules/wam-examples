@@ -779,7 +779,7 @@ const getWamExampleSynth = (uuid, dependencies) => {
 			}
 		}
 	}
-	
+
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
 		if (uuid) {
 			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamExampleSynth;
