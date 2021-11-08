@@ -8,21 +8,22 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
 /** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./types').WamExampleTemplateDependencies} WamExampleTemplateDependencies */
 
 /**
- * @param {string} [uuid]
- * @param {{ WamParameterInfo: string; }} [dependencies]
+ * @param {string} [moduleId]
  */
-const getWamExampleTemplateEffect = (uuid, dependencies) => {
+const getWamExampleTemplateEffect = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	/** @type {AudioWorkletGlobalScope["WamParameterInfo"]} */
-	const WamParameterInfo = audioWorkletGlobalScope[dependencies?.WamParameterInfo || "WamParameterInfo"];
-	
+	/** @type {WamExampleTemplateDependencies} */
+	const dependencies = audioWorkletGlobalScope.webAudioModules.dependencies[moduleId];
+	const { WamParameterInfo } = dependencies;
+
 	/**
 	 * Example effect template
 	 */
@@ -108,22 +109,11 @@ const getWamExampleTemplateEffect = (uuid, dependencies) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (uuid) {
-			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamExampleTemplateEffect;
-		} else {
-			if (!audioWorkletGlobalScope.WamExampleTemplateEffect) audioWorkletGlobalScope.WamExampleTemplateEffect = WamExampleTemplateEffect;
-		}
+		if (!dependencies.WamExampleTemplateEffect) dependencies.WamExampleTemplateEffect = WamExampleTemplateEffect;
 	}
 
 	return WamExampleTemplateEffect;
 
 };
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamExampleTemplateEffect) getWamExampleTemplateEffect();
-}
 
 export default getWamExampleTemplateEffect;

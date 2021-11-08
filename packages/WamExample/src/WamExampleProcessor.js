@@ -12,7 +12,7 @@
 /** @typedef {import('../../api').WamNodeOptions} WamNodeOptions */
 /** @typedef {import('../../api').WamProcessor} WamProcessor */
 /** @typedef {import('../../api').WamParameter} WamParameter */
-/** @typedef {import('../../sdk').WamParameterInterpolator} WamParameterInterpolator */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../api').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
 /** @typedef {import('../../api').WamParameterData} WamParameterData */
@@ -20,42 +20,36 @@
 /** @typedef {import('../../api').WamParameterMap} WamParameterMap */
 /** @typedef {import('../../api').WamEvent} WamEvent */
 /** @typedef {import('../../api').WamMidiData} WamMidiData */
+/** @typedef {import('../../sdk').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('../../sdk').WamArrayRingBuffer} WamArrayRingBuffer */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamExampleDependencies} WamExampleDependencies */
 /** @typedef {import('./types').WamExampleEffect} WamExampleEffect */
 /** @typedef {import('./types').WamExampleSynth} WamExampleSynth */
 
 /**
- * @typedef IDependencies
- * @property {string} RingBuffer
- * @property {string} WamArrayRingBuffer
- * @property {string} WamProcessor
- * @property {string} WamParameterInfo
- * @property {string} WamExampleSynth
- * @property {string} WamExampleEffect
+ * @param {string} [moduleId]
  */
-
-/**
- * @param {string} [uuid]
- * @param {IDependencies} [dependencies]
- */
-const initializeWamExampleProcessor = (uuid, dependencies) => {
+const initializeWamExampleProcessor = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	const { registerProcessor } = audioWorkletGlobalScope;
-	/** @type {AudioWorkletGlobalScope["RingBuffer"]} */
-	const RingBuffer = audioWorkletGlobalScope[dependencies?.RingBuffer || "RingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamArrayRingBuffer"]} */
-	const WamArrayRingBuffer = audioWorkletGlobalScope[dependencies?.WamArrayRingBuffer || "WamArrayRingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamProcessor"]} */
-	const WamProcessor = audioWorkletGlobalScope[dependencies?.WamProcessor || "WamProcessor"];
-	/** @type {AudioWorkletGlobalScope["WamParameterInfo"]} */
-	const WamParameterInfo = audioWorkletGlobalScope[dependencies?.WamParameterInfo || "WamParameterInfo"];
-	/** @type {AudioWorkletGlobalScope["WamExampleSynth"]} */
-	const WamExampleSynth = audioWorkletGlobalScope[dependencies?.WamExampleSynth || "WamExampleSynth"];
-	/** @type {AudioWorkletGlobalScope["WamExampleEffect"]} */
-	const WamExampleEffect = audioWorkletGlobalScope[dependencies?.WamExampleEffect || "WamExampleEffect"];
+	/** @type {WamExampleDependencies} */
+	const dependencies = audioWorkletGlobalScope.webAudioModules.dependencies[moduleId];
+	const {
+		RingBuffer,
+		WamArrayRingBuffer,
+		WamParameterInfo,
+		WamProcessor,
+		WamExampleComponents,
+		WamExampleSynth,
+		WamExampleEffect
+	} = dependencies;
+
+	const {
+		WamExampleLowpassFilter,
+		WamExampleDcBlockerFilter,
+	} = WamExampleComponents;
 
 	const LevelsUpdatePeriodSec = 1.0 / 30.0;
 	const LevelsUpdatePeriodMs = LevelsUpdatePeriodSec * 1000;
@@ -291,7 +285,7 @@ const initializeWamExampleProcessor = (uuid, dependencies) => {
 		}
 	}
 	try {
-		registerProcessor(uuid, WamExampleProcessor);
+		registerProcessor(moduleId, WamExampleProcessor);
 	} catch (error) {
 		console.warn(error);
 	}

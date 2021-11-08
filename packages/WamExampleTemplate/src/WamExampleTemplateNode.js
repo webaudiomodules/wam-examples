@@ -6,7 +6,6 @@
 
 import WamNode from '../../sdk/src/WamNode.js';
 import addFunctionModule from '../../sdk/src/addFunctionModule.js';
-import uuid from '../../sdk/src/uuid.js';
 
 import getWamExampleTemplateSynth from './WamExampleTemplateSynth.js';
 import getWamExampleTemplateEffect from './WamExampleTemplateEffect.js';
@@ -29,20 +28,14 @@ export default class WamExampleTemplateNode extends WamNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} baseURL
-	 * @param {string} [moduleId]
+	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL, moduleId) {
-		const deps = await super.addModules(audioContext, baseURL);
-		const { RingBuffer, WamParameterInfo, WamArrayRingBuffer, WamProcessor } = deps;
+	static async addModules(audioContext, moduleId) {
+		await super.addModules(audioContext, moduleId);
 		const { audioWorklet } = audioContext;
-		const WamExampleTemplateSynth = uuid();
-		const WamExampleTemplateEffect = uuid();
-		const WamExampleTemplateProcessor = moduleId;
-		await addFunctionModule(audioWorklet, getWamExampleTemplateSynth, WamExampleTemplateSynth, { WamParameterInfo });
-		await addFunctionModule(audioWorklet, getWamExampleTemplateEffect, WamExampleTemplateEffect, { WamParameterInfo });
-		await addFunctionModule(audioWorklet, initializeWamExampleTemplateProcessor, WamExampleTemplateProcessor, { RingBuffer, WamArrayRingBuffer, WamProcessor, WamExampleTemplateEffect, WamExampleTemplateSynth, WamParameterInfo });
-		return { ...deps, WamExampleTemplateSynth, WamExampleTemplateEffect, WamExampleTemplateProcessor };
+		await addFunctionModule(audioWorklet, getWamExampleTemplateSynth, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateEffect, moduleId);
+		await addFunctionModule(audioWorklet, initializeWamExampleTemplateProcessor, moduleId);
 	}
 
 	/**

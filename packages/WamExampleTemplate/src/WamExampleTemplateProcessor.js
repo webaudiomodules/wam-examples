@@ -17,41 +17,29 @@
 /** @typedef {import('../../api').WamParameterData} WamParameterData */
 /** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('../../api').WamMidiData} WamMidiData */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamExampleTemplateDependencies} WamExampleTemplateDependencies */
 /** @typedef {import('./types').WamExampleTemplateEffect} WamExampleTemplateEffect */
 /** @typedef {import('./types').WamExampleTemplateSynth} WamExampleTemplateSynth */
 
 /**
- * @typedef IDependencies
- * @property {string} RingBuffer
- * @property {string} WamArrayRingBuffer
- * @property {string} WamProcessor
- * @property {string} WamParameterInfo
- * @property {string} WamExampleTemplateSynth
- * @property {string} WamExampleTemplateEffect
+ * @param {string} [moduleId]
  */
-
-/**
- * @param {string} [uuid]
- * @param {IDependencies} [dependencies]
- */
-const initializeWamExampleTemplateProcessor = (uuid, dependencies) => {
+const initializeWamExampleTemplateProcessor = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	const { registerProcessor } = audioWorkletGlobalScope;
-	/** @type {AudioWorkletGlobalScope["RingBuffer"]} */
-	const RingBuffer = audioWorkletGlobalScope[dependencies?.RingBuffer || "RingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamArrayRingBuffer"]} */
-	const WamArrayRingBuffer = audioWorkletGlobalScope[dependencies?.WamArrayRingBuffer || "WamArrayRingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamProcessor"]} */
-	const WamProcessor = audioWorkletGlobalScope[dependencies?.WamProcessor || "WamProcessor"];
-	/** @type {AudioWorkletGlobalScope["WamParameterInfo"]} */
-	const WamParameterInfo = audioWorkletGlobalScope[dependencies?.WamParameterInfo || "WamParameterInfo"];
-	/** @type {AudioWorkletGlobalScope["WamExampleTemplateSynth"]} */
-	const WamExampleTemplateSynth = audioWorkletGlobalScope[dependencies?.WamExampleTemplateSynth || "WamExampleTemplateSynth"];
-	/** @type {AudioWorkletGlobalScope["WamExampleTemplateEffect"]} */
-	const WamExampleTemplateEffect = audioWorkletGlobalScope[dependencies?.WamExampleTemplateEffect || "WamExampleTemplateEffect"];
+	/** @type {WamExampleTemplateDependencies} */
+	const dependencies = audioWorkletGlobalScope.webAudioModules.dependencies[moduleId];
+	const {
+		RingBuffer,
+		WamArrayRingBuffer,
+		WamParameterInfo,
+		WamProcessor,
+		WamExampleTemplateSynth,
+		WamExampleTemplateEffect
+	} = dependencies;
 
 	/**
 	 * `WamExampleTemplate`'s `AudioWorkletProcessor`
@@ -169,7 +157,7 @@ const initializeWamExampleTemplateProcessor = (uuid, dependencies) => {
 		}
 	}
 	try {
-		registerProcessor(uuid, WamExampleTemplateProcessor);
+		registerProcessor(moduleId, WamExampleTemplateProcessor);
 	} catch (error) {
 		console.warn(error);
 	}

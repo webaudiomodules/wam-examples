@@ -7,7 +7,6 @@
 
 import WamNode from '../../sdk/src/WamNode.js';
 import addFunctionModule from '../../sdk/src/addFunctionModule.js';
-import uuid from '../../sdk/src/uuid.js';
 
 import getRingBuffer from '../../sdk/src/RingBuffer.js';
 import getWamArrayRingBuffer from '../../sdk/src/WamArrayRingBuffer.js';
@@ -45,22 +44,15 @@ export default class WamExampleNode extends WamNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} baseURL
-	 * @param {string} [moduleId]
+	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL, moduleId) {
-		const deps = await super.addModules(audioContext, baseURL);
-		const { RingBuffer, WamParameterInfo, WamArrayRingBuffer, WamProcessor } = deps;
+	static async addModules(audioContext, moduleId) {
+		await super.addModules(audioContext, moduleId);
 		const { audioWorklet } = audioContext;
-		const WamExampleComponents = uuid();
-		const WamExampleSynth = uuid();
-		const WamExampleEffect = uuid();
-		const WamExampleProcessor = moduleId;
-		await addFunctionModule(audioWorklet, getWamExampleComponents, WamExampleComponents);
-		await addFunctionModule(audioWorklet, getWamExampleSynth, WamExampleSynth, { WamExampleComponents, WamParameterInfo });
-		await addFunctionModule(audioWorklet, getWamExampleEffect, WamExampleEffect, { WamExampleComponents, WamParameterInfo });
-		await addFunctionModule(audioWorklet, initializeWamExampleProcessor, WamExampleProcessor, { RingBuffer, WamArrayRingBuffer, WamProcessor, WamExampleEffect, WamExampleSynth, WamParameterInfo });
-		return { ...deps, WamExampleComponents, WamExampleSynth, WamExampleEffect, WamExampleProcessor };
+		await addFunctionModule(audioWorklet, getWamExampleComponents, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleSynth, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleEffect, moduleId);
+		await addFunctionModule(audioWorklet, initializeWamExampleProcessor, moduleId);
 	}
 
 	/**

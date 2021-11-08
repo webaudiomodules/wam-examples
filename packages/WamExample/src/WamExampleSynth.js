@@ -8,25 +8,24 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../sdk').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
 /** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('./types').WamExampleDependencies} WamExampleDependencies */
 /** @typedef {import('./types').WamExampleLowpassFilter} WamExampleLowpassFilter */
 /** @typedef {import('./types').WamExampleDcBlockerFilter} WamExampleDcBlockerFilter */
 
 /**
- * @param {string} [uuid]
- * @param {{ WamExampleComponents: string; WamParameterInfo: string; }} [dependencies]
+ * @param {string} [moduleId]
  */
-const getWamExampleSynth = (uuid, dependencies) => {
+const getWamExampleSynth = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	/** @type {AudioWorkletGlobalScope["WamExampleComponents"]} */
-	const WamExampleComponents = audioWorkletGlobalScope[dependencies?.WamExampleComponents || "WamExampleComponents"];
-	/** @type {AudioWorkletGlobalScope["WamParameterInfo"]} */
-	const WamParameterInfo = audioWorkletGlobalScope[dependencies?.WamParameterInfo || "WamParameterInfo"];
-	
+	/** @type {WamExampleDependencies} */
+	const dependencies = audioWorkletGlobalScope.webAudioModules.dependencies[moduleId];
+	const { WamExampleComponents, WamParameterInfo } = dependencies;
+
 	const {
 		WamExampleLowpassFilter,
 		WamExampleDcBlockerFilter,
@@ -781,21 +780,10 @@ const getWamExampleSynth = (uuid, dependencies) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (uuid) {
-			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamExampleSynth;
-		} else {
-			if (!audioWorkletGlobalScope.WamExampleSynth) audioWorkletGlobalScope.WamExampleSynth = WamExampleSynth;
-		}
+		if (!dependencies.WamExampleSynth) dependencies.WamExampleSynth = WamExampleSynth;
 	}
 
 	return WamExampleSynth;
 };
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamExampleSynth) getWamExampleSynth();
-}
 
 export default getWamExampleSynth;

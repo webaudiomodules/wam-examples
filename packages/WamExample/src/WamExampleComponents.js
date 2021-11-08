@@ -8,12 +8,13 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamExampleDependencies} WamExampleDependencies */
 
 /**
- * @param {string} [uuid]
+ * @param {string} [moduleId]
  */
-const getWamExampleComponents = (uuid) => {
+const getWamExampleComponents = (moduleId) => {
 	const twoPi = 2.0 * Math.PI;
 
 	/**
@@ -109,26 +110,19 @@ const getWamExampleComponents = (uuid) => {
 		WamExampleLowpassFilter,
 		WamExampleDcBlockerFilter
 	};
-	
+
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (uuid) {
-			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamExampleComponents;
-		} else {
-			if (!audioWorkletGlobalScope.WamExampleComponents) audioWorkletGlobalScope.WamExampleComponents = WamExampleComponents;
+		const { dependencies } = audioWorkletGlobalScope.webAudioModules;
+		if (moduleId) {
+			if (!dependencies[moduleId]) dependencies[moduleId] = {};
+			if (!dependencies[moduleId].WamExampleComponents) dependencies[moduleId].WamExampleComponents = WamExampleComponents;
 		}
 	}
 
 	return WamExampleComponents;
 };
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamExampleComponents) getWamExampleComponents();
-}
 
 export default getWamExampleComponents;

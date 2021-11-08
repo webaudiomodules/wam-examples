@@ -1,4 +1,4 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WamProcessor, WamArrayRingBuffer } from "../../sdk";
+import { WamSDK } from "../../sdk";
 import getWamExampleSynth from "./WamExampleSynth";
 import getWamExampleEffect from "./WamExampleEffect";
 import getWamExampleComponents from "./WamExampleComponents";
@@ -13,9 +13,7 @@ export const WamExampleEffect: ReturnType<typeof getWamExampleEffect>;
 export interface WamExampleEffect extends InstanceType<ReturnType<typeof getWamExampleEffect>> {}
 export const WamExampleSynth: ReturnType<typeof getWamExampleSynth>;
 export interface WamExampleSynth extends InstanceType<ReturnType<typeof getWamExampleSynth>> {}
-export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
-    WamProcessor: typeof WamProcessor;
-    WamArrayRingBuffer: typeof WamArrayRingBuffer;
+export interface WamExampleDependencies extends WamSDK {
     WamExampleSynth: typeof WamExampleSynth;
     WamExampleEffect: typeof WamExampleEffect;
     WamExampleComponents: WamExampleComponents;

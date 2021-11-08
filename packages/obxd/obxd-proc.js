@@ -1,14 +1,24 @@
 // OBXD WAM Processor
 // Jari Kleimola 2017-2020 (jari@webaudiomodules.org)
 
-var AWGS = globalThis;
-class OBXDProcessor extends AWGS.WasmProcessor
-{
-  constructor (options) {
-    options.module = AWGS.WAM.OBXD;
-    super(options);
-    this.numOutChannels = [2];
-  }
-}
+/**
+ * @param {string} [moduleId]
+ */
+const initObxdProcessor = (moduleId) => {
+	const dependencies = globalThis.webAudioModules.dependencies[moduleId];
+	const { WasmProcessor, OBXD } = dependencies;
 
-registerProcessor("Jari Kleimola 2017-2020 (jari@webaudiomodules.org)OBXD", OBXDProcessor);
+  class OBXDProcessor extends WasmProcessor
+  {
+    constructor (options) {
+      options.module = OBXD;
+      super(options);
+      this.numOutChannels = [2];
+    }
+  }
+  
+  registerProcessor(moduleId, OBXDProcessor);
+  
+};
+
+export default initObxdProcessor;

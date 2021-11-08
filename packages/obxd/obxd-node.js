@@ -1,7 +1,12 @@
 import WamNode from "../sdk/src/WamNode.js";
-import WamParameter from "../sdk/src/WamParameter.js";
-import WamParameterInfo from "../sdk/src/WamParameterInfo.js";
+import getWamParameterInfo from "../sdk/src/WamParameterInfo.js";
+import addFunctionModule from "../sdk/src/addFunctionModule.js";
+import getWasmProcessor from "./WasmProcessor.js";
+import initObxdProcessor from "./obxd-proc.js";
+import initObxdWasm from "./wasm/obxd.wasm.js";
+import initObxdEmsc from "./wasm/obxd.emsc.js";
 
+const WamParameterInfo = getWamParameterInfo();
 // OBXD WAM AudioNode
 // Jari Kleimola 2017-2020 (jari@webaudiomodules.org)
 
@@ -9,13 +14,13 @@ export class OBXDNode extends WamNode
 {
   // -- scripts need to be loaded first, and in order
   //
-  static async importScripts (actx, prefix) {
+  static async addModules(actx, moduleId) {
     const baseUrl = import.meta.url;
-    await super.addModules(actx, baseUrl);
-    await actx.audioWorklet.addModule(new URL("WasmProcessor.js", baseUrl));
-    await actx.audioWorklet.addModule(new URL(prefix + "obxd.wasm.js", baseUrl));
-    await actx.audioWorklet.addModule(new URL(prefix + "obxd.emsc.js", baseUrl));
-    await actx.audioWorklet.addModule(new URL("obxd-proc.js", baseUrl));
+    await super.addModules(actx, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdWasm, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdEmsc, moduleId);
+    await addFunctionModule(actx.audioWorklet, getWasmProcessor, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdProcessor, moduleId);
     const resp = await fetch(new URL("./obxd-gui.html", baseUrl).href);
     const html = await resp.text();
     const template = document.createElement("template");

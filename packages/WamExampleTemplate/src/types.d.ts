@@ -1,4 +1,4 @@
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope } from "../../sdk";
+import { WamSDK } from "../../sdk";
 import getWamExampleTemplateSynth from "./WamExampleTemplateSynth";
 import getWamExampleTemplateEffect from "./WamExampleTemplateEffect";
 
@@ -8,7 +8,7 @@ export interface WamExampleTemplateEffect extends InstanceType<ReturnType<typeof
 export const WamExampleTemplateSynth: ReturnType<typeof getWamExampleTemplateSynth>;
 export interface WamExampleTemplateSynth extends InstanceType<ReturnType<typeof getWamExampleTemplateSynth>> {}
 
-export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
+export interface WamExampleTemplateDependencies extends WamSDK {
     WamExampleTemplateSynth: typeof WamExampleTemplateSynth;
     WamExampleTemplateEffect: typeof WamExampleTemplateEffect;
     WebAudioControlsWidget: WebAudioControlsWidget;
