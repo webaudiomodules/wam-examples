@@ -3,6 +3,7 @@
  * @typedef {import('@webaudiomodules/api').WamNode} IWamNode
  * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
  * @typedef {import('./PedalboardAudioNode').default} PedalboardAudioNode
+ * @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo
  * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap
  * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
@@ -12,7 +13,10 @@
  * @typedef {import('@webaudiomodules/api').WamParameterConfiguration} WamParameterConfiguration
  */
 //@ts-check
-import { WamParameterInfo } from '@webaudiomodules/sdk';
+import { getWamParameterInfo } from '@webaudiomodules/sdk';
+
+const WamParameterInfo = getWamParameterInfo();
+
 /**
  * @implements {IWamNode}
  * @implements {AudioWorkletNode}
@@ -251,24 +255,24 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {IWamNode} to
+	 * @param {string} toId
 	 * @param {number} [output]
 	 */
-	connectEvents(to, output) {
+	connectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
-			last.instance.audioNode.connectEvents(to, output);
+			last.instance.audioNode.connectEvents(toId, output);
 		}
 	}
 
 	/**
-	 * @param {IWamNode} [to]
+	 * @param {string} [toId]
 	 * @param {number} [output]
 	 */
-	disconnectEvents(to, output) {
+	disconnectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
-			last.instance.audioNode.connectEvents(to, output);
+			last.instance.audioNode.connectEvents(toId, output);
 		}
 	}
 

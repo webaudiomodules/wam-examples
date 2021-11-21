@@ -36,6 +36,10 @@ const processor = (processorId) => {
 			this.instanceId = instanceId;
 			/** @type {string[]} */
 			this.pluginList = [];
+			/** @type {Map<IWamProcessor, Set<IWamProcessor>[]>} */
+			this._eventGraph = new Map();
+			/** @type {Record<string, IWamProcessor>} */
+			this._processors = {};
 
 			audioWorkletGlobalScope.webAudioModules.create(this);
 
@@ -95,52 +99,52 @@ const processor = (processorId) => {
 			const upstreams = [];
 			/** @type {Set<IWamProcessor>[]} */
 			let downstreams = [];
-			const { eventGraph, processors } = webAudioModules;
+			
 			if (this.pluginList.length) {
-				const oldFirst = processors[this.pluginList[0]];
-				const oldLast = processors[this.pluginList[this.pluginList.length - 1]];
-				if (oldLast && eventGraph.has(oldLast)) {
-					downstreams = eventGraph.get(oldLast);
+				const oldFirst = this._processors[this.pluginList[0]];
+				const oldLast = this._processors[this.pluginList[this.pluginList.length - 1]];
+				if (oldLast && this._eventGraph.has(oldLast)) {
+					downstreams = this._eventGraph.get(oldLast);
 				}
 				if (oldFirst) {
-					eventGraph.forEach((v, upstream) => {
+					this._eventGraph.forEach((v, upstream) => {
 						v.forEach((set, output) => {
 							if (set.has(oldFirst)) upstreams.push([upstream, output]);
 						});
 					});
 					if (this.pluginList[0] !== pluginListIn[0]) {
 						upstreams.forEach(([from, output]) => {
-							webAudioModules.disconnectEvents(from, oldFirst, output);
+							webAudioModules.disconnectEvents(from.instanceId, oldFirst.instanceId, output);
 						});
 					}
 				}
 				this.pluginList.forEach((id) => {
-					const from = processors[id];
+					const from = this._processors[id];
 					if (from) {
-						webAudioModules.disconnectEvents(from);
+						webAudioModules.disconnectEvents(from.instanceId);
 					}
 				});
 			}
 			if (pluginListIn.length) {
 				if (this.pluginList[0] !== pluginListIn[0]) {
-					const to = processors[pluginListIn[0]];
+					const to = this._processors[pluginListIn[0]];
 					if (to) {
 						upstreams.forEach(([from, output]) => {
-							webAudioModules.connectEvents(from, to, output);
+							webAudioModules.connectEvents(from.instanceId, to.instanceId, output);
 						});
 					}
 				}
 				for (let i = 0; i < pluginListIn.length - 1; i += 1) {
 					const $from = pluginListIn[i];
 					const $to = pluginListIn[i + 1];
-					const from = processors[$from];
-					const to = processors[$to];
-					if (from && to) webAudioModules.connectEvents(from, to);
+					const from = this._processors[$from];
+					const to = this._processors[$to];
+					if (from && to) webAudioModules.connectEvents(from.instanceId, to.instanceId);
 				}
-				const last = processors[pluginListIn[pluginListIn.length - 1]];
+				const last = this._processors[pluginListIn[pluginListIn.length - 1]];
 				if (last) {
 					downstreams.forEach((set) => set.forEach((to) => {
-						webAudioModules.connectEvents(last, to);
+						webAudioModules.connectEvents(last.instanceId, to.instanceId);
 					}));
 				}
 			}
@@ -158,7 +162,7 @@ const processor = (processorId) => {
 		getCompensationDelay() {
 			let delay = 0;
 			this.pluginList.forEach((id) => {
-				const p = webAudioModules.processors[id];
+				const p = this._processors[id];
 				if (p) delay += p.getCompensationDelay();
 			});
 			return delay;
@@ -170,7 +174,7 @@ const processor = (processorId) => {
 		scheduleEvents(...events) {
 			if (!this.pluginList.length) return;
 			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
+			const p = this._processors[id];
 			if (p) p.scheduleEvents(...events);
 		}
 
@@ -180,14 +184,14 @@ const processor = (processorId) => {
 		emitEvents(...events) {
 			if (!this.pluginList.length) return;
 			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
+			const p = this._processors[id];
 			if (p) p.emitEvents(...events);
 		}
 
 		clearEvents() {
 			if (!this.pluginList.length) return;
 			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
+			const p = this._processors[id];
 			if (p) p.clearEvents();
 		}
 
@@ -206,7 +210,7 @@ const processor = (processorId) => {
 
 		destroy() {
 			this.pluginList.forEach((id) => {
-				const p = webAudioModules.processors[id];
+				const p = this._processors[id];
 				if (p) p.destroy();
 			});
 			audioWorkletGlobalScope.webAudioModules.destroy(this);
