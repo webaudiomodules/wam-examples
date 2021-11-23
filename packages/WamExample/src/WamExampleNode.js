@@ -1,18 +1,18 @@
 /** @template Node @typedef {import('../../../../api').WebAudioModule<Node>} WebAudioModule */
-/** @typedef {import('../../../../api').WamAutomationEvent} WamAutomationEvent */
-/** @typedef {import('../../../../api').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('../../../../api').WamEventType} WamEventType */
-/** @typedef {typeof import('../../../../sdk').RingBuffer} RingBufferConstructor */
-/** @typedef {import('../../../../sdk').WamArrayRingBuffer} IWamArrayRingBuffer */
-/** @typedef {typeof import('../../../../sdk').WamArrayRingBuffer} WamArrayRingBufferConstructor */
+/** @typedef {import('../../api').WamAutomationEvent} WamAutomationEvent */
+/** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../api').WamEventType} WamEventType */
+/** @typedef {typeof import('../../sdk').RingBuffer} RingBufferConstructor */
+/** @typedef {import('../../sdk').WamArrayRingBuffer} IWamArrayRingBuffer */
+/** @typedef {typeof import('../../sdk').WamArrayRingBuffer} WamArrayRingBufferConstructor */
 /** @typedef {import('./Gui/index').WamExampleHTMLElement} WamExampleHTMLElement */
 
-import addFunctionModule from '../../../../sdk/src/addFunctionModule.js';
-import WamNode from '../../../../sdk/src/WamNode.js';
+import addFunctionModule from '../../sdk/src/addFunctionModule.js';
+import WamNode from '../../sdk/src/WamNode.js';
 
-import getRingBuffer from '../../../../sdk/src/RingBuffer.js';
+import getRingBuffer from '../../sdk/src/RingBuffer.js';
 import getWamExampleComponenents from './WamExampleComponents.js';
-import getWamArrayRingBuffer from '../../../../sdk/src/WamArrayRingBuffer.js';
+import getWamArrayRingBuffer from '../../sdk/src/WamArrayRingBuffer.js';
 import getWamExampleSynth from './WamExampleSynth.js';
 import getWamExampleEffect from './WamExampleEffect.js';
 import getWamExampleProcessor from './WamExampleProcessor.js';

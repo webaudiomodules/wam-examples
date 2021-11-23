@@ -8,20 +8,20 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/** @typedef {import('../../../../api').AudioWorkletProcessor} AudioWorkletProcessor */
-/** @typedef {import('../../../../api').WamNodeOptions} WamNodeOptions */
-/** @typedef {import('../../../../api').WamProcessor} WamProcessor */
-/** @typedef {import('../../../../api').WamParameter} WamParameter */
-/** @typedef {import('../../../../sdk').WamParameterInterpolator} WamParameterInterpolator */
-/** @typedef {import('../../../../api').WamParameterInfo} WamParameterInfo */
-/** @typedef {import('../../../../api').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('../../../../api').WamParameterData} WamParameterData */
-/** @typedef {import('../../../../api').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('../../../../api').WamParameterMap} WamParameterMap */
-/** @typedef {import('../../../../api').WamEvent} WamEvent */
-/** @typedef {import('../../../../api').WamMidiData} WamMidiData */
-/** @typedef {import('../../../../sdk').WamArrayRingBuffer} WamArrayRingBuffer */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletProcessor} AudioWorkletProcessor */
+/** @typedef {import('../../api').WamNodeOptions} WamNodeOptions */
+/** @typedef {import('../../api').WamProcessor} WamProcessor */
+/** @typedef {import('../../api').WamParameter} WamParameter */
+/** @typedef {import('../../sdk').WamParameterInterpolator} WamParameterInterpolator */
+/** @typedef {import('../../api').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../api').WamParameterData} WamParameterData */
+/** @typedef {import('../../api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('../../api').WamParameterMap} WamParameterMap */
+/** @typedef {import('../../api').WamEvent} WamEvent */
+/** @typedef {import('../../api').WamMidiData} WamMidiData */
+/** @typedef {import('../../sdk').WamArrayRingBuffer} WamArrayRingBuffer */
 /** @typedef {import('./types').WamExampleModuleScope} WamExampleModuleScope */
 /** @typedef {import('./types').WamExampleProcessor} IWamExampleProcessor */
 /** @typedef {typeof import('./types').WamExampleProcessor} WamExampleProcessorConstructor */

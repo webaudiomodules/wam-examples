@@ -8,9 +8,9 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/** @typedef {import('../../../../api').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('../../../../sdk').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('../../sdk').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
 /** @typedef {import('./types').WamExampleModuleScope} WamExampleModuleScope */
 /** @typedef {import('./types').WamExampleSynth} IWamExampleSynth */
 /** @typedef {typeof import('./types').WamExampleSynth} WamExampleSynthConstructor */

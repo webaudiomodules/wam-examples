@@ -8,7 +8,7 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-/** @typedef {import('../../../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').WamExampleModuleScope} WamExampleModuleScope */
 /** @typedef {import('./types').WamExampleLowpassFilter} IWamExampleLowpassFilter */
 /** @typedef {typeof import('./types').WamExampleLowpassFilter} WamExampleLowpassFilterConstructor */

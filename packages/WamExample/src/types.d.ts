@@ -1,6 +1,6 @@
 
-import { WamSDKBaseModuleScope, WamParameterInterpolatorMap } from "../../../../sdk";
-import { AudioWorkletProcessor, WamParameterInfoMap, WamProcessor } from "../../../../api";
+import { WamSDKBaseModuleScope, WamParameterInterpolatorMap } from "../../sdk";
+import { AudioWorkletProcessor, WamParameterInfoMap, WamProcessor } from "../../api";
 
 interface WebAudioControlsWidget extends HTMLElement { value: number }
 
