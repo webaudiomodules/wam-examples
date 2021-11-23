@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 /**
  * @typedef {import('@webaudiomodules/api').WamNode} IWamNode
  * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
@@ -16,7 +15,6 @@
 import { getWamParameterInfo } from '@webaudiomodules/sdk';
 
 const WamParameterInfo = getWamParameterInfo();
-
 /**
  * @implements {IWamNode}
  * @implements {AudioWorkletNode}
@@ -109,6 +107,7 @@ export default class WamNode extends AudioWorkletNode {
 			const data = { instanceId: this.instanceId };
 			await this._call('updatePluginList', workletPluginList);
 			await this._call('updateParameterInfo', data);
+			await this._call('setCompensationDelay', await this.getCompensationDelay());
 			/** @type {CustomEvent<WamInfoEvent>} */
 			const wamInfoEvent = new CustomEvent('wam-info', { detail: { type: 'wam-info', data, time: this.context.currentTime } });
 			this.pedalboardNode.dispatchEvent(wamInfoEvent);
@@ -222,6 +221,19 @@ export default class WamNode extends AudioWorkletNode {
 		return delay;
 	}
 
+	/**
+	 * @param {WamEvent[]} events
+	 */
+	eventEmitted(...events) {
+		events.forEach((event) => {
+			const { type } = event;
+			this.dispatchEvent(new CustomEvent(type, {
+				bubbles: true,
+				detail: event,
+			}));
+		})
+	}
+
 	/** @param {WamEvent} event */
 	scheduleAutomationEvent(event) {
 		if (event.type === 'wam-automation') {
@@ -258,11 +270,27 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {string} toId
 	 * @param {number} [output]
 	 */
+	selfConnectEvents(toId, output) {
+		this._call("connectEvents", toId, output);
+	}
+
+	/**
+	 * @param {string} toId
+	 * @param {number} [output]
+	 */
 	connectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
 			last.instance.audioNode.connectEvents(toId, output);
 		}
+	}
+
+	/**
+	 * @param {string} toId
+	 * @param {number} [output]
+	 */
+	selfDisconnectEvents(toId, output) {
+		this._call("disconnectEvents", toId, output);
 	}
 
 	/**

@@ -11,7 +11,7 @@ import url from '@rollup/plugin-url';
 const common = {
 	output: [
 		{
-			// sourcemap: true,
+			sourcemap: true,
 			chunkFileNames: '[name].js',
 			dir: './dist/',
 			format: 'es',

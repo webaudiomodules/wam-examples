@@ -1,21 +1,24 @@
-/* eslint-disable no-console */
-/* eslint-disable no-underscore-dangle */
+//@ts-check
 import { CompositeAudioNode } from '@webaudiomodules/sdk-parammgr';
 import WamNode from './WamNode.js';
 /**
- * @typedef {import('@webaudiomodules/api').WebAudioModule} WebAudioModule
+ * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
+ * @typedef {{ id: any; url: string; instance: WebAudioModule }} Plugin
  */
 
 export default class PedalboardAudioNode extends CompositeAudioNode {
+	/** @type {WamNode} */
+	_wamNode;
 	/**
 	 * @param {WebAudioModule} module
-	 * @param {GainOptions} options
+	 * @param {GainOptions} [options]
 	 */
 	constructor(module, options) {
 		super(module.audioContext, options);
 		/** @type {WebAudioModule} */
 		this._module = module;
-		/** @type {{ id: any; url: string; instance: WebAudioModule}[]} */
+
+		/** @type {Plugin[]} */
 		this.pluginList = [];
 		this.pluginID = 0;
 		this.createNodes();
@@ -29,10 +32,12 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		this._input.connect(this._output);
 	}
 
+	/** @param {Plugin} newPlugin */
 	connectNewPlugin(newPlugin) {
 		if (this.pluginList.length === 1) {
 			this._input.disconnect();
 			this._input.connect(newPlugin.instance.audioNode);
+			this._wamNode.selfConnectEvents(newPlugin.instance.instanceId);
 			newPlugin.instance.audioNode.connect(this._output);
 			console.warn('INPUT connectd to: ', newPlugin.instance.name);
 			console.warn(newPlugin.instance.name, 'connect to: OUTPUT');
@@ -40,6 +45,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 			const previousPlugin = this.pluginList[this.pluginList.length - 2];
 			previousPlugin.instance.audioNode.disconnect();
 			previousPlugin.instance.audioNode.connect(newPlugin.instance.audioNode);
+			previousPlugin.instance.audioNode.connectEvents(newPlugin.instance.instanceId);
 			newPlugin.instance.audioNode.connect(this._output);
 			console.warn(previousPlugin.instance.name, 'connect to: ', newPlugin.instance.name);
 			console.warn(newPlugin.instance.name, 'connect to: OUTPUT');
@@ -73,6 +79,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		this.dispatchEvent(new CustomEvent('change', { detail: { pluginList: this.pluginList } }));
 	}
 
+	/** @param {string} pluginID */
 	removePlugin(pluginID) {
 		const deletedPluginIndex = this.pluginList.findIndex((plugin) => plugin.id === pluginID);
 		const nextPluginIndex = deletedPluginIndex + 1;
@@ -85,22 +92,32 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		if (deletedPluginIndex === 0 && this.pluginList.length === 1) {
 			this._input.disconnect();
 			this._input.connect(this._output);
+			this._wamNode.selfDisconnectEvents(deletedPlugin.instance.instanceId);
 			deletedPlugin.instance.audioNode.disconnect();
+			deletedPlugin.instance.audioNode.disconnectEvents();
 			console.warn('INPUT connected to: OUTPUT');
 		} else if (deletedPluginIndex === 0) {
 			this._input.disconnect();
+			this._wamNode.selfDisconnectEvents(deletedPlugin.instance.instanceId);
 			deletedPlugin.instance.audioNode.disconnect();
+			deletedPlugin.instance.audioNode.disconnectEvents();
 			this._input.connect(nextPlugin.instance.audioNode);
+			this._wamNode.selfConnectEvents(nextPlugin.instance.instanceId);
 			console.warn('INPUT connected to: ', nextPlugin.instance.name);
 		} else if (deletedPluginIndex === this.pluginList.length - 1) {
 			deletedPlugin.instance.audioNode.disconnect();
+			deletedPlugin.instance.audioNode.disconnectEvents();
 			previousPlugin.instance.audioNode.disconnect();
+			previousPlugin.instance.audioNode.disconnectEvents();
 			previousPlugin.instance.audioNode.connect(this._output);
 			console.warn(previousPlugin.instance.name, 'connect to: OUTPUT');
 		} else {
 			deletedPlugin.instance.audioNode.disconnect();
+			deletedPlugin.instance.audioNode.disconnectEvents();
 			previousPlugin.instance.audioNode.disconnect();
+			previousPlugin.instance.audioNode.disconnectEvents();
 			previousPlugin.instance.audioNode.connect(nextPlugin.instance.audioNode);
+			previousPlugin.instance.audioNode.connectEvents(nextPlugin.instance.instanceId);
 			console.warn(previousPlugin.instance.name, 'connect to: ', nextPlugin.instance.name);
 		}
 		deletedPlugin.instance.audioNode.destroy();
@@ -129,9 +146,11 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		if (oldIndex === newIndex) return;
 
 		this._input.disconnect();
+		if (this.pluginList[0]) this._wamNode.selfDisconnectEvents(this.pluginList[0].instance.instanceId);
 
 		this.pluginList.forEach((plugin) => {
 			plugin.instance.audioNode.disconnect();
+			plugin.instance.audioNode.disconnectEvents();
 		});
 
 		//If we swap the plugins, we only have to swap their positions
@@ -145,6 +164,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 		}
 
 		this._input.connect(this.pluginList[0].instance.audioNode);
+		this._wamNode.selfConnectEvents(this.pluginList[0].instance.instanceId);
 		console.warn('INPUT CONNECTED to:', this.pluginList[0].instance.name);
 
 		this.pluginList.forEach((plugin, index) => {
@@ -153,6 +173,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 				console.warn(plugin.instance.name, 'connect to the output');
 			} else {
 				plugin.instance.audioNode.connect(this.pluginList[index + 1].instance.audioNode);
+				plugin.instance.audioNode.connectEvents(this.pluginList[index + 1].instance.instanceId);
 				console.warn(plugin.instance.name, ' connected to: ', this.pluginList[index + 1].instance.name);
 			}
 		});
@@ -162,6 +183,7 @@ export default class PedalboardAudioNode extends CompositeAudioNode {
 
 	clearPlugins() {
 		this._input.disconnect();
+		if (this.pluginList[0]) this._wamNode.selfDisconnectEvents(this.pluginList[0].instance.instanceId);
 		this._input.connect(this._output);
 		this.pluginList.forEach(({ instance }) => instance.audioNode.destroy());
 		this.pluginList = [];

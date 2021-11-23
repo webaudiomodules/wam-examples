@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-use-before-define
+//@ts-check
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { WebAudioModule } from '@webaudiomodules/sdk';
@@ -23,7 +23,7 @@ export default class PedalboardPlugin extends WebAudioModule {
 		return pedalboardAudioNode;
 	}
 
-	createGui() {
+	async createGui() {
 		const root = document.createElement('div');
 		ReactDOM.render(<Pedalboard audioNode={this.audioNode} />, root);
 		return root;

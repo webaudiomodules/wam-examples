@@ -69,7 +69,7 @@ const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
 		liveInputGainNode.disconnect();
 		if (keyboardPluginAudioNode) {
-			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode.instanceId);
 			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		if (currentPluginAudioNode.numberOfInputs) mediaElementSource.disconnect(currentPluginAudioNode);
@@ -89,7 +89,7 @@ const connectPlugin = (audioNode) => {
 
 	if (keyboardPluginAudioNode) {
 		if (audioNode.numberOfInputs) keyboardPluginAudioNode.connect(audioNode);
-		keyboardPluginAudioNode.connectEvents(audioNode);
+		keyboardPluginAudioNode.connectEvents(audioNode.instanceId);
 	}
 	if (audioNode.numberOfInputs) mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
@@ -127,7 +127,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	const keyboardPlugin = await Wam.createInstance(audioContext);
 	if (keyboardPluginAudioNode) {
 		if (currentPluginAudioNode) {
-			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode.instanceId);
 			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		keyboardPluginAudioNode.destroy();
@@ -142,7 +142,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
 	if (keyboardPluginAudioNode && currentPluginAudioNode) {
 		if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.connect(currentPluginAudioNode);
-		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
+		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode.instanceId);
 	}
 };
 
