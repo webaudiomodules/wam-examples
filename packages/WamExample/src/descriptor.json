@@ -3,7 +3,7 @@
     "vendor": "WebAudioModule",
     "description": "Simple example using WebAudioModule, WamNode, and WamProcessor classes.",
     "version": "1.0.0",
-    "sdkVersion": "1.0.0",
+    "apiVersion": "2.0.0",
     "thumbnail": "screenshot.png",
     "keywords": [],
     "website": "",
