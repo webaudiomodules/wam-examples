@@ -22,7 +22,12 @@ const mountPlugin = (domNode) => {
 };
 
 (async () => {
-	// Loads the plugin
+	// Init WamEnv
+	const { default: apiVersion } = await import("../../api/src/version.js");
+	const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	// Import WAM
 	const { default: pluginFactory } = await import('./index.js');
 
 	// Create a new instance of the plugin

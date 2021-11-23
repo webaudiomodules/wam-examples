@@ -9,6 +9,12 @@ const audioContext = new AudioContext();
 window.audioContext = audioContext;
 
 (async () => {
+	// Init WamEnv
+	const { default: apiVersion } = await import("../../api/src/version.js");
+	const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	// Import WAM
 	const { default: KeyboardPluginFactory } = await import('../../simpleMidiKeyboard/index.js');
 	const keyboardPluginInstance = await KeyboardPluginFactory.createInstance(audioContext);
 
