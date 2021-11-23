@@ -10,7 +10,6 @@
 
 /** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('../../api').AudioWorkletProcessor} AudioWorkletProcessor */
-/** @typedef {import('../../api').WamNodeOptions} WamNodeOptions */
 /** @typedef {import('../../api').WamProcessor} WamProcessor */
 /** @typedef {import('../../api').WamParameter} WamParameter */
 /** @typedef {import('../../sdk').WamParameterInterpolator} WamParameterInterpolator */
@@ -56,7 +55,9 @@ const getWamExampleProcessor = (moduleId) => {
 	/**
 	 * `WamExample`'s `AudioWorkletProcessor`
 	 *
+	 * @class
 	 * @extends {WamProcessor}
+	 * @implements {IWamExampleProcessor}
 	 */
 	class WamExampleProcessor extends WamProcessor {
 		/**

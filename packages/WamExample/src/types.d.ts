@@ -1,6 +1,5 @@
-
 import { WamSDKBaseModuleScope, WamParameterInterpolatorMap } from "../../sdk";
-import { AudioWorkletProcessor, WamParameterInfoMap, WamProcessor } from "../../api";
+import { WamParameterInfoMap, WamProcessor } from "../../api";
 
 interface WebAudioControlsWidget extends HTMLElement { value: number }
 
@@ -45,7 +44,6 @@ export interface WamExampleEffectConfig {
     numChannels?: number;
     inPlace?: boolean;
     lowpassFrequencyHz?: number;
-
 }
 
 export interface WamExampleEffect {
