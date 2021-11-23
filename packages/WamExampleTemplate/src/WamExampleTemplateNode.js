@@ -4,7 +4,12 @@
 /** @typedef {import('../../api').WamEventType} WamEventType */
 /** @typedef {import('./Gui/index').WamExampleTemplateHTMLElement} WamExampleTemplateHTMLElement */
 
+import addFunctionModule from '../../sdk/src/addFunctionModule.js';
 import WamNode from '../../sdk/src/WamNode.js';
+
+import getWamExampleTemplateSynth from './WamExampleTemplateSynth.js';
+import getWamExampleTemplateEffect from './WamExampleTemplateEffect.js';
+import getWamExampleTemplateProcessor from './WamExampleTemplateProcessor.js';
 
 /* eslint-disable no-empty-function */
 /* eslint-disable no-unused-vars */
@@ -23,13 +28,14 @@ export default class WamExampleTemplateNode extends WamNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} baseURL
+	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL) {
-		await super.addModules(audioContext, baseURL);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateSynth.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateEffect.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/WamExampleTemplateProcessor.js`);
+	static async addModules(audioContext, moduleId) {
+		const { audioWorklet } = audioContext;
+		await super.addModules(audioContext, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateSynth, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateEffect, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateProcessor, moduleId);
 	}
 
 	/**
