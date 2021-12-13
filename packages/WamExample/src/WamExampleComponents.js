@@ -8,15 +8,12 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
-import { WamExampleDcBlockerFilter } from './types';
-
 /** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').WamExampleModuleScope} WamExampleModuleScope */
 /** @typedef {import('./types').WamExampleLowpassFilter} IWamExampleLowpassFilter */
 /** @typedef {typeof import('./types').WamExampleLowpassFilter} WamExampleLowpassFilterConstructor */
 /** @typedef {import('./types').WamExampleDcBlockerFilter} IWamExampleDcBlockerFilter */
 /** @typedef {typeof import('./types').WamExampleDcBlockerFilter} WamExampleDcBlockerFilterConstructor */
-
 
 /**
  * @param {string} groupId
