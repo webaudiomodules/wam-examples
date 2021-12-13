@@ -39,7 +39,7 @@ export default class OBXDPlugin extends WebAudioModule
 	 * @param {any} initialState
 	 */
 	async createAudioNode (initialState) {
-		const template = await OBXDNode.addModules(this.audioContext, this.groupId, this.moduleId);
+		const template = await OBXDNode.addModules(this.audioContext, this.moduleId);
 		const node = new OBXDNode(this, template, initialState);
 		await node._initialize();
 		return node;

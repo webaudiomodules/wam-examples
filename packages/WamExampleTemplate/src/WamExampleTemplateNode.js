@@ -28,15 +28,14 @@ export default class WamExampleTemplateNode extends WamNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} groupId
 	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, groupId, moduleId) {
+	static async addModules(audioContext, moduleId) {
 		const { audioWorklet } = audioContext;
-		await super.addModules(audioContext, groupId, moduleId);
-		await addFunctionModule(audioWorklet, getWamExampleTemplateSynth, groupId, moduleId);
-		await addFunctionModule(audioWorklet, getWamExampleTemplateEffect, groupId, moduleId);
-		await addFunctionModule(audioWorklet, getWamExampleTemplateProcessor, groupId, moduleId);
+		await super.addModules(audioContext, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateSynth, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateEffect, moduleId);
+		await addFunctionModule(audioWorklet, getWamExampleTemplateProcessor, moduleId);
 	}
 
 	/**

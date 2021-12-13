@@ -19,18 +19,17 @@
 /** @typedef {import('./types').WamExampleDcBlockerFilter} IWamExampleDcBlockerFilter */
 
 /**
- * @param {string} groupId
  * @param {string} moduleId
  * @returns {WamExampleEffectConstructor}
  */
- const getWamExampleEffect = (groupId, moduleId) => {
+ const getWamExampleEffect = (moduleId) => {
 
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 
 	/** @type {WamExampleModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	const {
 		WamParameterInfo,
 		WamExampleComponents,

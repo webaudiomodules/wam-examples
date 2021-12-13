@@ -14,13 +14,13 @@ export class OBXDNode extends WamNode
 {
   // -- scripts need to be loaded first, and in order
   //
-  static async addModules(actx, groupId, moduleId) {
+  static async addModules(actx, moduleId) {
     const baseUrl = import.meta.url;
-    await super.addModules(actx, groupId, moduleId);
-    await addFunctionModule(actx.audioWorklet, initObxdWasm, groupId, moduleId);
-    await addFunctionModule(actx.audioWorklet, initObxdEmsc, groupId, moduleId);
-    await addFunctionModule(actx.audioWorklet, getWasmProcessor, groupId, moduleId);
-    await addFunctionModule(actx.audioWorklet, initObxdProcessor, groupId, moduleId);
+    await super.addModules(actx, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdWasm, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdEmsc, moduleId);
+    await addFunctionModule(actx.audioWorklet, getWasmProcessor, moduleId);
+    await addFunctionModule(actx.audioWorklet, initObxdProcessor, moduleId);
     const resp = await fetch(new URL("./obxd-gui.html", baseUrl).href);
     const html = await resp.text();
     const template = document.createElement("template");

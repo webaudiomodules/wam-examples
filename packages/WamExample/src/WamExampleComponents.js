@@ -16,20 +16,19 @@
 /** @typedef {typeof import('./types').WamExampleDcBlockerFilter} WamExampleDcBlockerFilterConstructor */
 
 /**
- * @param {string} groupId
  * @param {string} moduleId
  * @returns {{
  * 	WamExampleLowpassFilter: WamExampleLowpassFilterConstructor, 
  * 	WamExampleDcBlockerFilter: WamExampleDcBlockerFilterConstructor
  * }}
  */
-const getWamExampleComponenents = (groupId, moduleId) => {
+const getWamExampleComponenents = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 
 	/** @type {WamExampleModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 	const twoPi = 2.0 * Math.PI;
 
