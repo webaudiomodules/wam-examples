@@ -454,7 +454,10 @@ export default class WamExampleHTMLElement extends HTMLElement {
 		/** @type {HTMLDivElement} */
 		const driveColorMixer = this.shadowRoot.querySelector('#drive-color-mixer');
 		if (bypass.value) driveColorMixer.style.backgroundColor = grayLight;
-		else driveColorMixer.style.animationDelay = `-${drive.value}s`;
+		else {
+			driveColorMixer.style.animationDelay = `-${drive.value}s`;
+			driveColorMixer.style.background = 'currentColor';
+		}
 		const driveColor = getComputedStyle(driveColorMixer).backgroundColor;
 
 		const { synthLevels, effectLevels } = this.plugin.audioNode.levels;
