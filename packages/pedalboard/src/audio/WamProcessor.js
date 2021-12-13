@@ -9,9 +9,10 @@
 //@ts-check
 
 /**
- * @param {string} processorId
+ * @param {string} groupId
+ * @param {string} moduleId
  */
-const processor = (processorId) => {
+const processor = (groupId, moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	// eslint-disable-next-line no-undef
@@ -30,7 +31,8 @@ const processor = (processorId) => {
 			super(options);
 			this.destroyed = false;
 			const { instanceId, pluginList } = options.processorOptions;
-			this.moduleId = processorId;
+			this.groupId = groupId;
+			this.moduleId = moduleId;
 			this.instanceId = instanceId;
 			/** @type {WamEvent[]} */
 			this.eventQueue = [];
@@ -41,7 +43,7 @@ const processor = (processorId) => {
 			/** @type {Record<string, IWamProcessor>} */
 			this._processors = {};
 
-			audioWorkletGlobalScope.webAudioModules.create(this);
+			audioWorkletGlobalScope.webAudioModules.addWam(this);
 
 			this.updatePluginList(pluginList);
 
@@ -139,7 +141,7 @@ const processor = (processorId) => {
 		 * @param {number} [output]
 		 */
 		connectEvents(toId, output) {
-			webAudioModules.connectEvents(this.instanceId, toId, output);
+			webAudioModules.connectEvents(this.groupId, this.instanceId, toId, output);
 		}
 
 		/**
@@ -147,7 +149,7 @@ const processor = (processorId) => {
 		 * @param {number} [output]
 		 */
 		disconnectEvents(toId, output) {
-			webAudioModules.disconnectEvents(this.instanceId, toId, output);
+			webAudioModules.disconnectEvents(this.groupId, this.instanceId, toId, output);
 		}
 		
 		/**
@@ -185,13 +187,13 @@ const processor = (processorId) => {
 		}
 
 		destroy() {
-			audioWorkletGlobalScope.webAudioModules.destroy(this);
+			audioWorkletGlobalScope.webAudioModules.removeWam(this);
 			this.destroyed = true;
 			this.port.close();
 		}
 	}
 	try {
-		registerProcessor(processorId, WamProcessor);
+		registerProcessor(moduleId, WamProcessor);
 	} catch (error) {
 		// eslint-disable-next-line no-console
 		console.warn(error);

@@ -31,7 +31,7 @@ export default class WamExamplePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		// DSP is implemented in WamExampleProcessor.
-		await WamExampleNode.addModules(this.audioContext, this.moduleId);
+		await WamExampleNode.addModules(this.audioContext, this.groupId, this.moduleId);
 		const wamExampleNode = new WamExampleNode(this, {});
 		await wamExampleNode._initialize();
 

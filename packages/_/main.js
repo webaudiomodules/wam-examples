@@ -39,6 +39,8 @@ let liveInputGainNode;
 
 let isWamEnvSet = false;
 
+const hostGroupId = 'test-host';
+
 /**
  * @param {AudioContext} audioContext
  */
@@ -47,10 +49,15 @@ const initWamEnv = async (audioContext) => {
 	const { default: addFunctionModule } = await import("../sdk/src/addFunctionModule.js");
 	const { default: initializeWamEnv } = await import("../sdk/src/WamEnv.js");
 	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	const { default: initializeWamGroup } = await import("../sdk/src/WamGroup.js");
+	const key = performance.now().toString();
+	await addFunctionModule(audioContext.audioWorklet, initializeWamGroup, hostGroupId, key);
+
 	isWamEnvSet = true;
+	return key;
 };
 
-initWamEnv(audioContext);
+const hostGroupKey = initWamEnv(audioContext);
 
 /**
  * Very simple function to connect the plugin audionode to the host
@@ -122,7 +129,7 @@ const keyboardContainer = document.getElementById('midiKeyboard');
 const setMidiPlugin = async (pluginUrl) => {
 	const { default: Wam } = await import(pluginUrl);
 	/** @type {WebAudioModule} */
-	const keyboardPlugin = await Wam.createInstance(audioContext);
+	const keyboardPlugin = await Wam.createInstance(hostGroupId, audioContext);
 	if (keyboardPluginAudioNode) {
 		if (currentPluginAudioNode) {
 			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode.instanceId);
@@ -270,7 +277,7 @@ const setPlugin = async (pluginUrl) => {
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
 	/** @type {WebAudioModule} */
-	const instance = await WAM.createInstance(audioContext);
+	const instance = await WAM.createInstance(hostGroupId, audioContext);
 	window.instance = instance;
 
 	// Connect the audionode to the host

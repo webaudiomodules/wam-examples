@@ -115,11 +115,11 @@ export default class WamNode extends AudioWorkletNode {
 		this.pedalboardNode.addEventListener('change', this.handlePedalboardChange);
 	}
 
+	get groupId() { return this.module.groupId; }
+
 	get moduleId() { return this.module.moduleId; }
 
 	get instanceId() { return this.module.instanceId; }
-
-	get processorId() { return this.moduleId; }
 
 	/**
 	 * @param {string[]} parameterIds

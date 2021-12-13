@@ -8,6 +8,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable max-classes-per-file */
 
+import { WamExampleDcBlockerFilter } from './types';
+
 /** @typedef {import('../../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').WamExampleModuleScope} WamExampleModuleScope */
 /** @typedef {import('./types').WamExampleLowpassFilter} IWamExampleLowpassFilter */
@@ -15,13 +17,22 @@
 /** @typedef {import('./types').WamExampleDcBlockerFilter} IWamExampleDcBlockerFilter */
 /** @typedef {typeof import('./types').WamExampleDcBlockerFilter} WamExampleDcBlockerFilterConstructor */
 
-const getWamExampleComponenents = (moduleId) => {
+
+/**
+ * @param {string} groupId
+ * @param {string} moduleId
+ * @returns {{
+ * 	WamExampleLowpassFilter: WamExampleLowpassFilterConstructor, 
+ * 	WamExampleDcBlockerFilter: WamExampleDcBlockerFilterConstructor
+ * }}
+ */
+const getWamExampleComponenents = (groupId, moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 
 	/** @type {WamExampleModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
 
 	const twoPi = 2.0 * Math.PI;
 

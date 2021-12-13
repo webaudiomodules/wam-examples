@@ -28,10 +28,11 @@
 /** @typedef {import('./types').WamExampleSynth} IWamExampleSynth */
 
 /**
- * @param {string} [moduleId]
+ * @param {string} groupId
+ * @param {string} moduleId
  * @returns {WamExampleProcessorConstructor}
  */
-const getWamExampleProcessor = (moduleId) => {
+const getWamExampleProcessor = (groupId, moduleId) => {
 
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
@@ -39,7 +40,7 @@ const getWamExampleProcessor = (moduleId) => {
 	const { registerProcessor } = audioWorkletGlobalScope;
 
 	/** @type {WamExampleModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
 	const {
 		RingBuffer,
 		WamArrayRingBuffer,
