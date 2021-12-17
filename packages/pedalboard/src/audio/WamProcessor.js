@@ -4,7 +4,9 @@
  * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
  * @typedef {import('@webaudiomodules/api').WamInfoData} WamInfoData
+ * @typedef {import('@webaudiomodules/sdk').WamGroup} WamGroup
  * @typedef {import('@webaudiomodules/sdk-parammgr/src/TypedAudioWorklet').AudioWorkletGlobalScope} AudioWorkletGlobalScope
+ * @typedef {InstanceType<ReturnType<import('./WamEventDestinationProcessor').default>>} WamEventDestinationProcessor
  */
 //@ts-check
 
@@ -25,12 +27,12 @@ const processor = (groupId, moduleId) => {
 	class WamProcessor extends AudioWorkletProcessor {
 		/**
 		 * @param {Omit<AudioWorkletNodeOptions, 'processorOptions'>
-		 * & { processorOptions: WamNodeOptions & { pluginList: string[] } }} options
+		 * & { processorOptions: WamNodeOptions & { pluginList: string[]; subgroupKey: string; destinationId: string } }} options
 		 */
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
-			const { instanceId, pluginList } = options.processorOptions;
+			const { instanceId, pluginList, subgroupKey, destinationId } = options.processorOptions;
 			this.groupId = groupId;
 			this.moduleId = moduleId;
 			this.instanceId = instanceId;
@@ -44,6 +46,14 @@ const processor = (groupId, moduleId) => {
 			this._processors = {};
 
 			audioWorkletGlobalScope.webAudioModules.addWam(this);
+			/** @type {WamGroup} */
+			// @ts-ignore
+			this.subgroup = webAudioModules.getGroup(this.instanceId, subgroupKey);
+
+			/** @type {WamEventDestinationProcessor} */
+			// @ts-ignore
+			this.destination = this.subgroup.processors.get(destinationId);
+			this.destination.onEmitEvents = (...events) => this.selfScheduleEvents(...events);
 
 			this.updatePluginList(pluginList);
 
@@ -129,7 +139,15 @@ const processor = (groupId, moduleId) => {
 		emitEvents(...events) {
 			this.call("eventEmitted", ...events);
 			if (!this.pluginList.length) return;
-			webAudioModules.emitEvents(this, ...events.filter((e) => e.type !== "wam-info"));
+			const first = this.subgroup.processors.get(this.pluginList[0]);
+			webAudioModules.emitEvents(first, ...events.filter((e) => e.type !== "wam-info"));
+		}
+
+		/**
+		 * @param {WamEvent[]} events
+		 */
+		selfScheduleEvents(...events) {
+			webAudioModules.emitEvents(this, ...events);
 		}
 
 		clearEvents() {

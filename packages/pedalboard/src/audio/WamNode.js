@@ -1,6 +1,7 @@
 /**
  * @typedef {import('@webaudiomodules/api').WamNode} IWamNode
  * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
+ * @typedef {import('../index').default} PedalboardPlugin
  * @typedef {import('./PedalboardAudioNode').default} PedalboardAudioNode
  * @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo
  * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
@@ -21,17 +22,19 @@ const WamParameterInfo = getWamParameterInfo();
  */
 export default class WamNode extends AudioWorkletNode {
 	/**
-	 * @param {WebAudioModule} module
+	 * @param {PedalboardPlugin} module
 	 * @param {PedalboardAudioNode} pedalboardNode
 	 */
 	constructor(module, pedalboardNode) {
-		const { audioContext, moduleId, instanceId } = module;
+		const { audioContext, moduleId, instanceId, subgroupKey, destination } = module;
 		const pluginList = pedalboardNode.pluginList.map((p) => p.instance.instanceId);
 		const options = {
 			processorOptions: {
 				moduleId,
 				instanceId,
 				pluginList,
+				subgroupKey,
+				destinationId: destination.instanceId,
 			},
 		};
 		super(audioContext, moduleId, options);
@@ -110,9 +113,10 @@ export default class WamNode extends AudioWorkletNode {
 			await this._call('setCompensationDelay', await this.getCompensationDelay());
 			/** @type {CustomEvent<WamInfoEvent>} */
 			const wamInfoEvent = new CustomEvent('wam-info', { detail: { type: 'wam-info', data, time: this.context.currentTime } });
-			this.pedalboardNode.dispatchEvent(wamInfoEvent);
+			this.dispatchEvent(wamInfoEvent);
 		};
-		this.pedalboardNode.addEventListener('change', this.handlePedalboardChange);
+		// @ts-ignore
+		this.addEventListener('change', this.handlePedalboardChange);
 	}
 
 	get groupId() { return this.module.groupId; }
@@ -270,27 +274,11 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {string} toId
 	 * @param {number} [output]
 	 */
-	selfConnectEvents(toId, output) {
-		this._call("connectEvents", toId, output);
-	}
-
-	/**
-	 * @param {string} toId
-	 * @param {number} [output]
-	 */
 	connectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
 			last.instance.audioNode.connectEvents(toId, output);
 		}
-	}
-
-	/**
-	 * @param {string} toId
-	 * @param {number} [output]
-	 */
-	selfDisconnectEvents(toId, output) {
-		this._call("disconnectEvents", toId, output);
 	}
 
 	/**
@@ -306,7 +294,8 @@ export default class WamNode extends AudioWorkletNode {
 
 	async destroy() {
 		this.disconnect();
-		this.pedalboardNode.removeEventListener('change', this.handlePedalboardChange);
+		// @ts-ignore
+		this.removeEventListener('change', this.handlePedalboardChange);
 		await this._call('destroy');
 		this.port.close();
 	}
