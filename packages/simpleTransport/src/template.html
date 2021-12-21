@@ -1,0 +1,30 @@
+<div>
+    <select name="timeSigNumerator" id="timeSigNumerator">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+    </select>
+    <span> / </span>
+    <select name="timeSigDenominator" id="timeSigDenominator">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
+        <option value="16">16</option>
+    </select>
+    <span> @ </span>
+    <input type="number" name="tempo" id="tempo" value="60" min="1" max="480" step="1">
+    <button id="playing">Start</button>
+    <button id="rewind">Rewind</button>
+</div>
+<div>
+    <span>now </span>
+    <span id="bar">1</span>
+    <span>:</span>
+    <span id="beat">1</span>
+    <span>:</span>
+    <span id="tick">0</span>
+</div>
