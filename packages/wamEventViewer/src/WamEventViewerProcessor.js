@@ -18,8 +18,7 @@ const getWamEventViewerProcessor = (moduleId) => {
 	/** @type {WamSDKBaseModuleScope} */
 	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	const {
-		WamProcessor,
-		WamParameterInfo,
+		WamProcessor
 	} = ModuleScope;
 
     class WamEventViewerProcessor extends WamProcessor {

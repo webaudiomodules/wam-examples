@@ -1,0 +1,14 @@
+{
+  "name": "wam-midi-sequencer",
+  "version": "1.0.0",
+  "description": "MIDI Sequencer WAM",
+  "main": "dist/index.js",
+  "author": "WebAudioModules",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@tonejs/midi": "^2.0.27",
+    "esbuild": "^0.14.7",
+    "typescript": "^4.5.4"
+  }
+}

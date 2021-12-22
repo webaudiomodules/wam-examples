@@ -2,10 +2,7 @@
   "name": "root",
   "private": true,
   "devDependencies": {
-    "lerna": "^4.0.0",
-    "@webaudiomodules/api": "../api",
-    "@webaudiomodules/sdk": "../sdk",
-    "@webaudiomodules/sdk-parammgr": "../sdk-parammgr"
+    "lerna": "^4.0.0"
   },
   "scripts": {
     "submodules": "git submodule update --init --recursive --remote",
