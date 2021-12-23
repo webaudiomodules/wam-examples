@@ -6,8 +6,14 @@
   "author": "WebAudioModules",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "clean": "del-cli dist",
+    "build": "esbuild src/index.ts --target=esnext --bundle --sourcemap --outdir=dist --format=esm && cpy src/descriptor.json dist/ && cpy src/screenshot.png dist/"
+  },
   "devDependencies": {
     "@tonejs/midi": "^2.0.27",
+    "cpy-cli": "^3.1.1",
+    "del-cli": "^4.0.1",
     "esbuild": "^0.14.7",
     "typescript": "^4.5.4"
   }
