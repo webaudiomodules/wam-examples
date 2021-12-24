@@ -1,0 +1,11 @@
+{
+    "name": "MIDI Output",
+    "vendor": "WebAudioModule",
+    "description": "use WebMIDI API for output",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

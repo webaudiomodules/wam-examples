@@ -66,13 +66,13 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
                 for (let i = 0; i < 128; i++) {
                     controlChanges[i]?.forEach((cc) => {
                         const { number, value, time } = cc;
-                        this.orderedEvents.push({ time, data: [176 + channel, number, value] });
+                        this.orderedEvents.push({ time, data: [176 + channel, number, ~~(value * 127)] });
                     })
                 }
                 notes.forEach((note) => {
                     const { duration, time, midi, velocity } = note;
-                    this.orderedEvents.push({ time, data: [144 + channel, midi, velocity] });
-                    this.orderedEvents.push({ time: time + duration, data: [128 + channel, midi, velocity] });
+                    this.orderedEvents.push({ time, data: [144 + channel, midi, ~~(velocity * 127)] });
+                    this.orderedEvents.push({ time: time + duration, data: [144 + channel, midi, 0] });
                 });
                 pitchBends.forEach((pitchBend) => {
                     const { time, value } = pitchBend;
@@ -83,6 +83,7 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             this.orderedEvents.sort((a, b) => a.time - b.time);
         }
         goto(time: number) {
+            this.sendFlush();
             let $ = 0;
             this.timeOffset = Math.min(time, this.totalDuration);
             for (let i = 0; i < this.orderedEvents.length; i++) {
@@ -152,7 +153,9 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             const advanceTime = (endSample - startSample) / sampleRate;
             const { currentTime } = audioWorkletGlobalScope;
             const fromTime = currentTime + startSample / sampleRate;
-            this.playing = !!this._parameterInterpolators.playing.values[startSample];
+            const playing = !!this._parameterInterpolators.playing.values[startSample];
+            if (playing !== this.playing) this.sendFlush();
+            this.playing = playing;
             this.loop = !!this._parameterInterpolators.loop.values[startSample];
             this.advance(advanceTime, this.playing, this.loop, fromTime);
             this.updateTime();
