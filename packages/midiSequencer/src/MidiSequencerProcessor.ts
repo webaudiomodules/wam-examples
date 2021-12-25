@@ -154,7 +154,7 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             const { currentTime } = audioWorkletGlobalScope;
             const fromTime = currentTime + startSample / sampleRate;
             const playing = !!this._parameterInterpolators.playing.values[startSample];
-            if (playing !== this.playing) this.sendFlush();
+            if (playing !== this.playing && !playing) this.onMidi([176, 123, 0], currentTime); // All Notes Off
             this.playing = playing;
             this.loop = !!this._parameterInterpolators.loop.values[startSample];
             this.advance(advanceTime, this.playing, this.loop, fromTime);
