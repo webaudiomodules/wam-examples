@@ -1,6 +1,6 @@
-import { Midi, MidiJSON } from "@tonejs/midi";
 import { WamNode, addFunctionModule, WebAudioModule } from "@webaudiomodules/sdk";
 import { TypedAudioWorkletNode, TypedAudioWorkletNodeOptions } from "@webaudiomodules/sdk-parammgr";
+import parseMidi from "./MidiParser";
 import getMidiSequencerProcessor, { MsgIn as MsgOut, MsgOut as MsgIn, Parameters } from "./MidiSequencerProcessor";
 
 class MidiSequencerNode extends WamNode implements TypedAudioWorkletNode<MsgIn, MsgOut> {
@@ -28,12 +28,10 @@ class MidiSequencerNode extends WamNode implements TypedAudioWorkletNode<MsgIn, 
         };
 		this.port.addEventListener("message", this.handleMessage);
     }
-    loadFile(file: Uint8Array) {
-        const midi = new Midi(file);
-        const data = midi.toJSON();
-        this.totalDuration = midi.duration;
-        (data as MidiJSON & { duration: number }).duration = midi.duration;
-        this.port.postMessage({ type: "midiJson", data: data as MidiJSON & { duration: number } });
+    loadFile(file: ArrayBuffer) {
+        const data = parseMidi(file);
+        this.totalDuration = data.duration;
+        this.port.postMessage({ type: "midiJson", data });
     }
     goto(time: number) {
         this.port.postMessage({ type: "goto", data: time });

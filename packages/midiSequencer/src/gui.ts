@@ -38,7 +38,7 @@ class MidiSequencerElement extends HTMLElement {
     <span> / </span>
     <span id="total">00:00:00.000</span>
 </div>
-<input type="file" name="file" id="file" accept=".mid">
+<input type="file" name="file" id="file" accept=".mid, .midi">
 `;
 		this.root.appendChild($container);
         this.$slider = $container.querySelector<HTMLInputElement>("#slider");
@@ -63,7 +63,7 @@ class MidiSequencerElement extends HTMLElement {
             const file = this.$file.files[0];
             if (!file) return;
             const ab = await file.arrayBuffer();
-            module.audioNode.loadFile(new Uint8Array(ab));
+            module.audioNode.loadFile(ab);
         };
         this.destroyed = false;
         this.handleAnimationFrame = async () => {

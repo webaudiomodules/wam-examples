@@ -1,10 +1,10 @@
-import type { MidiJSON } from "@tonejs/midi";
 import type { WamParameterInfoMap } from "@webaudiomodules/api";
 import type { WamSDKBaseModuleScope } from "@webaudiomodules/sdk";
 import type { AudioWorkletGlobalScope, TypedMessageEvent } from "@webaudiomodules/sdk-parammgr";
+import type { MidiChannelEvent, MidiData } from "./MidiParser";
 
 export type Parameters = "playing" | "loop";
-export type MsgIn = { type: "midiJson"; data: MidiJSON & { duration: number } } | { type: "goto"; data: number };
+export type MsgIn = { type: "midiJson"; data: MidiData } | { type: "goto"; data: number };
 export type MsgOut = { type: "timeOffset"; data: number };
 const getMidiSequencerProcessor = (moduleId?: string) => {
     const audioWorkletGlobalScope = globalThis as unknown as AudioWorkletGlobalScope;
@@ -37,8 +37,8 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
         }
         playing = false;
         loop = false;
-        data: MidiJSON = null;
-        orderedEvents: { data: [number, number, number]; time: number }[] = [];
+        data: MidiData = null;
+        orderedEvents: { data: Uint8Array; time: number }[] = [];
         $event = 0;
         timeOffset = 0;
         totalDuration = 0;
@@ -54,7 +54,7 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             };
             this.port.addEventListener("message", this.handleMessage);
         }
-        setData(data: MidiJSON & { duration: number }) {
+        setData(data: MidiData) {
             this.sendFlush();
             this.data = data;
             this.orderedEvents = [];
@@ -62,24 +62,12 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             this.timeOffset = 0;
             this.totalDuration = data.duration;
             data.tracks.forEach((track) => {
-                const { channel, controlChanges, notes, pitchBends } = track;
-                for (let i = 0; i < 128; i++) {
-                    controlChanges[i]?.forEach((cc) => {
-                        const { number, value, time } = cc;
-                        this.orderedEvents.push({ time, data: [176 + channel, number, ~~(value * 127)] });
-                    })
-                }
-                notes.forEach((note) => {
-                    const { duration, time, midi, velocity } = note;
-                    this.orderedEvents.push({ time, data: [144 + channel, midi, ~~(velocity * 127)] });
-                    this.orderedEvents.push({ time: time + duration, data: [144 + channel, midi, 0] });
-                });
-                pitchBends.forEach((pitchBend) => {
-                    const { time, value } = pitchBend;
-                    const intValue = Math.round(value * Math.pow(2, 13));
-                    this.orderedEvents.push({ time, data: [224 + channel, intValue & 127, (intValue >> 7) & 127] });
-                });
-            })
+                track.forEach((event: MidiChannelEvent<any>) => {
+                    if (event.bytes) {
+                        this.orderedEvents.push({ time: event.time, data: event.bytes });
+                    }
+                })
+            });
             this.orderedEvents.sort((a, b) => a.time - b.time);
         }
         goto(time: number) {
@@ -93,8 +81,8 @@ const getMidiSequencerProcessor = (moduleId?: string) => {
             }
             this.$event = $;
         }
-        onMidi(data: [number, number, number], time: number) {
-            this.emitEvents({ type: "wam-midi", data: { bytes: data }, time })
+        onMidi(data: Uint8Array | number[], time: number) {
+            this.emitEvents({ type: "wam-midi", data: { bytes: [...data] as [number, number, number] }, time })
         }
         sendFlush() {
             const { currentTime } = audioWorkletGlobalScope;
