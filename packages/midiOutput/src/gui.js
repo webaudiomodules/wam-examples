@@ -35,7 +35,7 @@ class MidiOutputElement extends HTMLElement {
  * @param {import('./index').default} module
  */
 const createElement = (module) => {
-    const elementId = 'wam-simple-transport';
+    const elementId = 'wam-midi-output';
     if (!customElements.get(elementId)) {
         customElements.define(elementId, MidiOutputElement);
     }

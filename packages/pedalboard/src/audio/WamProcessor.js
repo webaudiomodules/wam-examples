@@ -53,7 +53,7 @@ const processor = (groupId, moduleId) => {
 			/** @type {WamEventDestinationProcessor} */
 			// @ts-ignore
 			this.destination = this.subgroup.processors.get(destinationId);
-			this.destination.onEmitEvents = (...events) => this.selfScheduleEvents(...events);
+			this.destination.onScheduleEvents = (...events) => this.selfEmitEvents(...events);
 
 			this.updatePluginList(pluginList);
 
@@ -146,7 +146,7 @@ const processor = (groupId, moduleId) => {
 		/**
 		 * @param {WamEvent[]} events
 		 */
-		selfScheduleEvents(...events) {
+		selfEmitEvents(...events) {
 			webAudioModules.emitEvents(this, ...events);
 		}
 
