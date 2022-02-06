@@ -1,20 +1,17 @@
 [submodule "packages/api"]
 	path = packages/api
-	# url = https://github.com/webaudiomodules/api
-	url = ../api
-	# branch = v2
-	branch = rfx-wam-env-group_api
+	url = https://github.com/webaudiomodules/api
+	# url = ../api
+	branch = v2
 [submodule "packages/sdk-parammgr"]
 	path = packages/sdk-parammgr
-	# url = https://github.com/webaudiomodules/sdk-parammgr
-	url = ../sdk-parammgr
-	# branch = master
-	branch = rfx-wam-env-group_sdk-parammgr
+	url = https://github.com/webaudiomodules/sdk-parammgr
+	# url = ../sdk-parammgr
+	branch = master
 [submodule "packages/sdk"]
 	path = packages/sdk
-	# url = https://github.com/webaudiomodules/sdk
-	url = ../sdk
-	# branch = master
-	branch = rfx-wam-env-group_sdk
+	url = https://github.com/webaudiomodules/sdk
+	# url = ../sdk
+	branch = master
 
 
