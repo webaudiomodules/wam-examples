@@ -9,14 +9,25 @@ const audioContext = new AudioContext();
 window.audioContext = audioContext;
 
 (async () => {
+	// Init WamEnv
+	const { default: apiVersion } = await import("../../api/src/version.js");
+	const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
+	const hostGroupId = 'test-host';
+	const hostGroupKey = performance.now().toString();
+	await addFunctionModule(audioContext.audioWorklet, initializeWamGroup, hostGroupId, hostGroupKey);
+
+	// Import WAM
 	const { default: KeyboardPluginFactory } = await import('../../simpleMidiKeyboard/index.js');
-	const keyboardPluginInstance = await KeyboardPluginFactory.createInstance(audioContext);
+	const keyboardPluginInstance = await KeyboardPluginFactory.createInstance(hostGroupId, audioContext);
 
 	const { default: PluginFactory } = await import('../src/index.js');
-	const pluginInstance = await PluginFactory.createInstance(audioContext);
+	const pluginInstance = await PluginFactory.createInstance(hostGroupId, audioContext);
 
 	const { default: SynthPluginFactory } = await import('../../tinySynth/src/index.js');
-	const synthPluginInstance = await SynthPluginFactory.createInstance(audioContext);
+	const synthPluginInstance = await SynthPluginFactory.createInstance(hostGroupId, audioContext);
 
 	window.keyboard = keyboardPluginInstance;
 	window.instance = pluginInstance;

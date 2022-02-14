@@ -11,8 +11,18 @@ import "./libs/keys.js"
 
 document.body.onload = async () =>
 {
+  // Init WamEnv
+	const { default: apiVersion } = await import("../api/src/version.js");
+	const { default: addFunctionModule } = await import("../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	const { default: initializeWamGroup } = await import("../sdk/src/WamGroup.js");
+	const hostGroupId = 'test-host';
+	const hostGroupKey = performance.now().toString();
+	await addFunctionModule(audioContext.audioWorklet, initializeWamGroup, hostGroupId, hostGroupKey);
+
   let actx = new AudioContext();
-	let plug = await OBXDPlugin.createInstance(actx);
+	let plug = await OBXDPlugin.createInstance(hostGroupId, actx);
 
   // -- synth
   let node = plug.audioNode;

@@ -1,8 +1,9 @@
-/* eslint-disable no-underscore-dangle */
 /**
  * @typedef {import('@webaudiomodules/api').WamNode} IWamNode
  * @typedef {import('@webaudiomodules/sdk').WebAudioModule} WebAudioModule
+ * @typedef {import('../index').default} PedalboardPlugin
  * @typedef {import('./PedalboardAudioNode').default} PedalboardAudioNode
+ * @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo
  * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap
  * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
@@ -12,24 +13,28 @@
  * @typedef {import('@webaudiomodules/api').WamParameterConfiguration} WamParameterConfiguration
  */
 //@ts-check
-import { WamParameterInfo } from '@webaudiomodules/sdk';
+import { getWamParameterInfo } from '@webaudiomodules/sdk';
+
+const WamParameterInfo = getWamParameterInfo();
 /**
  * @implements {IWamNode}
  * @implements {AudioWorkletNode}
  */
 export default class WamNode extends AudioWorkletNode {
 	/**
-	 * @param {WebAudioModule} module
+	 * @param {PedalboardPlugin} module
 	 * @param {PedalboardAudioNode} pedalboardNode
 	 */
 	constructor(module, pedalboardNode) {
-		const { audioContext, moduleId, instanceId } = module;
+		const { audioContext, moduleId, instanceId, subgroupKey, destination } = module;
 		const pluginList = pedalboardNode.pluginList.map((p) => p.instance.instanceId);
 		const options = {
 			processorOptions: {
 				moduleId,
 				instanceId,
 				pluginList,
+				subgroupKey,
+				destinationId: destination.instanceId,
 			},
 		};
 		super(audioContext, moduleId, options);
@@ -105,18 +110,20 @@ export default class WamNode extends AudioWorkletNode {
 			const data = { instanceId: this.instanceId };
 			await this._call('updatePluginList', workletPluginList);
 			await this._call('updateParameterInfo', data);
+			await this._call('setCompensationDelay', await this.getCompensationDelay());
 			/** @type {CustomEvent<WamInfoEvent>} */
 			const wamInfoEvent = new CustomEvent('wam-info', { detail: { type: 'wam-info', data, time: this.context.currentTime } });
-			this.pedalboardNode.dispatchEvent(wamInfoEvent);
+			this.dispatchEvent(wamInfoEvent);
 		};
-		this.pedalboardNode.addEventListener('change', this.handlePedalboardChange);
+		// @ts-ignore
+		this.addEventListener('change', this.handlePedalboardChange);
 	}
+
+	get groupId() { return this.module.groupId; }
 
 	get moduleId() { return this.module.moduleId; }
 
 	get instanceId() { return this.module.instanceId; }
-
-	get processorId() { return this.moduleId; }
 
 	/**
 	 * @param {string[]} parameterIds
@@ -218,6 +225,19 @@ export default class WamNode extends AudioWorkletNode {
 		return delay;
 	}
 
+	/**
+	 * @param {WamEvent[]} events
+	 */
+	eventEmitted(...events) {
+		events.forEach((event) => {
+			const { type } = event;
+			this.dispatchEvent(new CustomEvent(type, {
+				bubbles: true,
+				detail: event,
+			}));
+		})
+	}
+
 	/** @param {WamEvent} event */
 	scheduleAutomationEvent(event) {
 		if (event.type === 'wam-automation') {
@@ -251,30 +271,31 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {IWamNode} to
+	 * @param {string} toId
 	 * @param {number} [output]
 	 */
-	connectEvents(to, output) {
+	connectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
-			last.instance.audioNode.connectEvents(to, output);
+			last.instance.audioNode.connectEvents(toId, output);
 		}
 	}
 
 	/**
-	 * @param {IWamNode} [to]
+	 * @param {string} [toId]
 	 * @param {number} [output]
 	 */
-	disconnectEvents(to, output) {
+	disconnectEvents(toId, output) {
 		if (this.pedalboardNode.pluginList.length) {
 			const last = this.pedalboardNode.pluginList[this.pedalboardNode.pluginList.length - 1];
-			last.instance.audioNode.connectEvents(to, output);
+			last.instance.audioNode.connectEvents(toId, output);
 		}
 	}
 
 	async destroy() {
 		this.disconnect();
-		this.pedalboardNode.removeEventListener('change', this.handlePedalboardChange);
+		// @ts-ignore
+		this.removeEventListener('change', this.handlePedalboardChange);
 		await this._call('destroy');
 		this.port.close();
 	}

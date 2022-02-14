@@ -2,6 +2,7 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@types/webmidi": "^2.0.6",
     "lerna": "^4.0.0"
   },
   "scripts": {
@@ -13,12 +14,20 @@
     "build:csoundpitchshifter": "lerna run build --stream --scope csound-pitchshifter",
     "build:pedalboard": "lerna run build --stream --scope pedalboard",
     "build:synth101": "lerna run build --stream --scope synth101",
-    "build": "yarn build:csoundpitchshifter && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101 && yarn build:pedalboard",
+    "build:midisequencer": "lerna run build --stream --scope wam-midi-sequencer",
+    "build": "yarn build:csoundpitchshifter && yarn build:pingpongdelay && yarn build:quadrafuzz && yarn build:livegain && yarn build:synth101 && yarn build:pedalboard && yarn build:midisequencer",
     "start": "lerna run start --stream --scope host -- --color"
   },
   "workspaces": {
-    "packages": ["packages/*"],
-    "nohoist": ["**/api", "**/sdk", "**/sdk-parammgr", "**/sdk-parammgr/**"]
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/api",
+      "**/sdk",
+      "**/sdk-parammgr",
+      "**/sdk-parammgr/**"
+    ]
   },
   "dependencies": {}
 }

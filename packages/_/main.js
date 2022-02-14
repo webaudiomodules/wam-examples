@@ -37,6 +37,22 @@ let currentPluginDomNode;
 /** @type {GainNode} */
 let liveInputGainNode;
 
+let isWamEnvSet = false;
+
+const hostGroupId = 'test-host';
+
+/**
+ * @param {AudioContext} audioContext
+ */
+const initWamEnv = async (audioContext) => {
+	const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
+	const [, key] = await initializeWamHost(audioContext, hostGroupId);
+	isWamEnvSet = true;
+	return key;
+};
+
+initWamEnv(audioContext);
+
 /**
  * Very simple function to connect the plugin audionode to the host
  * @param {WamNode} audioNode
@@ -52,7 +68,7 @@ const connectPlugin = (audioNode) => {
 	if (currentPluginAudioNode) {
 		liveInputGainNode.disconnect();
 		if (keyboardPluginAudioNode) {
-			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode.instanceId);
 			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		if (currentPluginAudioNode.numberOfInputs) mediaElementSource.disconnect(currentPluginAudioNode);
@@ -72,7 +88,7 @@ const connectPlugin = (audioNode) => {
 
 	if (keyboardPluginAudioNode) {
 		if (audioNode.numberOfInputs) keyboardPluginAudioNode.connect(audioNode);
-		keyboardPluginAudioNode.connectEvents(audioNode);
+		keyboardPluginAudioNode.connectEvents(audioNode.instanceId);
 	}
 	if (audioNode.numberOfInputs) mediaElementSource.connect(audioNode);
 	audioNode.connect(audioContext.destination);
@@ -107,10 +123,10 @@ const keyboardContainer = document.getElementById('midiKeyboard');
 const setMidiPlugin = async (pluginUrl) => {
 	const { default: Wam } = await import(pluginUrl);
 	/** @type {WebAudioModule} */
-	const keyboardPlugin = await Wam.createInstance(audioContext);
+	const keyboardPlugin = await Wam.createInstance(hostGroupId, audioContext);
 	if (keyboardPluginAudioNode) {
 		if (currentPluginAudioNode) {
-			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode);
+			keyboardPluginAudioNode.disconnectEvents(currentPluginAudioNode.instanceId);
 			if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.disconnect(currentPluginAudioNode);
 		}
 		keyboardPluginAudioNode.destroy();
@@ -125,7 +141,7 @@ const setMidiPlugin = async (pluginUrl) => {
 	keyboardContainer.appendChild(currentKeyboardPluginDomNode);
 	if (keyboardPluginAudioNode && currentPluginAudioNode) {
 		if (currentPluginAudioNode.numberOfInputs) keyboardPluginAudioNode.connect(currentPluginAudioNode);
-		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode);
+		keyboardPluginAudioNode.connectEvents(currentPluginAudioNode.instanceId);
 	}
 };
 
@@ -255,7 +271,7 @@ const setPlugin = async (pluginUrl) => {
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
 	/** @type {WebAudioModule} */
-	const instance = await WAM.createInstance(audioContext);
+	const instance = await WAM.createInstance(hostGroupId, audioContext);
 	window.instance = instance;
 
 	// Connect the audionode to the host

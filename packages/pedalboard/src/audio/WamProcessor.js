@@ -1,19 +1,20 @@
-/* eslint-disable no-underscore-dangle */
 /**
  * @typedef {import('@webaudiomodules/api').WamProcessor} IWamProcessor
  * @typedef {import('@webaudiomodules/api').WamNodeOptions} WamNodeOptions
  * @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap
  * @typedef {import('@webaudiomodules/api').WamEvent} WamEvent
  * @typedef {import('@webaudiomodules/api').WamInfoData} WamInfoData
- * @typedef {import('@webaudiomodules/sdk-parammgr/src/TypedAudioWorklet')
- * .AudioWorkletGlobalScope} AudioWorkletGlobalScope
+ * @typedef {import('@webaudiomodules/sdk').WamGroup} WamGroup
+ * @typedef {import('@webaudiomodules/sdk-parammgr/src/TypedAudioWorklet').AudioWorkletGlobalScope} AudioWorkletGlobalScope
+ * @typedef {InstanceType<ReturnType<import('./WamEventDestinationProcessor').default>>} WamEventDestinationProcessor
  */
 //@ts-check
 
 /**
- * @param {string} processorId
+ * @param {string} groupId
+ * @param {string} moduleId
  */
-const processor = (processorId) => {
+const processor = (groupId, moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	// eslint-disable-next-line no-undef
@@ -26,18 +27,33 @@ const processor = (processorId) => {
 	class WamProcessor extends AudioWorkletProcessor {
 		/**
 		 * @param {Omit<AudioWorkletNodeOptions, 'processorOptions'>
-		 * & { processorOptions: WamNodeOptions & { pluginList: string[] } }} options
+		 * & { processorOptions: WamNodeOptions & { pluginList: string[]; subgroupKey: string; destinationId: string } }} options
 		 */
 		constructor(options) {
 			super(options);
 			this.destroyed = false;
-			const { instanceId, pluginList } = options.processorOptions;
-			this.moduleId = processorId;
+			const { instanceId, pluginList, subgroupKey, destinationId } = options.processorOptions;
+			this.groupId = groupId;
+			this.moduleId = moduleId;
 			this.instanceId = instanceId;
+			/** @type {WamEvent[]} */
+			this.eventQueue = [];
 			/** @type {string[]} */
 			this.pluginList = [];
+			/** @type {Map<IWamProcessor, Set<IWamProcessor>[]>} */
+			this._eventGraph = new Map();
+			/** @type {Record<string, IWamProcessor>} */
+			this._processors = {};
 
-			audioWorkletGlobalScope.webAudioModules.create(this);
+			audioWorkletGlobalScope.webAudioModules.addWam(this);
+			/** @type {WamGroup} */
+			// @ts-ignore
+			this.subgroup = webAudioModules.getGroup(this.instanceId, subgroupKey);
+
+			/** @type {WamEventDestinationProcessor} */
+			// @ts-ignore
+			this.destination = this.subgroup.processors.get(destinationId);
+			this.destination.onScheduleEvents = (...events) => this.selfEmitEvents(...events);
 
 			this.updatePluginList(pluginList);
 
@@ -89,61 +105,6 @@ const processor = (processorId) => {
 		 * @param {string[]} pluginListIn
 		 */
 		updatePluginList(pluginListIn) {
-			if (pluginListIn.length === this.pluginList.length
-				&& this.pluginList.every((v, i) => pluginListIn[i] === v)) return;
-			/** @type {[IWamProcessor, number][]} */
-			const upstreams = [];
-			/** @type {Set<IWamProcessor>[]} */
-			let downstreams = [];
-			const { eventGraph, processors } = webAudioModules;
-			if (this.pluginList.length) {
-				const oldFirst = processors[this.pluginList[0]];
-				const oldLast = processors[this.pluginList[this.pluginList.length - 1]];
-				if (oldLast && eventGraph.has(oldLast)) {
-					downstreams = eventGraph.get(oldLast);
-				}
-				if (oldFirst) {
-					eventGraph.forEach((v, upstream) => {
-						v.forEach((set, output) => {
-							if (set.has(oldFirst)) upstreams.push([upstream, output]);
-						});
-					});
-					if (this.pluginList[0] !== pluginListIn[0]) {
-						upstreams.forEach(([from, output]) => {
-							webAudioModules.disconnectEvents(from, oldFirst, output);
-						});
-					}
-				}
-				this.pluginList.forEach((id) => {
-					const from = processors[id];
-					if (from) {
-						webAudioModules.disconnectEvents(from);
-					}
-				});
-			}
-			if (pluginListIn.length) {
-				if (this.pluginList[0] !== pluginListIn[0]) {
-					const to = processors[pluginListIn[0]];
-					if (to) {
-						upstreams.forEach(([from, output]) => {
-							webAudioModules.connectEvents(from, to, output);
-						});
-					}
-				}
-				for (let i = 0; i < pluginListIn.length - 1; i += 1) {
-					const $from = pluginListIn[i];
-					const $to = pluginListIn[i + 1];
-					const from = processors[$from];
-					const to = processors[$to];
-					if (from && to) webAudioModules.connectEvents(from, to);
-				}
-				const last = processors[pluginListIn[pluginListIn.length - 1]];
-				if (last) {
-					downstreams.forEach((set) => set.forEach((to) => {
-						webAudioModules.connectEvents(last, to);
-					}));
-				}
-			}
 			this.pluginList = pluginListIn;
 		}
 
@@ -155,42 +116,60 @@ const processor = (processorId) => {
 			this.emitEvents({ type: 'wam-info', data, time: currentTime });
 		}
 
+		/**
+		 * @param {number} delay
+		 */
+		setCompensationDelay(delay) {
+			this._compensationDelay = delay;
+		}
 		getCompensationDelay() {
-			let delay = 0;
-			this.pluginList.forEach((id) => {
-				const p = webAudioModules.processors[id];
-				if (p) delay += p.getCompensationDelay();
-			});
-			return delay;
+			return this._compensationDelay;
 		}
 
 		/**
 		 * @param {WamEvent[]} events
 		 */
 		scheduleEvents(...events) {
-			if (!this.pluginList.length) return;
-			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
-			if (p) p.scheduleEvents(...events);
+			this.eventQueue.push(...events);
 		}
 
 		/**
 		 * @param {WamEvent[]} events
 		 */
 		emitEvents(...events) {
+			this.call("eventEmitted", ...events);
 			if (!this.pluginList.length) return;
-			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
-			if (p) p.emitEvents(...events);
+			const first = this.subgroup.processors.get(this.pluginList[0]);
+			webAudioModules.emitEvents(first, ...events.filter((e) => e.type !== "wam-info"));
+		}
+
+		/**
+		 * @param {WamEvent[]} events
+		 */
+		selfEmitEvents(...events) {
+			webAudioModules.emitEvents(this, ...events);
 		}
 
 		clearEvents() {
-			if (!this.pluginList.length) return;
-			const id = this.pluginList[0];
-			const p = webAudioModules.processors[id];
-			if (p) p.clearEvents();
+			this.eventQueue = [];
 		}
 
+		/**
+		 * @param {string} toId
+		 * @param {number} [output]
+		 */
+		connectEvents(toId, output) {
+			webAudioModules.connectEvents(this.groupId, this.instanceId, toId, output);
+		}
+
+		/**
+		 * @param {string} toId
+		 * @param {number} [output]
+		 */
+		disconnectEvents(toId, output) {
+			webAudioModules.disconnectEvents(this.groupId, this.instanceId, toId, output);
+		}
+		
 		/**
 		 * Main process
 		 *
@@ -201,21 +180,38 @@ const processor = (processorId) => {
 		// eslint-disable-next-line no-unused-vars
 		process(inputs, outputs, parameters) {
 			if (this.destroyed) return false;
+			const { currentTime, sampleRate } = audioWorkletGlobalScope;
+			let i = 0;
+			/** @type {WamEvent[]} */
+			const newEventQueue = [];
+			/** @type {WamEvent[]} */
+			const eventToEmit = [];
+			while (i < this.eventQueue.length) {
+				const event = this.eventQueue[i];
+				const offsetSec = event.time - currentTime;
+				const sampleIndex = offsetSec > 0 ? Math.round(offsetSec * sampleRate) : 0;
+				if (sampleIndex < outputs[0][0].length) {
+					eventToEmit.push(event);
+					this.eventQueue.splice(i, 1);
+					i = -1;
+				} else {
+					newEventQueue.push(event);
+				}
+				i++;
+			}
+			if (eventToEmit.length) this.emitEvents(...eventToEmit);
+			this.eventQueue = newEventQueue;
 			return true;
 		}
 
 		destroy() {
-			this.pluginList.forEach((id) => {
-				const p = webAudioModules.processors[id];
-				if (p) p.destroy();
-			});
-			audioWorkletGlobalScope.webAudioModules.destroy(this);
+			audioWorkletGlobalScope.webAudioModules.removeWam(this);
 			this.destroyed = true;
 			this.port.close();
 		}
 	}
 	try {
-		registerProcessor(processorId, WamProcessor);
+		registerProcessor(moduleId, WamProcessor);
 	} catch (error) {
 		// eslint-disable-next-line no-console
 		console.warn(error);

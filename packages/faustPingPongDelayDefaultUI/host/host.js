@@ -22,10 +22,15 @@ const mountPlugin = (domNode) => {
 };
 
 (async () => {
+	// Init WamEnv
+	const { default: initializeWamHost } = await import("../../sdk/src/initializeWamHost.js");
+	const [hostGroupId] = await initializeWamHost(audioContext);
+
+	// Import WAM
 	const { default: WAM } = await import('../index.js');
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const instance = await WAM.createInstance(audioContext);
+	const instance = await WAM.createInstance(hostGroupId, audioContext);
 
 	window.instance = instance;
 

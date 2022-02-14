@@ -22,21 +22,22 @@ const mountPlugin = (domNode) => {
 };
 
 (async () => {
-	// Load plugin from the url of its json descriptor
-	// Pass the option { noGui: true } to not load the GUI by default
-	// IMPORTANT NOTICE :
-	// In order to be able to load the plugin in this example host,
-	// you must add the plugin to the field webaudiomodules
-	// in the package.json. Example :
-	// "webaudiomodules": {
-	//     "pingpongdelay": "dist", // you should replace dist with the build directory of your plugin
-	//     "yourplugin": "dist"
-	// }
+	// Init WamEnv
+	const { default: apiVersion } = await import("../../api/src/version.js");
+	const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+	const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
+	const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
+	const hostGroupId = 'test-host';
+	const hostGroupKey = performance.now().toString();
+	await addFunctionModule(audioContext.audioWorklet, initializeWamGroup, hostGroupId, hostGroupKey);
+
+	// Import WAM
 	const { default: pluginFactory } = await import('./index.js');
 
 	// Create a new instance of the plugin
 	// You can can optionnally give more options such as the initial state of the plugin
-	const pluginInstance = await pluginFactory.createInstance(audioContext, {});
+	const pluginInstance = await pluginFactory.createInstance(hostGroupId, audioContext, {});
 
 	window.instance = pluginInstance;
 	// instance.enable();
