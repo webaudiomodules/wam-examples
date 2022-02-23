@@ -24,15 +24,10 @@ const Node = class extends AudioWorkletNode {
                 this.port.postMessage(r);
                 if (this._disposed) handleDisposed();
             } else {
-                if (error) {
-                    if (rejects[id]) rejects[id](error);
-                    delete rejects[id];
-                    return;
-                }
-                if (resolves[id]) {
-                    resolves[id](value);
-                    delete resolves[id];
-                }
+                if (error) rejects[id]?.(error);
+                else if (resolves[id]) resolves[id]?.(value);
+                delete resolves[id];
+                delete rejects[id];
             }
         };
         // eslint-disable-next-line

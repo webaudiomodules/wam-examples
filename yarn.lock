@@ -2237,6 +2237,13 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
+"@shren/fftw-js@^0.1.5":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@shren/fftw-js/-/fftw-js-0.1.5.tgz#868859f0952d9d92043f51b7bf06b045ec466996"
+  integrity sha512-/HSE7Sfcesb1xit+5sQqEy5splyJCAUfoauc5lVdYBGb6squ0TRtC5oZJyD1TqV2dehqMR2OzWK5qWPXm2MX+g==
+  dependencies:
+    esbuild "^0.14.2"
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.3.tgz#3802ddd21a50a949b6721ddd72da36e67e7f1b2d"
@@ -5361,11 +5368,6 @@ fb-watchman@^2.0.0:
   integrity sha512-DkPJKQeY6kKwmuMretBhr7G6Vodr7bFwDYTXIkfG1gjvNpaxBTQV3PbXg6bR1c1UP4jPOX0jHUbbHANL9vRjVg==
   dependencies:
     bser "2.1.1"
-
-fftw-js@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/fftw-js/-/fftw-js-0.1.4.tgz#16ad818ff6d2937ce014a5c81bbce5416e025bcf"
-  integrity sha512-Um5B7nR7yt1BliLZAoarQy+dBN0/n6MrSOvKSaIdWHAPg1CKEapoCNDr05z8CvviJQ3bzDpENAMyBFwxoL/NbA==
 
 figures@^3.0.0:
   version "3.2.0"
