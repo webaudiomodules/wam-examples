@@ -9,20 +9,26 @@ export default class TemplateWamNode extends CompositeAudioNode {
 	/**
 	 * Create all the nodes and setup the ParamMgr
 	 *
-	 * @param {import('./index').default} module
+	 * @param {import('./index.js').default} module
 	 */
 	async createNodes(module) {
-		const workletUrl = new URL('./midiProcessor.worklet.js', module._baseURL).href;
-		await module.audioContext.audioWorklet.addModule(workletUrl);
-		this.midiProcessorNode = new AudioWorkletNode(module.audioContext, '__WebAudioModule_TemplateMidiWamProcessor', { processorOptions: { proxyId: module.instanceId } });
+		this.gainNode = this.context.createGain();
+		this.delayNode = this.context.createDelay();
+		this.feedbackNode = this.context.createGain();
 
 		// Get all the parameters we need to control from the WAM API.
-		const setting1 = this.midiProcessorNode.parameters.get('setting1');
+		const gain = this.feedbackNode.gain;
+		const delay = this.delayNode.delayTime;
 
 		// Create a Parameter Manager that takes care of these parameters.
-		/** @type {import('../../sdk-parammgr').ParametersMappingConfiguratorOptions<'gain' | 'delay', 'gain' | 'delay'>} */
+		/** @type {import('../../sdk-parammgr/src').ParametersMappingConfiguratorOptions<'gain' | 'delay', 'gain' | 'delay'>} */
 		const optionsIn = {
-			internalParamsConfig: { setting1 }
+			// We need to customize a little bit.
+			paramsConfig: {
+				gain: { label: 'Feedback Gain', minValue: 0, maxValue: 1, defaultValue: 0.1 },
+				delay: { label: 'Delay Time', minValue: 0, maxValue: 1, defaultValue: 0.5 }
+			},
+			internalParamsConfig: { gain, delay }
 		};
 
 		this._wamNode = await ParamMgrFactory.create(module, optionsIn);
@@ -35,12 +41,11 @@ export default class TemplateWamNode extends CompositeAudioNode {
 	 */
 	async setup(module) {
 		await this.createNodes(module);
+		this.connect(this.gainNode);
+		this.gainNode.connect(this.delayNode);
+		this.delayNode.connect(this.feedbackNode);
+		this.feedbackNode.connect(this.gainNode);
 		// Assign the output at the end of the setup as this will change the behavior of `this.connect`.
-		this._output = this;
-	}
-
-	destroy() {
-		this.midiProcessorNode.parameters.get('destroyed').value = 1;
-		super.destroy();
+		this._output = this.gainNode;
 	}
 }

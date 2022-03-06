@@ -18,4 +18,4 @@ esm/
 .log*
 .cache
 lerna-debug.log
-packages/host/yarn-error.log
+yarn-error.log

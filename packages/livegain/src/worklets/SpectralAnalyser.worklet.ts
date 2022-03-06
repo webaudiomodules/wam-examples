@@ -1,16 +1,17 @@
 import apply from "window-function/apply";
 import { blackman, hamming, hann, triangular } from "window-function";
-import { RFFT } from "../utils/fftw";
+import instantiateFFTW, { FFT } from "@shren/fftw-js/dist/esm-bundle";
 import { setTypedArray, getSubTypedArray, indexToFreq, sum, centroid, estimateFreq, fftw2Amp, flatness, flux, kurtosis, rolloff, skewness, slope, spread } from "../utils/buffer";
 import { ceil, mod } from "../utils/math";
-import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "./TypedAudioWorklet";
+import { AudioWorkletGlobalScope, TypedAudioParamDescriptor, TypedAudioWorkletNodeOptions } from "./TypedAudioWorklet";
 import { ISpectralAnalyserProcessor, ISpectralAnalyserNode, SpectralAnalyserParameters, SpectralAnalysis } from "./SpectralAnalyserWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 import { windowEnergyFactor } from "../utils/windowEnergy";
 
 const processorID = "__WebAudioModule_LiveGain_SpectralAnalyser";
-declare const globalThis: AudioWorkletGlobalScope & { SharedArrayBuffer: typeof SharedArrayBuffer | typeof ArrayBuffer; Atomics: typeof Atomics };
-if (!globalThis.SharedArrayBuffer) globalThis.SharedArrayBuffer = ArrayBuffer;
+declare const globalThis: AudioWorkletGlobalScope & { SharedArrayBuffer: SharedArrayBufferConstructor; ArrayBuffer: ArrayBufferConstructor; window?: any; _scriptDir?: string };
+
+const SharedArrayBuffer: SharedArrayBufferConstructor = globalThis.SharedArrayBuffer || globalThis.ArrayBuffer as any;
 const { registerProcessor, sampleRate } = globalThis;
 
 /**
@@ -239,8 +240,10 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
     private dataFrames = 0;
     /** Samples that already written into window, but not analysed by FFT yet */
     private samplesWaiting = 0;
+    /** FFTW.js class */
+    private FFT: new (size: number) => FFT;
     /** FFTW.js instance */
-    private fftw = new RFFT(1024);
+    private fft: FFT;
     private _windowSize = 1024;
     get windowSize() {
         return this._windowSize;
@@ -269,8 +272,8 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
     set fftSize(sizeIn: number) {
         const fftSize = ~~ceil(Math.min(this._windowSize, Math.max(2, sizeIn || 1024)), 2);
         if (fftSize !== this._fftSize) {
-            this.fftw.dispose();
-            this.fftw = new RFFT(fftSize);
+            this.fft.dispose();
+            this.fft = new this.FFT(fftSize);
             this.samplesWaiting = 0;
             this.$readFrame = 0;
             this.$writeFrame = 0;
@@ -287,8 +290,29 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
     setWindowFunctionFromIndex(funcIn: number) {
         this.windowFunction = [blackman, hamming, hann, triangular][~~funcIn];
     }
+    private ready = false;
+    constructor(options?: TypedAudioWorkletNodeOptions) {
+        super(options);
+        this.init();
+    }
+    async init() {
+        const needWindow = !globalThis.window;
+        if (needWindow) {
+            // @ts-ignore
+            globalThis.window = {};
+            globalThis._scriptDir = "";
+        }
+        this.FFT = (await instantiateFFTW()).r2r.FFT1D;
+        this.fft = new this.FFT(this._windowSize);
+        if (needWindow) {
+            delete globalThis.window;
+            delete globalThis._scriptDir;
+        }
+        this.ready = true;
+    }
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<SpectralAnalyserParameters, Float32Array>) {
         if (this.destroyed) return false;
+        if (!this.ready) return true;
         const input = inputs[0];
         this.windowSize = ~~parameters.windowSize[0];
         this.fftSize = ~~parameters.fftSize[0];
@@ -366,7 +390,7 @@ class SpectralAnalyserProcessor extends AudioWorkletProxyProcessor<ISpectralAnal
                     const trunc = new Float32Array(fftSize);
                     setTypedArray(trunc, window, 0, $write - samplesWaiting + fftHopSize - fftSize);
                     apply(trunc, this._windowFunction);
-                    const ffted = this.fftw.forward(trunc);
+                    const ffted = this.fft.forward(trunc);
                     const amps = fftw2Amp(ffted, windowEnergyFactor.blackman);
                     this.fftWindow[i].set(amps, $writeFrame * fftBins);
                     $writeFrame = ($writeFrame + 1) % dataFrames;

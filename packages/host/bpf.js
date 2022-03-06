@@ -12,8 +12,8 @@
 /**
  * @typedef {{ points: TBPFPoint[]; ghostPoint: TBPFPoint; domain: number; range: [number, number]; defaultValue: number }} State
  * @typedef {[number, number, number]} TBPFPoint
- * @typedef {import("../api").WamNode} WamNode
- * @typedef {import("../api").WamParameter} WamParameter
+ * @typedef {import("../api/src").WamNode} WamNode
+ * @typedef {import("../api/src").WamParameter} WamParameter
  */
 const round = (x, to) => (Math.abs(to) < 1 ? Math.round(x * (1 / to)) / (1 / to) : Math.round(x / to) * to);
 const normExp = (x, e) => Math.max(0, x) ** (1.5 ** e);

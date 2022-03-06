@@ -35,20 +35,6 @@ class FaustCompositeAudioNode extends CompositeAudioNode {
 		if (this._output) this._output.destroy();
 	}
 
-	/**
-	 * @param {string} name
-	 */
-	getParamValue(name) {
-		return this._wamNode.getParamValue(name);
-	}
-
-	/**
-	 * @param {string} name
-	 * @param {number} value
-	 */
-	setParamValue(name, value) {
-		return this._wamNode.setParamValue(name, value);
-	}
 }
 
 /**
@@ -69,14 +55,6 @@ export default class FaustPingPongDelayPlugin extends WebAudioModule {
 	_baseURL = getBasetUrl(new URL('.', import.meta.url));
 
 	_descriptorUrl = `${this._baseURL}/descriptor.json`;
-
-	async _loadDescriptor() {
-		const url = this._descriptorUrl;
-		if (!url) throw new TypeError('Descriptor not found');
-		const response = await fetch(url);
-		const descriptor = await response.json();
-		Object.assign(this.descriptor, descriptor);
-	}
 
 	async initialize(state) {
 		await this._loadDescriptor();
