@@ -16,7 +16,7 @@ window.audioContext = audioContext;
 	await addFunctionModule(audioContext.audioWorklet, initializeWamEnv, apiVersion);
 	const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
 	const hostGroupId = 'test-host';
-	const hostGroupKey = performance.now().toString();
+	const hostGroupKey = 'group-key';
 	await addFunctionModule(audioContext.audioWorklet, initializeWamGroup, hostGroupId, hostGroupKey);
 
 	// Import WAM
@@ -33,9 +33,9 @@ window.audioContext = audioContext;
 	window.instance = pluginInstance;
 	window.synth = synthPluginInstance;
 
-	keyboardPluginInstance.audioNode.connectEvents(pluginInstance.audioNode);
+	keyboardPluginInstance.audioNode.connectEvents(pluginInstance.audioNode.instanceId);
 	// keyboardPluginInstance.audioNode.connect(pluginInstance.audioNode);
-	pluginInstance.audioNode.connectEvents(synthPluginInstance.audioNode);
+	pluginInstance.audioNode.connectEvents(synthPluginInstance.audioNode.instanceId);
 	// pluginInstance.audioNode.connect(synthPluginInstance.audioNode);
 	synthPluginInstance.audioNode.connect(audioContext.destination);
 

@@ -34,7 +34,7 @@ class TemplateMidiWamProcessor extends AudioWorkletProcessor {
     /** @type {import('../../sdk-parammgr').ParamMgrProcessor} */
 	get proxy() {
 		const { webAudioModules } = audioWorkletGlobalScope;
-		return webAudioModules?.processors[this.proxyId];
+		return webAudioModules?.getGroup('test-host', 'group-key').processors.get(this.proxyId);
 	}
 
 	/**
