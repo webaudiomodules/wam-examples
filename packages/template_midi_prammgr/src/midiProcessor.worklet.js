@@ -1,4 +1,6 @@
+//@ts-check
 /** @type {import('../../api').AudioWorkletGlobalScope} */
+// @ts-ignore
 const audioWorkletGlobalScope = globalThis;
 const { AudioWorkletProcessor, registerProcessor } = audioWorkletGlobalScope;
 
@@ -21,11 +23,9 @@ class TemplateMidiWamProcessor extends AudioWorkletProcessor {
 
 	constructor(options) {
 		super(options);
-        /**
-         * The ID of the ParamMgrProcessor/Proxy
-         * @type {string}
-         */
-		this.proxyId = options.processorOptions.proxyId;
+        const { moduleId, instanceId } = options.processorOptions;
+		this.moduleId = moduleId;
+        this.instanceId = instanceId;
 
         this.setting1 = TemplateMidiWamProcessor.parameterDescriptors[0].defaultValue;
 
@@ -34,7 +34,7 @@ class TemplateMidiWamProcessor extends AudioWorkletProcessor {
     /** @type {import('../../sdk-parammgr').ParamMgrProcessor} */
 	get proxy() {
 		const { webAudioModules } = audioWorkletGlobalScope;
-		return webAudioModules?.processors[this.proxyId];
+		return webAudioModules.getModuleScope(this.moduleId)?.paramMgrProcessors?.[this.instanceId];
 	}
 
 	/**

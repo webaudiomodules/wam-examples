@@ -33,9 +33,9 @@ window.audioContext = audioContext;
 	window.instance = pluginInstance;
 	window.synth = synthPluginInstance;
 
-	keyboardPluginInstance.audioNode.connectEvents(pluginInstance.audioNode);
+	keyboardPluginInstance.audioNode.connectEvents(pluginInstance.audioNode.instanceId);
 	// keyboardPluginInstance.audioNode.connect(pluginInstance.audioNode);
-	pluginInstance.audioNode.connectEvents(synthPluginInstance.audioNode);
+	pluginInstance.audioNode.connectEvents(synthPluginInstance.audioNode.instanceId);
 	// pluginInstance.audioNode.connect(synthPluginInstance.audioNode);
 	synthPluginInstance.audioNode.connect(audioContext.destination);
 
