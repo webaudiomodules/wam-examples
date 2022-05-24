@@ -1,5 +1,5 @@
 import { setTypedArray } from "../utils/buffer";
-import { AudioWorkletGlobalScope } from "./TypedAudioWorklet";
+import { AudioWorkletGlobalScope } from "@webaudiomodules/sdk-parammgr";
 import { ITransmitterProcessor, ITransmitterNode, TransmitterParameters } from "./TransmitterWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 

@@ -1,7 +1,7 @@
 import { rms, zcr, setTypedArray, absMax } from "../utils/buffer";
 import { mod } from "../utils/math";
 import yinEstimate from "../utils/yin";
-import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "./TypedAudioWorklet";
+import { AudioWorkletGlobalScope, TypedAudioParamDescriptor } from "@webaudiomodules/sdk-parammgr";
 import { ITemporalAnalyserProcessor, ITemporalAnalyserNode, TemporalAnalyserParameters, TemporalAnalysis } from "./TemporalAnalyserWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 

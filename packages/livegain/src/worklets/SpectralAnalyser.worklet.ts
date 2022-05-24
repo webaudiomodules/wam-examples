@@ -1,9 +1,9 @@
 import apply from "window-function/apply";
 import { blackman, hamming, hann, triangular } from "window-function";
 import instantiateFFTW, { FFT } from "@shren/fftw-js/dist/esm-bundle";
+import { AudioWorkletGlobalScope, TypedAudioParamDescriptor, TypedAudioWorkletNodeOptions } from "@webaudiomodules/sdk-parammgr";
 import { setTypedArray, getSubTypedArray, indexToFreq, sum, centroid, estimateFreq, fftw2Amp, flatness, flux, kurtosis, rolloff, skewness, slope, spread } from "../utils/buffer";
 import { ceil, mod } from "../utils/math";
-import { AudioWorkletGlobalScope, TypedAudioParamDescriptor, TypedAudioWorkletNodeOptions } from "./TypedAudioWorklet";
 import { ISpectralAnalyserProcessor, ISpectralAnalyserNode, SpectralAnalyserParameters, SpectralAnalysis } from "./SpectralAnalyserWorklet.types";
 import AudioWorkletProxyProcessor from "./AudioWorkletProxyProcessor";
 import { windowEnergyFactor } from "../utils/windowEnergy";

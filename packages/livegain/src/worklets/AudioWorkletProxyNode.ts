@@ -1,4 +1,4 @@
-import { TypedMessageEvent, MessagePortResponse, MessagePortRequest } from "./TypedAudioWorklet";
+import { TypedMessageEvent, MessagePortResponse, MessagePortRequest } from "@webaudiomodules/sdk-parammgr";
 import { AudioWorkletProxyNode } from "./AudioWorkletProxyNode.types";
 
 const Node = class extends AudioWorkletNode {

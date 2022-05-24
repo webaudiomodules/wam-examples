@@ -24,7 +24,7 @@ const processor = (moduleId) => {
 		 * @param {Omit<AudioWorkletNodeOptions, 'processorOptions'> & { processorOptions: WamNodeOptions } } options
 		 */
 		constructor(options) {
-			super(options);
+			super();
 			this.destroyed = false;
 			const { instanceId, groupId } = options.processorOptions;
 			this.groupId = groupId;

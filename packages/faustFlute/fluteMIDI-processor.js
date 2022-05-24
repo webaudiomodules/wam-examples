@@ -201,7 +201,7 @@ class fluteMIDIPolyProcessor extends AudioWorkletProcessor {
     
     constructor(options)
     {
-        super(options);
+        super();
         this.running = true;
         
         this.json_object = JSON.parse(getJSONfluteMIDI());

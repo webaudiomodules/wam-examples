@@ -609,7 +609,7 @@ let GuitarAmpSim60sProcessorString = `
        
         constructor(options)
         {
-            super(options);
+            super();
             this.running = true;
             
             const importObject = {
