@@ -43,12 +43,10 @@ export default class WamExampleTemplateNode extends WamNode {
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
-		options.processorOptions = {
-			numberOfInputs: 1,
-			numberOfOutputs: 1,
-			outputChannelCount: [2],
-			useSab: true,
-		};
+		options.numberOfInputs = 1;
+		options.numberOfOutputs = 1;
+		options.outputChannelCount = [2];
+		options.processorOptions = { useSab: true };
 		super(module, options);
 
 		/** @type {Set<WamEventType>} */
