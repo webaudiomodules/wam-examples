@@ -54,7 +54,13 @@ export default class RandomNotePlugin extends WebAudioModule {
 
 	async createAudioNode(initialState) {
 		await this.audioContext.audioWorklet.addModule(`${this._baseURL}/processor.worklet.js`);
-		const randomizerNode = new AudioWorkletNode(this.audioContext, '__WebAudioModule_RandomNoteProcessor', { processorOptions: { proxyId: this.instanceId } });
+		const randomizerOptions = {
+			processorOptions: {
+				moduleId: this.moduleId,
+				instanceId: this.instanceId
+			}
+		};
+		const randomizerNode = new AudioWorkletNode(this.audioContext, '__WebAudioModule_RandomNoteProcessor', randomizerOptions);
 
 		const node = new Node(this.audioContext);
 		const internalParamsConfig = Object.fromEntries(randomizerNode.parameters);

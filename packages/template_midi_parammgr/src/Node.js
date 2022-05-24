@@ -14,7 +14,13 @@ export default class TemplateWamNode extends CompositeAudioNode {
 	async createNodes(module) {
 		const workletUrl = new URL('./midiProcessor.worklet.js', module._baseURL).href;
 		await module.audioContext.audioWorklet.addModule(workletUrl);
-		this.midiProcessorNode = new AudioWorkletNode(module.audioContext, '__WebAudioModule_TemplateMidiWamProcessor', { processorOptions: { proxyId: module.instanceId } });
+		const midiProcessorOptions = {
+			processorOptions: {
+				moduleId: module.moduleId,
+				instanceId: module.instanceId
+			}
+		};
+		this.midiProcessorNode = new AudioWorkletNode(module.audioContext, '__WebAudioModule_TemplateMidiWamProcessor', midiProcessorOptions);
 
 		// Get all the parameters we need to control from the WAM API.
 		const setting1 = this.midiProcessorNode.parameters.get('setting1');
@@ -40,7 +46,7 @@ export default class TemplateWamNode extends CompositeAudioNode {
 	}
 
 	destroy() {
-		this.midiProcessorNode.parameters.get('destroyed').value = 1;
+		if (this.midiProcessorNode) this.midiProcessorNode.parameters.get('destroyed').value = 1;
 		super.destroy();
 	}
 }
