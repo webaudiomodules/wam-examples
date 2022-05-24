@@ -1,12 +1,7 @@
-/* eslint-disable max-len */
-/* eslint-disable no-undef */
-/** @typedef {import('../api').AudioWorkletProcessor} AudioWorkletProcessor */
 /** @typedef {import('../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @template T @typedef {import('../sdk-parammgr/src/TypedAudioWorklet').TypedAudioParamDescriptor} TypedAudioParamDescriptor */
 
 /** @typedef {'pause' | 'length' | 'pitchMin' | 'pitchMax' | 'velocityMin' | 'velocityMax' | 'destroyed'} P */
-
-//@ts-check
 
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
@@ -58,14 +53,18 @@ class RandomNoteProcessor extends AudioWorkletProcessor {
 
 	constructor(options) {
 		super(options);
-		this.proxyId = options.processorOptions.proxyId;
+        const { moduleId, instanceId } = options.processorOptions;
+		this.moduleId = moduleId;
+        this.instanceId = instanceId;
+
 		this.lastTime = null;
 		this.lastPitch = null;
 	}
 
+    /** @type {import('../../sdk-parammgr').ParamMgrProcessor} */
 	get proxy() {
 		const { webAudioModules } = audioWorkletGlobalScope;
-		return webAudioModules?.processors[this.proxyId];
+		return webAudioModules.getModuleScope(this.moduleId)?.paramMgrProcessors?.[this.instanceId];
 	}
 
 	/**
