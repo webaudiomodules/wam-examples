@@ -1,4 +1,4 @@
-import { AudioWorkletGlobalScope, MessagePortRequest, MessagePortResponse, TypedMessageEvent } from "./TypedAudioWorklet";
+import { AudioWorkletGlobalScope, MessagePortRequest, MessagePortResponse, TypedMessageEvent } from "@webaudiomodules/sdk-parammgr";
 import { AudioWorkletProxyProcessor } from "./AudioWorkletProxyProcessor.types";
 
 declare const globalThis: AudioWorkletGlobalScope;
@@ -7,8 +7,8 @@ const { AudioWorkletProcessor } = globalThis;
 const Processor = class extends AudioWorkletProcessor {
     static fnNames: string[] = [];
     _disposed = false;
-    constructor(options: AudioWorkletNodeOptions) {
-        super(options);
+    constructor() {
+        super();
         const resolves: Record<number, ((...args: any[]) => any)> = {};
         const rejects: Record<number, ((...args: any[]) => any)> = {};
         let messagePortRequestId = -1;

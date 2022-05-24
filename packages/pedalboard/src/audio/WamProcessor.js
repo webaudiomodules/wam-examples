@@ -30,7 +30,7 @@ const processor = (groupId, moduleId) => {
 		 * & { processorOptions: WamNodeOptions & { pluginList: string[]; subgroupKey: string; destinationId: string } }} options
 		 */
 		constructor(options) {
-			super(options);
+			super();
 			this.destroyed = false;
 			const { instanceId, pluginList, subgroupKey, destinationId } = options.processorOptions;
 			this.groupId = groupId;

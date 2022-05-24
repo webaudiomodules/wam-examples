@@ -1,3 +1,4 @@
+//@ts-check
 /** @typedef {import('../api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @template T @typedef {import('../sdk-parammgr/src/TypedAudioWorklet').TypedAudioParamDescriptor} TypedAudioParamDescriptor */
 
@@ -52,16 +53,16 @@ class RandomNoteProcessor extends AudioWorkletProcessor {
 	}
 
 	constructor(options) {
-		super(options);
-        const { moduleId, instanceId } = options.processorOptions;
+		super();
+		const { moduleId, instanceId } = options.processorOptions;
 		this.moduleId = moduleId;
-        this.instanceId = instanceId;
+		this.instanceId = instanceId;
 
 		this.lastTime = null;
 		this.lastPitch = null;
 	}
 
-    /** @type {import('../../sdk-parammgr').ParamMgrProcessor} */
+	/** @type {import('../sdk-parammgr').ParamMgrProcessor} */
 	get proxy() {
 		const { webAudioModules } = audioWorkletGlobalScope;
 		return webAudioModules.getModuleScope(this.moduleId)?.paramMgrProcessors?.[this.instanceId];

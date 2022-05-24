@@ -609,7 +609,7 @@ let TS9_OverdriveFaustGeneratedProcessorString = `
        
         constructor(options)
         {
-            super(options);
+            super();
             this.running = true;
             
             const importObject = {
