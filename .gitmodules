@@ -18,5 +18,5 @@
 	url = https://github.com/michael-marynowicz/TER.git
 [submodule "packages/TER"]
 	path = packages/PedalBoard-WAC2022
-	branch = main
+	branch = wam-exemples
 	url = https://github.com/michael-marynowicz/TER.git
