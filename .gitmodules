@@ -14,5 +14,8 @@
 	# url = ../sdk
 	branch = master
 [submodule "TER"]
+	path = TER
+	url = https://github.com/michael-marynowicz/TER.git
+[submodule "packages/TER"]
 	path = packages/PedalBoard-WAC2022
 	url = https://github.com/michael-marynowicz/TER.git
