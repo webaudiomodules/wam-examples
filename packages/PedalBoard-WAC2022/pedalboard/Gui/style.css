@@ -1,0 +1,253 @@
+:root {
+  --border-color: gray;
+  --text-color: black;
+  --bg-color: white;
+  --secondary-bg: dimgray;
+  --ternary-bg: black;
+}
+
+body {
+  width: min-content;
+  margin: 0;
+}
+
+main {
+  width: 1000px;
+  min-width: 500px;
+  resize: horizontal;
+  overflow: auto;
+  color: var(--text-color, black);
+  border: 1px solid var(--border-color, gray);
+  border-radius: 0.25rem;
+  font-family: "helvetica", sans-serif, cursive;
+}
+
+img {
+  max-height: 6rem;
+}
+
+#preview {
+  border: 1px solid var(--border-color, gray);
+  border-width: 0 1px 0 1px;
+  padding: 0.5em;
+  background-color: var(--bg-color, white);
+  overflow-x: auto;
+}
+
+#preview > div {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 0;
+}
+
+#board {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  height: 230px;
+  padding: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--border-color, gray);
+  border-width: 0 1px 1px 0;
+  background: var(--bg-color, white);
+  background-image: linear-gradient(var(--border-color, gray) 0.01rem, transparent 0.1em),
+    linear-gradient(90deg, var(--border-color, gray) 0.01rem, transparent 0.1em);
+  background-size: 3em 3em;
+}
+
+#board > * {
+  cursor: move;
+  flex-shrink: 0;
+}
+
+#presetsInfos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--border-color, gray);
+  border-width: 0 1px 0 1px;
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  background-color: var(--bg-color, white);
+  margin: 0;
+}
+
+#banks,
+#presets,
+#infos,
+#presetsInfos > h1 {
+  border-right: 1px solid var(--border-color, gray);
+  margin: 0;
+}
+
+#infos,
+#presetsInfos > h1:last-of-type {
+  border-right: none;
+}
+
+#banks,
+#presets,
+#infos {
+  border-top: none;
+  padding-bottom: 0.5rem;
+  max-height: 5em;
+  overflow-y: auto;
+}
+
+#presetsInfos > h1 {
+  border-bottom: none;
+  text-align: center;
+}
+
+li {
+  list-style-type: square;
+}
+
+.nodeArticle > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-style: solid;
+  background-color: black;
+  border-color: lightgray;
+  color: white;
+  box-sizing: border-box;
+}
+
+.nodeArticle > header > h2 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+}
+
+.nodeArticle > header > img {
+  filter: contrast(300%);
+  margin-right: 0.5rem;
+}
+
+.addBtn {
+  background-color: var(--bg-color, white);
+  border: 1px solid var(--border-color, gray);
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-color, black);
+}
+
+.addBtn:hover {
+  filter: brightness(0.95);
+}
+
+select {
+  background-color: var(--bg-color, white);
+  border: 1px solid var(--border-color, gray);
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.25em;
+  text-transform: uppercase;
+}
+
+input {
+  background-color: var(--bg-color, white);
+  border-color: var(--border-color, gray);
+}
+
+.presetElement,
+.bankElement {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.presetElement > span,
+.bankElement > span {
+  flex-grow: 1;
+}
+
+.presetElement > span > input,
+.bankElement > span > input {
+  width: 95%;
+}
+
+.listElementButton {
+  border: none;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+.flex-container {
+  list-style: none;
+  display: flex;
+  float: left;
+}
+
+.stretch {
+  -webkit-align-items: stretch;
+  align-items: stretch;
+}
+
+.flex-item {
+  text-align: center;
+}
+
+#dropZone {
+  display: inline-block;
+  align-self: center;
+  border: 5px dashed var(--border-color, gray);
+  width: 100px;
+  height: 220px;
+}
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color, white);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-bg, dimgray);
+  border-radius: 2rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ternary-bg, black);
+}
+
+#title {
+  text-align: center;
+  margin: 0;
+  background-color: var(--bg-color, white);
+  border: 1px solid var(--border-color, gray);
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+details {
+  background-color: var(--bg-color, WhiteSmoke);
+  border: 0;
+}
+
+details > summary {
+  border: 1px solid var(--border-color, gray);
+  border-width: 0 1px 0 1px;
+  user-select: none;
+  text-align: center;
+}
+
+details[open] > summary {
+  border-width: 0 1px 1px 1px;
+}
+
+details:last-child {
+  border: 1px solid var(--border-color, gray);
+  border-width: 0 0 1px 0;
+}
