@@ -13,5 +13,7 @@
 	url = https://github.com/webaudiomodules/sdk
 	# url = ../sdk
 	branch = master
-
-
+[submodule "packages/TER"]
+	path = packages/PedalBoard-WAC2022
+	branch = wam-exemples
+	url = https://github.com/michael-marynowicz/TER.git
