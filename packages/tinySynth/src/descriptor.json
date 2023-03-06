@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.tinysynth",
     "name": "TinySynth (no GUI)",
     "vendor": "WebAudioModule",
     "description": "TinySynth GM synthesizer without GUI",

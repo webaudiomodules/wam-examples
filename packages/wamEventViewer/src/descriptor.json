@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.wan_event_viewer",
     "name": "WAM Event Viewer",
     "vendor": "WebAudioModule",
     "description": "Display received events",

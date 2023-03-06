@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.template_midi_parammgr",
     "name": "TemplateMidiWamPMJS",
     "vendor": "WebAudioModule",
     "description": "Template MIDI WAM: ParamMgr + JS - build",

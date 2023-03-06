@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.spectrogram",
     "name": "Spectrogram",
     "vendor": "Shihong Ren",
     "description": "TypeScript/React Spectrogram WebAudioModule",

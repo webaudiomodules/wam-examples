@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.midisequencer",
     "name": "MIDI Sequencer",
     "vendor": "WebAudioModule",
     "description": "MIDI Sequencer (WAM events)",

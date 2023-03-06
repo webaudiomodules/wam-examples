@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.randomnote",
     "name": "Random Note Generator",
     "vendor": "WebAudioModule",
     "description": "Generate Random MIDI Notes",
