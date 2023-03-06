@@ -1,4 +1,5 @@
 {
+    "identifier": "org.webaudiomodules.wam-examples.quadrafuzz_nobuilder",
     "name": "Quadrafuzz (No builder)",
     "vendor": "WebAudioModule",
     "description": "Quadrafuzz written in native WebAudio nodes",
