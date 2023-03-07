@@ -232,3 +232,5 @@ and saving/loading your plugin's internal state.
 
 ## sdk
 A detailed description of the WAM SDK can be found in the [WIKI](https://github.com/53js/webaudiomodule/wiki/SDK-Overview).
+
+
