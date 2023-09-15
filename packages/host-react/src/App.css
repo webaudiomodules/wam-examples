@@ -1,0 +1,36 @@
+body > div.plugin-container {
+  position: absolute;
+  display: flex;
+  left: 30%;
+  top: 30%;
+  padding: 6px;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
+  box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.3);
+}
+body > div.plugin-container.hidden {
+  display: none;
+}
+body > div.plugin-container > span.plugin-container-title {
+  display: flex;
+  flex-direction: row;
+  padding: 2px;
+  color: white;
+  cursor: move;
+}
+
+body > div.plugin-container > span.plugin-container-title > span.plugin-container-name {
+  flex: 1 1 auto;
+  font-size: 12px;
+}
+
+body > div.plugin-container > span.plugin-container-title > button.ui.button {
+  flex: 0 0 auto;
+  box-shadow: none !important;
+  padding: 0px;
+
+}
+body > div.plugin-container > span.plugin-container-title > button.ui.button:hover, body > div.plugin-container > span.plugin-container-title > button.ui.button:focus {
+  box-shadow: none !important;
+}
