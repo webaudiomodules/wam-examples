@@ -55,7 +55,7 @@ class App extends React.PureComponent {
         <audio id="player" src={mp3Url} controls loop crossOrigin="anonymous" onPlay={this.handlePlay} ref={this.player}></audio>
         <div id="mount">
           {
-            this.state.plugin ? <PluginContainer index={0} name={'Name'} plugin={this.state.plugin} hidden={false} onClose={(index) => {}} /> : null
+            this.state.plugin ? <PluginContainer index={0} name={this.state.plugin.descriptor.name} plugin={this.state.plugin} hidden={false} onClose={(index) => {}} /> : null
           }
         </div>
       </>
