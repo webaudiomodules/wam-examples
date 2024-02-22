@@ -33,7 +33,7 @@ class FaustDefaultGui extends HTMLElement {
 			listenWindowResize: false,
 		});
 		this.faustUI.paramChangeByUI = (path, value) => {
-			wamNode.setParamValue(path, value);
+			wamNode.setParameterValues({ [path]: { value } });
 		};
 		faustNode.output_handler = (path, value) => this.faustUI.paramChangeByDSP(path, value);
 		$container.style.width = `${this.faustUI.minWidth}px`;
