@@ -19,6 +19,11 @@ class WamEventViewer extends WebAudioModule {
 	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
 	_templateUrl = `${this._baseUrl}/template.html`;
 
+	async initialize(state) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
+
     /**
      * @param {any} initialState
      */

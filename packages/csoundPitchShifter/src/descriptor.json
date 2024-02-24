@@ -1,11 +1,12 @@
 {
+    "identifier": "com.webaudiomodules.wam-examples.csound-pitchshifter",
     "name": "Csound PitchShifter",
     "vendor": "Steven Yi",
     "description": "",
     "version": "1.0.0",
     "apiVersion": "2.0.0",
     "thumbnail": "screenshot.png",
-    "keywords": ["faust"],
+    "keywords": ["csound"],
     "isInstrument": false,
     "website": ""
 }

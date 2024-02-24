@@ -32,9 +32,16 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       // library: 'JSPatcher',
       libraryTarget: 'module',
-      // chunkFilename: 'js/[chunkhash].js'
+      // chunkFilename: 'js/[chunkhash].js',
+      publicPath: "auto"
     },
     module: {
+      parser: {
+        javascript: {
+          importMeta: false,
+          url: false
+        }
+      },
       rules: [{
           test: /\.worklet\.(ts|js)$/,
           use: [{
@@ -50,7 +57,7 @@ module.exports = (env, argv) => {
             loader: 'esbuild-loader',
             options: {
               loader: 'tsx',
-              target: 'es2017'
+              target: 'es2020'
             }
           },
           exclude: /node_modules/

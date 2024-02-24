@@ -287,7 +287,7 @@ const getWamExampleProcessor = (moduleId) => {
 		}
 	}
 	try {
-		registerProcessor('WebAudioModuleWamExample', WamExampleProcessor);
+		registerProcessor(moduleId, WamExampleProcessor);
 	} catch (error) {
 		console.warn(error);
 	}
