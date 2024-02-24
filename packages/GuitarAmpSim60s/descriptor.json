@@ -1,10 +1,11 @@
 {
-    "name": "GuitarAmpSim60s",
-    "vendor": "Michel Buffa",
-    "description": "TODO",
-    "version": "1.0.0",
-    "apiVersion": "2.0.0",
-    "keywords": ["faust"],
-    "isInstrument": false,
-    "website": ""
-  }
+  "identifier": "com.webaudiomodules.wam-examples.guitarampsim60s",
+  "name": "GuitarAmpSim60s",
+  "vendor": "Michel Buffa",
+  "description": "TODO",
+  "version": "1.0.0",
+  "apiVersion": "2.0.0",
+  "keywords": ["faust"],
+  "isInstrument": false,
+  "website": ""
+}

@@ -1,4 +1,5 @@
 {
+    "identifier": "com.webaudiomodules.wam-examples.midi-keyboard",
     "name": "Virtual MIDI Keyboard",
     "vendor": "WebAudioModule",
     "description": "UI to Generate MIDI Notes",

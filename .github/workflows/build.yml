@@ -19,7 +19,7 @@ jobs:
           submodules: true
 
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install || yarn install
 
       - name: Initialize dependencies
         run: yarn lerna bootstrap

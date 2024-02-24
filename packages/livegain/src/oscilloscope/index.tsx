@@ -5,13 +5,19 @@ import SpectralAnalyserNode from "../worklets/SpectralAnalyser";
 import { createElement, destroyElement } from "../gui";
 import UI from "./OscilloscopeUI";
 
+const getBaseUrl = (relativeUrl: URL) => {
+	const baseUrl = relativeUrl.href.substring(0, relativeUrl.href.lastIndexOf("/"));
+	return baseUrl;
+};
+
 export type Parameters = "frameRate" | "windowSize" | "interleaved" | "showStats";
 export class OscilloscopeModule extends WebAudioModule<Node> {
-    static descriptor = {
-        name: "Oscilloscope",
-        vendor: "WebAudioModule"
-    };
-
+	_baseUrl = getBaseUrl(new URL(".", import.meta.url));
+	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
+	async initialize(state?: any) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
     async createAudioNode(initialState?: any) {
         const node = new Node(this.audioContext);
         const outGainNode = this.audioContext.createGain();

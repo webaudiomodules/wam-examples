@@ -1,7 +1,8 @@
 {
-    "name": "Simple Tranport",
+    "identifier": "com.webaudiomodules.wam-examples.simple-transport",
+    "name": "Simple Transport",
     "vendor": "WebAudioModule",
-    "description": "wam-tranport event generator",
+    "description": "wam-transport event generator",
     "version": "1.0.0",
     "apiVersion": "2.0.0",
     "thumbnail": "screenshot.png",

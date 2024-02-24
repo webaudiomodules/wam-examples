@@ -10,6 +10,10 @@ const getBaseUrl = (relativeUrl: URL) => {
 class MidiSequencer extends WebAudioModule<MidiSequencerNode> {
 	_baseUrl = getBaseUrl(new URL(".", import.meta.url));
 	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
+	async initialize(state?: any) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
 	async createAudioNode(initialState: any) {
 		await MidiSequencerNode.addModules(this.audioContext, this.moduleId);
 		const node: MidiSequencerNode = new MidiSequencerNode(this, {});

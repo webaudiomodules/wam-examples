@@ -70,7 +70,7 @@
         for (var c=0; c<numChannels; c++) {
           let waaout = outputs[i][c];
           let wamout = this.audiobufs[1][i*numChannels+c];
-          waaout.set(this.WAM.HEAPF32.subarray(wamout, wamout + this.bufsize));
+          waaout?.set(this.WAM.HEAPF32.subarray(wamout, wamout + this.bufsize));
         }
       }
   

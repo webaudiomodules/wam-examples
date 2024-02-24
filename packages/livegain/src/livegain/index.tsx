@@ -5,13 +5,19 @@ import { createElement, destroyElement } from "../gui";
 import Node from "./LiveGainNode";
 import UI from "./LiveGainUI";
 
+const getBaseUrl = (relativeUrl: URL) => {
+	const baseUrl = relativeUrl.href.substring(0, relativeUrl.href.lastIndexOf("/"));
+	return baseUrl;
+};
+
 export type Parameters = "gain" | "frameRate" | "speedLim" | "min" | "max" | "step" | "orientation" | "metering";
 export class LiveGainModule extends WebAudioModule<Node> {
-    static descriptor = {
-        name: "LiveGain",
-        vendor: "WebAudioModule"
-    };
-
+	_baseUrl = getBaseUrl(new URL(".", import.meta.url));
+	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
+	async initialize(state?: any) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
     async createAudioNode(initialState?: any) {
         const node = new Node(this.audioContext);
         const inputGainNode = this.audioContext.createGain();
