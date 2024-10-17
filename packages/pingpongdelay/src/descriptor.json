@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.pingpongdelay",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.pingpongdelay",
+>>>>>>> master
     "name": "PingPongDelay",
     "vendor": "WebAudioModule",
     "description": "A PingPongDelay written in native WebAudio nodes",

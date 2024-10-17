@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.wam-example",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.example",
+>>>>>>> master
     "name": "WamExample",
     "vendor": "WebAudioModule",
     "description": "Simple example using WebAudioModule, WamNode, and WamProcessor classes.",

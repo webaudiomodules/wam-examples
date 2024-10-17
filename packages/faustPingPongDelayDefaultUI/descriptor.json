@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.faust-pingpongdelay-default-ui",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.faustpingpongdelay_default_ui",
+>>>>>>> master
     "name": "Faust PingPongDelay (DefaultUI)",
     "vendor": "Shihong Ren",
     "description": "A PingPongDelay written in Faust with its default UI",

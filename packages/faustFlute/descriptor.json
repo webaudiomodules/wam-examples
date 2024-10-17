@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.faust-flute",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.faustflute",
+>>>>>>> master
     "name": "Faust Flute MIDI",
     "vendor": "Grame",
     "description": "Faust MIDI Instrument",

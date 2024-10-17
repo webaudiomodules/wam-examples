@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.simple-transport",
     "name": "Simple Transport",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.simpletransport",
+    "name": "Simple Tranport",
+>>>>>>> master
     "vendor": "WebAudioModule",
     "description": "wam-transport event generator",
     "version": "1.0.0",

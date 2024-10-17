@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.spectroscope",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.spectroscope",
+>>>>>>> master
     "name": "Spectroscope",
     "vendor": "Shihong Ren",
     "description": "TypeScript/React Spectroscope WebAudioModule",

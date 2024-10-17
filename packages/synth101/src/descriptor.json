@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.synth101",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.synth101",
+>>>>>>> master
     "name": "Synth-101",
     "vendor": "Tom",
     "description": "Synth-101 WAM2 MIDI Instrument",

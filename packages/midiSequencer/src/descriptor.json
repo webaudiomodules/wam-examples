@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.midi-sequencer",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.midisequencer",
+>>>>>>> master
     "name": "MIDI Sequencer",
     "vendor": "WebAudioModule",
     "description": "MIDI Sequencer (WAM events)",

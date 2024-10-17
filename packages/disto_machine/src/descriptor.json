@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.distomachine-nobuilder",
+=======
+    "identifier": "org.webaudiomodules.wam-examples.distomachine",
+>>>>>>> master
     "name": "DistoMachine (No builder)",
     "vendor": "WebAudioModule",
     "description": "DistoMachine written in native WebAudio nodes",
