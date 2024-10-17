@@ -163,7 +163,7 @@
 		}
 	}
 	try {
-		registerProcessor('WebAudioModuleWamExampleTemplate', WamExampleTemplateProcessor);
+		registerProcessor(moduleId, WamExampleTemplateProcessor);
 	} catch (error) {
 		console.warn(error);
 	}

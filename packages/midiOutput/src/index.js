@@ -19,6 +19,11 @@ class MidiOutput extends WebAudioModule {
 	_baseUrl = getBaseUrl(new URL('.', import.meta.url));
 	_descriptorUrl = `${this._baseUrl}/descriptor.json`;
 
+	async initialize(state) {
+		await this._loadDescriptor();
+		return super.initialize(state);
+	}
+
     /**
      * @param {any} initialState
      */

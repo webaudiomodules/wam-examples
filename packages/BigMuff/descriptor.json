@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.bigmuff",
+    "identifier": "com.webaudiomodules.wam-examples.faust-bigmuff",
     "name": "Faust BigMuff",
     "vendor": "Michel Buffa",
     "description": "",

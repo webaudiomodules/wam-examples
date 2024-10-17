@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.virtualmidikeyboard",
+    "identifier": "com.webaudiomodules.wam-examples.virtual-midi-keyboard",
     "name": "VirtualMidiKeyboardNoSound",
     "vendor": "WebAudioModule",
     "description": "Midi Virtual keyboard",

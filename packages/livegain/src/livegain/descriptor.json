@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.livegain",
+    "identifier": "com.webaudiomodules.wam-examples.livegain",
     "name": "LiveGain",
     "vendor": "Shihong Ren",
     "description": "TypeScript/React LiveGain WebAudioModule",

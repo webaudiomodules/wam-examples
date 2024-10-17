@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.faustpingpongdelay",
+    "identifier": "com.webaudiomodules.wam-examples.faust-pingpongdelay",
     "name": "Faust PingPongDelay",
     "vendor": "Shihong Ren",
     "description": "A PingPongDelay written in Faust with its default UI",

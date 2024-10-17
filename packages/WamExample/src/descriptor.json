@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.example",
+    "identifier": "com.webaudiomodules.wam-examples.wam-example",
     "name": "WamExample",
     "vendor": "WebAudioModule",
     "description": "Simple example using WebAudioModule, WamNode, and WamProcessor classes.",

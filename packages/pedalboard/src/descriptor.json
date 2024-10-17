@@ -1,5 +1,5 @@
 {
-    "identifier": "org.webaudiomodules.wam-examples.pedalboard",
+    "identifier": "com.webaudiomodules.wam-examples.pedalboard",
     "name": "Pedalboard",
     "vendor": "WebAudioModule",
     "description": "A rack to load multiple WAMs",
