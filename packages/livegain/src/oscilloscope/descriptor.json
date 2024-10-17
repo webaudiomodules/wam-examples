@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.oscilloscope",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.oscilloscope",
->>>>>>> master
     "name": "Oscilloscope",
     "vendor": "Shihong Ren",
     "description": "TypeScript/React Oscilloscope WebAudioModule",

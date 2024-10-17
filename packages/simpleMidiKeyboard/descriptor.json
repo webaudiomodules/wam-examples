@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.midi-keyboard",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.simplemidikeyboard",
->>>>>>> master
     "name": "Virtual MIDI Keyboard",
     "vendor": "WebAudioModule",
     "description": "UI to Generate MIDI Notes",

@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.midi-output",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.midioutput",
->>>>>>> master
     "name": "MIDI Output",
     "vendor": "WebAudioModule",
     "description": "use WebMIDI API for output",

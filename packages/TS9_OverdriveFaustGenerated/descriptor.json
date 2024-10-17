@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.ts9overdrive",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.ts9overdrive",
->>>>>>> master
     "name": "TS9 Overdrive",
     "vendor": "WebAudioModule",
     "description": "Overdrive written in Faust",

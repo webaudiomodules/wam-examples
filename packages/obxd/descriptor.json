@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.obxd",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.obxd",
->>>>>>> master
     "name": "OBXD",
     "vendor": "Jari Kleimola 2017-2020 (jari@webaudiomodules.org)",
     "description": "",

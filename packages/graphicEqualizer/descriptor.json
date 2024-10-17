@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "identifier": "com.webaudiomodules.wam-examples.graphic-equalizer",
-=======
-  "identifier": "org.webaudiomodules.wam-examples.equalizer",
->>>>>>> master
   "name": "Equalizer",
   "vendor": "Wasabi",
   "description": "TODO",

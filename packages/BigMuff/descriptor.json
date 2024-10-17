@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.faust-bigmuff",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.bigmuff",
->>>>>>> master
     "name": "Faust BigMuff",
     "vendor": "Michel Buffa",
     "description": "",

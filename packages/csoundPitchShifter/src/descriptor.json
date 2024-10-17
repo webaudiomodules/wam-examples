@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.csound-pitchshifter",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.csoundpitchshifter",
->>>>>>> master
     "name": "Csound PitchShifter",
     "vendor": "Steven Yi",
     "description": "",

@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.stonephaser",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.stonephaser",
->>>>>>> master
     "name": "StonePhaser",
     "vendor": "WebAudioModule",
     "description": "StonePhaser Stereo written in Faust",

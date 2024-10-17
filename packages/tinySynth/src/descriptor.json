@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.tinysynth",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.tinysynth",
->>>>>>> master
     "name": "TinySynth (no GUI)",
     "vendor": "WebAudioModule",
     "description": "TinySynth GM synthesizer without GUI",

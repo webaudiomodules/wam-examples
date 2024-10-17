@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "identifier": "com.webaudiomodules.wam-examples.guitarampsim60s",
-=======
-  "identifier": "org.webaudiomodules.wam-examples.guitarampsim60s",
->>>>>>> master
   "name": "GuitarAmpSim60s",
   "vendor": "Michel Buffa",
   "description": "TODO",

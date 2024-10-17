@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
     "identifier": "com.webaudiomodules.wam-examples.wam-event-viewer",
-=======
-    "identifier": "org.webaudiomodules.wam-examples.wan_event_viewer",
->>>>>>> master
     "name": "WAM Event Viewer",
     "vendor": "WebAudioModule",
     "description": "Display received events",
