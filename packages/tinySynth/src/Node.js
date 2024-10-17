@@ -21,7 +21,7 @@ export default class TinySynthNode extends CompositeAudioNode {
 		this._wamNode = wamNode;
 		this.connectNodes();
 		this._wamNode.addEventListener('wam-midi', ({ detail }) => {
-			console.log(detail);
+			// console.log(detail);
 			const msg = detail.data.bytes;
 			this.synth.send(msg);
 		});
@@ -36,6 +36,7 @@ export default class TinySynthNode extends CompositeAudioNode {
 
 	async createSynth() {
 		this.synth = new WebAudioTinySynth();
+		this.synth.setAudioContext(this.context, this.outputNode);
 
 		await this.synth.ready();
 		console.log("TinySynth default sound : " + this.synth.getTimbreName(0, 0));
